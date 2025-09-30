@@ -1263,56 +1263,88 @@ def tazocin_route():
 
 @app.route('/unasyun', methods=['GET', 'POST'])
 def unasyun_route():
-    dose = None
-    result_ml = None
-    final_result = None
-    multiplication = None
+    # ค่าตั้งต้นสำหรับส่งให้ template
+    dose = None                # mg ที่ผู้ใช้กรอก
+    result_ml = None           # ml ที่ได้จากรอบที่ 1 (mg -> ml)
+    final_result = None        # ml หลังคูณ 3x/6x (รอบที่ 2)
+    multiplication = None      # 3 หรือ 6
+    content_extra = None       # กล่องคำอธิบายเพิ่มเติม
     error = None
-    content_extra = None
 
-    if request.method == 'POST':
-        try:
-            dose = float(request.form['dose'])
-            multiplication = int(request.form['multiplication'])
-            result_ml = round((dose * 8) / 3000, 2)
+    try:
+        if request.method == 'POST':
+            action = request.form.get('action', 'dose')
 
-            final_result = round(result_ml * multiplication, 2)
+            # รอบที่ 1: รับ dose แล้วคำนวณ mg -> ml ด้วยสูตร (dose*8)/3000
+            if action == 'dose':
+                dose = float(request.form.get('dose', '').strip() or 'nan')
+                if not (dose == dose):  # เช็ค NaN
+                    raise ValueError("dose เป็นค่าว่าง")
+                result_ml = round((dose * 8.0) / 3000.0, 2)
 
-            if multiplication == 3:
-                content_extra = {
-                    "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
-                    "details": [
-                        "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
-                        "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
-                        "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
-                        "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
-                        "การเตรียมยา:",
-                        "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
-                        "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
-                        "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
-                        "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
-                        "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
-                        "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
-                    ]
-                }
+            # รอบที่ 2: รับ multiplication + ค่าที่ซ่อนไว้จากรอบแรก
+            elif action == 'condition':
+                # ดึงค่าที่ซ่อนไว้จากฟอร์มรอบแรก
+                dose_hidden = request.form.get('dose_hidden', '').strip()
+                result_ml_hidden = request.form.get('result_ml_hidden', '').strip()
 
-            elif multiplication == 6:
-                content_extra = {
-                    "message": "การบริหารยาโดย Intermittent intravenous infusion.",
-                    "details": [
-                        "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
-                        "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
-                        "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
-                        "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
-                        "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
-                        "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
-                    ]
-                }
+                dose = float(dose_hidden or 'nan')
+                result_ml = float(result_ml_hidden or 'nan')
+                multiplication = int(request.form.get('multiplication', '').strip() or '0')
 
-        except (ValueError, KeyError) as e:
-            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+                if not (dose == dose) or not (result_ml == result_ml):
+                    raise ValueError("ข้อมูลรอบแรกไม่ครบถ้วน")
+                if multiplication not in (3, 6):
+                    raise ValueError("กรุณาเลือกเงื่อนไข 3 เท่า หรือ 6 เท่า")
 
-    return render_template('unasyun.html', dose=dose, result_ml=result_ml, final_result=final_result, multiplication=multiplication, content_extra=content_extra, error=error, update_date=UPDATE_DATE)
+                # คำนวณผลรวมหลังคูณ
+                final_result = round(result_ml * multiplication, 2)
+
+                # กล่องรายละเอียดเพิ่มเติมตามเงื่อนไข
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                            "การเตรียมยา:",
+                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                            "4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                            "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                            "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                        ]
+                    }
+            # กรณี method=POST แต่ action ไม่ถูกต้อง: ปล่อยผ่านให้ error ด้านล่าง
+    except (ValueError, KeyError) as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    # ส่งค่าไปยัง template ที่รองรับการคำนวณ 2 รอบ (มี action + hidden fields)
+    return render_template(
+        'unasyun.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
 
 @app.route('/vancomycin', methods=['GET', 'POST'])
 def vancomycin_route():
