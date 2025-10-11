@@ -1,0 +1,9 @@
+*.gz                  binary
+*.traineddata.gz      binary
+*.js                  text eol=lf
+*.css                 text eol=lf
+*.html                text eol=lf
+*.png                 binary
+*.jpg                 binary
+*.jpeg                binary
+*.pdf                 binary
