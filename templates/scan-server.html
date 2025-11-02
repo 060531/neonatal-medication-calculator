@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Scan & OCR{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:820px;margin:auto">
+  <h2 class="title-badge">สแกน/อัปโหลด คำสั่งยา → OCR</h2>
+
+  <div class="calc-box">
+    <form id="ocrForm">
+      <div style="margin-bottom:10px">
+        <label>เลือกรูปภาพคำสั่งยา:</label>
+        <input type="file" name="image" id="image" accept="image/*" required />
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label>ขยายภาพ (scale):</label>
+        <input type="number" name="scale" id="scale" value="3.0" step="0.1" style="width:100px;text-align:center">
+        <label>Threshold:</label>
+        <input type="number" name="threshold" id="threshold" value="170" step="1" style="width:100px;text-align:center">
+        <button type="submit" class="btn btn-blue" id="runBtn">รัน OCR</button>
+        <span id="busy" style="display:none">กำลังอ่าน…</span>
+      </div>
+    </form>
+  </div>
+
+  <div class="result" id="ocrResult" style="display:none">
+    <p><b>ข้อความที่อ่านได้:</b></p>
+    <pre id="ocrText" style="white-space:pre-wrap"></pre>
+    <div id="drugNav" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- Footer + ปุ่มลอย (ตามที่ขอให้ใส่เหมือนหน้าอื่น) -->
+<footer class="page-footer">
+  <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+</footer>
+
+<div class="float-actions">
+  <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
+  <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+</div>
+
+<script>
+const formEl = document.getElementById('ocrForm');
+const busyEl = document.getElementById('busy');
+const runBtn = document.getElementById('runBtn');
+const box = document.getElementById('ocrResult');
+const pre = document.getElementById('ocrText');
+const nav = document.getElementById('drugNav');
+
+// เผื่อกรณี API ส่ง endpoint มาแต่ไม่ได้ส่ง URL — แมพลิงก์เองได้เฉพาะที่มีหน้า
+const routeMap = {
+  amikacin_calc: "{{ url_for('amikacin_calc') }}",
+  cefotaxime_calc: "{{ url_for('cefotaxime_calc') }}",
+  // เพิ่มยาอื่นๆ เมื่อพร้อมหน้าได้เลย เช่น:
+  // meropenem_calc: "{{ url_for('meropenem_calc') }}",
+  // ciprofloxacin_calc: "{{ url_for('ciprofloxacin_calc') }}",
+};
+
+formEl.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const img = document.getElementById('image').files[0];
+  if(!img){ alert('โปรดเลือกภาพ'); return; }
+
+  const form = new FormData();
+  form.append('image', img);
+  form.append('scale', document.getElementById('scale').value || '3.0');
+  form.append('threshold', document.getElementById('threshold').value || '170');
+
+  // UI busy state
+  busyEl.style.display = 'inline';
+  runBtn.disabled = true;
+  box.style.display = 'none';
+  pre.textContent = '';
+  nav.innerHTML = '';
+
+  try {
+    const res = await fetch('{{ url_for("api_ocr") }}', { method: 'POST', body: form });
+    const out = await res.json().catch(() => ({ ok:false, error:'Invalid JSON' }));
+
+    if(out.ok){
+      pre.textContent = out.text || '(ไม่พบข้อความ)';
+      // ถ้า API ส่ง route_url มา ใช้อันนั้นก่อน
+      if(out.route_url){
+        nav.innerHTML = `<a class="btn btn-cyan" href="${out.route_url}">ไปหน้ายาที่เกี่ยวข้อง</a>`;
+      }else if(out.route && routeMap[out.route]){
+        nav.innerHTML = `<a class="btn btn-cyan" href="${routeMap[out.route]}">ไปหน้ายาที่เกี่ยวข้อง</a>`;
+      }else{
+        nav.innerHTML = '<div class="muted">ยังจับชื่อยาที่แมพไว้ไม่พบ ลองปรับ Threshold/Scale แล้วสแกนใหม่</div>';
+      }
+    }else{
+      pre.textContent = 'ERROR: ' + (out.error || 'unknown');
+    }
+  } catch (err){
+    pre.textContent = 'ERROR: ' + (err && err.message ? err.message : err);
+  } finally {
+    box.style.display = 'block';
+    busyEl.style.display = 'none';
+    runBtn.disabled = false;
+  }
+});
+</script>
+{% endblock %}

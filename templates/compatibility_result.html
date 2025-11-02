@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Result analyze{% endblock %}
+
+{% block content %}
+{# ---- Normalize status to CODE (C/I/U/ND) ---- #}
+{% set RAW = (code or status_code or status or 'ND')|upper %}
+{% set MAP = {'YES':'C','NO':'I','UNKNOWN':'ND','UNCERTAIN':'U','COMPATIBLE':'C','INCOMPATIBLE':'I'} %}
+{% set CODE = MAP.get(RAW, RAW if RAW in ['C','I','U','ND'] else 'ND') %}
+{% set LABELS = {'C':'Compatible','I':'Incompatible','U':'Uncertain','ND':'Unknown'} %}
+{% set COLORS = {'C':'#16a34a','I':'#dc2626','U':'#f59e0b','ND':'#2563eb'} %}
+{% set DOT = COLORS.get(CODE, '#2563eb') %}
+
+{% set d1 = drug1_name or drug1 or '—' %}
+{% set d2 = drug2_name or drug2 or '—' %}
+
+<style>
+  /* ===== รีเซ็ตผลกระทบจาก base.html และจัดให้อยู่กลางจริง ๆ ===== */
+  .result-page{ display:grid; place-items:start center; text-align:initial; }
+  .result-page *{ box-sizing:border-box; }
+
+  /* ===== โครงและแบนเนอร์ ===== */
+  .compat-shell{
+    width:100%; max-width:980px; margin:24px auto 0;
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
+  .title-wrap{ text-align:center; }
+  .title-banner{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 22px; border-radius:14px; color:#fff; font-weight:800;
+    font-size:clamp(18px, 4.2vw, 26px);
+    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+    margin:0 auto 14px;
+  }
+
+  /* ===== กล่องผลลัพธ์ (ให้อยู่กึ่งกลางแน่นอน) ===== */
+  .compat-wrap{
+    width:100%;
+    max-width:min(700px, 94vw);
+    margin:0 auto 28px;  /* << ทำให้กึ่งกลาง */
+    padding:0 10px;
+  }
+  .card{
+    background:rgba(255,255,255,0.96);
+    border:1px solid rgba(15,23,42,.08);
+    border-radius:18px;
+    box-shadow:0 10px 28px rgba(2,8,23,.15);
+    padding:clamp(16px, 3.3vw, 28px);
+    color:#0f172a;
+  }
+
+  .title{ font-weight:800; margin:0 0 16px; font-size:clamp(20px, 5vw, 28px); }
+
+  /* ===== แถวชื่อยา ===== */
+  .pair{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0 8px;}
+  .pill{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:8px 14px;font-weight:700;background:#f8fafc;border:1px solid #e2e8f0;}
+  .drug-name{ font-size:clamp(14px, 4.1vw, 18px); }
+  .muted{ color:#64748b; font-size:clamp(12px, 3.6vw, 16px); }
+
+  /* ===== รายละเอียด/ตาราง ===== */
+  .desc{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:clamp(10px, 2.8vw, 14px);margin-top:16px;font-size:clamp(13px, 3.6vw, 15px);line-height:1.45;}
+  .desc b{display:block;margin-bottom:4px;font-size:clamp(13px, 3.7vw, 16px);}
+  table.detail{width:100%;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;border-collapse:collapse;margin-top:10px;}
+  table.detail td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;font-size:clamp(12.5px, 3.5vw, 14.5px);}
+  table.detail tr:last-child td{border-bottom:0;}
+  table.detail td.head{background:#f8fafc;width:30%;font-weight:700;}
+
+  /* ===== Legend & Actions ===== */
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;color:#334155;font-size:clamp(12px, 3.4vw, 14px);justify-content:center;}
+  .legend .item{display:flex;align-items:center;gap:8px;}
+  .legend .dot{width:14px;height:14px;border-radius:50%;}
+  .actions{display:flex;justify-content:center;gap:10px;margin-top:18px;}
+  .btn{display:inline-block;padding:clamp(8px, 2.6vw, 10px) clamp(12px, 3.6vw, 16px);border-radius:12px;font-weight:800;text-decoration:none;border:1px solid transparent;font-size:clamp(13px, 3.8vw, 16px);}
+  .btn-green{background:#16a34a;color:#fff;}
+  .btn-gray{background:#e2e8f0;color:#0f172a;}
+  .btn:hover{filter:brightness(.96);}
+
+  /* ===== จอเล็ก/แท็บเล็ต ===== */
+  @media (max-width:380px){ .compat-wrap{max-width:min(720px,96vw); padding:0 8px;} .pair{gap:10px;} .pill{padding:7px 12px;} }
+  @media (min-width:600px){ .compat-wrap{max-width:740px;} .card{padding:24px;} }
+</style>
+
+<div class="result-page">
+  <div class="compat-shell">
+    <div class="title-wrap">
+      <div class="title-banner">ตรวจสอบความเข้ากันได้ของยา (Compatibility)</div>
+    </div>
+  </div>
+
+  <div class="compat-wrap">
+    <div class="card">
+      <h2 class="title">Result analyze</h2>
+
+      <!-- ชื่อยา + จุดสถานะ -->
+      <div class="pair">
+        <span class="pill">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: {{ DOT }};"></span>
+          <span class="drug-name">{{ d1 }}</span>
+        </span>
+        <span class="muted">with</span>
+        <span class="pill">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: {{ DOT }};"></span>
+          <span class="drug-name">{{ d2 }}</span>
+        </span>
+      </div>
+
+      <!-- ป้ายผลลัพธ์ -->
+      <div style="display:flex; justify-content:center; margin-top:6px;">
+        <span class="pill" style="background:#eef2ff; border-color:#c7d2fe;">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: {{ DOT }};"></span>
+          <span class="drug-name">{{ LABELS[CODE] }}</span>
+        </span>
+      </div>
+
+      <!-- Note / meta -->
+      <div class="desc">
+        {% if note %}<div class="note">Note: {{ note }}</div>{% endif %}
+      </div>
+
+      {% if meta and meta.detail %}
+        {% set d = meta.detail %}
+        <div class="desc">
+          <b>รายละเอียดเชิงคลินิก</b>
+          <table class="detail">
+            {% if d.context %}<tr><td class="head">บริบท</td><td>{{ d.context|safe }}</td></tr>{% endif %}
+            {% if d.diluent %}<tr><td class="head">ตัวทำละลาย</td><td>{{ d.diluent if d.diluent is string else (d.diluent|join(', ')) }}</td></tr>{% endif %}
+            {% if d.conc_a %}<tr><td class="head">ความเข้มข้น A</td><td>{{ d.conc_a }}</td></tr>{% endif %}
+            {% if d.conc_b %}<tr><td class="head">ความเข้มข้น B</td><td>{{ d.conc_b }}</td></tr>{% endif %}
+            {% if d.contact_time %}<tr><td class="head">เวลา contact</td><td>{{ d.contact_time }}</td></tr>{% endif %}
+            {% if d.temperature %}<tr><td class="head">อุณหภูมิ</td><td>{{ d.temperature }}</td></tr>{% endif %}
+            {% if d.flush %}<tr><td class="head">Flush</td><td>{{ d.flush }}</td></tr>{% endif %}
+            {% if d.cautions %}<tr><td class="head">ข้อควรระวัง</td><td><ul style="margin:0 0 0 18px">{% for c in d.cautions %}<li>{{ c }}</li>{% endfor %}</ul></td></tr>{% endif %}
+            {% if d.evidence %}
+              <tr><td class="head">หลักฐาน</td><td>
+                {% if d.evidence.level %}ระดับหลักฐาน: <b>{{ d.evidence.level }}</b><br>{% endif %}
+                {% if d.evidence.sources %}
+                  <ul style="margin:6px 0 0 18px">
+                    {% for s in d.evidence.sources %}
+                      <li>{{ s.name }}{% if s.year %}, {{ s.year }}{% endif %}{% if s.note %} — {{ s.note }}{% endif %}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </td></tr>
+            {% endif %}
+            {% if d.last_reviewed %}<tr><td class="head">ทบทวนล่าสุด</td><td>{{ d.last_reviewed }}</td></tr>{% endif %}
+          </table>
+        </div>
+      {% else %}
+        <div class="desc" style="margin-top:12px;">
+          <b>ข้อมูลอ้างอิง</b>
+          {% if meta and (meta.th or meta.en or meta.note) %}
+            {% if meta.th %}<div class="small" style="margin-top:6px;">{{ meta.th|safe }}</div>{% endif %}
+            {% if meta.en %}<div class="small" style="margin-top:6px;"><em>{{ meta.en|safe }}</em></div>{% endif %}
+            {% if meta.note %}<div class="small text-body-secondary" style="margin-top:6px;">{{ meta.note|safe }}</div>{% endif %}
+          {% else %}
+            <div class="small text-body-secondary" style="margin-top:6px;">ยังไม่พบรายละเอียดอ้างอิงในระบบ (ตรวจคู่มือสถาบัน/สืบค้นเพิ่ม)</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="legend">
+        <div class="item"><span class="dot" style="background:#16a34a;"></span> C = Compatible / ผสมร่วมได้</div>
+        <div class="item"><span class="dot" style="background:#dc2626;"></span> I = Incompatible / ห้ามผสม</div>
+        <div class="item"><span class="dot" style="background:#f59e0b;"></span> U = Uncertain / ไม่ชัดเจน</div>
+        <div class="item"><span class="dot" style="background:#2563eb;"></span> ND = No data / ไม่มีข้อมูล</div>
+      </div>
+
+      <div class="actions">
+        <a href="{{ url_for('compatibility_page') }}" class="btn btn-green">← New check</a>
+        <a href="{{ url_for('index') }}" class="btn btn-gray">Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

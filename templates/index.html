@@ -1,34 +1,122 @@
-<!-- templates/home.html -->
 {% extends "base.html" %}
-
 {% block title %}index{% endblock %}
+{% block body_class %}home-page{% endblock %}
 
 {% block content %}
-<h1>การบริหารยาในทารกแรกเกิด</h1>
-<body class="home-page"> <!-- ใช้ class home-page ในหน้า Home -->
-    <div class="container">
-        <a href="{{ url_for('calculate_pma_route') }}" class="button home-button">
-            <img src="http://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="Dose ยา">
-            <span>Dose ยา</span>
-        </a>
-        <a href="{{ url_for('medication_administration_route') }}" class="button home-button">
-            <img src="http://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="การบริหารยา">
-            <span>การบริหารยา</span>
-        </a>
-        <a href="{{ url_for('time_management_route') }}" class="button home-button">
-            <img src="http://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="Time management">
-            <span>การบริหารเวลา</span>
-        </a>
-        <a href="{{ url_for('small_dose_route') }}" class="button home-button">
-            <img src="http://cdn.jsdelivr.net/gh/060531/images/Photoroom_001_25670829_212123.png" alt="Small Dose">
-            <span>Small Dose</span>
-        </a>
-        <a href="{{ url_for('fluids_route') }}" class="button home-button">
-            <img src="http://cdn.jsdelivr.net/gh/060531/images/Photoroom_003_25670829_212123.png" alt="Fluids">
-            <span>Fluids</span>
-        </a>
-    </div>
-</body>
+<style>
+  /* ---------- Shell + safe areas ---------- */
+  .home-shell{
+    width:100%;
+    max-width:1120px;               /* ความกว้างสูงสุดของคอนเทนต์ */
+    margin:24px auto 24px;
+    padding-left:  max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
 
+  /* ---------- Title ---------- */
+  .home-title{
+    display:inline-block;
+    margin:0 auto 18px;
+    padding:12px 18px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
+    color:#fff;
+    font-weight:800;
+    font-size:clamp(18px,4vw,28px); /* ย่อ-ขยายตามจอ */
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+  }
 
+  /* ---------- Grid ---------- */
+  .home-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap:16px;
+    align-items:stretch;
+  }
+
+  /* ---------- Card button ---------- */
+  .home-button{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-decoration:none;
+    text-align:center;
+    padding:18px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.96);
+    border:1px solid rgba(15,23,42,.08);
+    box-shadow:0 10px 24px rgba(2,8,23,.12);
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .home-button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 30px rgba(2,8,23,.18);
+    filter:brightness(.98);
+  }
+  .home-button:active{ transform:translateY(0); }
+
+  .home-button img{
+    width:clamp(64px,8vw,96px);
+    height:auto;
+    object-fit:contain;
+    display:block;
+    filter:drop-shadow(0 4px 10px rgba(2,8,23,.12));
+  }
+
+  .home-button span{
+    color:#0f172a;
+    font-weight:800;
+    line-height:1.25;
+    font-size:clamp(14px,2.6vw,18px);
+  }
+  .home-button span small{
+    display:block;
+    margin-top:4px;
+    color:#475569;
+    font-weight:700;
+    font-size:clamp(11px,2.2vw,13px);
+  }
+
+  /* ---------- Small screens tweaks ---------- */
+  @media (max-width:380px){
+    .home-grid{ gap:12px; }
+    .home-button{ padding:14px 12px; border-radius:14px; }
+  }
+</style>
+
+<div class="home-shell">
+  <h1 class="home-title">การบริหารยาในทารกแรกเกิด</h1>
+
+  <div class="home-grid" role="navigation" aria-label="เมนูหลัก">
+    <a href="{{ url_for('calculate_pma_route') }}" class="button home-button" aria-label="Dose ยา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="Dose ยา" loading="lazy">
+      <span>Dose ยา<br><small>(Right patient)</small></span>
+    </a>
+
+    <a href="{{ url_for('compatibility_page') }}" class="button home-button" aria-label="Compatibility">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/compability.png" alt="Compatibility" loading="lazy">
+      <span>Compatibility<br><small>(Right drug)</small></span>
+    </a>
+
+    <a href="{{ url_for('medication_administration') }}" class="button home-button" aria-label="การบริหารยา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="การบริหารยา" loading="lazy">
+      <span>การบริหารยา<br><small>(Right dose)</small></span>
+    </a>
+
+    <a href="{{ url_for('time_management_route') }}" class="button home-button" aria-label="การบริหารเวลา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="การบริหารเวลา" loading="lazy">
+      <span>การบริหารเวลา<br><small>(Right time)</small></span>
+    </a>
+
+    {# ✅ หากเปิดใช้ “สแกนคำสั่งยา” ให้เอา comment ออก #}
+    {#
+    <a href="{{ url_for('scan_server') }}" class="button home-button" aria-label="สแกนคำสั่งยา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/scan-icon.png" alt="สแกนคำสั่งยา" loading="lazy">
+      <span>สแกนคำสั่งยา<br><small>(ตรวจสอบ/พาไปหน้าที่เกี่ยวข้อง)</small></span>
+    </a>
+    #}
+  </div>
+</div>
 {% endblock %}

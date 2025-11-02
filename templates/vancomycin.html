@@ -1,384 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vancomycin Calculation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Vancomycin Calculation</title>
+<style>
+  /* ========== Theme tokens ========== */
+  :root{
+    --blue-900:#0b2b7a;
+    --blue-700:#1e57d2;
+    --sky-50:#eef7ff;
+    --sky-100:#d7ecff;
+    --panel:#e6f3ffb8;
+    --text:#0f172a;
 
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-        }
+    --floatbar-gap: clamp(80px, 16vw, 110px); /* กันปุ่มลอยทับ footer */
+    --page-gutter: 12px;                      /* ระยะขอบซ้าย-ขวา */
+  }
 
+  /* ========== Global guard + BG เต็มจอ ========== */
+  html, body { overflow-x: hidden; height: 100%; }
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video, canvas, svg { max-width: 100%; height: auto; }
+  pre, code { white-space: pre-wrap; word-break: break-word; }
 
-        /* กรอบสีเหลืองออกครีม (#F6C8B6) */
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 2px solid #007bbe;
-            border-radius: 10px;
-            background-color: rgba(96, 179, 218, 0.633); /* สีพื้นหลังพร้อมความโปร่งใส */
-            z-index: 0;
-            position: relative;
-        }
+  body{
+    margin:0; min-height:100svh;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color:var(--text); text-align:center;
+    background:none;
+    padding-left:max(0px, env(safe-area-inset-left));
+    padding-right:max(0px, env(safe-area-inset-right));
+  }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+    background-size:cover; background-position:center; background-repeat:no-repeat;
+  }
 
-        /* กรอบและการเน้นข้อความสำหรับ h2 */
-        h2 {
-            color: hsl(240, 5%, 96%);
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #7b9adb; /* เพิ่มกรอบสีแดงเข้ม */
-            border-radius: 10px;
-            display: inline-block; /* ทำให้กรอบมีขนาดพอดีกับข้อความ */
-            background-color: #00178c; /* พื้นหลังสีเหลือง */
-        }
+  /* ========== Header ========== */
+  .title-badge{
+    display:inline-block; margin:28px auto 12px; padding:10px 18px;
+    background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
+    border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.14);
+    max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
+  }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+  /* ========== Wrapper / panel ========== */
+  .container{
+    width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
+    margin:0 auto 12px; padding:20px;
+    background:var(--panel);
+    border:1px solid #b9d9ff; border-radius:16px;
+    box-shadow:0 8px 24px rgba(15,23,42,.18);
+    backdrop-filter: blur(6px) saturate(120%);
+    -webkit-backdrop-filter: blur(6px) saturate(120%);
+  }
 
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
+  .calc-box{
+    margin:14px auto 20px; max-width:740px; padding:16px;
+    background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+    border:1px solid #b7d6ff; border-radius:14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+    padding-left:max(12px, var(--page-gutter));
+    padding-right:max(12px, var(--page-gutter));
+  }
+  .calc-row{
+    display:flex; flex-wrap:wrap;
+    gap:10px; align-items:center; justify-content:center;
+  }
 
-        .form-group input, .form-group select {
-            width: 20%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
+  /* ฟิลด์มาตรฐาน */
+  input[type="number"], select{
+    width: clamp(160px, 50vw, 220px);
+    max-width:60vw; padding:10px 12px; border-radius:10px;
+    border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
+  }
+  .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
+    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
-        .result {
-            margin-top: 10px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-bottom: 10px; /* ลดระยะห่างด้านล่างของ div */
-        }
+  /* ========== ปุ่มมาตรฐาน ========== */
+  .btn{
+    appearance:none; border:none; border-radius:10px; cursor:pointer;
+    padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
+    box-shadow:0 6px 0 rgba(10,30,85,.25);
+    transition: transform .06s ease, filter .2s ease;
+  }
+  .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(1px); }
+  .btn-blue{ background:var(--blue-700); }
+  .btn-red{ background:#e71f1f; }
+  .btn-cyan{ background:#049bb5; }
 
-        .result p {
-            margin: 5px 0; /* ลดระยะห่างด้านบนและล่างของแต่ละบรรทัด */
-            line-height: 1.2; /* ปรับความสูงของบรรทัด */
-        }
+  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
+  .result{
+    text-align:left; margin:14px auto; max-width:740px; padding:14px;
+    background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
+    padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
+  }
+  .result b{ color:#0b2b7a; }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .muted{ color:#334155; }
+  .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
+  .bullet{ text-align:left; margin:0 0 10px 0; }
+  .bullet ul{ margin:6px 0 0 22px; }
 
-        .left-align {
-            text-align: left; /* จัดข้อความชิดซ้าย */
-        }
+  /* ========== ปุ่มลอยล่าง ========== */
+  .float-actions{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
+    display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:8px 10px; border-radius:14px;
+    background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 8px 18px rgba(2,8,23,.28);
+    backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+    width:min(540px, calc(100vw - calc(var(--page-gutter)*2)));
+    max-width: calc(100vw - calc(var(--page-gutter)*2));
+  }
 
-        .blue-box {
-            background-color: #e0f7fa;
-            padding: 10px;
-            margin: 20px 0;
-            border-radius: 5px;
-            font-weight: bold;
-            text-align: center;
-        }
+  /* ========== Footer ========== */
+  footer.page-footer{
+    text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+    margin: 6px 0 var(--floatbar-gap);
+    padding-left: var(--page-gutter); padding-right: var(--page-gutter);
+    font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
+  }
 
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .back-button, .calculate-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-
-        .back-button {
-            background-color: #f44336;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        .calculate-button {
-            background-color: #007BFF;
-        }
-
-        .calculate-button:hover {
-            background-color: #0056b3;
-        }
-
-        .calculate-button:active {
-            background-color: #0056b3;
-            box-shadow: 0 5px #666;
-            transform: translateY(4px);
-        }
-
-        /* กรอบสำหรับข้อความที่ต้องการให้โดดเด่น */
-        .highlight-box {
-            background-color: #f6f329; /* สีพื้นหลังเหลือง */
-            font-weight: bold;
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            margin: 15px 0;
-        }
-
-        /* ทำให้ส่วนนี้ชิดขอบซ้าย */
-        .left-align {
-            text-align: left;
-        }
-
-        .extra-content {
-            border: 2px solid #b3e5fc;
-            padding: 15px;
-            border-radius: 10px;
-            background-color: #a6b5f0a6;
-            z-index: 1;
-            position: relative;
-        }
-
-        @media (max-width: 768px) {
-    .container {
-        padding: 15px;
+  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
+  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  @media (max-width: 640px){
+    .dose-row, .conc-row{
+      display:grid;
+      grid-template-columns:auto 1fr;  /* label | field */
+      align-items:center;
+      column-gap:8px;
+      width:100%;
+      max-width:520px;
+      margin-left:auto; margin-right:auto;
     }
-
-    form {
-        gap: 10px;
+    .dose-row > label,
+    .conc-row > label{
+      white-space:nowrap;
+      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      font-size:14px; line-height:1.2;
     }
-
-    input, select, .calculate-button {
-        font-size: 14px;
-        padding: 8px;
+    .dose-row > input[type="number"],
+    .conc-row > select{
+      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
+    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
+    .calc-row > .btn{ min-width:120px; }
+  }
 
-}
-       .header {
-            font-size: 18px; /* เพิ่มขนาดข้อความ */
-            text-decoration: underline; /* เส้นใต้ */
-            text-decoration-thickness: 2px; /* ความหนาของเส้นใต้ */
-            text-decoration-line: underline double; /* เส้นใต้สองเส้น */
-        }
+  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
+  @media (max-width: 360px){
+    .dose-row > label,
+    .conc-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"],
+    .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
+  }
 
-        .list {
-            list-style-type: none; /* เอา bullet ปกติออก */
-            margin-top: 0; /* ลดระยะห่างด้านบน */
-            margin-left: 20px; /* ระยะห่างด้านซ้าย */
-        }
+  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
+  @media (max-width:640px){
+    .title-badge{ font-size:22px; padding:8px 14px; }
+    .container{ padding:14px; }
+    .calc-row{ gap:8px; }
+  }
+</style>
 
-        .list li::before {
-            content: "⦿ "; /* ใส่เครื่องหมาย ➢ ก่อนข้อความ */
-            font-size: 18px; /* ขนาดของเครื่องหมาย ➢ */
-            margin-right: 5px; /* ระยะห่างระหว่าง ➢ และข้อความ */
-        }
 
-        .item {
-            font-size: 18px; /* ขนาดข้อความ */
-            margin-top: 0; /* ลดระยะห่างด้านบน */
-            margin-left: 20px; /* ระยะห่างด้านซ้าย */
-        }
-
-        .item::before {
-            content: "☞ "; /* ใส่เครื่องหมาย ☞ ก่อนข้อความ */
-            font-size: 18px; /* ขนาดของเครื่องหมาย ☞ */
-            margin-right: 5px; /* ระยะห่างระหว่าง ☞ และข้อความ */
-        }
-        .content {
-            line-height: 1.2; /* ลดความสูงของบรรทัด */
-        }
-
-        .content p {
-            margin: 5px 0; /* ลดระยะห่างระหว่างย่อหน้า */
-        }
-
-        .content .item {
-            margin-left: 20px; /* จัดระยะห่างซ้ายให้เป็นลำดับรอง */
-        }
-        .left-align {
-        line-height: 1.2; /* ลดความสูงระหว่างบรรทัด */
-    }
-
-    .left-align p {
-        margin: 5px 0; /* ลดระยะห่างระหว่างย่อหน้า */
-    }
-
-    .left-align ul.list {
-        margin: 5px 0; /* ลดระยะห่างระหว่างรายการ */
-        padding-left: 20px; /* เพิ่มการเยื้องให้รายการใน ul */
-    }
-
-    .left-align ul.list li {
-        margin: 3px 0; /* ลดระยะห่างระหว่างแต่ละรายการใน ul */
-    }
-        form {
-            border: 2px solid #7899ec; /* เส้นกรอบ */
-            border-radius: 10px; /* มุมโค้ง */
-            padding: 20px; /* ระยะห่างภายใน */
-            background-color: #c5d5f398; /* สีพื้นหลัง */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เงากรอบ */
-        }
-
-        
-        /* ให้แน่ใจว่าฟุตเตอร์ไม่ถูกซ่อน */
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: rgb(255, 255, 255);
-            font-size: 14px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-            position: relative;
-            z-index: 1;
-        }
-
-    </style>
 </head>
 <body>
-        <!-- Vancomycin Section -->
-        <h2>Vancomycin 500mg/Vial</h2>
-            <div class="container">
-        <div class="left-align">
-        
-        <!-- Form for entering the dose for Vancomycin -->
-        <form method="POST">
-            <label for="dose"><b>กรอกขนาดยา (mg):</b></label>
-            <input type="number" name="dose" placeholder="ขนาดยา (mg)" required value="{{ dose }}">
-            
-            <!-- Field for selecting concentration (5mg/ml or 7mg/ml) -->
-            <label for="concentration"><b>เลือกระดับความเข้มข้น:</b></label>
-            <select name="concentration" required>
-                <option value="5">5 mg/ml</option>
-                <option value="10">10 mg/ml</option>
-            </select>
 
-            <!-- Add some margin above the button -->
-            <button type="submit" class="calculate-button" style="margin-top: 20px;">Calculate</button>
-        </form>
+  <div class="title-badge">Vancomycin : 500 mg / vial → reconst. to 50 mg/ml</div>
+  <p class="subtitle">เลือกความเข้มข้นเป้าหมายก่อนให้: 5 mg/ml (หรือ 7 mg/ml กรณีจำกัดน้ำ)</p>
 
-        {% if result_ml_1 %}
-        <!-- Display result after first method calculation -->
-        <div class="result">
-            <p><b>Order: Vancomycin {{ dose }} mg </b></p>
-            <div class="left-align">
-                <p><b>ขั้นตอนที่ 1:คำนวณปริมาณยา (500mg/10ml)</b></p>
-                <p>ใช้สูตร: ({{ dose }}  × 10) / 500 = {{ result_ml_1 }} ml</p>
-            </div>
-        </div>
-        {% endif %}
+  <div class="container">
+    <!-- รอบที่ 1: คำนวณจาก Dose + เลือกความเข้มข้น -->
+  <div class="calc-box">
+  <form method="POST" class="calc-row">
+    <input type="hidden" name="action" value="dose" />
 
-        {% if result_ml_2 %}
-        <!-- Display result after second method calculation -->
-        <div class="result">
-            <div class="left-align">
-                <p><b>ขั้นตอนที่ 2:คำนวณปริมาณสารละลาย ({{ concentration | int }}mg/ml)</b></p>
-                <p>ใช้สูตร: ({{ dose }}  × 1) / {{ concentration | int }} = {{ result_ml_2 }} ml</p>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Second form to calculate multiplication -->
-        {% if result_ml_1 or result_ml_2 %}
-        <form method="POST">
-            <input type="hidden" name="dose" value="{{ dose }}">
-            <input type="hidden" name="concentration" value="{{ concentration }}">
-            <label for="multiplication">เลือกเงื่อนไข:</label>
-            <select name="multiplication" required>
-                <option value="1.5">1.5 เท่า</option>
-                <option value="2">2 เท่า</option>
-                <option value="2.5">2.5 เท่า</option>
-                <option value="3">3 เท่า</option>
-                <option value="3.5">3.5 เท่า</option>
-                <option value="4">4 เท่า</option>
-                <option value="4.5">4.5 เท่า</option>
-                <option value="5">5 เท่า</option>
-            </select>
-            <button type="submit" class="calculate-button" name="calculate_multiplication">คำนวณการคูณ</button>
-        </form>
-        {% endif %}
-
-        {% if final_result_1 is not none and final_result_2 is not none %}
-        <!-- Display final result after multiplication -->
-        <div class="result">
-            <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า</b></p>
-            <div class="result left-align">
-                <p>{{ multiplication }} × {{ result_ml_1 }} ml = {{ final_result_1 }} ml (จากสูตร: ({{ dose }}  × 10) / 500)</p>
-                <p>{{ multiplication }} × {{ result_ml_2 }} ml = {{ final_result_2 }} ml (จากสูตร: ({{ dose }}  × 1) / {{ concentration | int }})</p>
-            
-                <!-- Additional calculation result -->
-                <p><b>ปริมาณยา : {{ final_result_1 }} ml</b></p>
-                <p><b>ปริมาณสารละลาย : {{ final_result_2 | round(2) }} ml - {{ final_result_1 | round(2) }} ml = {{ (final_result_2 - final_result_1) | round(2) }} ml</b></p>
-
-                <!-- Amount administered to patient -->
-                <p><b>ปริมาณยาที่บริหารเข้าทารก = {{ result_ml_2 }} ml  >> drip in 1 hr.</b></p>
-            </div>            
-        </div>
-        {% endif %}
-
-<!-- เพิ่ม class 'left-align' เพื่อทำให้ชิดซ้าย -->
-                <div class="left-align">
-            <p class="header"><b>Solvent</b></p>
-        <ul class="list">
-            <li>Sterile water 10 ml</li>
-            <li>ได้สารละลายยา 10 ml</li>
-            <li><u>ความแรง 50 mg/ml</u></li>
-        </ul>
-        <p class="header"><b>Solution</b></p>
-        <ul class="list">
-            <li>0.9% Normal saline solution/NSS</li>
-            <li>5% Dextrose in water</li>
-        </ul>
-        <p class="header"><b>ความเข้มข้นสูงสุดในการบริหารยา</b></p>
-        <ul class="list">
-            <li>&#8804; 5 mg/ml(กรณีจำกัดน้ำ &#8804; 10 mg/ml)</li>
-        </ul>
-        <p class="header"><b>ระยะเวลาในการบริหารยา</b></p>
-        <ul class="list">
-            <li>2 ชั่วโมง</li>
-        </ul>
-        <p class="header"><b>ความคงตัวหลังเจือจาง</b></p>
-        <ul class="list">
-            <li>7 วัน ที่ 2 - 8 °C</li>
-        </ul>
-            <p class="header"><b>ข้อควรระวัง/การติดตาม เพื่อป้องกัน Type A ADR</b></p>
-        <ul class="list">
-            <li>หากเกิด <u>Red man syndrome</u> เพิ่มเวลาเป็น 4 ชั่วโมง</li>
-            <li>CBC ,WBC , Renal function</li>
-        </ul>
-        <p class="item"><b>Half-life : </b> 6 hrs.</p>
-        </div>
-        </div>
-    </div> <!-- ปิด container -->
-
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
+    <!-- คู่ที่ 1: ขนาดยา -->
+    <div class="dose-row">
+      <label for="dose">กรอกขนาดยา (mg):</label>
+      <input type="number"
+             id="dose" name="dose"
+             placeholder="ขนาดยา (mg)" required step="0.01"
+             value="{{ dose if dose is not none else '' }}">
     </div>
 
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-    </footer>
+    <!-- คู่ที่ 2: ความเข้มข้น -->
+    <div class="conc-row">
+      <label for="concentration">ความเข้มข้น:</label>
+      <select id="concentration" name="concentration" required>
+        <option value="" disabled {% if concentration is none %}selected{% endif %}>— เลือก —</option>
+        <option value="5" {% if concentration==5 %}selected{% endif %}>5 mg/ml</option>
+        <option value="7" {% if concentration==7 %}selected{% endif %}>7 mg/ml</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-blue">คำนวณ</button>
+  </form>
+</div>
+
+
+    {% if error %}
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
+    {% endif %}
+
+    {% if dose is not none %}
+      {% set result_ml_1 = result_ml_1 %}
+      {% set result_ml_2 = result_ml_2 %}
+      <div class="result">
+        <p class="order-line"><b>Order:</b> Vancomycin {{ '%.2f'|format(dose) }} mg</p>
+        <div class="left-align muted">
+          <p><b>หลังละลาย:</b> เติม Sterile water 10 ml → ได้สารละลาย 10 ml ⇒ <b>50 mg/ml</b></p>
+          <p><b>ขั้นที่ 1 (จาก stock 50 mg/ml):</b> <span class="mono">ml = mg × 10 ÷ 500</span> ⇒
+            <span class="pill">{{ result_ml_1|round(2) }}</span> ml</p>
+          <p><b>ขั้นที่ 2 (ความเข้มข้นเป้าหมาย {{ concentration }} mg/ml):</b> <span class="mono">ml = mg ÷ {{ concentration }}</span> ⇒
+            <span class="pill">{{ result_ml_2|round(2) }}</span> ml</p>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- รอบที่ 2: เลือกตัวคูณ -->
+    <div class="calc-box" {% if dose is none %}style="opacity:.55; pointer-events:none"{% endif %}>
+      <form method="POST" class="calc-row">
+        <input type="hidden" name="action" value="condition" />
+        <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" name="concentration_hidden" value="{{ concentration if concentration is not none else '' }}">
+        <input type="hidden" name="result_ml_1_hidden" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
+        <input type="hidden" name="result_ml_2_hidden" value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
+        <label for="multiplication">เลือกเงื่อนไข (คูณปริมาตร):</label>
+        <select name="multiplication" required>
+          <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
+          <option value="1.5" {% if multiplication==1.5 %}selected{% endif %}>1.5 เท่า</option>
+          <option value="2" {% if multiplication==2 %}selected{% endif %}>2 เท่า</option>
+          <option value="2.5" {% if multiplication==2.5 %}selected{% endif %}>2.5 เท่า</option>
+          <option value="3" {% if multiplication==3 %}selected{% endif %}>3 เท่า</option>
+          <option value="3.5" {% if multiplication==3.5 %}selected{% endif %}>3.5 เท่า</option>
+          <option value="4" {% if multiplication==4 %}selected{% endif %}>4 เท่า</option>
+          <option value="4.5" {% if multiplication==4.5 %}selected{% endif %}>4.5 เท่า</option>
+          <option value="5" {% if multiplication==5 %}selected{% endif %}>5 เท่า</option>
+        </select>
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+      </form>
+    </div>
+
+    {% if multiplication is not none and dose is not none %}
+      <div class="result">
+        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า</b></p>
+        <div class="left-align muted">
+          <p>{{ multiplication }} × {{ result_ml_1|round(2) }} ml = <span class="pill">{{ final_result_1|round(2) }}</span> ml <span class="muted">(จาก stock 50 mg/ml)</span></p>
+          <p>{{ multiplication }} × {{ result_ml_2|round(2) }} ml = <span class="pill">{{ final_result_2|round(2) }}</span> ml <span class="muted">(รวมปริมาตรตามความเข้มข้นเป้าหมาย)</span></p>
+          <p class="highlight"><b>ปริมาณยา (จาก stock):</b> {{ final_result_1|round(2) }} ml</p>
+          <p class="highlight"><b>สารละลายที่ต้องเติมเพิ่ม:</b> {{ (final_result_2 - final_result_1)|round(2) }} ml</p>
+          <p><b>บริหารเข้าทารก:</b> {{ result_ml_2|round(2) }} ml → drip ~ 2 hr</p>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- หมายเหตุ/วิชาการ -->
+    <div class="bullet">
+      <p class="section-head">Solvent / การเตรียม</p>
+      <ul class="muted">
+        <li>Sterile water <b>10 ml</b> → ได้สารละลาย <b>10 ml</b></li>
+        <li><u>ความแรงหลังเตรียม:</u> <b>50 mg/ml</b></li>
+      </ul>
+
+      <p class="section-head">Solution</p>
+      <ul class="muted">
+        <li>0.9% Normal saline solution (NSS)</li>
+        <li>5% Dextrose in water</li>
+      </ul>
+
+      <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
+      <ul class="muted">
+        <li>≤ 5 mg/ml (การณีจำกัดน้ำ ≤ 10 mg/ml)</li>
+      </ul>
+
+      <p class="section-head">ระยะเวลาในการบริหารยา</p>
+      <ul class="muted">
+        <li>2 ชั่วโมง</li>
+      </ul>
+
+      <p class="section-head">ความคงตัวหลังเจือจาง</p>
+      <ul class="muted">
+        <li>7 วัน ที่ 2 - 8 °C</li>
+      </ul>
+
+      <p class="section-head">ข้อควรระวัง / การติดตาม</p>
+      <ul class="muted">
+        <li>หากเกิด Red man syndrome เพิ่มเวลาเป็น 4 ชั่วโมง</li>
+        <li>CBC ,WBC , Renal function</li>
+      </ul>
+
+      <p class="section-head">Half-life (อ้างอิงช่วง) : 6 hrs</p>
+    </div>
+  </div><!-- /container -->
+
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+  </footer>
+
+  <div class="float-actions">
+    <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+  </div>
+
 </body>
 </html>

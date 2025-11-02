@@ -1,0 +1,3966 @@
+import os
+import math
+from typing import Optional
+
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from sqlalchemy import and_, or_
+
+# ส่วนขยาย/โมเดล
+from extensions import db, migrate
+from models import Drug, Compatibility
+
+# MIME เพิ่มเติมสำหรับ static
+import mimetypes
+mimetypes.add_type('application/wasm', '.wasm')
+mimetypes.add_type('application/gzip', '.gz')
+
+UPDATE_DATE = "2025 September 22"
+
+app = Flask(__name__, static_folder='static', static_url_path='/static')
+app.config.from_object("config.Config")
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+# init ส่วนขยาย
+db.init_app(app)
+migrate.init_app(app, db)
+
+# ---------- routes พื้นฐาน ----------
+@app.get("/", endpoint="index")
+def index():
+    return render_template("index.html", update_date=UPDATE_DATE)
+
+def group_meds_by_letter(meds):
+    groups = {ch: [] for ch in string.ascii_uppercase}
+    for m in meds:
+        label = m["label"].strip()
+        first = label[0].upper()
+        if first in groups:
+            groups[first].append(m)
+        else:
+# เผื่อกรณีชื่อไม่ได้ขึ้นต้น A–Z
+            groups.setdefault("#", []).append(m)
+    return groups
+
+@app.route("/medication_administration")
+def medication_administration():
+    meds = [
+# A
+        {"label": "Acyclovir", "endpoint": "acyclovir_route"},
+        {"label": "Amikacin", "endpoint": "amikin_route"},
+        {"label": "Aminophylline", "endpoint": "aminophylline_route", "danger": True},
+        {"label": "Amoxicillin / Clavimoxy", "endpoint": "amoxicillin_clavimoxy_route"},
+        {"label": "Amphotericin B", "endpoint": "amphotericinB_route"},
+        {"label": "Ampicillin", "endpoint": "ampicillin_route"},
+
+# B
+        {"label": "Benzathine_penicillin_g", "endpoint": "benzathine_penicillin_g_route"},
+
+# C
+        {"label": "Cefazolin", "endpoint": "cefazolin_dose"},          # ถ้ามีหน้าแบบฟอร์มแยก ให้เปลี่ยนเป็น *_route ของมัน
+        {"label": "Cefotaxime", "endpoint": "cefotaxime_route"},
+        {"label": "Ceftazidime", "endpoint": "ceftazidime_route"},
+        {"label": "Ciprofloxacin", "endpoint": "ciprofloxacin_route"},
+        {"label": "Clindamycin", "endpoint": "clindamycin_route"},
+        {"label": "Cloxacillin", "endpoint": "cloxacillin_route"},
+        {"label": "Colistin", "endpoint": "colistin_route"},
+
+# D
+        {"label": "Dexamethasone", "endpoint": "dexamethasone_route"},
+        {"label": "Dobutamine", "endpoint": "dobutamine_route", "danger": True},
+        {"label": "Dopamine", "endpoint": "dopamine_route", "danger": True},
+
+# F
+        {"label": "Fentanyl", "endpoint": "fentanyl_route", "danger": True},
+        {"label": "Furosemide", "endpoint": "furosemide_route"},
+
+# G
+        {"label": "Gentamicin", "endpoint": "gentamicin_route"},
+
+# H
+        {"label": "Hydrocortisone", "endpoint": "hydrocortisone_route"},
+
+# I
+        {"label": "Insulin Human Regular", "endpoint": "insulin_route"},
+
+# L
+        {"label": "Levofloxacin", "endpoint": "levofloxacin_route"},
+
+# M
+        {"label": "Meropenem", "endpoint": "meropenem_route"},
+        {"label": "Metronidazole (Flagyl)", "endpoint": "metronidazole"},
+        {"label": "Midazolam", "endpoint": "midazolam_route", "danger": True},
+        {"label": "Midazolam + Fentanyl", "endpoint": "midazolam_fentanyl_route", "danger": True},
+        {"label": "Morphine", "endpoint": "morphine_route", "danger": True},
+
+# N
+        {"label": "Nimbex (Cisatracurium)", "endpoint": "nimbex_route"},
+
+# O
+        {"label": "Omeprazole", "endpoint": "omeprazole_route"},
+
+# P
+        {"label": "Penicillin G sodium", "endpoint": "penicillin_g_sodium_route"},
+        {"label": "Phenobarbital", "endpoint": "phenobarbital_route"},
+        {"label": "Phenytoin (Dilantin)", "endpoint": "phenytoin_route"},
+
+# R
+        {"label": "Remdesivir", "endpoint": "remdsivir_route"},
+
+# S
+        {"label": "Sul-am®", "endpoint": "sul_am_route"},
+        {"label": "Sulbactam", "endpoint": "sulbactam_route"},
+        {"label": "Sulperazone", "endpoint": "sulperazone_route"},
+
+# T
+        {"label": "Tazocin", "endpoint": "tazocin_route"},
+
+# U
+        {"label": "Unasyn", "endpoint": "unasyun_route"},
+
+# V
+        {"label": "Vancomycin", "endpoint": "vancomycin_route"},
+    ]
+
+    groups = group_meds_by_letter(meds)
+    letters = list(groups.keys())
+    return render_template("medication_administration.html", groups=groups, letters=letters)
+
+
+
+# -------------------------------------------------------------
+
+# init extensions
+db.init_app(app)
+migrate.init_app(app, db)
+
+# import models หลัง init แล้ว
+from models import AccessLog, Drug, Compatibility  # noqa: E402
+
+# context & hooks
+@app.context_processor
+def inject_update_date():
+    return {"update_date": UPDATE_DATE}
+
+@app.before_request
+def log_request():
+    if request.endpoint != "static":
+        log = AccessLog(
+            endpoint=request.path,
+            method=request.method,
+            remote_addr=request.remote_addr,
+            user_agent=request.user_agent.string,
+        )
+        db.session.add(log)
+        db.session.commit()
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon'
+    )
+
+@app.route('/time_management')
+def time_management_route():
+    return render_template('time_management.html')
+
+@app.route('/run_time')
+def run_time():
+    return render_template('run_time.html')
+
+@app.route('/run_time_stop')
+def run_time_stop():
+    return render_template('run_time_stop.html')
+
+@app.route('/small_dose')
+def small_dose_route():
+    return render_template('small_dose.html')
+
+@app.route('/fluids', methods=['GET'])
+def fluids_route():
+    return render_template('fluids.html')
+
+
+
+@app.route('/acyclovir', methods=['GET', 'POST'])
+def acyclovir_route():
+    dose = None
+    result_ml_1 = None
+    result_ml_2 = None
+    final_result_1 = None
+    final_result_2 = None
+    multiplication = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml_1 = round((dose * 5) / 250, 2)
+            result_ml_2 = round((dose * 1) / 7, 2)
+
+            if 'multiplication' in request.form:
+                multiplication = float(request.form['multiplication'])
+                final_result_1 = round(result_ml_1 * multiplication, 2)
+                final_result_2 = round(result_ml_2 * multiplication, 2)
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('acyclovir.html', 
+                           update_date=UPDATE_DATE, 
+                           dose=dose, 
+                           result_ml_1=result_ml_1, 
+                           result_ml_2=result_ml_2, 
+                           final_result_1=final_result_1, 
+                           final_result_2=final_result_2, 
+                           multiplication=multiplication, 
+                           error=error)
+
+@app.route('/amikin', methods=['GET', 'POST'])
+def amikin_route():
+# ค่าเริ่มต้นเสมอ เพื่อกัน UndefinedError ใน template
+    dose = None                 # mg ที่กรอก
+    result_ml = None            # mL จากสต็อก 500mg/2mL
+    multiplication = None       # 3 หรือ 6
+    final_result = None         # mL หลังคูณ (result_ml * multiplication)
+    target_total = None         # เป้าหมายรวม (9 mL หรือ 6 mL)
+    diluent_to_add = None       # ปริมาณสารละลายที่ต้องเติม
+    msg_block = None            # ข้อความแนะนำสั้น ๆ
+    content_extra = None        # กล่องคำอธิบายยาว
+    error = None
+
+    try:
+        if request.method == 'POST':
+            action = request.form.get('action')  # 'dose' หรือ 'condition'
+
+# รอบที่ 1: คำนวณจาก mg → mL ตามสต็อก 500mg/2mL
+            if action == 'dose':
+                dose = float(request.form.get('dose', ''))
+# สูตร: mL = (mg × 2) / 500
+                result_ml = round((dose * 2) / 500.0, 2)
+
+# รอบที่ 2: เลือกเงื่อนไขแล้วคำนวณต่อ
+            elif action == 'condition':
+                dose = float(request.form.get('dose_hidden', ''))
+                result_ml = float(request.form.get('result_ml_hidden', ''))
+                multiplication = int(request.form.get('multiplication', ''))
+
+                final_result = round(result_ml * multiplication, 2)
+
+                if multiplication == 3:
+                    target_total = 9.0
+                    msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 3 mL → ตั้งอัตรา 6 mL/hr"
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                        "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                        "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                        "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                        "การเตรียมยา:",
+                        "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                        "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                        "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                        "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                        "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                        "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                    ]
+                    }
+                elif multiplication == 6:
+                    target_total = 6.0
+                    msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 1 mL → ตั้งอัตรา 2 mL/hr"
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                        "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                        "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                        "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                        "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                        "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                    ]
+                    }
+
+# ปริมาณ diluent ที่ต้องเติม
+                if target_total is not None:
+                    need = target_total - final_result
+                    diluent_to_add = round(need, 2) if need > 0 else 0.0
+
+    except Exception as e:
+        error = f"ข้อมูลไม่ถูกต้อง: {e}"
+
+    return render_template(
+        'amikin.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        final_result=final_result,
+        target_total=target_total,
+        diluent_to_add=diluent_to_add,
+        msg_block=msg_block,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/aminophylline', methods=['GET', 'POST'])
+def aminophylline_route():
+    dose = None
+    result_ml = None
+    error = None
+    
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml = dose * 10  # ตัวอย่างการคำนวณ
+        except ValueError:
+            error = "กรุณากรอกขนาดยาที่ถูกต้อง"
+    
+    return render_template('aminophylline.html', dose=dose, result_ml=result_ml, error=error, update_date=UPDATE_DATE)
+
+@app.route('/amoxicillin_clavimoxy')
+def amoxicillin_clavimoxy_route():
+    return render_template('amoxicillin_clavimoxy.html', update_date=UPDATE_DATE)
+    
+@app.route('/amphotericinB', methods=['GET', 'POST'])
+def amphotericinB_route():
+    dose = None
+    result_ml_1 = None
+    result_ml_2 = None
+    final_result_1 = None
+    final_result_2 = None
+    multiplication = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml_1 = round((dose * 10) / 50, 2)
+            result_ml_2 = round((dose * 1) / 0.1, 2)
+
+            if 'multiplication' in request.form:
+                multiplication = float(request.form['multiplication'])
+                final_result_1 = round(result_ml_1 * multiplication, 2)
+                final_result_2 = round(result_ml_2 * multiplication, 2)
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('amphotericinB.html', dose=dose, result_ml_1=result_ml_1, result_ml_2=result_ml_2, final_result_1=final_result_1, final_result_2=final_result_2, multiplication=multiplication, error=error, update_date=UPDATE_DATE)
+
+
+
+
+@app.route('/ampicillin', methods=['GET', 'POST'])
+def ampicillin_route():
+    dose = None
+    result_ml = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml = round((dose * 5) / 1000, 2)  # Example: Calculation for Ampicillin
+        except ValueError:
+            error = "กรุณากรอกขนาดยาที่ถูกต้อง"
+    
+    return render_template('ampicillin.html', dose=dose, result_ml=result_ml, error=error, update_date=UPDATE_DATE)
+
+@app.route('/benzathine-penicillin-g', methods=['GET', 'POST'])
+def benzathine_penicillin_g_route():
+    dose = None
+    calculated_ml = None
+    error = None
+    scheme = None  # '300k' หรือ '150k'
+
+# mapping: scheme -> (total_volume_ml, strength_u_per_ml)
+    SCHEMES = {
+        '300k': {'vol': 4.0, 'strength': 300_000},
+        '150k': {'vol': 8.0, 'strength': 150_000},
+    }
+
+    if request.method == 'POST':
+        try:
+# dose
+            dose_raw = request.form.get('dose', '').strip()
+            if dose_raw == '':
+                raise ValueError("empty")
+            dose = float(dose_raw)
+
+# scheme (default = 150k)
+            scheme = request.form.get('scheme', '150k')
+            if scheme not in SCHEMES:
+                scheme = '150k'
+
+            vol = SCHEMES[scheme]['vol']
+            strength = SCHEMES[scheme]['strength']
+
+# สูตรรวม: ml = (units × vol) / strength
+            calculated_ml = round((dose * vol) / strength, 2)
+
+        except ValueError:
+            error = "กรุณากรอกข้อมูลที่ถูกต้อง (ตัวเลขเท่านั้น)"
+
+    return render_template(
+        'benzathine_penicillin_g.html',
+        dose=dose,
+        calculated_ml=calculated_ml,
+        error=error,
+        scheme=scheme,            # ส่งไปเพื่อเช็ค radio + แสดงสูตร
+        update_date=UPDATE_DATE
+    )
+
+
+
+@app.route('/cefotaxime', methods=['GET', 'POST'])
+def cefotaxime_route():
+    dose = None
+    result_ml = None
+    multiplication = None
+    content_extra = None
+    error = None
+
+    action = request.form.get('action')  # 'dose' หรือ 'condition'
+
+    if request.method == 'POST':
+        try:
+            if action == 'dose':
+# รอบที่ 1: รับ mg -> คำนวณ mL
+                dose = float(request.form['dose'])
+                result_ml = round((dose * 10) / 1000, 2)  # สต็อก 1000 mg / 10 mL
+
+            elif action == 'condition':
+# รอบที่ 2: รับค่าจาก hidden + เงื่อนไข
+                dose = float(request.form.get('dose_hidden', '0'))
+# หากมีค่า hidden ก็ใช้เลย ถ้าไม่มีให้คำนวณสำรอง
+                result_ml = request.form.get('result_ml_hidden')
+                result_ml = float(result_ml) if result_ml not in (None, '',) else round((dose * 10) / 1000, 2)
+
+                multiplication = int(request.form['multiplication'])
+                total = round(result_ml * multiplication, 2)
+
+# กล่องคำอธิบายเพิ่มเติมตามเงื่อนไข
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 mL",
+                            "(ความจุ Extension Tube ประมาณ 5 mL + ปริมาณที่บริหารเข้าผู้ป่วย 3 mL)",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+                            "การเตรียมยา:",
+                            "1) คำนวณปริมาณยา (mL) จากสูตร แล้วดูดยาตามปริมาณ",
+                            "2) ใช้ Syringe 10 หรือ 20 mL ดูดสารละลายเจือจางตามต้องการ",
+                            "3) ผสมยาใน Syringe ให้เข้ากัน",
+                            "4) ต่อกับ Extension Tube วางบน Syringe pump ตั้งอัตรา ~6 mL/hr",
+                            "5) Purge สาย 3 mL ก่อนเริ่มบริหารผู้ป่วย",
+                        ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1) กำหนดให้สารละลายที่บริหารเข้าผู้ป่วย = 1 mL",
+                            "2) ให้ X = ปริมาณยา (mL) สูตรเตรียม: 6X + สารละลายเจือจางยา Up to 6 mL",
+                            "3) รวมสารละลายทั้งหมด 6 mL (Extension Tube ~5 mL + ปริมาณเข้าผู้ป่วย 1 mL)",
+                            "4) ใช้ Syringe pump ตั้งอัตรา ~2 mL/hr",
+                        ]
+                    }
+
+            else:
+# เผื่อกรณีส่งแบบฟอร์มเก่า
+                if 'dose' in request.form:
+                    dose = float(request.form['dose'])
+                    result_ml = round((dose * 10) / 1000, 2)
+                if 'multiplication' in request.form:
+                    multiplication = int(request.form['multiplication'])
+
+        except (ValueError, TypeError):
+            error = "กรุณากรอกข้อมูลให้ถูกต้อง"
+
+    return render_template(
+        'cefotaxime.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+
+
+@app.route('/ceftazidime', methods=['GET', 'POST'])
+def ceftazidime_route():
+    dose = None
+    result_ml = None
+    multiplication = None
+    content_extra = None
+    error = None
+
+    action = request.form.get('action')  # 'dose' หรือ 'condition'
+
+    if request.method == 'POST':
+        try:
+            if action == 'dose':
+                dose = float(request.form['dose'])
+                result_ml = round((dose * 10) / 1000, 2)  # สต็อก 1000 mg/10 mL
+
+            elif action == 'condition':
+                dose = float(request.form.get('dose_hidden', '0') or 0)
+                rmh = request.form.get('result_ml_hidden')
+                result_ml = float(rmh) if rmh not in (None, '') else round((dose * 10) / 1000, 2)
+
+                multiplication = int(request.form['multiplication'])
+                total = round(result_ml * multiplication, 2)
+
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดปริมาณสารละลายรวม = 8–9 mL",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+                            "1) คำนวณปริมาณยา (mL) และดูดยา",
+                            "2) ใช้ Syringe 10–20 mL ดูดสารละลายเจือจาง",
+                            "3) ผสมให้เข้ากัน ต่อกับ Extension Tube",
+                            "4) ตั้งอัตรา ~6 mL/hr และ Purge สาย ~3 mL ก่อนเริ่ม",
+                        ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1) ปริมาณที่บริหารเข้าผู้ป่วย = 1 mL",
+                            "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+                            "2) รวมสารละลายทั้งหมด ~6 mL (Tube ~5 mL + ให้ผู้ป่วย 1 mL)",
+                            "3) ใช้ Syringe pump ตั้งอัตรา ~2 mL/hr",
+                        ]
+                    }
+
+        except (ValueError, TypeError):
+            error = "กรุณากรอกข้อมูลให้ถูกต้อง"
+
+    return render_template(
+        'ceftazidime.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
+
+@app.route('/ciprofloxacin', methods=['GET', 'POST'])
+def ciprofloxacin_route():
+    dose = None
+    calculated_ml = None
+    if request.method == 'POST':
+        try:
+# รับค่าขนาดยา (mg) จากฟอร์ม
+            dose = float(request.form.get('dose', 0))
+# สูตรคำนวณความเข้มข้นมาตรฐาน 2 mg/mL: ml = mg ÷ 2
+            calculated_ml = round(dose / 2.0, 2)
+        except (ValueError, TypeError):
+# จัดการกรณีกรอกไม่ใช่ตัวเลข
+            dose = None
+            calculated_ml = None
+
+# ส่งตัวแปรไปยังเทมเพลต
+    return render_template(
+        'ciprofloxacin.html',  # ไฟล์ HTML เทมเพลตของคุณ
+        dose=dose,
+        calculated_ml=calculated_ml,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/clindamycin', methods=['GET', 'POST'])
+def clindamycin_route():
+    dose = None
+    result_ml_1 = None
+    result_ml_2 = None
+    multiplication = None
+    final_result_1 = None
+    final_result_2 = None
+    error = None
+
+    if request.method == 'POST':
+        action = request.form.get('action', '').strip()
+
+        try:
+            if action == 'dose':
+# รอบที่ 1: รับ dose แล้วคำนวณ 2 วิธี
+                dose = float((request.form.get('dose') or '').strip())
+                result_ml_1 = round(dose * 4 / 600, 2)   # สต็อก 600 mg / 4 mL
+                result_ml_2 = round(dose / 6, 2)        # เป้าหมาย 6 mg/mL
+
+            elif action == 'condition':
+# รอบที่ 2: รับค่าที่ซ่อนมา + ตัวคูณ แล้วคูณต่อ
+                dose = float((request.form.get('dose_hidden') or '').strip())
+                result_ml_1 = float((request.form.get('result_ml_1_hidden') or '').strip())
+                result_ml_2 = float((request.form.get('result_ml_2_hidden') or '').strip())
+                multiplication = float((request.form.get('multiplication') or '').strip())
+
+                final_result_1 = round(result_ml_1 * multiplication, 2)
+                final_result_2 = round(result_ml_2 * multiplication, 2)
+
+            else:
+                error = 'ส่งข้อมูลไม่ครบ (action หาย)'
+
+        except (ValueError, TypeError):
+            error = 'กรุณากรอกตัวเลขให้ถูกต้อง'
+        except Exception as e:
+            error = f'เกิดข้อผิดพลาด: {e}'
+
+    return render_template(
+        'clindamycin.html',
+        dose=dose,
+        result_ml_1=result_ml_1,
+        result_ml_2=result_ml_2,
+        multiplication=multiplication,
+        final_result_1=final_result_1,
+        final_result_2=final_result_2,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
+
+
+@app.route("/cloxacillin", methods=["GET", "POST"])
+def cloxacillin_route():
+    """
+    รอบที่ 1:
+      - form ส่ง action=dose และ dose
+      - result_ml = (dose * 5) / 1000   (สต็อก 1000 mg / 5 mL → 200 mg/mL)
+    รอบที่ 2:
+      - form ส่ง action=condition, dose_hidden, result_ml_hidden, multiplication
+      - แสดงผลสรุป และรายละเอียดตาม 3X/6X
+    """
+    dose = None
+    result_ml = None
+    multiplication = None
+    error = None
+    content_extra = None  # ถ้าต้องการแสดงบล็อคคำอธิบายเพิ่มเติม
+
+# อ่าน action อย่างปลอดภัย (กันกรณีไม่มีฟิลด์)
+    action = request.form.get("action", "").strip()
+
+    try:
+        if request.method == "POST":
+            if action == "dose":
+# รอบ 1: คำนวณจาก mg → mL
+                raw = request.form.get("dose", "").strip()
+                if raw == "":
+                    raise ValueError("Dose is empty")
+                dose = float(raw)
+# สต็อก 1000 mg / 5 mL → ความเข้ม 200 mg/mL → mL = mg / 200 = (mg*5)/1000
+                result_ml = round((dose * 5) / 1000, 2)
+
+            elif action == "condition":
+# รอบ 2: คำนวณต่อจากผลรอบแรก
+                raw_dose = request.form.get("dose_hidden", "").strip()
+                raw_result_ml = request.form.get("result_ml_hidden", "").strip()
+                raw_multi = request.form.get("multiplication", "").strip()
+
+                if not raw_dose or not raw_result_ml or not raw_multi:
+                    raise ValueError("Missing hidden fields or multiplication")
+
+                dose = float(raw_dose)
+                result_ml = float(raw_result_ml)
+                multiplication = int(raw_multi)
+
+# ถ้ามีเงื่อนไขเพิ่ม content_extra ก็เติมที่นี่ (ตัวอย่างคงที่)
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                        "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                        "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                        "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                        "การเตรียมยา:",
+                        "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                        "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                        "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                        "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                        "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                        "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                    ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                        "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                        "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                        "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                        "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                        "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                        ]
+                    }
+
+            else:
+# ไม่มี action หรือ action ไม่ตรงที่รองรับ
+                error = "คำขอไม่ถูกต้อง"
+
+    except (ValueError, TypeError) as e:
+# กัน 400 Bad Request จากการแปลงค่าล้มเหลว / ฟิลด์หาย
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        "cloxacillin.html",
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
+
+@app.route("/colistin", methods=["GET", "POST"])
+def colistin_route():
+    dose = None               # mg (float)
+    result_ml = None          # mL จากรอบที่ 1
+    multiplication = None     # 3 หรือ 6 (int)
+    final_result = None       # mL หลังคูณ
+    error = None
+    content_extra = None
+
+    try:
+        if request.method == "POST":
+            action = request.form.get("action", "dose").strip()
+
+# รอบที่ 1: คำนวณ mg -> mL จาก stock 150 mg / 2 mL  =>  mL = (mg * 2) / 150
+            if action == "dose":
+                dose_str = request.form.get("dose", "").strip()
+                if dose_str == "":
+                    raise ValueError("กรุณากรอกขนาดยา (mg)")
+                dose = float(dose_str)
+                result_ml = round((dose * 2) / 150, 2)
+
+# รอบที่ 2: ใช้ผลรอบแรก + คูณ 3X หรือ 6X
+            elif action == "condition":
+# รับค่าที่ซ่อนมา
+                dose_hidden = request.form.get("dose_hidden", "").strip()
+                result_ml_hidden = request.form.get("result_ml_hidden", "").strip()
+                mult_str = request.form.get("multiplication", "").strip()
+
+                if not dose_hidden or not result_ml_hidden or not mult_str:
+                    raise ValueError("ข้อมูลไม่ครบสำหรับการคำนวณรอบที่ 2")
+
+                dose = float(dose_hidden)
+                result_ml = float(result_ml_hidden)
+                multiplication = int(mult_str)
+
+# คูณ
+                final_result = round(result_ml * multiplication, 2)
+
+# เนื้อหาเพิ่มเติมตามเงื่อนไข
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจาง) = 8–9 mL",
+                            "(ความจุของ Extension Tube ประมาณ 5 mL + ปริมาณที่บริหารเข้าผู้ป่วย 3 mL)",
+                            "<div>3X + สารละลายเจือจางยา Up to 9 mL</div>",
+                            "การเตรียมยา:",
+                            "1) คำนวณ mL ที่ต้องใช้, 2) ดูดยาตามปริมาณ, 3) เติมสารละลายเจือจางใน Syringe",
+                            "4) ผสมให้เข้ากัน, 5) ต่อกับ Extension Tube ตั้งอัตรา ~6 mL/hr",
+                            "6) Purge ประมาณ 3 mL ก่อนบริหารผู้ป่วย",
+                        ],
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "เหมาะกับทารกน้ำหนัก < 1,500 กรัม",
+                            "1) กำหนดปริมาณที่ต้องบริหารเข้าผู้ป่วย = 1 mL",
+                            "2) ให้ X = ปริมาณยาที่ต้องการเตรียม → 6X + สารละลายเจือจางยา Up to 6 mL",
+                            "3) รวมสารละลายทั้งหมด 6 mL (ความจุ Extension Tube ~5 mL + ให้ผู้ป่วย 1 mL)",
+                            "4) บริหารด้วย Syringe pump ตั้งอัตรา ~2 mL/hr",
+                        ],
+                    }
+
+            else:
+                error = "คำสั่งไม่ถูกต้อง"
+
+# ถ้าเป็น GET หรือ POST รอบแรก ให้คำนวณรอบแรกอัตโนมัติถ้ามี dose
+# (ในเทมเพลตปุ่มรอบสองจะถูก disable เมื่อ result_ml เป็น None)
+    except ValueError as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+    except Exception as e:
+# กัน edge cases
+        error = f"เกิดข้อผิดพลาด: {e}"
+
+    return render_template(
+        "colistin.html",
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        final_result=final_result,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
+
+
+@app.route('/dexamethasone', methods=['GET', 'POST'])
+def dexamethasone_route():
+    dose = None
+    result_ml = None
+    error = None
+    
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml = dose * 100  # ตัวอย่างการคำนวณ
+        except ValueError:
+            error = "กรุณากรอกขนาดยาที่ถูกต้อง"
+    
+    return render_template('dexamethasone.html', dose=dose, result_ml=result_ml, error=error, update_date=UPDATE_DATE)
+
+@app.route('/dobutamine', methods=['GET', 'POST'])
+def dobutamine_route():
+    dose = None
+    result_ml = None
+    error = None
+    DobutamineVolume = None
+
+    if request.method == 'POST':
+        try:
+            original_dosage = float(request.form['original_dosage'])
+            original_volume = float(request.form['original_volume'])
+            desired_dosage = float(request.form['desired_dosage'])
+
+            result_ml = (desired_dosage / original_dosage) * original_volume
+            DobutamineVolume = desired_dosage / 50
+
+        except ValueError:
+            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
+
+    return render_template('dobutamine.html', dose=dose, result_ml=result_ml, DobutamineVolume=DobutamineVolume, error=error, update_date=UPDATE_DATE)
+
+
+@app.route('/dopamine', methods=['GET', 'POST'])
+def dopamine_route():
+    dose = None
+    result_ml = None
+    error = None
+    DopamineVolume = None
+
+    if request.method == 'POST':
+        try:
+            original_dosage = float(request.form['original_dosage'])
+            original_volume = float(request.form['original_volume'])
+            desired_dosage = float(request.form['desired_dosage'])
+
+            result_ml = (desired_dosage / original_dosage) * original_volume
+            DopamineVolume = desired_dosage / 25
+
+        except ValueError:
+            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
+
+    return render_template('dopamine.html', dose=dose, result_ml=result_ml, DopamineVolume=DopamineVolume, error=error, update_date=UPDATE_DATE)
+
+@app.route('/fentanyl', methods=['GET'])
+def fentanyl_route():
+    return render_template('fentanyl.html', update_date=UPDATE_DATE)
+
+
+@app.route('/fentanyl_continuous', methods=['GET', 'POST'])
+def fentanyl_continuous_route():
+    dose = None
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result = dose * 0.1  # ตัวอย่างการคำนวณ continuous infusion
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('fentanyl_continuous.html', dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+
+
+@app.route('/fentanyl_small_dose', methods=['GET', 'POST'])
+def fentanyl_small_dose_route():
+    dose = None
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result = dose * 0.05  # ตัวอย่างการคำนวณสำหรับ small dose
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('fentanyl_small_dose.html', dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+
+@app.route('/furosemide', methods=['GET', 'POST'])
+def furosemide_route():
+    dose = None
+    if request.method == 'POST':
+        dose = float(request.form['dose'])
+    return render_template('furosemide.html', dose=dose, update_date=UPDATE_DATE)
+
+@app.route('/gentamicin', methods=['GET', 'POST'])
+def gentamicin_route():
+# ค่าที่จะส่งไปหน้า template
+    dose = None                # mg ที่กรอก
+    result_ml = None           # ml รอบแรก (mg ÷ 40)
+    final_result = None        # ml หลังคูณรอบสอง
+    multiplication = None      # 3 หรือ 6
+    error = None
+    content_extra = None
+    formula_display = "ml = mg ÷ 40  (เพราะ 80 mg / 2 ml ⇒ 40 mg/ml)"
+
+    def to_float(val, name):
+        if val is None or val == "":
+            raise ValueError(f"ไม่ได้กรอกค่า {name}")
+        return float(val)
+
+    def to_int(val, name):
+        if val is None or val == "":
+            raise ValueError(f"ไม่ได้เลือกค่า {name}")
+        return int(val)
+
+    if request.method == 'POST':
+        try:
+            action = request.form.get('action', '').strip()
+
+# รอบที่ 1: กรอก mg → คำนวณ ml
+            if action == 'dose' or action == '':
+                dose = to_float(request.form.get('dose'), "ขนาดยา (mg)")
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0")
+
+# 80 mg / 2 ml = 40 mg/ml → ml = mg ÷ 40
+                result_ml = round(dose / 40.0, 2)
+
+# รอบที่ 2: เลือกตัวคูณ → คำนวณต่อ
+            elif action == 'condition':
+# รับค่าที่ส่งซ่อนมา; ถ้าไม่มี ให้ลอง fallback จากช่องปกติ
+                dose = request.form.get('dose_hidden', request.form.get('dose'))
+                result_ml = request.form.get('result_ml_hidden')
+
+                dose = to_float(dose, "ขนาดยา (mg)")
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0")
+
+# ถ้าไม่มี result_ml ซ่อนมา ให้คำนวณใหม่
+                result_ml = float(result_ml) if result_ml not in (None, "",) else round(dose / 40.0, 2)
+
+                multiplication = to_int(request.form.get('multiplication'), "เงื่อนไขตัวคูณ (3×/6×)")
+                if multiplication not in (3, 6):
+                    raise ValueError("เงื่อนไขตัวคูณต้องเป็น 3 หรือ 6")
+
+                final_result = round(float(result_ml) * multiplication, 2)
+
+# กล่องคำอธิบายเพิ่มเติมตามเงื่อนไข
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                            "การเตรียมยา:",
+                            "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml) จากสูตร",
+                            "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3) ใช้ Syringe ขนาด 10 ml หรือ 20 ml ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                            "4) ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ ให้เข้ากัน",
+                            "5) ต่อ Syringe กับ Extension Tube วางบน Syringe pump ตั้งอัตรา ~6 ml/hr แล้วกด Start",
+                            "6) Purge ยาให้ทั่วท่อโดยดัน 3 ml ก่อนบริหารผู้ป่วย",
+                        ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1) กำหนดให้ปริมาณสารละลายที่บริหารเข้าสู่ผู้ป่วยเท่ากับ 1 ml.",
+                            "2) ให้ X คือปริมาณยาที่ต้องเตรียม กำหนดสูตร:",
+                            "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                            "3) จะได้สารละลายทั้งหมด 6 ml (Extension Tube ~5 ml + Volume ที่บริหารผู้ป่วย 1 ml.)",
+                            "4) ใช้ Syringe pump ตั้งอัตรา ~2 ml/hr.",
+                        ]
+                    }
+
+            else:
+                error = "รูปแบบคำขอไม่ถูกต้อง (action ไม่รองรับ)"
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'gentamicin.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=formula_display,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/hydrocortisone', methods=['GET', 'POST'])
+def hydrocortisone_route():
+    """
+    กรอกขนาดยาเป็น mg แล้วคำนวณ:
+      - ml = mg / 50   (เพราะใช้สารละลาย 50 mg/ml)
+      - units = mg * 4 (เพราะ 1 mg = 4 u → 25 mg = 100 u)
+    """
+    dose = None          # mg ที่ผู้ใช้กรอก
+    result_ml = None     # ปริมาตร (ml) ที่ต้องใช้
+    units = None         # คิดเป็นหน่วย u
+    error = None
+
+    MG_PER_ML = 50.0
+    U_PER_MG = 4.0
+
+    if request.method == 'POST':
+        try:
+            dose_raw = (request.form.get('dose') or '').strip()
+            if dose_raw == '':
+                raise ValueError("empty")
+            dose = float(dose_raw)
+
+# คำนวณตามกติกา
+            result_ml = round(dose / MG_PER_ML, 2)
+            units = round(dose * U_PER_MG, 2)
+
+        except ValueError:
+            error = "กรุณากรอกตัวเลขที่ถูกต้อง"
+
+    return render_template(
+        'hydrocortisone.html',
+        dose=dose,
+        result_ml=result_ml,
+        units=units,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/insulin', methods=['GET', 'POST'])
+def insulin_route():
+    dose = None
+    result = None
+    concentration = 1
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result = round(dose * 100 / concentration, 2)
+        except ValueError:
+            result = "ข้อมูลไม่ถูกต้อง"
+
+    return render_template('insulin.html', dose=dose, result=result, update_date=UPDATE_DATE)
+
+
+@app.route("/levofloxacin", methods=["GET", "POST"])
+def levofloxacin_route():
+    dose = None
+    concentration = 5.0
+    multiplication = 3
+    result_ml = None
+    final_result = None
+    error = None
+
+    if request.method == "POST":
+        try:
+            dose = float(request.form["dose"])
+            concentration = float(request.form["concentration"])
+            multiplication = int(request.form["multiplication"])
+            if concentration <= 0:
+                raise ValueError("ความเข้มข้นต้องมากกว่า 0")
+            result_ml = dose / concentration
+            final_result = result_ml * multiplication
+        except Exception as e:
+            error = str(e)
+
+    return render_template(
+        "levofloxacin.html",
+        dose=dose,
+        concentration=concentration,
+        multiplication=multiplication,
+        result_ml=result_ml,
+        final_result=final_result,
+        update_date=UPDATE_DATE,  # ← ใช้ค่านี้
+    )
+
+
+
+@app.route('/meropenem', methods=['GET', 'POST'])
+def meropenem_route():
+    dose = None                 # mg
+    result_ml = None            # ml จากรอบที่ 1
+    final_result = None         # ml หลังคูณ X รอบที่ 2
+    multiplication = None       # 3 หรือ 6
+    error = None
+    formula_display = None
+    content_extra = None
+
+    try:
+        if request.method == 'POST':
+# รองรับทั้งเทมเพลตใหม่ (มี action) และเทมเพลตเก่า (ไม่มี action)
+            action = request.form.get('action', '').strip().lower()
+
+# ---------------------------
+# รอบที่ 1: คำนวณ mg -> ml
+# ---------------------------
+            if action == 'dose':
+                raw_dose = request.form.get('dose', '').strip()
+                if raw_dose == '':
+                    raise ValueError("กรุณากรอกขนาดยา (mg)")
+
+                dose = float(raw_dose)
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+
+# ความแรงอ้างอิงหลังผสม: 50 mg/ml (เติม Sterile water 19 ml → รวม 20 ml)
+# สูตรเท่ากับ (dose * 20) / 1000 เช่นกัน
+                result_ml = round(dose / 50.0, 2)
+
+# ---------------------------
+# รอบที่ 2: เลือกเงื่อนไข 3X / 6X
+# ---------------------------
+            elif action == 'condition':
+# รับค่าจาก hidden field ของรอบที่ 1
+                raw_dose = request.form.get('dose_hidden', '').strip()
+                raw_result_ml = request.form.get('result_ml_hidden', '').strip()
+                raw_mult = request.form.get('multiplication', '').strip()
+
+                if raw_dose == '' or raw_result_ml == '':
+                    raise ValueError("ไม่พบค่าจากรอบคำนวณแรก กรุณาคำนวณรอบที่ 1 ก่อน")
+
+                dose = float(raw_dose)
+                result_ml = float(raw_result_ml)
+
+                if raw_mult == '':
+                    raise ValueError("กรุณาเลือกเงื่อนไข 3 เท่าหรือ 6 เท่า")
+
+                multiplication = int(raw_mult)
+                if multiplication not in (3, 6):
+                    raise ValueError("เงื่อนไขที่เลือกไม่ถูกต้อง (ต้องเป็น 3 หรือ 6)")
+
+                final_result = round(result_ml * multiplication, 2)
+
+# เนื้อหาเสริมตามเงื่อนไข
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                            "การเตรียมยา:",
+                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                            "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                            "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                            "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                        ]
+                    }
+
+# ---------------------------
+# Fallback: รองรับฟอร์มเก่า (ไม่มี action)
+# ที่ส่ง dose และ multiplication มาพร้อมกัน
+# ---------------------------
+            else:
+                raw_dose = request.form.get('dose')
+                raw_mult = request.form.get('multiplication')
+                if raw_dose:
+                    dose = float(raw_dose)
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml = round(dose / 50.0, 2)  # = (dose*20)/1000
+
+                if raw_mult:
+                    multiplication = int(raw_mult)
+                    if multiplication not in (3, 6):
+                        raise ValueError("เงื่อนไขที่เลือกไม่ถูกต้อง (ต้องเป็น 3 หรือ 6)")
+                    if result_ml is None:
+                        raise ValueError("ไม่พบค่าปริมาณยา (ml) จากรอบแรก")
+                    final_result = round(result_ml * multiplication, 2)
+
+                    if multiplication == 3:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                                "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                                "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                                "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                                "การเตรียมยา:",
+                                "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                                "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                                "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                                "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                                "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                                "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                            ]
+                        }
+                    elif multiplication == 6:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                                "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                                "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                                "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                                "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                                "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                            ]
+                        }
+
+    except (ValueError, KeyError) as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'meropenem.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=formula_display,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+@app.route('/metronidazole', methods=['GET', 'POST'])
+def metronidazole():
+    dose = None
+    calculated_ml = None
+    if request.method == 'POST':
+        try:
+# Get dose value from the form
+            dose = float(request.form.get('dose', 0))
+# Perform calculation: (dose * 100) / 500
+            calculated_ml = round((dose * 100) / 500, 2)
+        except ValueError:
+# Handle invalid input
+            dose = None
+            calculated_ml = None
+
+# Render the template with all required variables
+    return render_template(
+        'metronidazole.html',  # Your HTML template
+        dose=dose,
+        calculated_ml=calculated_ml,
+        update_date=UPDATE_DATE
+    )
+
+@app.route('/midazolam_fentanyl', methods=['GET', 'POST'])
+def midazolam_fentanyl_route():
+    midazolam_dosage = None
+    fentanyl_dosage = None
+    original_volume = None
+    midazolam_volume = None
+    fentanyl_volume = None
+    final_volume = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            midazolam_dosage = float(request.form['midazolam_dosage'])
+            fentanyl_dosage = float(request.form['fentanyl_dosage'])
+            original_volume = float(request.form['original_volume'])
+
+            midazolam_volume = midazolam_dosage / 5
+            fentanyl_volume = fentanyl_dosage / 50
+
+            final_volume = original_volume - (midazolam_volume + fentanyl_volume)
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('midazolam_fentanyl.html',
+                           midazolam_dosage=midazolam_dosage,
+                           fentanyl_dosage=fentanyl_dosage,
+                           original_volume=original_volume,
+                           midazolam_volume=midazolam_volume,
+                           fentanyl_volume=fentanyl_volume,
+                           final_volume=final_volume,
+                           error=error,
+                           update_date=UPDATE_DATE)
+
+
+@app.route('/midazolam', methods=['GET'])
+def midazolam_route():
+    return render_template('midazolam.html', update_date=UPDATE_DATE)
+
+
+@app.route('/midazolam_continuous', methods=['GET', 'POST'])
+def midazolam_continuous_route():
+    dose = None
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])  # รับค่าขนาดยา (mg)
+            result = dose * 0.1  # ตัวอย่างการคำนวณ infusion rate
+        except (ValueError, KeyError) as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('midazolam_continuous.html',
+                           dose=dose, result=result, error=error,
+                           update_date=UPDATE_DATE)
+
+
+@app.route('/midazolam_small_dose', methods=['GET', 'POST'])
+def midazolam_small_dose_route():
+    dose = None
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result = dose * 0.1  # ตัวอย่างการคำนวณสำหรับ small dose
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('midazolam_small_dose.html', dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+
+
+@app.route('/morphine', methods=['GET'])
+def morphine_route():
+    return render_template('morphine.html', update_date=UPDATE_DATE)
+
+
+@app.route('/morphine_continuous', methods=['GET', 'POST'])
+def morphine_continuous_route():
+    dose = None
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])  # รับค่าขนาดยา (mg)
+            result = dose * 0.1  # ตัวอย่างการคำนวณ infusion rate
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('morphine_continuous.html', dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+
+
+@app.route('/morphine_small_dose', methods=['GET', 'POST'])
+def morphine_small_dose_route():
+    dose = None
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+# Get the dose value from the form
+            dose = float(request.form.get('dose', 0))
+# Perform calculations for morphine dose
+            result = round(dose * 0.1, 2)  # Example calculation
+        except ValueError:
+# Handle invalid inputs
+            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
+
+# Ensure dose and result are always defined
+    return render_template(
+        'morphine_small_dose.html',
+        dose=dose,
+        result=result,
+        error=error,
+        update_date=UPDATE_DATE  # Pass the update date
+    )
+
+
+@app.route('/nimbex', methods=['GET', 'POST'])
+def nimbex_route():
+    dose = None
+    result_ml = None
+    final_ml = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml = round(dose * 5 / 10, 2)
+            final_ml = round(10 - result_ml, 2)
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('nimbex.html', dose=dose, result_ml=result_ml, final_ml=final_ml, error=error, update_date=UPDATE_DATE)
+
+
+@app.route('/omeprazole', methods=['GET', 'POST'])
+def omeprazole_route():
+    dose = None
+    result_ml = None
+    final_result = None
+    multiplication = None
+    error = None
+    formula_display = None
+    content_extra = None
+
+    def build_content_extra(mult):
+        if mult == 3:
+            return {
+                "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                "details": [
+                    "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                    "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                    "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                    "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                    "การเตรียมยา:",
+                    "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                    "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                    "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                    "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                    "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                    "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                ]
+            }
+        elif mult == 6:
+            return {
+                "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                "details": [
+                    "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                    "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                    "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                    "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                    "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                    "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                ]
+            }
+        return None
+
+    def ml_from_dose(d):  # 4 mg/ml  -> ml = mg / 4
+        return round(float(d) / 4.0, 2)
+
+    try:
+        if request.method == 'POST':
+            action = request.form.get('action')
+
+            if action == 'dose':
+                dose = float(request.form['dose'])
+                if dose <= 0:
+                    raise ValueError("dose ต้องมากกว่า 0")
+                result_ml = ml_from_dose(dose)
+
+            elif action == 'condition':
+                multiplication = int(request.form['multiplication'])
+                dose_hidden = request.form.get('dose_hidden')
+                result_ml_hidden = request.form.get('result_ml_hidden')
+
+# กู้คืนทั้งสองค่ากลับมาเพื่อให้แสดงบนฟอร์มได้
+                if dose_hidden:
+                    dose = float(dose_hidden)
+                    if dose <= 0:
+                        raise ValueError("dose ต้องมากกว่า 0")
+                    result_ml = ml_from_dose(dose)
+                elif result_ml_hidden:
+                    result_ml = round(float(result_ml_hidden), 2)
+# คำนวณย้อนเพื่อโชว์บน input ด้านบน
+                    dose = round(result_ml * 4.0, 2)
+                else:
+                    raise ValueError("ไม่พบค่าตั้งต้น (dose/result_ml)")
+
+                final_result = round(result_ml * multiplication, 2)
+                content_extra = build_content_extra(multiplication)
+
+            else:
+# โหมดโพสต์เดียว (ไม่มี action)
+                dose = float(request.form['dose'])
+                multiplication = int(request.form['multiplication'])
+                if dose <= 0:
+                    raise ValueError("dose ต้องมากกว่า 0")
+                result_ml = ml_from_dose(dose)
+                final_result = round(result_ml * multiplication, 2)
+                content_extra = build_content_extra(multiplication)
+
+    except (ValueError, KeyError) as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template(
+        'omeprazole.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=None,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+
+@app.route('/penicillin', methods=['GET', 'POST'])
+def penicillin_g_sodium_route():
+    dose = None
+    calculated_ml = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+# Get dose from form input
+            dose = float(request.form.get('dose', 0))
+# Calculate the volume
+            calculated_ml = round((dose * 10) / 5000000, 2)
+        except ValueError:
+# Handle invalid inputs
+            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
+
+    return render_template(
+        'penicillin_g_sodium.html',
+        dose=dose,
+        calculated_ml=calculated_ml,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+
+# --- Phenobarbital: คิด mL จาก mg ---
+@app.route("/phenobarbital", methods=["GET", "POST"])
+def phenobarbital_route():
+    TARGET_CONC = 20.0  # mg/mL (สารละลายเป้าหมาย)
+    dose = None
+    vol_ml = None
+    error = None
+
+    if request.method == "POST":
+        try:
+            dose = float(request.form.get("dose") or 0)
+            if dose <= 0:
+                raise ValueError("กรุณากรอกขนาดยา (mg) มากกว่า 0")
+            vol_ml = dose / TARGET_CONC
+        except Exception as e:
+            error = str(e)
+
+    return render_template(
+        "phenobarbital.html",
+        target_conc=TARGET_CONC,
+        dose=dose,
+        vol_ml=vol_ml,
+        error=error,
+    )
+
+
+
+
+
+@app.route('/phenytoin', methods=['GET', 'POST'])
+def phenytoin_route():
+    dose = None
+    result_ml = None
+    error = None
+    
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml = dose * 4  # ตัวอย่างการคำนวณ
+        except ValueError:
+            error = "กรุณากรอกขนาดยาที่ถูกต้อง"
+    
+    return render_template('phenytoin.html', dose=dose, result_ml=result_ml, error=error, update_date=UPDATE_DATE)
+
+
+@app.route('/remdsivir', methods=['GET', 'POST'])
+def remdsivir_route():
+    dose = None
+    result_ml_1 = None
+    result_ml_2 = None
+    final_result_1 = None
+    final_result_2 = None
+    multiplication = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            dose = float(request.form['dose'])
+            result_ml_1 = round((dose * 20) / 100, 2)
+            result_ml_2 = round((dose * 1) / 1.25, 2)
+
+            if 'multiplication' in request.form:
+                multiplication = float(request.form['multiplication'])
+                final_result_1 = round(result_ml_1 * multiplication, 2)
+                final_result_2 = round(result_ml_2 * multiplication, 2)
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template('remdsivir.html', dose=dose, result_ml_1=result_ml_1, result_ml_2=result_ml_2, final_result_1=final_result_1, final_result_2=final_result_2, multiplication=multiplication, error=error, update_date=UPDATE_DATE)
+
+@app.route('/sul-am', methods=['GET', 'POST'])
+def sul_am_route():
+    dose = None
+    result_ml = None
+    multiplication = None
+    final_result = None
+    content_extra = None
+    error = None
+
+    if request.method == 'POST':
+        action = (request.form.get('action') or 'dose').strip()
+
+        try:
+            if action == 'dose':
+# รอบที่ 1: รับ dose แล้วคำนวณ ml พื้นฐาน
+                dose_raw = (request.form.get('dose') or '').strip()
+                if dose_raw == '':
+                    raise ValueError('missing dose')
+                dose = float(dose_raw)
+                if dose <= 0:
+                    raise ValueError('dose must be > 0')
+
+# ความแรงหลังเตรียม: 3 g → เติมรวม 8 ml ⇒ 375 mg/ml
+                result_ml = round((dose * 8.0) / 3000.0, 2)
+
+            elif action == 'condition':
+# รอบที่ 2: รับค่าซ่อน แล้วคำนวณคูณเงื่อนไข
+                dose_raw = (request.form.get('dose_hidden') or '').strip()
+                res_raw  = (request.form.get('result_ml_hidden') or '').strip()
+                mult_raw = (request.form.get('multiplication') or '').strip()
+
+                if not dose_raw or not res_raw or not mult_raw:
+                    raise ValueError('missing fields')
+
+                dose = float(dose_raw)
+                result_ml = float(res_raw)
+                multiplication = int(mult_raw)
+                if dose <= 0 or result_ml <= 0:
+                    raise ValueError('invalid numbers')
+                if multiplication not in (3, 6):
+                    raise ValueError('invalid multiplication')
+
+                final_result = round(result_ml * multiplication, 2)
+
+                if multiplication == 3:
+                    if final_result < 9:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                        "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                        "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                        "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                        "การเตรียมยา:",
+                        "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                        "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                        "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                        "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                        "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                        "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                    ]
+                        }
+                    else:
+                        content_extra = {
+                            "message": "ดูดยา 9 ml ไม่ต้องผสมสารละลาย",
+                            "details": [
+                                "ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 6 ml/hr."
+                            ]
+                        }
+
+                else:  # multiplication == 6
+                    if final_result < 6:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                        "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                        "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                        "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                        "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                        "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                    ]
+                        }
+                    else:
+                        content_extra = {
+                            "message": "ดูดยา 6 ml ไม่ต้องผสมสารละลาย",
+                            "details": [
+                                "ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 2 ml/hr."
+                            ]
+                        }
+
+            else:
+                raise ValueError('unknown action')
+
+        except (ValueError, KeyError):
+            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
+
+    return render_template(
+        'sul_am.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        final_result=final_result,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/sulbactam', methods=['GET', 'POST'])
+def sulbactam_route():
+    dose = None
+    result_ml = None
+    final_result = None
+    multiplication = None
+    error = None
+    formula_display = None
+    content_extra = None
+
+    try:
+        if request.method == 'POST':
+            action = request.form.get('action', 'dose')
+
+# รอบที่ 1: รับ dose แล้วคำนวณ mg -> ml (ความแรง 250 mg/ml จาก 2 g/vial → 8 ml)
+            if action == 'dose':
+                dose = float(request.form.get('dose', ''))
+                if dose < 0:
+                    raise ValueError('dose ต้องเป็นค่าบวก')
+                result_ml = round((dose * 8.0) / 2000.0, 2)  # 2 g = 2000 mg; เติม 8 ml → 250 mg/ml
+
+# รอบที่ 2: รับ multiplication และใช้ค่าที่ซ่อนไว้ (กันค่าหายเวลาโพสต์ครั้งที่ 2)
+            elif action == 'condition':
+# รับจาก hidden fields; เผื่อกรณีบางหน้าโพสต์ส่ง dose มาด้วยซ้ำ
+                dose_str = request.form.get('dose_hidden') or request.form.get('dose')
+                res_hidden = request.form.get('result_ml_hidden')
+
+                if dose_str is None:
+                    raise ValueError('ไม่พบค่า dose')
+                dose = float(dose_str)
+
+                if res_hidden:
+                    result_ml = float(res_hidden)
+                else:
+# เผื่อผู้ใช้แก้ไขฟอร์มเอง ให้คำนวณใหม่
+                    result_ml = round((dose * 8.0) / 2000.0, 2)
+
+                multiplication = int(request.form.get('multiplication'))
+                if multiplication not in (3, 6):
+                    raise ValueError('multiplication ต้องเป็น 3 หรือ 6')
+
+                final_result = round(result_ml * multiplication, 2)
+
+# สร้าง content_extra และข้อความประกอบ (มีบรรทัด “Up to … ml.” เพื่อให้เทมเพลตไฮไลต์ได้)
+                if multiplication == 3:
+                    if final_result < 9:
+                        need_dil = round(9 - final_result, 2)
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                        "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                        "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                        "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                        "การเตรียมยา:",
+                        "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                        "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                        "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                        "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                        "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                        "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                    ]
+                        }
+                    else:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                                "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                                "**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**",
+                                "บริหารด้วย Syringe pump ตั้งอัตรา 6 ml/hr. (ให้เข้า 3 ml)"
+                            ]
+                        }
+
+                elif multiplication == 6:
+                    if final_result < 6:
+                        need_dil = round(6 - final_result, 2)
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                    "details": [
+                        "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                        "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                        "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                        "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                        "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                        "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                    ]
+                        }
+                    else:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                                "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                                "**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**",
+                                "บริหารด้วย Syringe pump ตั้งอัตรา 2 ml/hr. (ให้เข้า 1 ml)"
+                            ]
+                        }
+
+# GET หรือ POST ที่ไม่มีค่า -> ปล่อยเป็น None ทั้งหมด
+    except (ValueError, KeyError) as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'sulbactam.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=formula_display,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/sulperazone', methods=['GET', 'POST'])
+def sulperazone_route():
+    dose = None
+    result_ml = None
+    final_result = None
+    multiplication = None
+    content_extra = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            action = request.form.get('action', 'dose').strip()
+
+# รอบที่ 1: คิด mg → ml
+            if action == 'dose':
+                dose = float(request.form['dose'])
+# สูตรเดิมของคุณ: (dose * 10) / 500
+                result_ml = round((dose * 10) / 500, 2)
+
+# รอบที่ 2: เลือกเงื่อนไขแล้วคำนวณต่อ
+            elif action == 'condition':
+# รับค่าที่ซ่อนไว้จากรอบแรก
+                dose_hidden = request.form.get('dose_hidden', '')
+                result_ml_hidden = request.form.get('result_ml_hidden', '')
+
+# กู้ค่า dose/result_ml กลับมา (และกันกรณีช่องว่าง)
+                dose = float(dose_hidden) if dose_hidden != '' else None
+                if result_ml_hidden != '':
+                    result_ml = float(result_ml_hidden)
+                elif dose is not None:
+# สำรองคำนวณใหม่ ถ้าไม่มี result_ml_hidden
+                    result_ml = round((dose * 10) / 500, 2)
+
+# รับค่าเงื่อนไข
+                multiplication = int(request.form.get('multiplication', '0') or 0)
+
+# คำนวณผลรวมหลังคูณ
+                if result_ml is not None and multiplication:
+                    final_result = round(result_ml * multiplication, 2)
+
+# เนื้อหาอธิบายเพิ่มเติมตามเงื่อนไข
+                    if multiplication == 3:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                                "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                                "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                                "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                                "การเตรียมยา:",
+                                "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                                "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                                "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                                "4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+                                "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                                "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                            ]
+                        }
+
+                    elif multiplication == 6:
+                        content_extra = {
+                            "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                                "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                                "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                                "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                                "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                                "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                            ]
+                        }
+
+            else:
+                error = "คำสั่งไม่ถูกต้อง"
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template(
+        'sulperazone.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+
+@app.route('/tazocin', methods=['GET', 'POST'])
+def tazocin_route():
+    dose = None
+    result_ml = None
+    multiplication = None
+    error = None
+    content_extra = None
+
+    try:
+        if request.method == 'POST':
+            action = request.form.get('action', 'dose')
+            if action == 'dose':
+# รอบที่ 1: รับ dose แล้วคำนวณ mg -> ml
+                dose = float(request.form.get('dose', ''))
+                result_ml = round((dose * 20.0) / 4000.0, 2)  # = dose / 200
+            elif action == 'condition':
+# รอบที่ 2: รับค่าที่ซ่อนไว้ แล้วคำนวณต่อ
+                dose = float(request.form.get('dose_hidden', ''))
+                result_ml = float(request.form.get('result_ml_hidden', ''))
+                multiplication = int(request.form.get('multiplication', ''))
+                total = round(result_ml * multiplication, 2)
+
+# (ไม่จำเป็นต้องสร้าง content_extra ก็ได้ แต่ถ้าอยากแสดงคู่มือก็เพิ่มตามต้องการ)
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                                "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                                "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                                "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                                "การเตรียมยา:",
+                                "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                                "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                                "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                                "4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+                                "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                                "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                            ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                            "details": [
+                                "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                                "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                                "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                                "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                                "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                                "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                            ]
+                    }
+    except (ValueError, KeyError) as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'tazocin.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/unasyun', methods=['GET', 'POST'])
+def unasyun_route():
+# ค่าตั้งต้นสำหรับส่งให้ template
+    dose = None                # mg ที่ผู้ใช้กรอก
+    result_ml = None           # ml ที่ได้จากรอบที่ 1 (mg -> ml)
+    final_result = None        # ml หลังคูณ 3x/6x (รอบที่ 2)
+    multiplication = None      # 3 หรือ 6
+    content_extra = None       # กล่องคำอธิบายเพิ่มเติม
+    error = None
+
+    try:
+        if request.method == 'POST':
+            action = request.form.get('action', 'dose')
+
+# รอบที่ 1: รับ dose แล้วคำนวณ mg -> ml ด้วยสูตร (dose*8)/3000
+            if action == 'dose':
+                dose = float(request.form.get('dose', '').strip() or 'nan')
+                if not (dose == dose):  # เช็ค NaN
+                    raise ValueError("dose เป็นค่าว่าง")
+                result_ml = round((dose * 8.0) / 3000.0, 2)
+
+# รอบที่ 2: รับ multiplication + ค่าที่ซ่อนไว้จากรอบแรก
+            elif action == 'condition':
+# ดึงค่าที่ซ่อนไว้จากฟอร์มรอบแรก
+                dose_hidden = request.form.get('dose_hidden', '').strip()
+                result_ml_hidden = request.form.get('result_ml_hidden', '').strip()
+
+                dose = float(dose_hidden or 'nan')
+                result_ml = float(result_ml_hidden or 'nan')
+                multiplication = int(request.form.get('multiplication', '').strip() or '0')
+
+                if not (dose == dose) or not (result_ml == result_ml):
+                    raise ValueError("ข้อมูลรอบแรกไม่ครบถ้วน")
+                if multiplication not in (3, 6):
+                    raise ValueError("กรุณาเลือกเงื่อนไข 3 เท่า หรือ 6 เท่า")
+
+# คำนวณผลรวมหลังคูณ
+                final_result = round(result_ml * multiplication, 2)
+
+# กล่องรายละเอียดเพิ่มเติมตามเงื่อนไข
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
+                            "การเตรียมยา:",
+                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                            "4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ]
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion.",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                            "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
+                            "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                        ]
+                    }
+# กรณี method=POST แต่ action ไม่ถูกต้อง: ปล่อยผ่านให้ error ด้านล่าง
+    except (ValueError, KeyError) as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+# ส่งค่าไปยัง template ที่รองรับการคำนวณ 2 รอบ (มี action + hidden fields)
+    return render_template(
+        'unasyun.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+@app.route('/vancomycin', methods=['GET', 'POST'])
+def vancomycin_route():
+    dose = None
+    concentration = None
+    result_ml_1 = None  # ปริมาณจาก stock 50 mg/ml (500 mg / 10 ml)
+    result_ml_2 = None  # ปริมาณรวมที่ต้องมีตามความเข้มข้นที่เลือก (5 หรือ 7 mg/ml)
+
+    multiplication = None
+    final_result_1 = None
+    final_result_2 = None
+
+    error = None
+
+    if request.method == 'POST':
+        try:
+            action = request.form.get('action', '').strip()
+
+# รอบที่ 1: รับค่า dose + concentration
+            if action == 'dose':
+                dose_raw = request.form.get('dose', '').strip()
+                conc_raw = request.form.get('concentration', '').strip()
+
+                if not dose_raw or not conc_raw:
+                    raise ValueError("กรุณากรอกขนาดยาและเลือกความเข้มข้นให้ครบถ้วน")
+
+                dose = float(dose_raw)
+                concentration = int(float(conc_raw))  # เผื่อ template ส่งมาเป็น "5" หรือ "5.0"
+
+                if concentration not in (5, 7):
+                    raise ValueError("เลือกระดับความเข้มข้นได้เฉพาะ 5 mg/ml หรือ 7 mg/ml")
+
+# คำนวณรอบที่ 1
+# จาก vial: 500 mg / 10 ml => 50 mg/ml
+                result_ml_1 = round((dose * 10.0) / 500.0, 2)
+# ปริมาณรวมตามความเข้มข้นที่เลือก
+                result_ml_2 = round(dose / float(concentration), 2)
+
+# รอบที่ 2: รับค่า multiplication + hidden fields
+            elif action == 'condition':
+# ใช้ค่าที่ได้จากรอบแรกผ่าน hidden fields
+                dose_hidden = request.form.get('dose_hidden', '').strip()
+                conc_hidden = request.form.get('concentration_hidden', '').strip()
+                res1_hidden = request.form.get('result_ml_1_hidden', '').strip()
+                res2_hidden = request.form.get('result_ml_2_hidden', '').strip()
+                mult_raw = request.form.get('multiplication', '').strip()
+
+                if not all([dose_hidden, conc_hidden, res1_hidden, res2_hidden, mult_raw]):
+                    raise ValueError("ข้อมูลไม่ครบถ้วนสำหรับการคำนวณรอบที่ 2")
+
+                dose = float(dose_hidden)
+                concentration = int(float(conc_hidden))
+                result_ml_1 = float(res1_hidden)
+                result_ml_2 = float(res2_hidden)
+                multiplication = float(mult_raw)
+
+                if concentration not in (5, 7):
+                    raise ValueError("เลือกระดับความเข้มข้นได้เฉพาะ 5 mg/ml หรือ 7 mg/ml")
+
+# คำนวณผลหลังคูณ
+                final_result_1 = round(result_ml_1 * multiplication, 2)
+                final_result_2 = round(result_ml_2 * multiplication, 2)
+
+            else:
+# ไม่มี action ที่รู้จัก -> มองเป็นรอบแรก (รองรับฟอร์มเก่าๆ)
+                dose_raw = request.form.get('dose', '').strip()
+                conc_raw = request.form.get('concentration', '').strip()
+                if dose_raw:
+                    dose = float(dose_raw)
+                if conc_raw:
+                    concentration = int(float(conc_raw)) if conc_raw else None
+                if dose is not None and concentration in (5, 7):
+                    result_ml_1 = round((dose * 10.0) / 500.0, 2)
+                    result_ml_2 = round(dose / float(concentration), 2)
+
+        except (ValueError, KeyError) as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
+
+    return render_template(
+        'vancomycin.html',
+        dose=dose,
+        concentration=concentration,
+        result_ml_1=result_ml_1,
+        result_ml_2=result_ml_2,
+        multiplication=multiplication,
+        final_result_1=final_result_1,
+        final_result_2=final_result_2,
+        error=error,
+        update_date=UPDATE_DATE
+    )
+
+
+
+# ฟังก์ชันช่วยคำนวณ PMA
+def _pma_helper(gestational_age_weeks, gestational_age_days, postnatal_age_days):
+    total_days = (gestational_age_weeks * 7) + gestational_age_days + postnatal_age_days
+    pma_weeks = total_days // 7
+    pma_days = total_days % 7
+    calc = pma_weeks + round(pma_days / 7, 0)
+    return pma_weeks, pma_days, calc
+
+# Route สำหรับคำนวณ PMA
+@app.route('/calculate_pma', methods=['GET', 'POST'])
+def calculate_pma_route():
+    if request.method == 'POST':
+        try:
+# รับค่าจากฟอร์ม
+            gestational_age_weeks = int(request.form['gestational_age_weeks'])
+            gestational_age_days = int(request.form['gestational_age_days'])
+            postnatal_age_days = int(request.form['postnatal_age_days'])
+            bw = float(request.form['bw'])  # น้ำหนักแรกเกิด
+
+# คำนวณ PMA
+            total_gestational_age_days = (gestational_age_weeks * 7) + gestational_age_days
+            total_pma_days = total_gestational_age_days + postnatal_age_days
+            pma_weeks = total_pma_days // 7
+            pma_days = total_pma_days % 7
+            calc = total_pma_days // 7
+
+# ส่งค่าไปที่ template เพื่อแสดงผลลัพธ์ พร้อมกับ update_date
+            return render_template(
+                'pma_template.html',
+                pma_weeks=pma_weeks,
+                pma_days=pma_days,
+                calc=calc,
+                bw=bw,
+                postnatal_days=postnatal_age_days,
+                update_date=UPDATE_DATE
+            )
+        except (KeyError, ValueError) as e:
+# กรณีที่มีข้อผิดพลาด
+            return "Invalid input, please check your values.", 400
+
+# ถ้าเป็น GET request
+    return render_template('pma_template.html', update_date=UPDATE_DATE)
+
+
+# Route สำหรับหน้าแสดงการคำนวณยา
+@app.route('/drug_calculation', methods=['POST'])
+def drug_calculation():
+    pma_weeks = request.form.get('pma_weeks')
+    pma_days = request.form.get('pma_days')
+    calc = request.form.get('calc')
+    bw = request.form.get('bw')
+    postnatal_days = request.form.get('postnatal_days')
+
+# ตรวจสอบว่าทุกค่ามีการส่งมาแล้ว
+    if not all([pma_weeks, pma_days, calc, bw, postnatal_days]):
+        return "Invalid data received", 400
+
+# แปลงค่าที่รับมาเป็น float และคงค่าทศนิยมไว้
+    bw = round(float(bw), 2)  # ปัดน้ำหนักให้แสดงทศนิยม 2 ตำแหน่ง
+
+# เพิ่มตัวอย่างการคำนวณโดยใช้ค่าตัวแปร
+    dose = float(calc) * bw  # ตัวอย่างการคำนวณโดยการคูณ calc ด้วยน้ำหนัก
+
+# ส่งข้อมูลไปยัง template drug_calculation.html
+    return render_template(
+        'drug_calculation.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        bw=bw,
+        postnatal_days=postnatal_days,
+        dose=dose,  # ส่งผลลัพธ์การคำนวณไปยัง template
+        update_date=UPDATE_DATE
+    )
+
+
+@app.route('/acyclovir_dose')
+def acyclovir_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# ตัวอย่างการคำนวณขนาดยา (Acyclovir) เช่น 20 mg/kg
+    min_dose = round(bw * 20, 2)  # mg/kg/dose
+
+# ตัวอย่างเงื่อนไขกำหนด interval (ปรับตามความต้องการ)
+    if pma_weeks < 30:
+        interval = "every 12 hours"
+    else:
+        interval = "every 8 hours"
+
+# ส่งค่าไปที่ template (acyclovir_dose.html)
+    return render_template(
+        'acyclovir_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        min_dose=min_dose,
+        interval=interval,
+        update_date=UPDATE_DATE
+    )
+
+
+
+
+@app.route('/amikin_dose')
+def amikin_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except (ValueError, TypeError):
+        return "Invalid input parameters", 400
+
+# กำหนดค่า dose ตามเงื่อนไข
+    if postnatal_days < 14:
+        if bw <= 0.8:
+            dose_per_kg = 16
+        elif 0.8 < bw <= 1.2:
+            dose_per_kg = 16
+        elif 1.2 < bw <= 2.0:
+            dose_per_kg = 15
+        elif 2.0 < bw <= 2.8:
+            dose_per_kg = 15
+        else:
+            dose_per_kg = 15
+    else:  # postnatal_days >= 14
+        if bw <= 0.8:
+            dose_per_kg = 20
+        elif 0.8 < bw <= 1.2:
+            dose_per_kg = 20
+        elif 1.2 < bw <= 2.0:
+            dose_per_kg = 18
+        elif 2.0 < bw <= 2.8:
+            dose_per_kg = 18
+        else:
+            dose_per_kg = 18
+
+# คำนวณปริมาณยา
+    calculated_dose = round(dose_per_kg * bw)
+
+# ส่งค่ากลับไปที่ HTML template
+    return render_template(
+        'amikin_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        calculated_dose=calculated_dose,
+        update_date=UPDATE_DATE
+    )
+
+
+
+
+
+ 
+@app.route('/aminophylline_dose')
+def aminophylline_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# คำนวณ Loading dose และ Maintenance dose
+    loading_dose = round(bw * 8, 2)  # BW x 8 mg/kg for loading dose
+    maintenance_dose_min = round(bw * 1.5, 2)  # BW x 1.5 mg/kg for maintenance dose (minimum)
+    maintenance_dose_max = round(bw * 3, 2)    # BW x 3 mg/kg for maintenance dose (maximum)
+
+# ส่งค่าไปที่ template พร้อมกับ update_date
+    return render_template('aminophylline_dose.html', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw, loading_dose=loading_dose, maintenance_dose_min=maintenance_dose_min, maintenance_dose_max=maintenance_dose_max, update_date=UPDATE_DATE)
+
+
+
+@app.route('/amoxicillin_clavimoxy_dose')
+def amoxicillin_clavimoxy_dose():
+    """
+    ตัวอย่าง Route สำหรับคำนวณขนาดยา Amoxicilline/Clavimoxy
+    โดยรับค่าจาก query parameters:
+      - pma_weeks, pma_days: ประมาณอายุครรภ์ (Gestational Age)
+      - calc: ค่าที่คำนวณเพิ่มเติม (ถ้ามี)
+      - postnatal_days: อายุหลังคลอด (Postnatal Age)
+      - bw: น้ำหนักตัว (กิโลกรัม)
+
+    จากนั้นประมวลผลเพื่อให้ได้ 'min_dose' (mg/kg/dose) และ 'interval'
+    แล้วคูณด้วยน้ำหนัก (bw) เพื่อให้ได้ actual_dose (mg/dose)
+    แล้วส่งไปแสดงผลใน Template 'amoxicillin_clavimoxy_dose.html'
+    """
+
+# 1) รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# 2) ตรวจสอบว่ามีข้อมูลครบหรือไม่
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+# 3) พยายามแปลงค่าที่ได้รับให้เป็นตัวเลข
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# 4) เริ่มกำหนดตัวแปรเริ่มต้น
+    min_dose = None    # mg/kg/dose
+    interval = None    # q x hours
+    scenario = None    # เพื่อใช้ระบุว่าตรงกับเคสไหน (สำหรับ highlight หรือแสดงผลเพิ่มเติม)
+    explanation = ""   # สำหรับใส่ข้อความอธิบาย
+
+# 5) ตัวอย่างเงื่อนไขการคำนวณ (Simplified) ----------------------------------
+#
+# ตัวอย่างที่ 1: เช็ค Anthrax (GA 32 to 37 weeks)
+    if 32 <= pma_weeks < 37:
+        if postnatal_days < 7:
+# 0 to 1 week: 50 mg/kg/day orally / q12h => mg/kg/dose = 50/2 = 25 mg/kg/dose
+            min_dose = 25
+            interval = "every 12 hours"
+            scenario = "anthrax_32_37_wk_0_1"
+            explanation = ("Anthrax prophylaxis/treatment for GA 32–37 wk, age 0–1 wk: "
+                           "50 mg/kg/day divided q12h => 25 mg/kg/dose.")
+        else:
+# 1 to 4 weeks: 75 mg/kg/day orally / q8h => mg/kg/dose = 75/3 = 25 mg/kg/dose
+            min_dose = 25
+            interval = "every 8 hours"
+            scenario = "anthrax_32_37_wk_1_4"
+            explanation = ("Anthrax prophylaxis/treatment for GA 32–37 wk, age ≥1–4 wk: "
+                           "75 mg/kg/day divided q8h => 25 mg/kg/dose.")
+
+# ตัวอย่างที่ 2: Term newborn (GA >= 37 wk) / 0 to 4 weeks => 75 mg/kg/day q8h
+    elif pma_weeks >= 37 and postnatal_days <= 28:
+        min_dose = 25  # (75 mg/kg/day / 3)
+        interval = "every 8 hours"
+        scenario = "anthrax_term_0_4"
+        explanation = ("Anthrax prophylaxis/treatment for Term newborn (GA ≥ 37 wk, 0–4 wk): "
+                       "75 mg/kg/day divided q8h => 25 mg/kg/dose.")
+
+# ตัวอย่างที่ 3: UTI prophylaxis => 10–15 mg/kg/day once daily
+    elif postnatal_days >= 0 and postnatal_days < 60:
+        min_dose = 10   # mg/kg/dose (ใช้ค่าน้อยสุดในตัวอย่าง)
+        interval = "once daily"
+        scenario = "uti_prophylaxis"
+        explanation = ("UTI prophylaxis recommended dose: 10–15 mg/kg/day orally once daily. "
+                       "ตัวอย่างนี้ใช้ค่าน้อยสุดคือ 10 mg/kg/dose.")
+
+# ตัวอย่างที่ 4: กรณีทั่วไป Usual dose (Max 30 mg/kg/day) - manufacturer recommended
+    else:
+        min_dose = 15  # สมมติ 15 mg/kg/dose แบ่ง 2 ครั้ง => 30 mg/kg/day
+        interval = "every 12 hours"
+        scenario = "usual_dose"
+        explanation = ("Usual dose (manufacturer recommended): max 30 mg/kg/day orally, "
+                       "divided q12h.")
+
+# 6) คำนวณ actual_dose (mg/dose) โดยการคูณน้ำหนัก (bw)
+    actual_dose = round(min_dose * bw, 2)
+
+# 7) ส่งค่าไปยัง Template
+    return render_template(
+        'amoxicillin_clavimoxy_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        min_dose=min_dose,    # mg/kg/dose
+        interval=interval,
+        actual_dose=actual_dose,  # mg/dose (คูณน้ำหนักแล้ว)
+        scenario=scenario,
+        explanation=explanation,
+        update_date=UPDATE_DATE
+    )
+
+
+
+
+
+@app.route('/amphotericinB_dose')
+def amphotericinB_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# คำนวณ Maintenance dose for Amphotericin B
+    maintenance_dose_min = round(bw * 1.0, 2)  # 1 mg/kg for the minimum maintenance dose
+    maintenance_dose_max = round(bw * 1.5, 2)  # 1.5 mg/kg for the maximum maintenance dose
+
+# ส่งค่าไปที่ template พร้อมกับ update_date
+    return render_template('amphotericinB_dose.html', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw, maintenance_dose_min=maintenance_dose_min, maintenance_dose_max=maintenance_dose_max, update_date=UPDATE_DATE)
+
+@app.route('/ampicillin_dose')
+def ampicillin_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, bw, postnatal_days]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# คำนวณปริมาณยาสำหรับทารก
+    avg_dose_per_kg = 100  # ค่าปริมาณยาต่อกิโลกรัม เช่น 100 mg/kg
+    calculated_dose = math.ceil(avg_dose_per_kg * bw)  # ปัดเศษทศนิยมขึ้น
+
+# ส่งค่าไปที่ template พร้อมกับ update_date และปริมาณยาที่คำนวณได้
+    return render_template('ampicillin_dose.html', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw, calculated_dose=calculated_dose, update_date=UPDATE_DATE)
+@app.route('/cefazolin_dose')
+def cefazolin_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# Debug log สำหรับตรวจสอบค่าที่ได้รับ
+    print(f"Received parameters: pma_weeks={pma_weeks}, pma_days={pma_days}, calc={calc}, postnatal_days={postnatal_days}, bw={bw}")
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+# แปลงค่าให้เป็นตัวเลข
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)  # รองรับค่า BW เป็นทศนิยม
+        print(f"BW after conversion to float: {bw}")  # Debug log
+    except ValueError:
+        return "Invalid input: Parameters must be numeric.", 400
+
+# Example dose and interval logic for CeFAZolin
+    dose_per_kg = 25  # Example dose in mg/kg
+    interval = "every 8 hours"
+
+# Calculate total dose
+    calculated_dose = round(dose_per_kg * bw, 2)
+    print(f"Calculated Dose for CeFAZolin: {calculated_dose} mg")  # Debug log
+
+# ส่งค่าไปที่ Template
+    return render_template(
+        'cefazolin_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,  # ส่งค่า BW เป็นทศนิยม
+        calculated_dose=calculated_dose,
+        interval=interval,
+        update_date=UPDATE_DATE
+    )
+@app.route('/cefotaxime_dose')
+def cefotaxime_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except (ValueError, TypeError):
+        return "Invalid input parameters", 400
+
+# กำหนดค่า dose ตามเงื่อนไข
+    if postnatal_days < 7:
+        if bw <= 1.0:
+            dose_per_kg = 50
+        elif 1.0 < bw <= 2.0:
+            dose_per_kg = 50
+        else:
+            dose_per_kg = 50
+    elif 7 <= postnatal_days <= 28:
+        if bw <= 1.0:
+            dose_per_kg = 50
+        elif 1.0 < bw <= 2.0:
+            dose_per_kg = 50
+        else:
+            dose_per_kg = 50
+    else:  # postnatal_days > 28
+        if bw <= 1.0:
+            dose_per_kg = 100
+        elif 1.0 < bw <= 2.0:
+            dose_per_kg = 100
+        else:
+            dose_per_kg = 100
+
+# คำนวณปริมาณยา
+    calculated_dose = round(dose_per_kg * bw)
+
+# ส่งค่ากลับไปที่ HTML template
+    return render_template(
+        'cefotaxime_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        calculated_dose=calculated_dose,
+        update_date=UPDATE_DATE
+    )
+
+@app.route('/cloxacillin_dose')
+def cloxacillin_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# กำหนดค่า dose ตาม PMA และ postnatal age
+    recommended_dose_per_kg = None
+
+    if pma_weeks <= 29 and postnatal_days <= 28:
+        recommended_dose_per_kg = 40.0
+    elif 30 <= pma_weeks <= 36 and postnatal_days <= 14:
+        recommended_dose_per_kg = 40.0
+    elif 30 <= pma_weeks <= 36 and postnatal_days > 14:
+        recommended_dose_per_kg = 40.0
+    elif 37 <= pma_weeks <= 44 and postnatal_days <= 7:
+        recommended_dose_per_kg = 40.0
+    elif 37 <= pma_weeks <= 44 and postnatal_days > 7:
+        recommended_dose_per_kg = 40.0
+    elif pma_weeks >= 45:
+        recommended_dose_per_kg = 40.0
+
+    if recommended_dose_per_kg is None:
+        return "No suitable dose found for the given PMA and postnatal age", 400
+
+# คำนวณปริมาณยาที่ควรได้รับ
+    calculated_dose = recommended_dose_per_kg * bw
+    calculated_dose = round(calculated_dose)  # ปัดเศษเป็นจำนวนเต็ม
+
+# พิมพ์ค่า dose ที่คำนวณได้เพื่อการตรวจสอบ
+    print(f"Calculated dose: {calculated_dose} mg")
+
+# ส่งค่าไปที่ template พร้อมกับ update_date
+    return render_template('cloxacillin_dose.html', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw, calculated_dose=calculated_dose, update_date=UPDATE_DATE)
+
+
+
+@app.route('/colistin_dose')
+def colistin_dose():
+# รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# Debug log สำหรับตรวจสอบค่าที่ได้รับ
+    print(f"Received parameters: pma_weeks={pma_weeks}, pma_days={pma_days}, calc={calc}, postnatal_days={postnatal_days}, bw={bw}")
+
+# ตรวจสอบค่าที่ได้รับ
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+# แปลงค่าให้เป็นตัวเลข
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)  # รองรับค่า BW เป็นทศนิยม
+        print(f"BW after conversion to float: {bw}")  # Debug log
+    except ValueError:
+        return "Invalid input: Parameters must be numeric.", 400
+
+# กำหนดค่า dose และ interval
+    min_dose_per_kg = None
+    max_dose_per_kg = None
+    interval = None
+
+    if postnatal_days < 7:
+        min_dose_per_kg = 2.5
+        max_dose_per_kg = 5.0
+        interval = "every 12 hours"
+    elif postnatal_days >= 7 and pma_weeks < 32:
+        min_dose_per_kg = 2.5
+        max_dose_per_kg = 5.0
+        interval = "every 8 hours"
+    elif postnatal_days >= 7 and pma_weeks >= 32:
+        min_dose_per_kg = 2.5
+        max_dose_per_kg = 5.0
+        interval = "every 6 hours"
+
+    if min_dose_per_kg is None or max_dose_per_kg is None or interval is None:
+        return "No suitable dose found for the given PMA and postnatal age.", 400
+
+# คำนวณช่วงปริมาณยาที่ควรได้รับ
+    calculated_min_dose = round(min_dose_per_kg * bw, 2)
+    calculated_max_dose = round(max_dose_per_kg * bw, 2)
+    print(f"Calculated Dose Range: {calculated_min_dose} - {calculated_max_dose} mg")  # Debug log
+
+# ส่งค่าไปที่ Template
+    return render_template(
+        'colistin_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,  # ส่งค่า BW เป็นทศนิยม
+        min_dose=calculated_min_dose,
+        max_dose=calculated_max_dose,
+        interval=interval,
+        update_date=UPDATE_DATE
+    )
+
+
+
+
+
+
+
+
+
+# Route สำหรับการคำนวณปริมาณยา Gentamicin
+@app.route('/gentamicin_dose')
+def gentamicin_dose():
+# รับค่าจาก query parameters
+    pma_weeks      = request.args.get('pma_weeks')
+    pma_days       = request.args.get('pma_days')
+    calc           = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw             = request.args.get('bw')
+
+# ตรวจสอบพารามิเตอร์
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+    try:
+        pma_weeks      = int(pma_weeks)
+        pma_days       = int(pma_days)
+        calc           = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw             = float(bw)
+    except ValueError:
+        return "Invalid data received - value error", 400
+
+# กำหนดค่า dose per kg ตามช่วงอายุ
+    if pma_weeks <= 29 and postnatal_days <= 7:
+        dose_per_kg = 5.0
+    elif pma_weeks <= 29 and postnatal_days <= 28:
+        dose_per_kg = 4.0
+    elif pma_weeks <= 29 and postnatal_days > 28:
+        dose_per_kg = 4.0
+    elif 30 <= pma_weeks <= 34 and postnatal_days <= 7:
+        dose_per_kg = 4.5
+    elif 30 <= pma_weeks <= 34 and postnatal_days > 7:
+        dose_per_kg = 4.0
+    elif pma_weeks >= 35:
+        dose_per_kg = 4.0
+    else:
+        return "No suitable dose found", 400
+
+# **คำนวณปริมาณยา แล้ว “ตัดเศษลง”** ให้ใช้ math.floor แทน round
+    raw_dose       = dose_per_kg * bw
+    calculated_dose = math.floor(raw_dose)
+
+# ส่งไปแสดงผล
+    return render_template(
+        'gentamicin_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        calculated_dose=calculated_dose,
+        update_date=UPDATE_DATE
+    )
+
+
+
+@app.route('/meropenam_dose')
+def meropenam_dose():
+    """
+    Route นี้ทำหน้าที่รับค่า PMA (pma_weeks, pma_days), postnatal age (postnatal_days),
+    น้ำหนักตัว (bw) และ calc (ค่าที่อาจใช้แสดงผลเพิ่มเติม)
+    จาก query parameters จากนั้นจะคำนวณขนาดยาตามเงื่อนไขใหม่ (Intra-abdominal and non-CNS infections)
+    และส่งข้อมูลไปยัง Template เพื่อแสดงผลลัพธ์พร้อม highlight สีเขียว
+    ในบรรทัดที่ตรงกับเงื่อนไข.
+    """
+
+# 1) รับค่าจาก query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# 2) ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        return "Invalid data received - missing parameters", 400
+
+# 3) พยายามแปลงค่าที่ได้รับให้เป็นตัวเลข
+    try:
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)  # รองรับค่า BW ที่เป็นทศนิยม
+    except ValueError:
+        return "Invalid input: Parameters must be numeric.", 400
+
+# 4) กำหนดตัวแปรสำหรับจับเงื่อนไข (scenario) + ขนาดยา
+    scenario = None         # ใช้ระบุว่าอยู่ในเคสไหนเพื่อไป highlight ใน Template
+    min_dose_per_kg = None  # ขนาดยาต่ำสุด (mg/kg)
+    max_dose_per_kg = None  # ขนาดยาสูงสุด (mg/kg) — กรณีนี้อาจเท่ากับ min_dose_per_kg
+    interval = None         # ความถี่ในการให้ยา
+
+# 5) กำหนดเงื่อนไข "Intra-abdominal and non-CNS infections" ตามที่ระบุไว้
+#    - Less than 32 weeks GA and less than 14 days PNA => 20 mg/kg IV q12h
+#    - Less than 32 weeks GA and 14 days PNA and older => 20 mg/kg IV q8h
+#    - 32 weeks GA and older, and less than 14 days PNA => 20 mg/kg IV q8h
+#    - 32 weeks GA and older, and 14 days PNA and older => 30 mg/kg IV q8h
+    if pma_weeks < 32 and postnatal_days < 14:
+        scenario = 'intra1'
+        min_dose_per_kg = 20
+        max_dose_per_kg = 20
+        interval = "every 12 hours"
+    elif pma_weeks < 32 and postnatal_days >= 14:
+        scenario = 'intra2'
+        min_dose_per_kg = 20
+        max_dose_per_kg = 20
+        interval = "every 8 hours"
+    elif pma_weeks >= 32 and postnatal_days < 14:
+        scenario = 'intra3'
+        min_dose_per_kg = 20
+        max_dose_per_kg = 20
+        interval = "every 8 hours"
+    elif pma_weeks >= 32 and postnatal_days >= 14:
+        scenario = 'intra4'
+        min_dose_per_kg = 30
+        max_dose_per_kg = 30
+        interval = "every 8 hours"
+
+# 6) หากไม่เข้ากรณีใด ๆ เลย
+    if scenario is None:
+        return "No suitable dose found for the given PMA and postnatal age (Intra-abdominal scenario).", 400
+
+# 7) คำนวณขนาดยาที่ควรได้รับ (mg/day)
+    calculated_min_dose = round(min_dose_per_kg * bw, 2)
+    calculated_max_dose = round(max_dose_per_kg * bw, 2)
+
+# 8) ส่งค่าที่คำนวณไปยัง Template
+    return render_template(
+        'meropenam_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        min_dose=calculated_min_dose,
+        max_dose=calculated_max_dose,
+        interval=interval,
+        scenario=scenario,      # ส่ง scenario ไปด้วยเพื่อให้ Template รู้ว่าต้อง highlight บรรทัดไหน
+        update_date=UPDATE_DATE
+    )
+
+
+
+
+@app.route('/vancomycin_dose')
+def vancomycin_dose():
+# Retrieve values from query parameters
+    pma_weeks = request.args.get('pma_weeks')
+    pma_days = request.args.get('pma_days')
+    calc = request.args.get('calc')
+    postnatal_days = request.args.get('postnatal_days')
+    bw = request.args.get('bw')
+
+# Print statements for debugging
+    print(f"pma_weeks: {pma_weeks}, pma_days: {pma_days}, calc: {calc}, postnatal_days: {postnatal_days}, bw: {bw}")
+
+# Check if all necessary parameters are present
+    if not all([pma_weeks, pma_days, calc, postnatal_days, bw]):
+        print("Missing parameters, returning 400")
+        return "Invalid data received - missing parameters", 400
+
+    try:
+# Convert to appropriate data types
+        pma_weeks = int(pma_weeks)
+        pma_days = int(pma_days)
+        calc = float(calc)
+        postnatal_days = int(postnatal_days)
+        bw = float(bw)
+    except ValueError:
+        print("Value error occurred, returning 400")
+        return "Invalid data received - value error", 400
+
+# Calculate Maintenance dose for vancomycin
+    maintenance_dose_min = round(bw * 10)  # 10 mg/kg for the minimum maintenance dose
+    maintenance_dose_max = round(bw * 15)  # 15 mg/kg for the maximum maintenance dose
+    
+# Use one of these or combine them as needed
+    calculated_dose = f"{maintenance_dose_min} mg - {maintenance_dose_max} mg"
+
+# Pass the data to the template
+    return render_template(
+        'vancomycin_dose.html',
+        pma_weeks=pma_weeks,
+        pma_days=pma_days,
+        calc=calc,
+        postnatal_days=postnatal_days,
+        bw=bw,
+        calculated_dose=calculated_dose,  # Corrected to ensure this is defined
+        update_date=UPDATE_DATE  # Make sure UPDATE_DATE is defined elsewhere
+    )
+
+
+# ===== app.py (Compatibility: COMPLETE, single-source-of-truth) =================
+from flask import render_template, request, redirect, url_for, jsonify
+from sqlalchemy import func
+from pathlib import Path
+from functools import lru_cache
+import json, re
+from click import argument, option
+
+from extensions import db
+from models import Drug, Compatibility
+
+# ---------------- Shell context ----------------
+@app.shell_context_processor
+def make_shell_context():
+    return {"db": db, "Drug": Drug, "Compatibility": Compatibility}
+
+# ---------------- Utilities ----------------
+def _data_dir() -> Path:
+    from flask import current_app
+    return Path(current_app.root_path) / "data"
+
+def _id_map_path() -> Path:
+    return _data_dir() / "drug_id_map.json"
+
+def _norm_txt(s: str) -> str:
+    return " ".join((s or "").strip().lower().split())
+
+def status_to_code(s: str) -> str:
+    if not s: return "ND"
+    t = s.strip().lower()
+    if t.startswith("comp"): return "C"
+    if t.startswith("incomp"): return "I"
+    if t.startswith("uncer"): return "U"
+    if t in ("nd", "unknown", "no data"): return "ND"
+    return "ND"
+
+def canonicalize_name(s: str) -> str:
+    """รูปแบบมาตรฐานชื่อยาเพื่อเทียบ (lower + แก้สะกดพื้นฐาน)"""
+    if not s: return ""
+    low = re.sub(r"\s+", " ", s.strip().lower())
+    low = low.replace("meropenam", "meropenem")
+# ตัด suffix ที่ไม่อยากเก็บเป็นชื่อจริง
+    for bad in (" small dose", " continuous"):
+        if low.endswith(bad):
+            low = low[: -len(bad)]
+    return low
+
+# ---------------- Load “meta explanation” from seed_compatibility.json ----------
+@lru_cache(maxsize=1)
+def load_pair_meta():
+    """
+    อ่าน data/seed_compatibility.json แล้วทำ mapping แบบสมมาตร
+    key = (min(drug), max(co_drug)) เป็น lower/trim แล้ว
+    value = {en, th, detail, note} (field ไหนไม่มีจะเป็น None)
+    """
+    p = _data_dir() / "seed_compatibility.json"
+    meta_map = {}
+    if not p.exists():
+        return meta_map
+    try:
+        items = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return meta_map
+
+    for it in items:
+        a = _norm_txt(it.get("drug", ""))
+        b = _norm_txt(it.get("co_drug", ""))
+        if not a or not b or a == b:
+            continue
+        payload = {
+            "en": it.get("en"),
+            "th": it.get("th"),
+            "detail": it.get("detail"),
+            "note": it.get("note"),
+        }
+        k = (min(a, b), max(a, b))
+        meta_map[k] = payload
+    return meta_map
+
+def get_pair_meta(name_a: str, name_b: str):
+    a, b = _norm_txt(name_a), _norm_txt(name_b)
+    if not a or not b or a == b:
+        return None
+    return load_pair_meta().get((min(a, b), max(a, b)))
+
+# ---------------- Query helpers ----------------
+def get_all_drugs_for_select():
+    q = Drug.query.filter(Drug.generic_name.isnot(None)).order_by(func.lower(Drug.generic_name))
+    return [{"id": d.id, "generic_name": d.generic_name} for d in q.all()]
+
+def get_pair_status_by_ids(drug_id: int, co_id: int):
+    if not drug_id or not co_id or drug_id == co_id:
+        return {"status": "ND", "note": ""}
+    a, b = (drug_id, co_id) if drug_id < co_id else (co_id, drug_id)
+    row = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+    if not row:
+        return {"status": "Unknown", "note": "No data / ยังไม่บันทึกผลคู่ยานี้"}
+    return {"status": (row.status or "Unknown"), "note": (row.note or "")}
+
+def get_drug_name(drug_id: int):
+    row = Drug.query.get(drug_id)
+    return row.generic_name if row else None
+
+# ---------------- Views (routes) — unique endpoints ----------------
+@app.get("/compatibility", endpoint="compatibility_page")
+def compatibility_page():
+    """หน้าเลือกยา (ฟอร์ม)"""
+    return render_template(
+        "compatibility.html",
+        drugs=[type("Row", (), d) for d in get_all_drugs_for_select()],  # ให้เข้ากับ template เดิม {{ d.id }} / {{ d.generic_name }}
+        selected_drug_id=request.args.get("drug"),
+        selected_co_drug_id=request.args.get("co_drug"),
+        error=request.args.get("error"),
+    )
+
+@app.get("/compatibility/check", endpoint="compatibility_check")
+def compatibility_check():
+    """รับ drug/co_drug (id) -> ค้น DB -> render หน้า result พร้อม meta จาก seed_compatibility.json"""
+    drug_id = request.args.get("drug", type=int)
+    co_id   = request.args.get("co_drug", type=int)
+
+    if not drug_id or not co_id:
+        return render_template(
+            "compatibility.html",
+            drugs=[type("Row", (), d) for d in get_all_drugs_for_select()],
+            selected_drug_id=drug_id,
+            selected_co_drug_id=co_id,
+            error="กรุณาเลือกยาให้ครบทั้ง 2 รายการ",
+        )
+
+    if drug_id == co_id:
+        d1 = get_drug_name(drug_id) or f"#{drug_id}"
+        return render_template(
+            "compatibility_result.html",
+            drug1_name=d1,
+            drug2_name=d1,
+            status_code="ND",
+            note="เป็นยาเดียวกัน—ไม่ใช่การผสม Y-site",
+            meta={"en": "Same drug.", "th": "เป็นยาเดียวกัน"},
+        )
+
+    a, b = (drug_id, co_id) if drug_id < co_id else (co_id, drug_id)
+    row = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+
+    status = row.status if row else "Unknown"
+    note   = (row.note or "") if row else "ไม่พบข้อมูลยืนยัน—แนะนำแยกสาย/flush line และตรวจคู่มือสถาบัน"
+
+    d1 = get_drug_name(a) or f"#{a}"
+    d2 = get_drug_name(b) or f"#{b}"
+
+    meta = get_pair_meta(d1, d2) or {}
+    if status_to_code(status) == "C":
+        meta.setdefault("th", "ยาสามารถผสมร่วมกันได้ (ตามเงื่อนไขทั่วไปของหน่วยงาน)")
+        meta.setdefault("en", "Compatible under general institutional conditions.")
+
+    return render_template(
+        "compatibility_result.html",
+        drug1_name=d1,
+        drug2_name=d2,
+        status_code=status_to_code(status),
+        note=note,
+        meta=meta,
+    )
+
+# (optional) JSON API สำหรับ front-end หรือทดสอบ
+@app.get("/api/compatibility")
+def api_compatibility():
+    name_a = (request.args.get("drug") or "").strip()
+    name_b = (request.args.get("co") or "").strip()
+    if not name_a or not name_b:
+        return jsonify({"ok": False, "error": "ต้องระบุ drug และ co"}), 400
+    if _norm_txt(name_a) == _norm_txt(name_b):
+        return jsonify({"ok": True, "status": "Same", "note": "ยาเดียวกัน"}), 200
+
+# หา id จากชื่อ
+    def _find_id_by_name(nm: str):
+        row = Drug.query.filter(func.lower(Drug.generic_name) == _norm_txt(nm)).first()
+        return row.id if row else None
+
+    ida, idb = _find_id_by_name(name_a), _find_id_by_name(name_b)
+    if not ida or not idb:
+        return jsonify({"ok": True, "status": "ND", "note": "ค้นหาชื่อยาไม่พบในระบบ"}), 200
+
+    a, b = (ida, idb) if ida < idb else (idb, ida)
+    row = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+    status = row.status if row else "Unknown"
+    note   = (row.note or "") if row else "ไม่พบข้อมูลยืนยัน—แนะนำแยกสาย/flush line และตรวจคู่มือสถาบัน"
+
+    meta = get_pair_meta(name_a, name_b) or {}
+    code = status_to_code(status)
+    if code == "C":
+        meta.setdefault("th", "ยาสามารถผสมร่วมกันได้ (ตามเงื่อนไขทั่วไปของหน่วยงาน)")
+        meta.setdefault("en", "Compatible under general institutional conditions.")
+
+    return jsonify({
+        "ok": True,
+        "drug": name_a,
+        "co_drug": name_b,
+        "status": {"C":"Compatible","I":"Incompatible","U":"Uncertain","ND":"Unknown"}[code],
+        "code": code,
+        "note": note,
+        "meta": meta
+    }), 200
+
+# ---------------- CLI: seed drugs ----------------
+@app.cli.command("seed-drugs")
+def seed_drugs():
+    base = _data_dir()
+    p = base / "seed_drugs.json"
+    print("seed file:", p, "exists:", p.exists())
+    if not p.exists():
+        print("❌ ไม่พบไฟล์"); return
+
+    id_map, ins, upd, skip = {}, 0, 0, 0
+    items = json.loads(p.read_text(encoding="utf-8"))
+    for it in items:
+        seed_id = int(it["id"])
+        raw     = (it.get("generic_name") or "").strip()
+        if not raw:
+            skip += 1; continue
+
+        norm = canonicalize_name(raw)
+        if not norm:
+            skip += 1; continue
+
+        existing_by_name = Drug.query.filter(func.lower(Drug.generic_name) == norm).first()
+        if existing_by_name:
+            if existing_by_name.generic_name != raw:
+                existing_by_name.generic_name = raw; upd += 1
+            id_map[seed_id] = existing_by_name.id
+            continue
+
+        existing_by_id = Drug.query.get(seed_id)
+        if existing_by_id:
+            id_map[seed_id] = existing_by_id.id
+            continue
+
+        d = Drug(id=seed_id, generic_name=raw)
+        db.session.add(d); ins += 1
+        id_map[seed_id] = seed_id
+
+    db.session.commit()
+    try:
+        _id_map_path().write_text(json.dumps(id_map, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("🗺️  wrote id map to", _id_map_path())
+    except Exception as e:
+        print("⚠️ เขียน id map ไม่ได้:", e)
+
+    print(f"✅ Drug inserted={ins} updated={upd} skipped={skip} total={Drug.query.count()}")
+
+# ---------------- CLI: seed compatibility (by id or name) ----------------
+@app.cli.command("seed-compat")
+def seed_compat():
+    base = _data_dir()
+    p = base / "seed_compatibility.json"
+    print("seed file:", p, "exists:", p.exists())
+    if not p.exists():
+        print("❌ ไม่พบไฟล์"); return
+
+    id_map = {}
+    if _id_map_path().exists():
+        try:
+            id_map = json.loads(_id_map_path().read_text(encoding="utf-8"))
+            id_map = {int(k): int(v) for k, v in id_map.items()}
+            print("🗺️  loaded id map entries:", len(id_map))
+        except Exception as e:
+            print("⚠️ โหลด id map ไม่ได้:", e)
+
+    def resolve_drug_id(it, key_id, key_name):
+        if it.get(key_id) is not None:
+            raw_id = int(it[key_id]); return id_map.get(raw_id, raw_id)
+        name = (it.get(key_name) or "").strip()
+        if not name: return None
+        row = Drug.query.filter(func.lower(Drug.generic_name) == canonicalize_name(name)).first()
+        return row.id if row else None
+
+    code_map = {"COMPATIBLE": "Compatible", "INCOMPATIBLE": "Incompatible",
+                "UNCERTAIN": "Uncertain", "UNKNOWN": "ND", "NO DATA": "ND"}
+
+    items = json.loads(p.read_text(encoding="utf-8"))
+    ins = upd = skip = 0
+
+    for it in items:
+        d = resolve_drug_id(it, "drug_id", "drug")
+        c = resolve_drug_id(it, "co_drug_id", "co_drug")
+        if not d or not c or d == c:
+            skip += 1; continue
+
+        a, b = (d, c) if d < c else (c, d)
+
+        st_raw = (it.get("status") or "").strip()
+        st = code_map.get(st_raw.upper(), st_raw or "ND")
+        note = it.get("note") or ""
+
+        row = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+        if row:
+            changed = False
+            if (row.status or "") != st: row.status = st; changed = True
+            if (row.note or "") != note: row.note   = note; changed = True
+            if changed: upd += 1
+        else:
+            db.session.add(Compatibility(drug_id=a, co_drug_id=b, status=st, note=note))
+            ins += 1
+
+    db.session.commit()
+    print(f"✅ Compat inserted={ins} updated={upd} skipped={skip} total={Compatibility.query.count()}")
+
+@app.cli.command("seed-compat-from-names")
+def seed_compat_from_names():
+    base = _data_dir()
+    p = base / "seed_compat_by_name.json"
+    if not p.exists():
+        p = base / "seed_compatibility.json"
+    print("seed (by names) file:", p, "exists:", p.exists())
+    if not p.exists():
+        print("❌ ไม่พบไฟล์"); return
+
+    items = json.loads(p.read_text(encoding="utf-8"))
+
+    all_drugs = Drug.query.all()
+    name_to_id = {}
+    for d in all_drugs:
+        if d.generic_name:
+            name_to_id[_norm_txt(d.generic_name)] = d.id
+
+    def canonical_status(s: str) -> str:
+        if not s: return "Unknown"
+        t = s.strip().lower()
+        if t in ("c", "compatible"): return "Compatible"
+        if t in ("i", "incompatible"): return "Incompatible"
+        if t in ("u", "uncertain"):   return "Uncertain"
+        if t in ("nd", "unknown", "no data"): return "Unknown"
+        return s.strip().title()
+
+    ins = upd = skip = 0
+    for it in items:
+        dname = _norm_txt(it.get("drug", ""))
+        cname = _norm_txt(it.get("co_drug", ""))
+        if not dname or not cname or dname == cname:
+            skip += 1; continue
+
+        did = name_to_id.get(dname)
+        cid = name_to_id.get(cname)
+        if not did or not cid:
+            print(f"⚠️ ข้าม: หา id ไม่เจอ -> '{it.get('drug')}' / '{it.get('co_drug')}'")
+            skip += 1; continue
+
+        a, b = (did, cid) if did < cid else (cid, did)
+        st   = canonical_status(it.get("status"))
+        note = (it.get("note") or "").strip()
+
+        row = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+        if row:
+            changed = False
+            if (row.status or "") != st: row.status = st; changed = True
+            if (row.note or "") != note: row.note   = note; changed = True
+            if changed: upd += 1
+        else:
+            db.session.add(Compatibility(drug_id=a, co_drug_id=b, status=st, note=note))
+            ins += 1
+
+    db.session.commit()
+    print(f"✅ by-names inserted={ins} updated={upd} skipped={skip} total={Compatibility.query.count()}")
+
+@app.cli.command("seed-compat-fill-unknown")
+def seed_compat_fill_unknown():
+    """เติมคู่ที่หายทั้งหมดเป็น Unknown (ไม่นับคู่กับตัวเอง)"""
+    drugs = Drug.query.order_by(Drug.id).all()
+    ids = [d.id for d in drugs]
+
+    existing = set()
+    for r in Compatibility.query.all():
+        a, b = sorted((r.drug_id, r.co_drug_id))
+        existing.add((a, b))
+
+    ins = 0
+    for i, a in enumerate(ids):
+        for b in ids[i+1:]:
+            if (a, b) in existing:
+                continue
+            db.session.add(Compatibility(
+                drug_id=a, co_drug_id=b,
+                status="Unknown",
+                note="Auto-filled placeholder (not yet reviewed)"
+            ))
+            ins += 1
+
+    db.session.commit()
+    print(f"✅ Filled {ins} missing pairs as Unknown. Total rows now = {Compatibility.query.count()}")
+
+# ---------------- CLI: quick set one pair ----------------
+def _canon_name(n: str) -> str:
+    return _norm_txt(n)
+
+def _norm_status(s: str) -> str:
+    if not s: return "ND"
+    t = s.strip().lower()
+    if t.startswith("comp"): return "Compatible"
+    if t.startswith("incomp"): return "Incompatible"
+    if t.startswith("uncer"): return "Uncertain"
+    if t in ("unknown", "no data", "nd"): return "ND"
+    return "ND"
+
+def _find_drug_by_name(name: str):
+    key = _canon_name(name)
+    for d in Drug.query.all():
+        if _canon_name(d.generic_name) == key:
+            return d
+    return None
+
+@app.cli.command("compat-set")
+@argument("drug_a")
+@argument("drug_b")
+@argument("status")
+@option("--note", default="", help="optional note")
+def compat_set(drug_a, drug_b, status, note):
+    """ตั้ง/อัปเดตสถานะคู่ยา (A,B) แบบไม่ซ้ำทิศทาง: บันทึกเพียง (min_id,max_id)"""
+    da = _find_drug_by_name(drug_a)
+    dbb = _find_drug_by_name(drug_b)
+    if not da or not dbb:
+        print("❌ หา drug ไม่พบ:", drug_a if not da else "", "/", drug_b if not dbb else "")
+        return
+
+    a, b = (da.id, dbb.id) if da.id < dbb.id else (dbb.id, da.id)
+    row = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+    if row:
+        row.status = _norm_status(status)
+        row.note   = note or ""
+        action = "update"
+    else:
+        db.session.add(Compatibility(
+            drug_id=a, co_drug_id=b,
+            status=_norm_status(status), note=note or ""
+        ))
+        action = "insert"
+
+    db.session.commit()
+    print(f"✅ {da.generic_name} ↔ {dbb.generic_name}: {action}")
+# =================== end Compatibility block ===================================
+
+# ========= CLI: compat-import-csv (v2) — supports IDs or names =========
+import csv
+from click import option
+from sqlalchemy import func
+
+def _canon_status_csv(s: str) -> str:
+    if not s: return None
+    t = s.strip().lower()
+    if t in ("c", "compatible", "เข้ากันได้"):           return "Compatible"
+    if t in ("i", "incompatible", "ไม่เข้ากัน"):          return "Incompatible"
+    if t in ("u", "uncertain", "ไม่แน่ชัด"):              return "Uncertain"
+    if t in ("nd", "unknown", "no data", "ไม่มีข้อมูล"):  return "Unknown"
+    return s.strip().title()
+
+def _norm_txt(s: str) -> str:
+    return " ".join((s or "").strip().lower().split())
+
+@app.cli.command("compat-import-csv")
+@option("--path", default="data/compatibility.csv", show_default=True,
+        help="พาธไฟล์ CSV สำหรับนำเข้า")
+@option("--dry-run/--no-dry-run", default=False, show_default=True,
+        help="โหมดลองรัน: ไม่เขียนฐานข้อมูล")
+@option("--default-unknown/--no-default-unknown", default=True, show_default=True,
+        help="ถ้า status ว่าง ให้ลงเป็น Unknown")
+@option("--commit-interval", default=2000, show_default=True,
+        help="จำนวนรายการต่อ commit หนึ่งครั้ง")
+def compat_import_csv(path, dry_run, default_unknown, commit_interval):
+    """
+    นำเข้า/อัปเดตความเข้ากันได้จากไฟล์ CSV แบบ upsert
+    รองรับ 2 แบบ: 
+      (A) ใช้ id:   drug_id, co_drug_id, status, note
+      (B) ใช้ชื่อ:  drug,    co_drug,    status, note  (แมตช์แบบ case-insensitive)
+    บันทึกคีย์แบบ (min_id, max_id) กันซ้ำทิศทาง
+    """
+    p = Path(path)
+    if not p.exists():
+        print(f"❌ ไม่พบไฟล์: {p}"); return
+
+# เตรียม name->id map สำหรับโหมดชื่อ
+    all_drugs = Drug.query.filter(Drug.generic_name.isnot(None)).all()
+    name_to_id = {_norm_txt(d.generic_name): d.id for d in all_drugs}
+
+    def _resolve_row_to_ids(row, headers_norm):
+        """
+        คืน (idA, idB) จากแถว: ถ้ามี *_id ใช้ id, 
+        ถ้าไม่มีให้ลองใช้ชื่อ (drug/co_drug) map -> id
+        """
+# แบบ id
+        if "drug_id" in headers_norm and "co_drug_id" in headers_norm:
+            ra = (row.get("drug_id") or "").strip()
+            rb = (row.get("co_drug_id") or "").strip()
+            a = Drug.query.get(int(ra)) if ra.isdigit() else None
+            b = Drug.query.get(int(rb)) if rb.isdigit() else None
+            return (a.id if a else None, b.id if b else None)
+
+# แบบชื่อ
+        na = _norm_txt(row.get("drug") or "")
+        nb = _norm_txt(row.get("co_drug") or "")
+        a = name_to_id.get(na)
+        b = name_to_id.get(nb)
+        return (a, b)
+
+    with p.open("r", encoding="utf-8-sig", newline="") as f:
+        rdr = csv.DictReader(f)
+        if not rdr.fieldnames:
+            print("❌ ไฟล์ไม่มี header"); return
+        headers_norm = [h.strip().lower() for h in rdr.fieldnames]
+        print("🧾 headers:", headers_norm)
+
+# ตรวจว่ามีคอลัมน์ชุดไหน
+        has_id_mode   = ("drug_id" in headers_norm and "co_drug_id" in headers_norm)
+        has_name_mode = ("drug" in headers_norm and "co_drug" in headers_norm)
+        if not (has_id_mode or has_name_mode):
+            print("❌ ต้องมีคอลัมน์อย่างน้อยชุดใดชุดหนึ่ง:")
+            print("   - (id)    drug_id, co_drug_id, status[, note]")
+            print("   - (name)  drug,    co_drug,    status[, note]")
+            return
+
+# ปรับ reader ให้ใช้ header ปกติ (DictReader ใช้ชื่อเดิม)
+        f.seek(0); rdr = csv.DictReader(f)
+
+        inserted = updated = skipped = invalid = 0
+        batch = 0
+
+        print(f"📥 เริ่มนำเข้า: {p} | dry_run={dry_run} | default_unknown={default_unknown}")
+
+        for idx, row in enumerate(rdr, start=1):
+# map เป็น id
+            ida, idb = _resolve_row_to_ids(row, headers_norm)
+
+            if not ida or not idb:
+                invalid += 1
+                ra = row.get("drug_id") or row.get("drug") or ""
+                rb = row.get("co_drug_id") or row.get("co_drug") or ""
+                print(f"  ⚠️  แถว {idx}: หา drug_id/co_drug_id ไม่พบใน DB -> {ra}/{rb}")
+                continue
+
+            if ida == idb:
+                skipped += 1
+                continue
+
+            a, b = (ida, idb) if ida < idb else (idb, ida)
+
+            st_raw = (row.get("status") or "").strip()
+            st = _canon_status_csv(st_raw)
+            if not st:
+                if default_unknown:
+                    st = "Unknown"
+                else:
+                    skipped += 1
+                    print(f"  ⚠️  แถว {idx}: ไม่มี status และไม่ได้เลือก default_unknown -> ข้าม")
+                    continue
+
+            note = (row.get("note") or "").strip()
+
+            rec = Compatibility.query.filter_by(drug_id=a, co_drug_id=b).first()
+            if rec:
+                changed = False
+                if (rec.status or "") != st:
+                    rec.status = st; changed = True
+                if (rec.note or "") != note:
+                    rec.note = note; changed = True
+                if changed:
+                    updated += 1
+                else:
+                    skipped += 1
+            else:
+                if not dry_run:
+                    db.session.add(Compatibility(drug_id=a, co_drug_id=b, status=st, note=note))
+                inserted += 1
+
+            batch += 1
+            if not dry_run and batch % commit_interval == 0:
+                db.session.commit()
+                print(f"  💾 committed {batch} rows ...")
+
+        if not dry_run:
+            db.session.commit()
+
+    total = Compatibility.query.count() if not dry_run else "N/A(dry-run)"
+    print("✅ สรุปผลนำเข้า",
+          f"inserted={inserted}",
+          f"updated={updated}",
+          f"skipped={skipped}",
+          f"invalid={invalid}",
+          f"total_rows_in_db={total}",
+          sep=" | ")
+
+# ===== CLI: compat-normalize-status ==========================================
+from click import option
+
+@app.cli.command("compat-normalize-status")
+@option("--dry-run/--no-dry-run", default=False, show_default=True,
+        help="โหมดลองรัน ไม่เขียน DB")
+def compat_normalize_status(dry_run):
+    """
+    แปลงค่า status แบบเดิม (Yes/No/True/False/1/0/C/I/U/ND) → ค่าเดียวกันทั้งระบบ:
+    Compatible / Incompatible / Uncertain / Unknown
+    """
+    mapping = {
+        "yes":"Compatible", "y":"Compatible", "true":"Compatible", "1":"Compatible", "c":"Compatible",
+        "no":"Incompatible","n":"Incompatible","false":"Incompatible","0":"Incompatible","i":"Incompatible",
+        "u":"Uncertain","uncertain":"Uncertain",
+        "nd":"Unknown","unknown":"Unknown","no data":"Unknown",
+    }
+
+    q = Compatibility.query.all()
+    changed = 0
+    before = {}
+    after  = {}
+
+    def canon(s: str) -> str:
+        if not s: return "Unknown"
+        t = s.strip()
+        k = t.lower()
+        return mapping.get(k, t.title())  # ไม่รู้จัก -> Title Case เดิม
+
+    for r in q:
+        old = (r.status or "").strip()
+        new = canon(old)
+        before[old] = before.get(old, 0) + 1
+        after[new]  = after.get(new, 0) + 1
+        if old != new:
+            r.status = new
+            changed += 1
+
+    if dry_run:
+        print("🔎 DRY-RUN | would change rows:", changed)
+        print("  before:", before)
+        print("  after :", after)
+        return
+
+    db.session.commit()
+    print("✅ normalized", changed, "rows")
+    print("  before:", before)
+    print("  after :", after)
+# ======================================================================
+
+# ===================== compat-export-menu-csv (READY-TO-USE) =====================
+# Imports ที่ต้องมี
+import os, csv
+import click                           # แก้ NameError: click is not defined
+from click import option
+from collections import defaultdict
+
+# ----- helper (ประกาศถ้ายังไม่มี) -----
+if "_norm_name" not in globals():
+    def _norm_name(s: str) -> str:
+        return " ".join((s or "").strip().lower().split())
+
+# map สถานะให้เป็นมาตรฐาน 4 ค่า
+if "_status_standard" not in globals():
+    def _status_standard(s: str) -> str:
+        if not s: return "Unknown"
+        t = str(s).strip().lower()
+        if t in ("c","compatible","yes","true","1","เข้ากันได้"):           return "Compatible"
+        if t in ("i","incompatible","no","false","0","ห้ามผสม","ไม่เข้ากัน"): return "Incompatible"
+        if t in ("u","uncertain","ไม่แน่ชัด"):                                return "Uncertain"
+        if t in ("nd","unknown","no data","ไม่มีข้อมูล"):                      return "Unknown"
+        return str(s).strip().title()
+
+# แปลงจากมาตรฐาน -> legacy (Yes/No/Uncertain/Unknown)
+if "_status_legacy" not in globals():
+    def _status_legacy(std: str) -> str:
+        t = (std or "Unknown").strip().lower()
+        if t == "compatible":   return "Yes"
+        if t == "incompatible": return "No"
+        if t == "uncertain":    return "Uncertain"
+        return "Unknown"
+
+# รายชื่อยาอ้างอิงจากเมนู (ถ้ายังไม่มีในไฟล์นี้)
+if "_MENU_MED_NAMES" not in globals():
+    _MENU_MED_NAMES = [
+# A
+        "Acyclovir","Amikacin","Aminophylline","Amoxicillin / Clavimoxy",
+        "Amphotericin B","Ampicillin",
+# B
+        "Benzathine_penicillin_g",
+# C
+        "Cefazolin","Cefotaxime","Ceftazidime","Clindamycin","Cloxacillin","Colistin",
+# D
+        "Dexamethasone","Dobutamine","Dopamine",
+# F
+        "Fentanyl","Furosemide",
+# G
+        "Gentamicin",
+# H
+        "Hydrocortisone",
+# I
+        "Insulin Human Regular",
+# L
+        "Levofloxacin",
+# M
+        "Meropenem","Metronidazole (Flagyl)","Midazolam","Midazolam + Fentanyl","Morphine",
+# N
+        "Nimbex (Cisatracurium)",
+# O
+        "Omeprazole",
+# P
+        "Penicillin G sodium","Phenobarbital","Phenytoin (Dilantin)",
+# R
+        "Remdesivir",
+# S
+        "Sul-am®","Sulbactam","Sulperazone",
+# T
+        "Tazocin",
+# U
+        "Unasyn",
+# V
+        "Vancomycin",
+    ]
+
+@app.cli.command("compat-export-menu-csv")
+@option("--out", default="data/compatibility.csv", show_default=True,
+        help="ไฟล์ CSV ปลายทาง (id,drug,co_drug,status,note)")
+@option("--status-format", type=click.Choice(["standard","legacy"]), default="legacy", show_default=True,
+        help="รูปแบบค่า status: standard=Compatible/… หรือ legacy=Yes/No/…")
+@option("--only-unknown/--all", default=False, show_default=True,
+        help="ส่งออกเฉพาะคู่ที่ยัง Unknown (ตาม DB) หรือทั้งหมด")
+def compat_export_menu_csv(out, status_format, only_unknown):
+    """
+    เขียนไฟล์ CSV: id,drug,co_drug,status,note จาก 'ทุกคู่ยาแบบไขว่' ตามเมนู
+    - ดึงสถานะ/โน้ตจาก DB ถ้ามี (normalize เป็นมาตรฐาน 4 ค่า)
+    - ถ้าไม่มีใน DB จะเป็น Unknown
+    - status-format=legacy จะเขียนเป็น Yes/No/Uncertain/Unknown ตามตัวอย่างของคุณ
+    """
+# --- เตรียม map ชื่อยา -> id ---
+    all_drugs = Drug.query.all()
+    name_to_id = {_norm_name(d.generic_name): d.id for d in all_drugs if d.generic_name}
+
+    ids = []
+    missing = []
+    for nm in _MENU_MED_NAMES:
+        did = name_to_id.get(_norm_name(nm))
+        if did: ids.append((did, nm))
+        else:   missing.append(nm)
+
+    if missing:
+        print("⚠️ ชื่อยาไม่พบใน DB (ตรวจสะกด/ช่องว่าง/สัญลักษณ์):")
+        for m in missing:
+            print("   -", m)
+
+    if len(ids) < 2:
+        print("❌ มียาไม่พอจะทำ cross (ต้อง >= 2 รายการ)"); return
+
+# --- โหลดสถานะปัจจุบันของทุกคู่ใน DB ---
+    pair = defaultdict(lambda: ("Unknown",""))  # (status_std, note)
+    for r in Compatibility.query.all():
+        a, b = (r.drug_id, r.co_drug_id) if r.drug_id < r.co_drug_id else (r.co_drug_id, r.drug_id)
+        pair[(a,b)] = (_status_standard(r.status), r.note or "")
+
+# --- สร้างคู่ nC2 ---
+    rows = []
+    ids_sorted = sorted(ids, key=lambda x: x[0])  # sort by id asc
+    next_id = 1
+    for i in range(len(ids_sorted)):
+        a_id, a_name = ids_sorted[i]
+        for j in range(i+1, len(ids_sorted)):
+            b_id, b_name = ids_sorted[j]
+            st_std, note = pair[(a_id, b_id)]
+            if only_unknown and st_std != "Unknown":
+                continue
+            st_out = _status_legacy(st_std) if status_format == "legacy" else st_std
+            rows.append({
+                "id": next_id,
+                "drug": a_name,
+                "co_drug": b_name,
+                "status": st_out,
+                "note": note,
+            })
+            next_id += 1
+
+    if not rows:
+        print("ℹ️ ไม่มีคู่ที่ตรงเงื่อนไขให้เขียนไฟล์"); return
+
+# --- ให้แน่ใจว่าโฟลเดอร์ปลายทางมีอยู่ ---
+    out_dir = os.path.dirname(out)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
+
+# --- เขียนไฟล์ CSV ---
+    with open(out, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["id","drug","co_drug","status","note"])
+        w.writeheader()
+        w.writerows(rows)
+
+    print(f"✅ เขียนไฟล์ {out} เรียบร้อย (rows={len(rows)}, format={status_format}, only_unknown={only_unknown})")
+# =================== end compat-export-menu-csv (READY-TO-USE) ====================
+
+
+
+# ===== app.py (เฉพาะส่วนสแกน + หน้าเกี่ยวข้อง) =====
+from flask import Flask, render_template, request, jsonify, url_for, redirect
+import io, re
+from typing import Optional
+import numpy as np
+import cv2
+
+
+@app.route("/calc/amikacin")
+def amikacin_calc():
+    dose = request.args.get("dose", type=float, default=None)
+    return render_template("amikacin.html", dose=dose, update_date=UPDATE_DATE)
+
+@app.route("/calc/cefotaxime")
+def cefotaxime_calc():
+    dose = request.args.get("dose", type=float, default=None)
+    return render_template("cefotaxime.html", dose=dose, update_date=UPDATE_DATE)
+
+# ---------- ตรวจคำสั่งยาอย่างง่าย ----------
+def ok(x): return {"ok": True,  "msg": x}
+def ng(x): return {"ok": False, "msg": x}
+
+def check_cefotaxime(order):
+    route = (order.get("route") or "").upper()
+    freq  = (order.get("freq")  or "").upper()
+    dose_mg = float(order.get("dose_mg", 0))
+    wt = order.get("patient", {}).get("weight_kg")
+
+    if route != "IV": return ng("Route ต้องเป็น IV")
+    if freq not in {"Q6H","Q8H","Q12H"}:
+        return ng("ความถี่ควรเป็น q6–12h (เช่น q8h)")
+
+    if wt:
+        mg_per_kg = dose_mg / float(wt or 1)
+        if not (40 <= mg_per_kg <= 60):
+            return ng(f"dose เป้า ~50 mg/kg/dose (ตอนนี้ {mg_per_kg:.1f} mg/kg)")
+    else:
+        return ok("ไม่ทราบน้ำหนัก: โปรดตรวจสอบ mg/kg ด้วย")
+
+    return ok("Cefotaxime ผ่านเกณฑ์เบื้องต้น")
+
+def check_amikacin(order):
+    route = (order.get("route") or "").upper()
+    freq  = (order.get("freq")  or "").upper()
+    dose_mg = float(order.get("dose_mg", 0))
+    wt = order.get("patient", {}).get("weight_kg")
+
+    if route != "IV": return ng("Route ต้องเป็น IV")
+    if freq not in {"OD","Q24H","Q36H","Q48H"}:
+        return ng("ความถี่ควรเป็น OD/Q24h (หรือ Q36–48h ปรับตาม GA/Renal)")
+
+    if wt:
+        mg_per_kg = dose_mg / float(wt or 1)
+        if not (13 <= mg_per_kg <= 17):
+            return ng(f"dose เป้า ~15 mg/kg (ตอนนี้ {mg_per_kg:.1f} mg/kg)")
+    else:
+        return ok("ไม่ทราบน้ำหนัก: โปรดตรวจสอบ mg/kg ด้วย")
+
+    return ok("Amikacin ผ่านเกณฑ์เบื้องต้น")
+
+CHECKERS = {
+    "CEFOTAXIME": check_cefotaxime,
+    "AMIKACIN":   check_amikacin,
+}
+
+@app.route("/verify", methods=["GET","POST"])
+def verify():
+    if request.method == "POST" and request.is_json:
+        order = request.get_json(force=True)
+    else:
+        order = {
+            "drug": request.args.get("drug", "").upper(),
+            "dose_mg": request.args.get("dose_mg", type=float, default=0.0),
+            "route": request.args.get("route", "").upper(),
+            "freq": request.args.get("freq", "").upper(),
+            "patient": {"weight_kg": request.args.get("wt", type=float)}
+        }
+
+    drug = (order.get("drug") or "").upper()
+    checker = CHECKERS.get(drug)
+    if not checker:
+        return render_template("verify_result.html",
+                               ok=False,
+                               msg=f"ยังไม่รองรับการตรวจ {drug or '-'}",
+                               order=order, update_date=UPDATE_DATE)
+
+    result = checker(order)
+    if drug == "AMIKACIN":
+        calc_url = url_for("amikacin_calc", dose=order.get("dose_mg", 0.0))
+    elif drug == "CEFOTAXIME":
+        calc_url = url_for("cefotaxime_calc", dose=order.get("dose_mg", 0.0))
+    else:
+        calc_url = url_for("index")
+
+    return render_template("verify_result.html",
+                           ok=result["ok"], msg=result["msg"],
+                           order=order, calc_url=calc_url,
+                           update_date=UPDATE_DATE)
+
+# ---------- OCR ฝั่งเซิร์ฟเวอร์ (EasyOCR) ----------
+try:
+    import easyocr
+    OCR_READER = easyocr.Reader(['en','th'], gpu=False, verbose=False)
+except Exception as e:
+    OCR_READER = None
+    print("EasyOCR init error:", e)
+
+def _deskew(img_bgr: np.ndarray) -> np.ndarray:
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (3,3), 0)
+    edges = cv2.Canny(gray, 50, 150, 3)
+    lines = cv2.HoughLines(edges, 1, np.pi/180, 150)
+    if lines is None:
+        return img_bgr
+    angles = []
+    for rho, theta in lines[:,0]:
+        deg = theta * 180/np.pi
+        if deg < 20 or deg > 160:
+            angles.append(deg if deg <= 90 else deg - 180)
+    if not angles:
+        return img_bgr
+    angle = float(np.median(angles))
+    h, w = img_bgr.shape[:2]
+    M = cv2.getRotationMatrix2D((w//2, h//2), angle, 1.0)
+    return cv2.warpAffine(img_bgr, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+
+def _preprocess_for_ocr(file_bytes: bytes, scale: float = 3.0, thresh: int = 170) -> np.ndarray:
+    buf = np.frombuffer(file_bytes, dtype=np.uint8)
+    img = cv2.imdecode(buf, cv2.IMREAD_COLOR)
+    if img is None:
+        raise ValueError("อ่านภาพไม่สำเร็จ")
+    img = _deskew(img)
+    if scale and scale > 1.0:
+        img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    gray = clahe.apply(gray)
+    gray = cv2.bilateralFilter(gray, 7, 75, 75)
+    sharp = cv2.addWeighted(gray, 1.2, cv2.GaussianBlur(gray, (0,0), 3), -0.2, 0)
+    _, th = cv2.threshold(sharp, int(thresh), 255, cv2.THRESH_BINARY)
+    return th
+
+@app.route("/scan-server", methods=["GET"])
+def scan_server():
+    return render_template("scan-server.html", update_date=UPDATE_DATE)
+
+@app.route("/api/ocr", methods=["POST"])
+def api_ocr():
+    if OCR_READER is None:
+        return jsonify({"ok": False, "error": "EasyOCR ไม่พร้อมใช้งาน"}), 500
+    if 'image' not in request.files:
+        return jsonify({"ok": False, "error": "ไม่พบไฟล์ image"}), 400
+
+    f = request.files['image']
+    scale = float(request.form.get('scale', 3.0))
+    thresh = int(request.form.get('threshold', 170))
+
+    try:
+        pre = _preprocess_for_ocr(f.read(), scale=scale, thresh=thresh)
+        result = OCR_READER.readtext(
+            pre,
+            detail=1,
+            paragraph=True,
+            text_threshold=0.5,
+            low_text=0.35,
+            link_threshold=0.3,
+            width_ths=0.7,
+            decoder='beamsearch'
+        )
+        lines = []
+        for _box, text, conf in result:
+            if text.strip():
+                lines.append(text.strip())
+        return jsonify({"ok": True, "text": "\n".join(lines)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+
+# 6) เรียกใช้งานเซิร์ฟเวอร์
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001, debug=True)  # ไม่มี use_reloader=False

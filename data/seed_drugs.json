@@ -1,0 +1,12 @@
+[
+  {"id":1, "generic_name":"Acyclovir"},
+  {"id":2, "generic_name":"Vancomycin"},
+  {"id":3, "generic_name":"Amikacin"},
+  {"id":4, "generic_name":"Aminophylline"},
+  {"id":5, "generic_name":"Ampicillin"},
+  {"id":6, "generic_name":"Cefotaxime"},
+  {"id":7, "generic_name":"Ceftazidime"},
+  {"id":8, "generic_name":"Clindamycin"},
+  {"id":9, "generic_name":"Cloxacillin"},
+  {"id":10, "generic_name":"Colistin"}
+]

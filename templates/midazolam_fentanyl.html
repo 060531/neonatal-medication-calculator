@@ -1,230 +1,303 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Calculate Midazolam + Fentanyl Dosage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Midazolam + Fentanyl Calculation</title>
+  <style>
+    /* ===== Theme tokens ===== */
+    :root{
+      --brand-900:#e70939;
+      --brand-700:#d21e1e;
+      --sky-50:#ffeeee;
+      --sky-100:#ffd7d7;
+      --panel:#ffe6e6b8;
+      --text:#0f172a;
 
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-        }
+      --gutter: 12px;                           /* ระยะขอบซ้าย-ขวา */
+      --floatbar-gap: clamp(80px,16vw,110px);   /* กันปุ่มลอยไม่ทับ footer */
+    }
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 2px solid #e8cabe;
-            border-radius: 10px;
-            background-color: rgba(246, 200, 182, 0.9);
-        }
+    /* ===== Global guard + BG เต็มจอ ===== */
+    html, body { height:100%; overflow-x:hidden; }
+    *, *::before, *::after { box-sizing:border-box; }
+    img, video, canvas, svg { max-width:100%; height:auto; }
+    body{
+      margin:0; min-height:100svh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color:var(--text); text-align:center; background:none;
+      padding-left:max(0px, env(safe-area-inset-left));
+      padding-right:max(0px, env(safe-area-inset-right));
+    }
+    /* พื้นหลังเต็มจอ (ปลอดภัยบนมือถือ) */
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #8d59ed;
-        }
+    /* ===== Header (กันหล่นขอบด้วย clamp + max-width) ===== */
+    .title-badge{
+      display:inline-block;
+      margin:28px auto 12px;
+      padding: clamp(8px, 1.8vw, 12px) clamp(14px, 3.2vw, 18px);
+      background:var(--brand-900); color:#fff; font-weight:900;
+      font-size: clamp(18px, 4.6vw, 28px); line-height:1.2;
+      border-radius:12px; border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      max-width: calc(100vw - (var(--gutter)*2));
+      white-space: normal; word-break: keep-all;   /* อนุญาตขึ้นบรรทัดใหม่อย่างสวย */
+    }
 
-        h2 {
-            color: #d32f2f;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #d32f2f;
-            border-radius: 10px;
-            background-color: #ffeb3b;
-        }
+    /* ===== Wrapper / panel ===== */
+    .container{
+      width:min(820px, calc(100vw - (var(--gutter)*2)));
+      margin:0 auto 12px; padding:20px;
+      background:var(--panel);
+      border:1px solid #b9d9ff; border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
 
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    /* ===== Calc box ===== */
+    .calc-box{
+      margin:14px auto 16px; max-width:740px; padding:16px;
+      background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+      border:1px solid #b7d6ff; border-radius:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+      padding-left:max(12px, var(--gutter)); padding-right:max(12px, var(--gutter));
+    }
 
-        .form-group label {
-            flex: 1;
-            font-weight: bold;
-            margin-right: 10px;
-            text-align: left;
-        }
+    /* ===== Form layout (ข้อความ+ช่อง “บรรทัดเดียว”) ===== */
+    .calc-form{ display:flex; flex-direction:column; gap:12px; align-items:center; }
+    .field{
+      display:grid;
+      grid-template-columns: auto minmax(120px, 1fr);  /* label | input/select */
+      align-items:center;
+      gap:10px;
+      width:100%; max-width:560px;
+      margin-inline:auto;
+    }
+    .calc-form label{
+      font-weight:800; color:#0b255e; margin:0;
+      white-space:nowrap;              /* กันตกลบ */
+      max-width:46vw;                  /* ป้องกัน label ยาวเกินบนจอแคบ */
+      text-align:right;
+    }
+    .calc-form input, .calc-form select{
+      min-width:0; width:100%;
+      padding:10px 12px; border-radius:10px; border:1px solid #c7d9f9;
+      text-align:center; background:#fff; font-size:16px;
+    }
+    .actions{ text-align:center; }
 
-        .form-group input {
-            flex: 1;
-            width: 150px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
+    /* ===== Buttons ===== */
+    .btn{
+      appearance:none; border:none; border-radius:10px; cursor:pointer;
+      padding:10px 16px; font-weight:800; color:#fff;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition: transform .06s ease, filter .2s ease;
+      text-decoration:none;
+    }
+    .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px); }
+    .btn-primary{ background:var(--brand-700); }
+    .btn-red{ background:#e71f1f; } .btn-cyan{ background:#049bb5; }
 
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-size: 18px;
-            display: none; /* ซ่อนกล่องผลลัพธ์ตั้งแต่แรก */
-        }
+    /* ===== Results ===== */
+    .result{
+      text-align:left; margin:12px auto; max-width:740px;
+      background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px; padding:12px;
+      padding-left:max(12px, var(--gutter)); padding-right:max(12px, var(--gutter));
+      display:none;
+    }
+    .result b{ color:#0b2b7a; }
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
+    }
+    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#fde047; color:#111; font-weight:800; }
+    .pill-red{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+    .muted{ color:#334155; }
+    .left-align{ text-align:left; }
+    .order-line{ text-align:center; margin:6px 0; }
 
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
+    /* ===== Floating actions (ไม่เกินจอ + safe-area) ===== */
+    .float-actions{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      z-index:9999;
 
-        .back-button, .calculate-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-        }
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+      padding:8px 10px; border-radius:14px;
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      width:min(540px, calc(100vw - (var(--gutter)*2)));
+      max-width:calc(100vw - (var(--gutter)*2));
+      pointer-events:auto;
+    }
+    .float-actions .btn{ min-width:120px; }
 
-        .back-button {
-            background-color: #f44336;
-        }
+    /* ===== Footer (ย่อฟอนต์อัตโนมัติบนจอเล็ก) ===== */
+    footer.page-footer{
+      text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin:6px 0 var(--floatbar-gap);
+      padding-left:var(--gutter); padding-right:var(--gutter);
+      font-size: clamp(11px, 3.2vw, 14px);
+      line-height:1.4;
+    }
 
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        .calculate-button {
-            background-color: #007BFF;
-        }
-
-        .calculate-button:hover {
-            background-color: #0056b3;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #fff;
-            font-size: 14px;
-        }
-    </style>
+    /* ===== Extra mobile finetune ===== */
+    @media (max-width:360px){
+      .calc-form label{ font-size:14px; }
+      .calc-form input, .calc-form select{ font-size:14px; padding:8px 10px; }
+    }
+  </style>
 </head>
 <body>
 
-    <h1>คำนวณการเตรียมยา Midazolam + Fentanyl</h1>
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Midazolam (5 mg/ml) + Fentanyl (≈ 50 mcg/ml)</div>
 
-    <div class="container">
-        <h2>Midazolam (5mg/ml) + Fentanyl (100mcg/2ml)</h2>
-        <form id="dosage-form">
-            <div class="form-group">
-                <label for="midazolam_dosage">ขนาดยา Midazolam (mg):</label>
-                <input type="number" id="midazolam_dosage" name="midazolam_dosage" placeholder="ป้อนขนาดยาตั้งต้น (Midazolam)" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="fentanyl_dosage">ขนาดยา Fentanyl (mcg):</label>
-                <input type="number" id="fentanyl_dosage" name="fentanyl_dosage" placeholder="ป้อนขนาดยาตั้งต้น (Fentanyl)" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="original_volume">ปริมาณสารละลาย (ml):</label>
-                <input type="number" id="original_volume" name="original_volume" placeholder="ป้อนปริมาณสารละลายตั้งต้น" step="0.01" required>
-            </div>
-            <button type="submit" class="calculate-button">Calculate</button>
-        </form>
-
-        <!-- กล่องแสดงผลลัพธ์ -->
-        <div id="result" class="result"></div>
-    </div>
-
-    <div id="multiplier-wrapper" style="text-align: center;">
-        <div id="multiplier-container">
-            <label for="multiplication"><b>เลือกเงื่อนไขการคูณ:</b></label>
-            <select id="multiplication">
-                <option value="1.5">1.5 เท่า</option>
-                <option value="2">2 เท่า</option>
-                <option value="2.5">2.5 เท่า</option>
-                <option value="3">3 เท่า</option>
-                <option value="3.5">3.5 เท่า</option>
-                <option value="4">4 เท่า</option>
-                <option value="4.5">4.5 เท่า</option>
-                <option value="5">5 เท่า</option>
-            </select>
-            <button id="multiply-button">คำนวณการคูณ</button>
+  <div class="container">
+    <!-- รอบที่ 1: ป้อนค่า -->
+    <div class="calc-box">
+      <form id="dosage-form" class="calc-form">
+        <div class="field">
+          <label for="midazolam_dosage">ขนาดยา Midazolam (mg):</label>
+          <input type="number" id="midazolam_dosage" name="midazolam_dosage" placeholder="เช่น 1.5" step="0.01" required>
         </div>
+        <div class="field">
+          <label for="fentanyl_dosage">ขนาดยา Fentanyl (mcg):</label>
+          <input type="number" id="fentanyl_dosage" name="fentanyl_dosage" placeholder="เช่น 10" step="0.01" required>
+        </div>
+        <div class="field">
+          <label for="original_volume">ปริมาตรสารละลาย (ml):</label>
+          <input type="number" id="original_volume" name="original_volume" placeholder="เช่น 10" step="0.01" required>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">คำนวณ</button>
+        </div>
+      </form>
     </div>
 
-    <script>
-        let midazolamVolume, fentanylVolume, finalVolume;
-
-        document.getElementById('dosage-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            let midazolamDosage = parseFloat(document.getElementById('midazolam_dosage').value);
-            let fentanylDosage = parseFloat(document.getElementById('fentanyl_dosage').value);
-            let originalVolume = parseFloat(document.getElementById('original_volume').value);
-
-            midazolamVolume = (midazolamDosage / 5);
-            fentanylVolume = (fentanylDosage / 50);
-            finalVolume = originalVolume - (midazolamVolume + fentanylVolume);
-
-            let resultContainer = document.createElement('div');
-            resultContainer.className = 'result-container';
-            resultContainer.innerHTML = `
-                <h3 style="text-align: center;">ปริมาณยา + สารละลายที่ใช้ (1เท่า)</h3>
-                <p><b>สารละลายที่ต้องใช้ (Midazolam):</b> ${midazolamVolume.toFixed(2)} ml</p>
-                <p><b>สารละลายที่ต้องใช้ (Fentanyl):</b> ${fentanylVolume.toFixed(2)} ml</p>
-                <p><b>สารละลายที่เหลือ:</b> ${finalVolume.toFixed(2)} ml</p>
-            `;
-
-            document.getElementById('result').innerHTML = '';
-            document.getElementById('result').appendChild(resultContainer);
-            document.getElementById('result').style.display = 'block';
-        });
-
-        document.getElementById('multiply-button').addEventListener('click', function() {
-            let multiplier = parseFloat(document.getElementById('multiplication').value);
-
-            let midazolamResult = midazolamVolume * multiplier;
-            let fentanylResult = fentanylVolume * multiplier;
-            let finalVolumeResult = finalVolume * multiplier;
-
-            let resultContainer = document.createElement('div');
-            resultContainer.className = 'result-container';
-            resultContainer.innerHTML = `
-                <h3 style="text-align: center;">ผลลัพธ์หลังคูณ ${multiplier} เท่า</h3>
-                <p><b>Midazolam หลังคูณ:</b> ${midazolamResult.toFixed(2)} ml</p>
-                <p><b>Fentanyl หลังคูณ:</b> ${fentanylResult.toFixed(2)} ml</p>
-                <p><b>สารละลายที่เหลือ หลังคูณ:</b> ${finalVolumeResult.toFixed(2)} ml</p>
-            `;
-
-            document.getElementById('result').appendChild(resultContainer);
-        });
-    </script>
-
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
+    <!-- รอบที่ 2: เลือกคูณ -->
+    <div id="multiplier-box" class="calc-box" style="opacity:.55; pointer-events:none">
+      <form class="calc-form" id="multiplier-form">
+        <div class="field">
+          <label for="multiplication">เลือกเงื่อนไขการคูณ:</label>
+          <select id="multiplication">
+            <option value="1.5">1.5 เท่า</option>
+            <option value="2">2 เท่า</option>
+            <option value="2.5">2.5 เท่า</option>
+            <option value="3">3 เท่า</option>
+            <option value="3.5">3.5 เท่า</option>
+            <option value="4">4 เท่า</option>
+            <option value="4.5">4.5 เท่า</option>
+            <option value="5">5 เท่า</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button id="multiply-button" type="button" class="btn btn-primary">คำนวณการคูณ</button>
+        </div>
+      </form>
     </div>
 
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-    </footer>
+    <!-- ผลลัพธ์ (จะโชว์ด้วย JS) -->
+    <div id="result" class="result"></div>
+
+    <!-- หมายเหตุ/แนวคิด -->
+    <div class="result" style="display:block;background:#ffffff;border-color:#e5efff">
+      <div class="left-align muted">
+        <p class="item"><b>สูตรอ้างอิง:</b></p>
+        <ul class="muted" style="margin:6px 0 0 22px; line-height:1.65">
+          <li>Midazolam: <span class="mono">ml = mg ÷ 5</span></li>
+          <li>Fentanyl: <span class="mono">ml = mcg ÷ 50</span></li>
+          <li>ตัวทำละลายที่เติม: <span class="mono">Total ml − (Midazolam ml + Fentanyl ml)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div><!-- /container -->
+
+  <!-- Footer: ย่อฟอนต์อัตโนมัติบนจอเล็ก -->
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+  </footer>
+
+  <!-- ปุ่มลอย (กว้างไม่เกิน viewport - gutter) -->
+  <div class="float-actions">
+    <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+  </div>
+
+  <script>
+    // ความเข้มข้นอ้างอิง
+    const MID_CONC = 5;   // mg/ml
+    const FEN_CONC = 50;  // mcg/ml
+
+    let midazolamVolume = 0, fentanylVolume = 0, diluentVolume = 0;
+
+    const resultEl = document.getElementById('result');
+    const multiplierBox = document.getElementById('multiplier-box');
+
+    document.getElementById('dosage-form').addEventListener('submit', function(e){
+      e.preventDefault();
+
+      const midDose = parseFloat(document.getElementById('midazolam_dosage').value || '0');   // mg
+      const fenDose = parseFloat(document.getElementById('fentanyl_dosage').value  || '0');   // mcg
+      const totalVol = parseFloat(document.getElementById('original_volume').value || '0');   // ml
+
+      if ([midDose, fenDose, totalVol].some(v => isNaN(v) || v <= 0)){
+        alert('กรุณากรอกค่าที่ถูกต้อง (> 0)');
+        return;
+      }
+
+      midazolamVolume = midDose / MID_CONC;   // ml
+      fentanylVolume  = fenDose / FEN_CONC;   // ml
+      diluentVolume   = totalVol - (midazolamVolume + fentanylVolume);
+
+      resultEl.innerHTML = `
+        <p class="order-line"><b>ผลลัพธ์ (1 เท่า):</b></p>
+        <div class="left-align">
+          <p>Midazolam: <span class="mono">${midDose.toFixed(2)} ÷ ${MID_CONC}</span> =
+             <span class="pill">${midazolamVolume.toFixed(2)} ml</span></p>
+          <p>Fentanyl: <span class="mono">${fenDose.toFixed(2)} ÷ ${FEN_CONC}</span> =
+             <span class="pill">${fentanylVolume.toFixed(2)} ml</span></p>
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+          <p><b>ตัวทำละลาย:</b> ${totalVol.toFixed(2)} − (${midazolamVolume.toFixed(2)} + ${fentanylVolume.toFixed(2)}) =
+             <b><span class="pill">${diluentVolume.toFixed(2)} ml</span></b></p>
+        </div>
+      `;
+      resultEl.style.display = 'block';
+
+      // เปิดใช้งานรอบคูณ
+      multiplierBox.style.opacity = '1';
+      multiplierBox.style.pointerEvents = 'auto';
+    });
+
+    document.getElementById('multiply-button').addEventListener('click', function(){
+      if (midazolamVolume <= 0 && fentanylVolume <= 0) return;
+
+      const m = parseFloat(document.getElementById('multiplication').value || '1');
+      const midX = midazolamVolume * m;
+      const fenX = fentanylVolume * m;
+      const dilX = diluentVolume * m;
+
+      const block = document.createElement('div');
+      block.className = 'left-align';
+      block.style.marginTop = '10px';
+      block.innerHTML = `
+        <p class="order-line"><b>ผลลัพธ์หลังคูณ ${m} เท่า</b></p>
+        <p>Midazolam × ${m}: <span class="pill">${midX.toFixed(2)} ml</span></p>
+        <p>Fentanyl × ${m}: <span class="pill">${fenX.toFixed(2)} ml</span></p>
+        <p><b>ตัวทำละลาย × ${m}:</b> <span class="pill">${dilX.toFixed(2)} ml</span></p>
+      `;
+      resultEl.appendChild(block);
+      resultEl.style.display = 'block';
+    });
+  </script>
+
 </body>
 </html>

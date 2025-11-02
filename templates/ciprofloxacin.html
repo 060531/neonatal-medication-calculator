@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Ciprofloxacin Calculation</title>
+<style>
+  /* ========== Theme tokens ========== */
+  :root{
+    --blue-900:#0b2b7a;
+    --blue-700:#1e57d2;
+    --sky-50:#eef7ff;
+    --sky-100:#d7ecff;
+    --panel:#e6f3ffb8;
+    --text:#0f172a;
+
+    --floatbar-gap: clamp(80px, 16vw, 110px);
+    --page-gutter: 12px;
+  }
+
+  /* ========== Global guard + BG เต็มจอ ========== */
+  html, body { overflow-x: hidden; height: 100%; }
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video, canvas, svg { max-width: 100%; height: auto; }
+  pre, code { white-space: pre-wrap; word-break: break-word; }
+
+  body{
+    margin:0; min-height:100svh;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color:var(--text); text-align:center;
+    background:none;
+    padding-left:max(0px, env(safe-area-inset-left));
+    padding-right:max(0px, env(safe-area-inset-right));
+  }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+    background-size:cover; background-position:center; background-repeat:no-repeat;
+  }
+
+  /* ========== Header ========== */
+  .title-badge{
+    display:inline-block; margin:28px auto 12px; padding:10px 18px;
+    background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
+    border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.14);
+    max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
+  }
+
+  /* ========== Wrapper / panel ========== */
+  .container{
+    width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
+    margin:0 auto 12px; padding:20px;
+    background:var(--panel);
+    border:1px solid #b9d9ff; border-radius:16px;
+    box-shadow:0 8px 24px rgba(15,23,42,.18);
+    backdrop-filter: blur(6px) saturate(120%);
+    -webkit-backdrop-filter: blur(6px) saturate(120%);
+  }
+
+  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
+  .calc-box{
+    margin:14px auto 20px; max-width:740px; padding:16px;
+    background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+    border:1px solid #b7d6ff; border-radius:14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+    padding-left:max(12px, var(--page-gutter));
+    padding-right:max(12px, var(--page-gutter));
+  }
+  .calc-row{
+    display:flex; flex-wrap:wrap;
+    gap:10px; align-items:center; justify-content:center;
+  }
+
+  /* ฟิลด์มาตรฐาน */
+  input[type="number"], select{
+    width: clamp(160px, 50vw, 220px);
+    max-width:60vw; padding:10px 12px; border-radius:10px;
+    border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
+  }
+  .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+
+  /* ========== ปุ่มมาตรฐาน ========== */
+  .btn{
+    appearance:none; border:none; border-radius:10px; cursor:pointer;
+    padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
+    box-shadow:0 6px 0 rgba(10,30,85,.25);
+    transition: transform .06s ease, filter .2s ease;
+  }
+  .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(1px); }
+  .btn-blue{ background:var(--blue-700); }
+  .btn-red{ background:#e71f1f; }
+  .btn-cyan{ background:#049bb5; }
+
+  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
+  .result{
+    text-align:left; margin:14px auto; max-width:740px; padding:14px;
+    background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
+    padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
+  }
+  .result b{ color:#0b2b7a; }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .muted{ color:#334155; }
+  .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
+  .bullet{ text-align:left; margin:0 0 10px 0; }
+  .bullet ul{ margin:6px 0 0 22px; }
+
+  /* ========== ปุ่มลอยล่าง ========== */
+  .float-actions{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
+    display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:8px 10px; border-radius:14px;
+    background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 8px 18px rgba(2,8,23,.28);
+    backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+    width:min(540px, calc(100vw - calc(var(--page-gutter)*2)));
+    max-width: calc(100vw - calc(var(--page-gutter)*2));
+  }
+
+  /* ========== Footer ========== */
+  footer.page-footer{
+    text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+    margin: 6px 0 var(--floatbar-gap);
+    padding-left: var(--page-gutter); padding-right: var(--page-gutter);
+    font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
+  }
+
+  /* ========== มือถือ: label+field บรรทัดเดียว ========== */
+  @media (max-width: 640px){
+    .dose-row, .conc-row{
+      display:grid; grid-template-columns:auto 1fr;
+      align-items:center; column-gap:8px; width:100%; max-width:520px;
+      margin-left:auto; margin-right:auto;
+    }
+    .dose-row > label,
+    .conc-row > label{ white-space:nowrap; max-width:44vw; font-size:14px; line-height:1.2; }
+    .dose-row > input[type="number"],
+    .conc-row > select{ min-width:0; width:100%; font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box; }
+    .calc-row > .btn{ min-width:120px; }
+  }
+  @media (max-width: 360px){
+    .dose-row > label, .conc-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"], .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
+  }
+  @media (max-width:640px){
+    .title-badge{ font-size:22px; padding:8px 14px; }
+    .container{ padding:14px; }
+    .calc-row{ gap:8px; }
+  }
+</style>
+
+</head>
+<body>
+
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Ciprofloxacin : 200 mg/100 mL หรือ 400 mg/200 mL → (2 mg/mL)</div>
+
+  <div class="container">
+    <!-- กล่องคำนวณ (รอบเดียว: mg → mL ที่ 2 mg/mL) -->
+        <div class="calc-box">
+  <form method="POST" class="calc-row">
+    <input type="hidden" name="action" value="dose" />
+
+    <div class="dose-row">
+      <label for="dose">กรอกขนาดยา (mg):</label>
+      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+    </div>
+
+    <button type="submit" class="btn btn-blue">คำนวณ</button>
+  </form>
+</div>
+
+    {% if error %}
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
+    {% endif %}
+
+    {% if dose is not none %}
+      {% set result_ml = (dose / 2.0) %}
+      <div class="result">
+        <p class="order-line"><b>Order:</b> Ciprofloxacin {{ '%.2f'|format(dose) }} mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิง (premix):</b> 200 mg/100 mL หรือ 400 mg/200 mL ⇒ <b>2 mg/mL</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">mL = mg ÷ 2</span></p>
+          <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} ÷ 2</span> = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
+          <p><b>ดังนั้น:</b> {{ '%.2f'|format(dose) }} mg = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- หมายเหตุ/วิชาการ -->
+    <div class="bullet">
+      <p class="section-head">Solvent / รูปแบบยา</p>
+      <ul class="muted">
+        <li>สารละลายพร้อมใช้ (Premix) ความเข้มข้นมาตรฐาน <b>2 mg/mL</b></li>
+        <li>โดยทั่วไปสามารถให้จากถุง premix ได้เลย (พิจารณาปริมาณรวมตามแผนการรักษา)</li>
+      </ul>
+
+      <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
+      <ul class="muted">
+        <li>ปกติใช้ที่ <b>2 mg/mL</b> (ตามถุง premix); หลีกเลี่ยงความเข้มข้นสูงกว่านี้ในเส้นรอบนอก</li>
+      </ul>
+
+      <p class="section-head">ระยะเวลาในการบริหารยา</p>
+      <ul class="muted">
+        <li>ประมาณ <b>60 นาที</b> ต่อ 200–400 mg (ปรับตามนโยบายหน่วยงาน/ภาวะผู้ป่วย)</li>
+      </ul>
+
+      <p class="section-head">ความคงตัว</p>
+      <ul class="muted">
+        <li>ถุง premix ใช้ได้ตามวันหมดอายุของผู้ผลิต; หลังเปิด/ผสมให้ปฏิบัติตามแนวทางของหน่วยงาน</li>
+      </ul>
+
+      <p class="section-head">ข้อควรระวัง / เฝ้าระวัง</p>
+      <ul class="muted">
+        <li>QT prolongation, เส้นเอ็นอักเสบ/ฉีกขาด, GI upset, ปรับขนาดยาในไตเสื่อม</li>
+      </ul>
+
+        <p class="section-head">คุณสมบัติ :</p>
+      <ul class="muted">
+        <li><b>เภสัชพลศาสตร์:</b> Ciprofioxacin เป็นสารในกลุ่มคริโนโลนคาร์บ็อกซิลิคแอชิต ออกฤทธิ์ฆ่าเชื้อแบคทีเรียได้กว้าง ทั้งชนิดแกรมบวก และแกรมดบ แต่สำหรับกลุ่ม anaerobe จะมีความไวต่อยานี้ได้น้อยกว่า การฆ่าเชื้อแบคทีเรียของ Ciprofloxacin เป็นผลจากการ ยับยั้งการทำงานของเอนไซม์ DNA gyrase ของแบคทีเรีย และกลไกการออกฤทธิ์เฉพาะนี้ ทำให้ไม่มี parallel resistance ต่อยา ต้านจุลชีพอื่นที่ไม่ได้อยู่ในกลุ่มควิโนโลนคาร์บ็อกซิลิคแอชิด ดังนั้นจึงมีประสิทธิผลในการต้านแบคทีเรียที่ตื้อต่อยาปฏิชีวนะอื่น ๆ
+เช่น ยาปฏิชีวนะกลุ่ม β-lactam, aminoglycoside, tetracycline และ macrolide</li>
+        <li><b>เภสัชจอนศาสตร์:</b> Ciprofloxacin ถูกดูดซึมได้ดี และไม่ผ่านกระบวนการ first-pass metabolism ยาส่วนใหญ่จะถูกขับออกทางปัสสาวะภายใน 24 ชั่วโมง ในผู้ป่วยที่มีภาวะไตบกพร่องอาจทำให้ค่าครึ่งชีวิตของยาเพิ่มขึ้น ดังนั้นควรได้รับการปรับขนาดยาในผู้ป่วยกลุ่มดังกล่าว</li>
+      </ul>
+
+    </div>
+  </div><!-- /container -->
+
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+  </footer>
+
+  <div class="float-actions">
+    <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+  </div>
+
+</body>
+</html>

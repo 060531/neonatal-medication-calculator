@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}Phenobarbital: คิด mL จาก mg + วิธีผสม{% endblock %}
+
+{% block content %}
+<style>
+  :root { color-scheme: light; }
+
+  /* กล่องคำนวณ */
+  .card{
+    max-width:680px;margin:24px auto;background:#fff;border:1px solid #e5e7eb;
+    border-radius:16px;padding:20px 20px 16px;box-shadow:0 10px 24px rgba(2,8,23,.12)
+  }
+  .title{margin:0 0 8px 0;font-size:22px;font-weight:800;color:#0f172a;text-align:center}
+  .hint{color:#475569;text-align:center;margin-bottom:12px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:8px}
+  label{font-weight:700;color:#0f172a}
+  input[type="number"]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px}
+  .btn{padding:12px 16px;border-radius:10px;border:0;background:#0ea5e9;color:#fff;font-weight:800;cursor:pointer}
+  .btn:hover{filter:brightness(.97)}
+  .err{color:#b91c1c;margin-top:8px;text-align:center;font-weight:700}
+
+  .result{margin-top:14px;padding:14px;border-radius:12px;background:#f8fafc;border:1px dashed #cbd5e1}
+  .big{font-size:28px;font-weight:900;color:#111827;text-align:center}
+
+  /* สูตร/แทนค่า—บรรทัดเดียว */
+  .formula { text-align:center }
+  .formula .line{
+    display:flex; gap:8px; align-items:center; justify-content:center;
+    flex-wrap:nowrap; white-space:nowrap;
+  }
+  .mono{
+    font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-weight:800; padding:2px 6px; border-radius:6px;
+    background:#e7527e; color:#fff;
+  }
+  @media (max-width: 400px){
+    .formula .line{ flex-wrap:wrap; white-space:normal; }
+  }
+
+/* กล่องข้อมูลประกอบ (บังคับ 1 คอลัมน์เสมอ) */
+.sections.one-col{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 18px auto 0;
+}
+
+/* กล่องแต่ละส่วน + เนื้อหาชิดซ้าย */
+.section{
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px 16px;
+  text-align: left;            /* เนื้อหาชิดซ้าย */
+}
+
+/* หัวข้ออยู่กึ่งกลาง */
+.section h3{
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;          /* หัวข้อกึ่งกลาง */
+}
+
+/* ข้อความ/ลิสต์ภายใน ให้ชิดซ้ายเสมอ */
+.section p{
+  margin: 6px 0;
+  color: #334155;
+  text-align: left;
+}
+.section ul{
+  margin: 6px 0 0 18px;
+  color: #334155;
+  text-align: left;
+}
+
+/* ไฮไลต์ตัวหนา */
+.hl{
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.header-box{
+    background: linear-gradient(180deg,#8ad2f8,#e2e8f0); /* ไล่สีอ่อน */
+    border:1px solid #97a7c9;
+    border-radius:18px;
+    padding:18px 20px;
+    box-shadow: 0 8px 22px rgba(2,8,23,.10);
+  }
+  .header-box h2{ margin:0; color:#0f172a; font-weight:800; }
+
+  /* ===== ปุ่มลอยล่าง-กึ่งกลาง ===== */
+  .foot-actions{
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    display: flex; gap: 12px; justify-content: center; align-items: center;
+
+    background: rgba(255, 255, 255, 0.525);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 10px 12px;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(2,8,23,.18);
+    z-index: 60;
+  }
+  .foot-actions a{
+    display:inline-block;text-decoration:none;color:#ffffff;font-weight:600;
+    padding:6px 17px;border-radius:9px;min-width:0px;text-align:center;
+  }
+  .back{ background:#64748b; }
+  .home{ background:#16a34a; }
+  @media (max-width: 560px){
+    .foot-actions{ gap:8px; padding:8px 10px; bottom:12px; }
+    .foot-actions a{ min-width:150px; padding:12px 16px; }
+  }
+</style>
+    <div class="container">
+          <div class="header-box">
+            <h2>Phenobarbital 200 mg/mL</h2>
+        </div>
+    </div>
+        
+<div class="card">
+  <h2 class="title">Phenobarbital</h2>
+  <div class="hint">
+    คำนวณที่ความเข้มข้นมาตรฐาน <b>{{ '%g'|format(target_conc) }} mg/ml</b><br>
+    <small>สูตร: ml = mg ÷ {{ '%g'|format(target_conc) }}</small>
+  </div>
+
+  <form method="post" class="row">
+    <div>
+      <label>ปริมาณที่ต้องการ (mg)</label>
+      <input type="number" step="0.01" min="0" name="dose" value="{{ dose or '' }}" required>
+    </div>
+    <button class="btn" type="submit">คำนวณ</button>
+  </form>
+
+  {% if error %}
+    <div class="err">ผิดพลาด: {{ error }}</div>
+  {% endif %}
+
+  {% if vol_ml is not none %}
+    <div class="result">
+      <div class="big">{{ '%.2f'|format(vol_ml) }} ml</div>
+      <div class="hint">ให้ตามปริมาณนี้ที่ความเข้มข้น {{ '%g'|format(target_conc) }} mg/ml</div>
+
+      <!-- สูตร/แทนค่า (แถวเดียว) -->
+      <div class="formula">
+        <div class="line">
+          <span class="hl">สูตร:</span>
+          <span class="mono">ml = mg ÷ {{ '%g'|format(target_conc) }}</span>
+        </div>
+        <div class="line" style="margin-top:6px">
+          <span>แทนค่า:</span>
+          <span class="mono">{{ '%.2f'|format(dose) }} ÷ {{ '%g'|format(target_conc) }} = {{ '%.2f'|format(vol_ml) }} ml</span>
+        </div>
+      </div>
+
+      <!-- คงบล็อคสูตร 1 mL + 9 mL = 20 mg/mL ตามที่ขอ -->
+      <div class="section" style="margin-top:12px">
+        <h3 style="text-align:center;margin:0 0 6px 0">วิธีการผสม : 1 ml(phenobarbital) + 9 ml(D5W/NSS) = 20 mg/ml</h3>
+
+        {# แต่ละชุด 1+9 ได้ 10 mL @ 20 mg/ml = 200 mg ต่อชุด #}
+        {% set batch_vol_ml = 10.0 %}
+        {% set batch_mg = 200.0 %}
+        {% set batches = (dose // batch_mg)|int + (1 if (dose % batch_mg) > 0 else 0) %}
+        {% set last_batch_mg = (dose - batch_mg * (batches - 1)) if batches > 0 else 0 %}
+        {% set last_batch_vol = last_batch_mg / 20.0 %}
+
+        <ul>
+          <li>ปริมาณที่ต้องการ <b>{{ '%.2f'|format(last_batch_mg) }} mg</b> = <b>{{ '%.2f'|format(last_batch_vol) }} ml</b> (20 mg/ml)</li>
+        </ul>
+
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- 🔹 กล่องข้อมูล (1 คอลัมน์เสมอ) -->
+<div class="sections one-col">
+
+  <div class="section">
+    <h3>🔹 ข้อมูลพื้นฐาน</h3>
+    <ul>
+      <li><span class="hl">Phenobarbital sodium (Ampule)</span> 1 mL = <b>200 mg/ml</b> (เข้มข้นสูง)</li>
+      <li><b>ต้องเจือจางก่อนใช้</b> เพื่อให้เหมาะสมต่อการให้ผู้ป่วย</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>🔹 วิธีการผสม</h3>
+    <p><b>ขนาดยา:</b> Phenobarbital <b>200 mg/ml</b></p>
+    <p><b>ตัวทำละลายที่ใช้ได้:</b> SWFI, D5W, D10W, NSS</p>
+    <p><b>สูตรจำง่าย:</b> <code>1 ml phenobarbital + 9 ml diluent = 20 mg/ml</code></p>
+  </div>
+
+  <div class="section">
+    <h3>🔹 ข้อควรจำหลังผสม</h3>
+    <ul>
+      <li>ใช้ทันทีหลังผสม (ampule)</li>
+      <li>เก็บให้พ้นแสง</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>🔹 ความเข้มข้นสุดท้ายก่อนให้</h3>
+    <ul>
+      <li>ควรไม่เกิน <b>10 mg/ml</b> เพื่อป้องกันการระคายเคืองหลอดเลือด</li>
+      <li>อัตราการให้ <b>ไม่เกิน 1 mg/kg/min</b></li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>🔹 การติดตามหลังให้ยา (Monitor)</h3>
+    <ul>
+      <li>Heart Rate: ระวัง bradycardia</li>
+      <li>Seizure: ประเมินอาการชัก</li>
+      <li>Blood Pressure: ระวัง hypotension</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>🔹 Drug incompatibility (ยาที่ห้ามผสมในหลอดเดียวกัน)</h3>
+    <ul>
+      <li>Adrenaline</li>
+      <li>Bactrim</li>
+      <li>Cefotaxime</li>
+      <li>Dobutamine</li>
+      <li>Levophed</li>
+      <li>Phenytoin</li>
+      <li>Fat emulsion</li>
+      <li>Ranitidine</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ปุ่มล่าง: ลอยติดขอบล่าง กึ่งกลางจอ -->
+<div class="foot-actions">
+  <a href="{{ url_for('medication_administration') }}" class="back">Back</a>
+  <a href="{{ url_for('index') }}" class="home">Back to Home</a>
+</div>
+{% endblock %}

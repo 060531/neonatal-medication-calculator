@@ -1,0 +1,27 @@
+[
+  {
+    "drug": "Acyclovir",
+    "co_drug": "Amikacin",
+    "status": "Compatible",
+    "note": "ยาสามารถผสมร่วมกันได้",
+    "en": "Y-site compatible under standard conditions.",
+    "th": "ยาสามารถผสมร่วมกันได้ (Y-site) หากเงื่อนไขมาตรฐาน",
+    "detail": {
+      "context": "Y-site",
+      "diluent": ["NS", "D5W"],
+      "conc_a": "Acyclovir 1–5 mg/mL",
+      "conc_b": "Amikacin 1–5 mg/mL",
+      "contact_time": "≤ 60 นาที",
+      "temperature": "Room temperature",
+      "flush": "Flush NS 5–10 mL ก่อน-หลัง",
+      "cautions": ["สังเกตการขุ่น/ตกผลึกที่ Y-site"],
+      "evidence": {
+        "level": "B",
+        "sources": [
+          {"name":"Trissel’s IV Compatibility","year":2024,"note":"Y-site data"}
+        ]
+      },
+      "last_reviewed": "2025-09-30"
+    }
+  }
+]

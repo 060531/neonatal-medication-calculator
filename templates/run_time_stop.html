@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medication Schedule</title>
     <style>
         body {
@@ -24,7 +24,7 @@
         .container {
             max-width: 670px;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.396);
             border: 1px solid rgba(253, 253, 253, 0.8);
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
@@ -44,6 +44,8 @@
             padding: 15px 30px;
             border-radius: 15px;
             display: inline-block;
+            border: 2px solid rgba(2, 101, 22, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             font-weight: bold;
             letter-spacing: 1px;
         }
@@ -55,33 +57,7 @@
         }
 
         .result {
-            display: none; /* ซ่อนผลลัพธ์ก่อน */
             margin-top: 20px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.85);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            font-size: 18px;
-            max-width: 500px;
-            margin: 20px auto;
-            color: #000000;
-        }
-
-        .result table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .result th, .result td {
-            padding: 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .result th {
-            background-color: #1d6fcc;
-            font-weight: bold;
-            color: #fffcfc;
         }
 
         .button-group {
@@ -108,21 +84,56 @@
             background-color: #f44336;
         }
 
+        .back-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .back-button:active {
+            background-color: #d32f2f;
+            box-shadow: 0 4px #666;
+            transform: translateY(4px);
+        }
+
         .back-button-secondary {
             background-color: #008CBA;
         }
-        
+
+        .back-button-secondary:hover {
+            background-color: #007B9A;
+        }
+
         .styled-button {
-            background-color: #117314;
-            border: none;
-            color: white;
-            padding: 10px 24px;
+        background-color: #117314; /* สีพื้นหลัง */
+        border: none;
+        color: white; /* สีตัวอักษร */
+        padding: 10px 24px; /* ลดขนาด padding เพื่อลดความสูง */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        font-weight: bold; /* ทำให้ตัวหนังสือหนา */
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px; /* ขอบมน */
+        box-shadow: 0 4px #999; /* เงาปุ่ม */
+        transition: background-color 0.3s, transform 0.2s; /* เพิ่มเอฟเฟกต์การเปลี่ยนสีและการกด */
+    }
+
+    .styled-button:hover {
+        background-color: #45a049; /* สีเมื่อเอาเมาส์ชี้ */
+    }
+
+    .styled-button:active {
+        background-color: #3e8e41; /* สีเมื่อกด */
+        box-shadow: 0 2px #666; /* เงาเมื่อกด */
+        transform: translateY(4px); /* ยุบลงเมื่อกด */
+    }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #fff;
             font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 12px;
-            box-shadow: 0 4px #999;
-            transition: background-color 0.3s, transform 0.2s;
         }
     </style>
 </head>
@@ -145,7 +156,6 @@
             <option value="18">18:00</option>
             <option value="20">20:00</option>
             <option value="22">22:00</option>
-            <!-- ถ้าอยากให้เห็นเป็น 24:00 -->
             <option value="24">24:00</option>
         </select>
 
@@ -156,7 +166,6 @@
             <option value="8">Every 8 hours</option>
             <option value="12">Every 12 hours</option>
             <option value="24">Every 24 hours</option>
-            <option value="30">Every 30 hours</option>
             <option value="36">Every 36 hours</option>
             <option value="48">Every 48 hours</option>
         </select>
@@ -170,92 +179,42 @@
     </div>
 
     <script>
-        // ฟังก์ชันสำหรับ "แปลง" วัน-เวลาเพื่อแสดงผลเป็น 24:00 ของวันเดิม
-        function formatDateTime(dateObj) {
-            // สร้างสำเนา (clone) dateObj มาปรับค่าเพื่อใช้แสดงผล
-            const displayDate = new Date(dateObj);
-            let hours = displayDate.getHours();
-            let minutes = displayDate.getMinutes();
-
-            // ถ้าเป็นเที่ยงคืน (0:00)
-            // เราต้องการแสดงเป็น "24:00" ของวันก่อนหน้า
-            if (hours === 0 && minutes === 0) {
-                // ลดวันที่ใน displayDate ลง 1
-                displayDate.setDate(displayDate.getDate() - 1);
-
-                // แปลงวันที่เป็น string
-                let dateStr = displayDate.toLocaleDateString(); 
-                // แล้วคืนค่าเป็น { date: "...", time: "24:00" }
-                return {
-                    date: dateStr,
-                    time: "24:00"
-                };
-            } else {
-                // ถ้าไม่ใช่เที่ยงคืน ก็แสดงผลตามปกติ
-                let dateStr = displayDate.toLocaleDateString();
-                // จัดรูปแบบเวลาเป็น HH:MM
-                let hh = String(hours).padStart(2, '0');
-                let mm = String(minutes).padStart(2, '0');
-                return {
-                    date: dateStr,
-                    time: `${hh}:${mm}`
-                };
-            }
-        }
-
         function calculateSchedule() {
             const dateInput = document.getElementById('date').value;
-            const rawTimeInput = document.getElementById('startTime').value;
+            const timeInput = document.getElementById('startTime').value.padStart(2, '0'); // ให้มีรูปแบบ HH
             const interval = parseInt(document.getElementById('interval').value);
             const numDays = parseInt(document.getElementById('days').value);
             const resultDiv = document.getElementById('scheduleResult');
 
-            if (!dateInput || !rawTimeInput || isNaN(numDays) || numDays <= 0) {
+            if (!dateInput || !timeInput || isNaN(numDays) || numDays <= 0) {
                 resultDiv.innerHTML = "<p style='color: red;'>Please select a start date, start time, and valid number of days.</p>";
-                resultDiv.style.display = "block";
                 return;
             }
 
-            // สร้าง Date object
-            const timeInput = rawTimeInput.padStart(2, '0');
+            // สร้างเวลาเริ่มต้นจากวันที่และเวลาที่เลือก
             const startDateTime = new Date(`${dateInput}T${timeInput}:00`);
-
+            console.log("Start DateTime:", startDateTime);
+            console.log("Interval:", interval);
+            console.log("Number of Days:", numDays);
             const scheduleTimes = [];
-            const totalHours = numDays * 24;
 
-            // ลูปสร้างตารางยา
+            // คำนวณเวลาการให้ยาในระยะเวลาจำนวนวันที่เลือก
+            const totalHours = numDays * 24; // คำนวณจำนวนชั่วโมงทั้งหมด
             for (let i = 0; i < totalHours; i += interval) {
                 const doseTime = new Date(startDateTime.getTime() + i * 60 * 60 * 1000);
-
-                // ใช้ formatDateTime() เพื่อแปลงเป็น { date, time } 
-                // และดักเคส 00:00 -> 24:00 (วันก่อนหน้า)
-                const formatted = formatDateTime(doseTime);
-
-                scheduleTimes.push({
-                    date: formatted.date,
-                    time: formatted.time
-                });
+                console.log("Dose Time:", doseTime);
+                scheduleTimes.push(`${doseTime.toLocaleDateString()} ${doseTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
             }
 
+            // แสดงผลลัพธ์ตามจำนวนวันที่เลือก
             if (scheduleTimes.length > 0) {
-                // สร้างตาราง
-                resultDiv.innerHTML = `
-                    <h3>Scheduled Times for ${numDays} Days:</h3>
-                    <table>
-                        <tr><th>Date</th><th>Time</th></tr>
-                        ${
-                            scheduleTimes.map(entry => 
-                                `<tr><td>${entry.date}</td><td>${entry.time}</td></tr>`
-                            ).join('')
-                        }
-                    </table>
-                `;
+                resultDiv.innerHTML = `<h3>Scheduled Times for ${numDays} Days:</h3><ul>` + scheduleTimes.map(time => `<li>${time}</li>`).join('') + "</ul>";
             } else {
                 resultDiv.innerHTML = "<p style='color: red;'>No schedule times generated. Please check your inputs.</p>";
             }
-            resultDiv.style.display = "block";
         }
     </script>
+
 
     <div class="button-group">
         <a href="javascript:history.back()" class="back-button-secondary">Back</a>

@@ -1,0 +1,21 @@
+id,name,generic_name,category,notes
+1,Acyclovir,Acyclovir,Antiviral,ใช้รักษาการติดเชื้อ Herpes
+2,Vancomycin,Vancomycin,Antibiotic (Glycopeptide),ใช้รักษาการติดเชื้อ MRSA
+3,Levofloxacin,Levofloxacin,Antibiotic (Fluoroquinolone),ครอบคลุม Gram- และ Gram+
+4,Ampicillin,Ampicillin,Antibiotic (Beta-lactam),ใช้ใน neonatal sepsis
+5,Gentamicin,Gentamicin,Aminoglycoside,ใช้ร่วมกับ Ampicillin
+6,Meropenem,Meropenem,Carbapenem,ติดเชื้อรุนแรง
+7,Amphotericin B,Amphotericin B,Antifungal,เตรียม/เจือจางตามคู่มือ
+8,Ceftazidime,Ceftazidime,Cephalosporin 3rd,Gram- ครอบคลุม Pseudomonas
+9,Cefotaxime,Cefotaxime,Cephalosporin 3rd,ใช้ใน neonatal sepsis
+10,Clindamycin,Clindamycin,Lincosamide,ทางเลือก anaerobe/penicillin allergy
+11,Cloxacillin,Cloxacillin,Antistaphylococcal penicillin,ใช้ใน MSSA
+12,Hydrocortisone,Hydrocortisone,Corticosteroid,adrenal insufficiency
+13,Insulin Human Regular,Insulin Human Regular,Insulin,hyperglycemia ใน NICU
+14,Midazolam,Midazolam,Benzodiazepine,Sedation
+15,Morphine,Morphine,Opioid analgesic,Analgesia
+16,Nimbex (Cisatracurium),Cisatracurium,Neuromuscular blocker,Paralysis for ventilation
+17,Remdesivir,Remdesivir,Antiviral,COVID-19 indication
+18,Sulperazone,Sulperazone,Cephalosporin/BLI,cefoperazone+sulbactam
+19,Tazocin,Piperacillin/Tazobactam,Antipseudomonal penicillin,wide Gram- coverage
+20,Unasyn,Ampicillin/Sulbactam,Beta-lactam/BLI,coverage anaerobe

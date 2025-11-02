@@ -1,138 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fentanyl</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Fentanyl</title>
+  <style>
+    /* ===== Theme tokens ===== */
+    :root{
+      --brand-900:#e70939;
+      --brand-700:#d21e1e;
+      --sky-50:#ffeeee;
+      --sky-100:#ffd7d7;
+      --panel:#ffe6e6b8;
+      --text:#0f172a;
 
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-        }
+      --gutter: 12px;                           /* ระยะขอบซ้าย-ขวา */
+      --floatbar-gap: clamp(80px,16vw,110px);   /* กันพื้นที่ให้ footer ไม่ชนปุ่มลอย */
+    }
 
-        /* กรอบโปร่งใส */
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 2px solid #e8cabe;
-            border-radius: 10px;
-            background-color: transparent; /* เปลี่ยนสีพื้นหลังเป็นโปร่งใส */
-            z-index: 0;
-            position: relative;
-        }
+    /* ===== Global guard + BG เต็มจอ (ไม่กระพริบบนมือถือ) ===== */
+    html, body { height:100%; overflow-x:hidden; }
+    *, *::before, *::after { box-sizing:border-box; }
+    body{
+      margin:0; min-height:100svh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color:var(--text); text-align:center; background:none;
+      padding-left:max(0px, env(safe-area-inset-left));
+      padding-right:max(0px, env(safe-area-inset-right));
+    }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
 
-        /* กรอบและการเน้นข้อความสำหรับ h2 */
-        h2 {
-            color: #d32f2f;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #d32f2f; /* เพิ่มกรอบสีแดงเข้ม */
-            border-radius: 10px;
-            display: inline-block; /* ทำให้กรอบมีขนาดพอดีกับข้อความ */
-            background-color: #ffeb3b; /* พื้นหลังสีเหลือง */
-        }
+    /* ===== Header ===== */
+    .title-badge{
+      display:inline-block;
+      margin:28px auto 12px;
+      padding:12px 24px;
+      background:var(--brand-900); color:#fff;
+      font-weight:900; font-size:28px; line-height:1.15;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      max-width: calc(100vw - (var(--gutter)*2));
+      white-space:nowrap;
+    }
 
-        .grid-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
+    /* ===== Panel / wrapper ===== */
+    .container{
+      width:min(820px, calc(100vw - (var(--gutter)*2)));
+      margin:0 auto 12px; padding:20px;
+      background:var(--panel);
+      border:1px solid #b9d9ff; border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
 
-        .button {
-            padding: 15px 30px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            cursor: pointer;
-            text-decoration: none;
-            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2); /* เพิ่มเงาให้ปุ่ม */
-            transition: all 0.3s ease;
-        }
+    .box{
+      margin:14px auto 16px; max-width:640px; padding:26px;
+      background:linear-gradient(200deg, var(--sky-100), var(--sky-50));
+      border:2px solid #ffb7b7; border-radius:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+    }
 
-        .button:hover {
-            background-color: #0056b3;
-            transform: translateY(-3px); /* ปุ่มขยับขึ้นเมื่อ hover */
-            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3); /* เพิ่มเงาเมื่อ hover */
-        }
+    /* ===== Buttons ===== */
+    .btn{
+      appearance:none; border:none; border-radius:12px; cursor:pointer;
+      padding:14px 18px; font-weight:800; color:#fff; font-size:16px;
+      text-decoration:none; display:inline-block; text-align:center;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition: transform .06s ease, filter .2s ease;
+    }
+    .btn:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px); }
+    .btn-primary{ background:var(--brand-700); }
+    .btn-red{ background:#e71f1f; }
+    .btn-cyan{ background:#049bb5; }
 
-        /* ปุ่มสำหรับส่วนอื่น ๆ */
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
+    /* ===== Grid ปุ่มเลือกหน้า ===== */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(180px, 1fr));
+      gap:20px;        /* ลดระยะห่างให้พอดีจอเล็ก */
+      justify-items:center; align-items:stretch;
+    }
+    .grid .btn{ width:100%; }
 
-        .back-button, .calculate-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
+    /* ===== ปุ่มลอยติดล่าง (คุมความกว้างไม่ให้ล้น) ===== */
+    .float-actions{
+      position:fixed; left:50%;
+      bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+      transform:translateX(-50%); z-index:9999;
 
-        .back-button {
-            background-color: #f44336;
-        }
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+      padding:8px 10px; border-radius:14px;
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      width:min(540px, calc(100vw - (var(--gutter)*2)));
+      max-width:calc(100vw - (var(--gutter)*2));
+    }
+    .float-actions .btn{ min-width:130px; }
 
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
+    /* ===== Footer (ย่อฟอนต์อัตโนมัติ) ===== */
+    footer.page-footer{
+      text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin:6px 0 var(--floatbar-gap);
+      padding-left:var(--gutter); padding-right:var(--gutter);
+      font-size: clamp(11px, 3.2vw, 14px);
+      line-height:1.4;
+    }
 
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        /* ให้แน่ใจว่าฟุตเตอร์ไม่ถูกซ่อน */
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: white;
-            font-size: 14px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-            position: relative;
-            z-index: 1;
-        }
-    </style>
+    /* ===== Mobile tweaks ===== */
+    @media (max-width:640px){
+      .title-badge{ font-size:22px; padding:10px 16px; }
+      .container{ padding:14px; }
+      .grid{ grid-template-columns:1fr; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Fentanyl</h2>
-        <div class="grid-container">
-            <a href="{{ url_for('fentanyl_continuous_route') }}" class="button">Fentanyl Continuous</a>
-            <a href="{{ url_for('fentanyl_small_dose_route') }}" class="button">Fentanyl Small Dose</a>
-        </div>
-    </div>
 
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
-    </div>
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Fentanyl</div>
 
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-    </footer>
+  <div class="container">
+    <div class="box">
+      <div class="grid">
+        <a href="{{ url_for('fentanyl_continuous_route') }}" class="btn btn-primary">Fentanyl Continuous</a>
+        <a href="{{ url_for('fentanyl_small_dose_route') }}" class="btn btn-primary">Fentanyl Small Dose</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer: ฟอนต์จะเล็กลงอัตโนมัติบนจอเล็ก -->
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+  </footer>
+
+  <!-- ปุ่มลอย -->
+  <div class="float-actions">
+    <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+  </div>
+
 </body>
 </html>

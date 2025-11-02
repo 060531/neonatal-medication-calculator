@@ -118,7 +118,7 @@
             text-align: center;
             margin-top: 20px;
             color: rgb(255, 255, 255);
-            font-size: 14px;
+            font-size: 16px;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
         }
     </style>
@@ -157,17 +157,10 @@
     <!-- แสดงผลลัพธ์หลังจากคำนวณ -->
     {% if pma_weeks is not none and pma_days is not none and calc is not none and bw is not none %}
     <div class="result" style="display: block;">
-        {% if pma_weeks is defined and pma_days is defined and calc is defined and bw is defined and postnatal_days is defined %}
-            <p>PMA: <span style="color: blue;">{{ pma_weeks }} weeks and {{ pma_days }} days</span></p>
-            <p>Calc.: <span style="color: blue;">{{ calc }} weeks</span></p>
-            <p>Postnatal Age: <span style="color: blue;">{{ postnatal_days }} days</span></p>
-            <p>Birth Weight (BW): <span style="color: blue;">{{ "%.2f" | format(bw) }} kg</span></p>
-        {% else %}
-            <p>Please provide input data to calculate PMA.</p>
-        {% endif %}
-    </div>
-    
-    
+        <p>PMA: <span style="color: blue;">{{ pma_weeks }} weeks and {{ pma_days }} days</span></p>
+        <p>Calc.: <span style="color: blue;">{{ calc }} weeks</span></p>
+        <p>Postnatal Age: <span style="color: blue;">{{ postnatal_days }} days</span></p>
+        <p>Birth Weight (BW): <span style="color: blue;">{{ bw }} kg</span></p>
 
         <!-- ปุ่มไปคำนวณยา -->
         <form action="{{ url_for('drug_calculation') }}" method="POST">

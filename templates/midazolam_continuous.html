@@ -1,198 +1,222 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Calculate Midazolam Dosage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Midazolam Calculation</title>
+  <style>
+    :root{
+      --primary-900:#e70939;
+      --primary-700:#d21e1e;
+      --panel:#ffe6e6cc;
+      --text:#0f172a;
+      --gutter:12px;
+      --floatbar-gap:90px;
+    }
 
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-        }
+    html,body{height:100%;overflow-x:hidden}
+    *,*::before,*::after{box-sizing:border-box}
+    body{
+      margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,"Helvetica Neue",Helvetica,sans-serif;
+      color:var(--text);text-align:center;background:none;
+      padding-left:max(0px,env(safe-area-inset-left));padding-right:max(0px,env(safe-area-inset-right));
+    }
+    /* พื้นหลังภาพ */
+    body::before{
+      content:"";position:fixed;inset:0;z-index:-1;
+      background:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg') center/cover no-repeat;
+    }
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 2px solid #e8cabe;
-            border-radius: 10px;
-            background-color: rgba(246, 200, 182, 0.9);
-        }
+    .title-badge{
+      display:inline-block;margin:28px auto 12px;padding:10px 18px;
+      background:var(--primary-900);color:#fff;font-weight:900;
+      font-size:clamp(20px,5vw,28px);line-height:1.25;
+      border-radius:12px;border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      max-width:calc(100vw - (var(--gutter)*2));
+      overflow-wrap:anywhere;white-space:normal;
+    }
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #8d59ed;
-        }
+    .container{
+      width:min(820px, calc(100vw - (var(--gutter)*2)));
+      margin:0 auto 12px;padding:20px;
+      background:var(--panel);border:1px solid #ffc7c7;border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%);-webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
 
-        h2 {
-            color: #d32f2f;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #d32f2f;
-            border-radius: 10px;
-            background-color: #ffeb3b;
-        }
+    .calc-box{
+      margin:14px auto 16px;max-width:740px;padding:16px;
+      background:linear-gradient(180deg,#ffd7d7,#ffeeee);
+      border:1px solid #ffb7b7;border-radius:14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 18px rgba(0,0,0,.06);
+    }
 
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    .calc-form{display:flex;flex-direction:column;gap:14px;align-items:center}
+    .field-row{
+      display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;
+      width:100%;max-width:560px;
+    }
+    .field-row>label{
+      font-weight:800;color:#0b255e;white-space:nowrap;max-width:46vw;line-height:1.2;
+    }
+    .field-row>input[type="number"]{
+      min-width:0;width:100%;padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;
+      background:#fff;text-align:center;font-size:16px;
+    }
 
-        .form-group label {
-            flex: 1;
-            font-weight: bold;
-            margin-right: 10px;
-            text-align: left;
-        }
+    .actions{margin-top:6px}
+    .btn{
+      appearance:none;border:none;border-radius:10px;cursor:pointer;
+      padding:10px 16px;font-weight:800;color:#fff;background:var(--primary-700);
+      box-shadow:0 6px 0 rgba(10,30,85,.25);transition:transform .06s ease,filter .2s ease;text-decoration:none;
+    }
+    .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+    .btn:active{transform:translateY(1px)}
 
-        .form-group input {
-            flex: 1;
-            width: 150px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
+    /* การ์ดสรุปผลแบบในภาพ */
+    .viz-card{
+      margin:14px auto 6px;max-width:760px;
+      background:#fff; border:1px solid #f0d6d6; border-radius:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,.06); padding:16px 18px; color:#111827;
+      display:none;
+    }
+    .viz-card .title{font-weight:900; font-size:18px; margin:0 0 8px}
+    .viz-card .line{margin:10px 0}
+    .viz-card .mono-dark{background:#0f172a;color:#fff;border-radius:8px;padding:2px 8px;font-weight:800}
+    .viz-card .val{display:inline-block;background:#e01b1b;color:#fff;border-radius:8px;padding:2px 8px;font-weight:900}
+    .viz-card hr{border:none;border-top:1px dashed #e5e7eb;margin:10px 0}
 
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-size: 18px;
-            display: none; /* ซ่อนกล่องผลลัพธ์ตั้งแต่แรก */
-        }
+    .float-actions{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9999;
+      display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;
+      padding:8px 10px;border-radius:14px;background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%);-webkit-backdrop-filter: blur(8px) saturate(120%);
+      width:min(540px, calc(100vw - (var(--gutter)*2)));
+    }
+    .float-actions .btn{min-width:120px}
 
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
+    footer.page-footer{
+      text-align:center;color:#ffffff;text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin:6px 0 var(--floatbar-gap);font-size:clamp(12px,3.2vw,16px)
+    }
 
-        .back-button, .calculate-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-        }
-
-        .back-button {
-            background-color: #f44336;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        .calculate-button {
-            background-color: #007BFF;
-        }
-
-        .calculate-button:hover {
-            background-color: #0056b3;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #fff;
-            font-size: 14px;
-        }
-    </style>
+    @media (max-width:360px){
+      .field-row>label{font-size:13px}
+      .field-row>input{font-size:13px;padding:8px 10px;height:36px}
+    }
+  </style>
 </head>
 <body>
 
-    <h1>คำนวณการเตรียมยา Midazolam</h1>
+  <div class="title-badge">Midazolam (5 mg/ml)</div>
 
-    <div class="container">
-        <h2>Midazolam (5mg/ml)</h2>
-        <form id="midazolam-form">
-            <div class="form-group">
-                <label for="original_dosage">ขนาดยา(Order) mg:</label>
-                <input type="number" id="original_dosage" name="original_dosage" placeholder="ป้อนขนาดยาตั้งต้น" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="original_volume">ปริมาณสารละลาย(Order) ml:</label>
-                <input type="number" id="original_volume" name="original_volume" placeholder="ป้อนปริมาณสารละลายตั้งต้น" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="desired_dosage">ขนาดยาที่ต้องการ mg:</label>
-                <input type="number" id="desired_dosage" name="desired_dosage" placeholder="ป้อนขนาดยาที่ต้องการ" step="0.01" required>
-            </div>
-            <button type="submit" class="calculate-button">Calculate</button>
-        </form>
+  <div class="container">
+    <div class="calc-box">
+      <form id="midazolam-form" class="calc-form">
+        <div class="field-row">
+          <label for="original_dosage">ปริมาตร (Order) ml:</label>
+          <input type="number" id="original_volume" name="original_volume" placeholder="เช่น 24" step="0.01" required>
+        </div>
 
-        <!-- กล่องแสดงผลลัพธ์ -->
-        <div id="result" class="result"></div>
+        <div class="field-row">
+          <label for="original_volume">ขนาดยาที่สั่ง (Order) mg:</label>
+          <input type="number" id="original_dosage" name="original_dosage" placeholder="เช่น 1.00" step="0.01" required>
+        </div>
+
+        <div class="field-row">
+          <label for="desired_dosage">ขนาดยาที่ต้องการ mg:</label>
+          <input type="number" id="desired_dosage" name="desired_dosage" placeholder="เช่น 1.00" step="0.01" required>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">คำนวณ</button>
+        </div>
+      </form>
     </div>
 
-    <script>
-        document.getElementById('midazolam-form').addEventListener('submit', function(event) {
-            event.preventDefault();
+    <!-- การ์ดสรุปผล (แสดงหลังคำนวณ) -->
+    <div id="viz" class="viz-card"></div>
 
-            // ดึงข้อมูลจากฟอร์ม
-            let originalDosage = parseFloat(document.getElementById('original_dosage').value);
-            let originalVolume = parseFloat(document.getElementById('original_volume').value);
-            let desiredDosage = parseFloat(document.getElementById('desired_dosage').value);
-
-            // คำนวณปริมาณสารละลายที่ต้องใช้
-            let newVolume = (desiredDosage / originalDosage) * originalVolume;
-            let midazolamVolume = desiredDosage / 5; // คำนวณปริมาณยาที่ต้องดูด (ยา 5mg/ml)
-
-            // คำนวณการหักลบ newVolume - midazolamVolume
-            let finalVolume = newVolume - midazolamVolume;
-
-            // แสดงผลลัพธ์ในกล่องผลลัพธ์
-            let resultContainer = document.createElement('div');
-            resultContainer.className = 'result-container';
-            resultContainer.innerHTML = `
-                <h3>ปริมาณยา + สารละลายที่ใช้</h3>
-                <p><b>สารละลายที่ต้องใช้:</b> ${newVolume.toFixed(2)} ml</p>
-                <p><b>ปริมาณยา:</b> ${midazolamVolume.toFixed(2)} ml</p>
-                <p><b>ผลลัพธ์:</b> ${newVolume.toFixed(2)} - ${midazolamVolume.toFixed(2)} = ${finalVolume.toFixed(2)} ml</p>
-            `;
-
-            // แสดงกล่องผลลัพธ์
-            document.getElementById('result').innerHTML = '';
-            document.getElementById('result').appendChild(resultContainer);
-            document.getElementById('result').style.display = 'block'; // แสดงกล่องผลลัพธ์หลังจากกดคำนวณ
-        });
-    </script>
-
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
+    <!-- กล่องแนวคิดอ้างอิง -->
+    <div class="viz-card" style="display:block;background:#ffffff;border-color:#e5efff">
+      <p style="margin:0 0 6px"><b>สต็อกอ้างอิง:</b> Midazolam 5 mg/ml</p>
+      <p style="margin:0 0 6px"><b>สูตร:</b> ปริมาตรยา (ml) = <span class="mono-dark">mg ÷ 5</span></p>
+      <p style="margin:0">ปริมาตรเป้าหมาย = <span class="mono-dark">desired ÷ original_dosage × original_volume</span></p>
     </div>
+  </div>
 
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-    </footer>
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+  </footer>
+
+  <div class="float-actions">
+    <a href="{{ url_for('medication_administration') }}" class="btn" style="background:#049bb5">Back</a>
+    <a href="{{ url_for('index') }}" class="btn" style="background:#e71f1f">Back to Home</a>
+  </div>
+
+  <script>
+    // ความเข้มข้น Midazolam (mg/ml)
+    const CONC = 5;
+    const f2 = n => Number.parseFloat(n).toFixed(2);
+
+    const form = document.getElementById('midazolam-form');
+    const viz  = document.getElementById('viz');
+
+    form.addEventListener('submit', function(event){
+      event.preventDefault();
+
+      const originalVolume = parseFloat(document.getElementById('original_volume').value || '0'); // ml
+      const originalDosage = parseFloat(document.getElementById('original_dosage').value || '0'); // mg
+      const desiredDosage  = parseFloat(document.getElementById('desired_dosage').value  || '0'); // mg
+
+      if ([originalVolume, originalDosage, desiredDosage].some(v => isNaN(v) || v <= 0)) {
+        alert('กรุณากรอกค่าที่ถูกต้อง (> 0)');
+        return;
+      }
+
+      // 1) ปริมาตรเป้าหมายตามสัดส่วนเดิม
+      const targetVolume = (desiredDosage / originalDosage) * originalVolume; // ml
+      // 2) ปริมาตรยาที่ต้องดูดจาก stock 5 mg/ml
+      const midazolamVol = desiredDosage / CONC; // ml
+      // 3) ปริมาตรตัวทำละลาย
+      const diluent      = targetVolume - midazolamVol; // ml
+
+      // guard เผื่อกรอกค่าที่ทำให้ diluent ติดลบ
+      if (diluent < 0) {
+        alert('ค่าที่กรอกทำให้ตัวทำละลายติดลบ ตรวจสอบ order และขนาดยาที่ต้องการอีกครั้ง');
+      }
+
+      // การ์ดสรุปผล (ตัวเดียว)
+      viz.innerHTML = `
+        <div class="title">Order เป้าหมาย: <b>Midazolam ${f2(desiredDosage)} mg</b></div>
+
+        <div class="line">
+          <b>คำนวณปริมาตรเป้าหมายจากสัดส่วนเดิม:</b><br>
+          ${f2(desiredDosage)} ÷ ${f2(originalDosage)} × ${f2(originalVolume)} =
+          <span class="val">${f2(targetVolume)} ml</span>
+        </div>
+
+        <div class="line">
+          <b>ปริมาตรยาที่ต้องดูด:</b>
+          <span class="mono-dark">ml = mg ÷ 5</span><br>
+          <span class="mono-dark">แทนค่า: ${f2(desiredDosage)} ÷ 5</span>
+          = <span class="val">${f2(midazolamVol)} ml</span>
+        </div>
+
+        <hr>
+
+        <div class="line">
+          <b>ดังนั้น ตัวทำละลาย:</b>
+          ${f2(targetVolume)} − ${f2(midazolamVol)} = <span class="val">${f2(diluent)} ml</span>
+        </div>
+      `;
+      viz.style.display = 'block';
+      viz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  </script>
+
 </body>
 </html>

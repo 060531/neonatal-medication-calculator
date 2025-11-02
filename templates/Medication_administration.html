@@ -1,56 +1,174 @@
-<!-- templates/medications.html -->
 {% extends "base.html" %}
-
-{% block title %}Select a Medication{% endblock %}
+{% block title %}Medication Administration{% endblock %}
+{% block body_class %}medication-page{% endblock %}
 
 {% block content %}
-<h1>Select a Medication</h1>
-<div class="grid-container">
-    <a href="{{ url_for('acyclovir_route') }}" class="medication-button">Acyclovir</a>
-    <a href="#" class="medication-button">Albumin</a>
-    <a href="{{ url_for('amikin_route') }}" class="medication-button">Amikin</a>
-    <a href="{{ url_for('aminophylline_route') }}" class="medication-button red-button">Aminophylline</a>
-    <a href="{{ url_for('amoxicillin_clavimoxy_route') }}" class="medication-button">Amoxicillin/<br>Clavimoxy</a>
-    <a href="{{ url_for('amphotericinB_route') }}" class="medication-button">Amphotericin B</a>
-    <a href="{{ url_for('ampicillin_route') }}" class="medication-button">Ampicillin</a>
-    <a href="{{ url_for('benzathine_penicillin_g_route') }}" class="medication-button">Benzathine Penicillin G</a>
-    <a href="{{ url_for('cefotaxime_route') }}" class="medication-button">Cefotaxime</a>
-    <a href="#" class="medication-button">CeFAZolin</a>
-    <a href="{{ url_for('ceftazidime_route') }}" class="medication-button">CefTAZidime</a>
-    <a href="{{ url_for('clindamycin_route') }}" class="medication-button">Clindamycin</a>
-    <a href="#" class="medication-button">Chloral hydrate</a>
-    <a href="{{ url_for('cloxacillin_route') }}" class="medication-button">Cloxacillin</a>
-    <a href="{{ url_for('colistin_route') }}" class="medication-button">Colistin</a>
-    <a href="{{ url_for('dexamethasone_route') }}" class="medication-button">Dexamethasone</a>
-    <a href="#" class="medication-button">Digoxin</a>
-    <a href="{{ url_for('dobutamine_route') }}" class="medication-button red-button">DOBUTamine</a>
-    <a href="{{ url_for('dopamine_route') }}" class="medication-button red-button">DOPamine</a>
-    <a href="{{ url_for('fentanyl_route') }}" class="medication-button red-button">Fentanyl</a>
-    <a href="{{ url_for('furosemide_route') }}" class="medication-button">Furosemide</a>
-    <a href="{{ url_for('gentamicin_route') }}" class="medication-button">Gentamicin</a>
-    <a href="{{ url_for('hydrocortisone_route') }}" class="medication-button">Hydrocortisone</a>
-    <a href="#" class="medication-button">Ibuprofen</a>
-    <a href="#" class="medication-button">Indomethacin</a>
-    <a href="{{ url_for('insulin_route') }}" class="medication-button">Insulin Human Regular</a>
-    <a href="{{ url_for('meropenam_route') }}" class="medication-button">Meropenam</a>
-    <a href="{{ url_for('metronidazole') }}" class="medication-button">Metronidazole<br>(Flagyl)</a>
-    <a href="{{ url_for('midazolam_route') }}" class="medication-button red-button">Midazolam</a>
-    <a href="{{ url_for('midazolam_fentanyl_route') }}" class="medication-button red-button">Midazolam + Fentanyl</a>
-    <a href="{{ url_for('morphine_route') }}" class="medication-button red-button">Morphine</a>
-    <a href="{{ url_for('nimbex_route') }}" class="medication-button">Nimbex<br>(Clsatracurlum)</a>
-    <a href="#" class="medication-button">Norepinephrine</a>
-    <a href="{{ url_for('omeprazole_route') }}" class="medication-button">Omeprazole</a>
-    <a href="{{ url_for('penicillin_g_sodium_route') }}" class="medication-button">Penicillin G sodium</a>
-    <a href="{{ url_for('phenobarbital_route') }}" class="medication-button">Phenobarbital</a>
-    <a href="{{ url_for('phenytoin_route') }}" class="medication-button">Phenytoin<br>(Dilantin)</a>
-    <a href="{{ url_for('remdsivir_route') }}" class="medication-button">Remdsivir</a>
-    <a href="{{ url_for('sul_am_route') }}" class="medication-button">Sul-am&#9415;</a>
-    <a href="{{ url_for('sulbactam_route') }}" class="medication-button">SulBacTam</a>
-    <a href="{{ url_for('sulperazone_route') }}" class="medication-button">Sulperazone</a>
-    <a href="{{ url_for('tazocin_route') }}" class="medication-button">Tazocin</a>
-    <a href="{{ url_for('unasyun_route') }}" class="medication-button">Unasyun</a>
-    <a href="{{ url_for('vancomycin_route') }}" class="medication-button">Vancomycin</a>
+<style>
+  /* ========== Global page fixes: กันสโครลแนวนอน & คุมกล่อง ========= */
+  html, body, .medication-page { overflow-x: hidden; }
+  .medication-page *, .medication-page *::before, .medication-page *::after { box-sizing: border-box; }
+
+  /* ========== แถบปุ่มลอยด้านบน (Fixed Top Actions) ========== */
+  .top-fix-actions{
+    position: fixed;
+    z-index: 60;
+    left: 50%;
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    transform: translateX(-50%);
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+
+    /* จำกัดความกว้างไม่ให้ชนขอบจอ */
+    width: min(540px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+
+    padding: 8px 10px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, .35);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 8px 18px rgba(2,8,23,.28);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+  }
+  .top-fix-actions .back-btn{
+    text-decoration:none; color:#fff; font-weight:700;
+    padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
+    background:#059a57; box-shadow:0 6px 16px rgba(0,0,0,.25);
+    white-space: nowrap;
+    transition: filter .2s ease, transform .06s ease;
+  }
+  .top-fix-actions .back-btn.alt{ background:#64748b; }
+  .top-fix-actions .back-btn:hover{ filter:brightness(1.08); transform: translateY(-1px); }
+
+  /* ตัวคั่นความสูงให้คอนเทนต์ไม่ถูกแถบลอยทับ */
+  .top-fix-spacer{ height: clamp(84px, 16vw, 120px); }
+
+  /* ========== โครงหน้า ========== */
+  body.medication-page{ display:flex; min-height:100vh; flex-direction:column; }
+  .medication-page .container{
+    flex:1;
+    display:block; max-width:none; width:100%;
+    padding:24px 12px; background:transparent; box-sizing:border-box;
+  }
+
+  .med-wrap{
+    position: relative; width:100%; max-width:1100px; margin:0 auto;
+    padding:24px 20px; min-height:85vh;
+
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+  }
+  .med-wrap::before{
+    content:""; position:absolute; inset:0; border-radius: inherit; pointer-events:none;
+    background: radial-gradient(1200px 420px at 50% -200px, rgba(255,255,255,.22), rgba(255,255,255,0));
+  }
+  .med-wrap > *{ position: relative; z-index: 1; }
+
+  /* ========== A–Z Navigation ========== */
+  .letters{
+    display:flex; flex-wrap:wrap; gap:6px 8px; justify-content:center; margin-bottom:16px;
+  }
+  .letters a{
+    text-decoration:none; padding:6px 10px; border-radius:999px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(96,152,234,.5);
+    color:#3a7be3; font-weight:600; font-size:14px;
+    backdrop-filter: blur(4px);
+  }
+  .letters a:hover{ background:rgba(143,236,224,.36); }
+
+  .letter-head{
+    margin:28px 0 10px; font-size:20px; font-weight:800;
+    text-shadow: 0 1px 6px rgba(0,0,0,.45);
+    /* เวลาโดดลิงก์จะไม่ถูกแถบลอยบัง */
+    scroll-margin-top: 130px;
+  }
+  .letters + .letter-head{ margin-top: 18px; }
+
+  /* ========== กริดปุ่มยา ========== */
+  .drug-grid{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap: 14px;
+    padding: 0 6px; /* เพิ่ม gutter ซ้าย/ขวา */
+  }
+  @media (max-width:1024px){ .drug-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media (max-width:720px){  .drug-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+  .drug-btn{
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    width:100%;
+    min-height:64px; padding:10px 12px; word-break:break-word;
+
+    text-decoration:none; color:#fff; font-weight:700; line-height:1.2;
+    border-radius:12px; border:1px solid rgba(226,227,138,.53);
+    background: rgba(24,124,223,.85);
+    box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    backdrop-filter: blur(4px);
+
+    transition: transform .06s ease, filter .2s ease, background .2s ease;
+  }
+  .drug-btn:hover{ filter:brightness(1.07); transform: translateY(-1px); }
+  .drug-btn:active{ transform: translateY(1px); }
+  .drug-btn.red{ background: rgba(244,67,54,.9); }
+
+  /* ========== ปรับบนมือถือให้ไม่ล้น/กดง่าย ========== */
+  @media (max-width: 600px){
+    .medication-page .container{ padding-left: 8px; padding-right: 8px; }
+    .med-wrap{ padding: 16px 12px; border-radius: 16px; }
+
+    .drug-grid{ gap: 12px; padding: 0 8px; }
+    .drug-btn{ min-height: 56px; padding: 8px 10px; }
+  }
+
+  /* Safe-area สำหรับ iPhone notch/ขอบโค้ง */
+  @supports (padding: max(0px)){
+    .medication-page{
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+  }
+</style>
+
+<!-- แถบปุ่มลอย -->
+<div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+  <a href="{{ url_for('index') }}" class="back-btn">⬅ Back to Home</a>
+  <a href="#top" class="back-btn alt">⬆ Back to A–Z</a>
 </div>
 
-<a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
+<!-- ตัวคั่นความสูงเพื่อไม่ให้เนื้อหาถูกทับ -->
+<div class="top-fix-spacer" aria-hidden="true"></div>
+
+<div id="top" class="med-wrap">
+  <h1>Medication Administration</h1>
+
+  <!-- A–Z -->
+  <nav class="letters" aria-label="Jump to letter">
+    {% for ch in letters %}
+      <a href="#L-{{ ch }}">{{ ch }}</a>
+    {% endfor %}
+  </nav>
+
+  <!-- กลุ่มตามตัวอักษร -->
+  {% for ch in letters %}
+    {% set items = groups.get(ch, []) %}
+    {% if items and items|length > 0 %}
+      <h2 id="L-{{ ch }}" class="letter-head">{{ ch }}</h2>
+      <div class="drug-grid">
+        {% for m in items %}
+          <a
+            class="drug-btn {% if m.danger %}red{% endif %}"
+            href="{{ url_for(m.endpoint) if m.endpoint else '#' }}"
+            title="{{ m.label }}"
+          >
+            {{ m.label }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
 {% endblock %}

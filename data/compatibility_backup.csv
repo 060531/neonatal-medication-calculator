@@ -1,0 +1,13 @@
+id,drug_a,drug_b,compatible,notes
+1,Acyclovir,Vancomycin,No,มีรายงานตกตะกอนเมื่อผสมร่วมสาย
+2,Acyclovir,Levofloxacin,Unknown,ไม่มีข้อมูลชัดเจน
+3,Vancomycin,Levofloxacin,Yes,ให้ผ่านสายเดียวกันได้ (ข้อมูลทั่วไป)
+4,Ampicillin,Gentamicin,No,ไม่ควรผสมใน IV เดียวกัน
+5,Meropenem,Vancomycin,Unknown,ควรแยกสาย/หลีกเลี่ยงผสมโดยตรง
+6,Gentamicin,Levofloxacin,Yes,ไม่มีรายงาน incompatibility
+7,Ceftazidime,Vancomycin,No,หลีกเลี่ยงการผสม
+8,Cefotaxime,Amphotericin B,Unknown,ไม่มีข้อมูลชัดเจน
+9,Clindamycin,Vancomycin,No,มีรายงานตกตะกอน
+10,Insulin Human Regular,Hydrocortisone,Unknown,พิจารณาให้แยกสาย
+11,Midazolam,Morphine,Yes,ใช้ร่วมกันได้แต่ควรดูเสถียรภาพ
+12,Tazocin,Vancomycin,No,แยกสายหรือ flush ให้เพียงพอ

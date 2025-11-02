@@ -1,233 +1,289 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Dobutamine Calculate</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Dobutamine Calculate</title>
+  <style>
+    /* ===== Theme & Layout tokens ===== */
+    :root{
+      --brand-900:#e70939;
+      --brand-700:#d21e1e;
+      --sky-50:#ffeeee;
+      --sky-100:#ffd7d7;
+      --panel:#ffe6e6b8;
+      --text:#0f172a;
 
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-        }
+      --gutter: 12px;                        /* ระยะขอบซ้าย/ขวา */
+      --floatbar-gap: clamp(80px,16vw,110px);/* กันพื้นที่ปุ่มลอย */
+    }
 
-        /* กรอบสีเหลืองออกครีม (#F6C8B6) */
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 2px solid #e8cabe;
-            border-radius: 10px;
-            background-color: rgba(246, 200, 182, 0.9); /* สีพื้นหลังพร้อมความโปร่งใส */
-            z-index: 0;
-            position: relative;
-        }
+    /* ===== Global guard: ไม่ให้ล้นจอทุกกรณี ===== */
+    html, body { height:100%; overflow-x:hidden; }
+    *, *::before, *::after { box-sizing:border-box; }
+    img, video, canvas, svg { max-width:100%; height:auto; }
+    pre, code { white-space:pre-wrap; word-break:break-word; }
 
-        h2 {
-            color: #d32f2f;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #d32f2f;
-            border-radius: 10px;
-            background-color: #ffeb3b;
-        }
+    /* ===== Background เต็มจอเสมอ (ปลอดภัยกับมือถือ) ===== */
+    body{
+      margin:0; min-height:100svh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color:var(--text); text-align:center;
+      background:none;
+      padding-left:max(0px, env(safe-area-inset-left));
+      padding-right:max(0px, env(safe-area-inset-right));
+    }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
 
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    /* ===== Header ===== */
+    .title-badge{
+      display:inline-block; margin:28px auto 12px; padding:10px 18px;
+      background:var(--brand-900); color:#fff; font-weight:900; font-size:28px;
+      border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.14);
+      max-width: calc(100vw - (var(--gutter)*2));
+    }
 
-        .form-group label {
-            flex: 1;
-            font-weight: bold;
-            margin-right: 10px;
-            text-align: left;
-        }
+    /* ===== Card/container หลัก ===== */
+    .container{
+      width: min(820px, calc(100vw - (var(--gutter)*2)));
+      margin: 0 auto 12px; padding:20px;
+      background:var(--panel);
+      border:1px solid #b9d9ff; border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%);
+      -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
 
-        .form-group input {
-            flex: 1;
-            width: 150px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
+    /* ===== กล่องคำนวณ (การ์ดฟอร์ม) ===== */
+    .calc-box{
+      margin:14px auto 16px; max-width:740px; padding:16px;
+      background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+      border:1px solid #b7d6ff; border-radius:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+    }
 
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-size: 18px;
-            display: none; /* ซ่อนผลลัพธ์ก่อนกดปุ่ม Calculate */
-        }
+    /* ฟอร์มแบบคอลัมน์ แต่แต่ละแถวเป็น label|field */
+    .calc-form{ display:flex; flex-direction:column; gap:12px; align-items:center; }
+    .field{
+      display:grid; grid-template-columns:auto minmax(0, 320px); /* label | input */
+      align-items:center; gap:10px;
+      width:100%; max-width:560px;
+    }
+    .field label{ font-weight:800; color:#0b255e; text-align:right; margin:0; }
+    .field input{
+      width:100%; padding:10px 12px; border-radius:10px;
+      border:1px solid #c7d9f9; text-align:center; background:#fff; font-size:16px;
+      box-shadow: inset 0 1px 1px rgba(0,0,0,.06);
+      transition: box-shadow .2s ease, border-color .2s ease;
+    }
+    .field input:focus{ outline:none; border-color:#ff6b6b; box-shadow:0 0 0 3px rgba(255,107,107,.25); }
 
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
+    /* แถวแบบ inline */
+    .calc-row{ display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+    .calc-row select{
+      padding:10px 12px; border-radius:10px; border:1px solid #c7d9f9; background:#fff; font-size:16px;
+      min-width:140px;
+    }
 
-        .back-button, .back-button-secondary, .calculate-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3); /* เพิ่มเงาสีเทา */
-            transition: all 0.3s ease;
-        }
+    /* ปุ่มมาตรฐาน */
+    .btn{
+      appearance:none; border:none; border-radius:10px; cursor:pointer;
+      padding:10px 16px; font-weight:800; color:#fff;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition: transform .06s ease, filter .2s ease;
+      text-decoration:none; display:inline-block; min-width:130px; text-align:center;
+    }
+    .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px); }
+    .btn-blue{ background:var(--brand-700); }
+    .btn-red{  background:#e71f1f; }
+    .btn-cyan{ background:#049bb5; }
 
-        .back-button {
-            background-color: #f44336;
-        }
+    /* ผลลัพธ์ */
+    .result{
+      text-align:left; margin:12px auto; max-width:740px;
+      background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px; padding:12px;
+    }
+    .result b{ color:#0b2b7a; }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#fde047; color:#111; font-weight:800; }
+    .muted{ color:#334155; }
+    .left-align{ text-align:left; }
+    .order-line{ text-align:center; margin:6px 0; }
 
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
+    /* ปุ่มลอยล่าง — ไม่ล้นขอบจอ */
+    .float-actions{
+      position:fixed; left:50%; bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+      transform:translateX(-50%); z-index:9999;
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+      padding:8px 10px; border-radius:14px;
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      width: min(540px, calc(100vw - (var(--gutter)*2)));
+      max-width: calc(100vw - (var(--gutter)*2));
+    }
 
-        .calculate-button {
-            background-color: #007BFF;
-        }
+    /* Footer ย่ออัตโนมัติ */
+    footer.page-footer{
+      text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin: 6px 0 var(--floatbar-gap);
+      padding-left: var(--gutter); padding-right: var(--gutter);
+      font-size: clamp(11px, 3.2vw, 14px); line-height:1.4;
+    }
 
-        .back-button:hover, .back-button-secondary:hover, .calculate-button:hover {
-            transform: translateY(-2px); /* ปุ่มขยับขึ้นเล็กน้อยเมื่อ hover */
-            box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.4); /* เพิ่มเงาเมื่อ hover */
-        }
+    /* ===== Mobile tuning ===== */
+    @media (max-width:640px){
+      .title-badge{ font-size:22px; padding:8px 14px; }
+      .container{ padding:14px; }
+      .field{ grid-template-columns: auto minmax(0, 1fr); max-width: 100%; }
+      .field label{ text-align:left; }
+      .btn{ min-width:120px; }
+    }
 
-        .back-button:active, .back-button-secondary:active, .calculate-button:active {
-            transform: translateY(2px); /* ปุ่มขยับลงเล็กน้อยเมื่อกด */
-            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* ลดเงาเมื่อกด */
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #fff;
-            font-size: 14px;
-        }
-    </style>
+    /* จอแคบมาก ≤360px : ถ้ายังอึดอัด จะให้แยกสองบรรทัดอัตโนมัติ */
+    @media (max-width:360px){
+      .field{ grid-template-columns: 1fr; row-gap:6px; }
+    }
+  </style>
 </head>
 <body>
 
-    <h2>คำนวณการเตรียมยา Dobutamine</h2>
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Dobutamine (250 mg / 5 ml) = 50 mg/ml</div>
 
-    <div class="container">
-        <h1>Dobutamine (250mg/5ml)</h1>
-        <form id="Dobutamine-form">
-            <!-- ช่องกรอกขนาดยาที่ต้องการ -->
-            <div class="form-group">
-                <label for="desired_dosage">ขนาดยาที่ต้องการ (mg):</label>
-                <input type="number" id="desired_dosage" name="desired_dosage" placeholder="ป้อนขนาดยาที่ต้องการ" required>
-            </div>
-
-            <!-- ช่องกรอกปริมาณสารละลาย -->
-            <div class="form-group">
-                <label for="original_volume">ปริมาณสารละลาย (ml):</label>
-                <input type="number" id="original_volume" name="original_volume" placeholder="ป้อนปริมาณสารละลาย" required>
-            </div>
-
-            <!-- ปุ่มคำนวณ -->
-            <button type="submit" class="calculate-button">Calculate</button>
-        </form>
-
-        <!-- แสดงผลลัพธ์ -->
-        <div id="result" class="result"></div>
-
-        <!-- Dropdown สำหรับการเลือกตัวคูณ -->
-        <div id="multiplier-container" style="display:none;">
-            <label for="multiplication"><b>เลือกเงื่อนไขการคูณ:</b></label>
-            <select id="multiplication">
-                <option value="1.5">1.5 เท่า</option>
-                <option value="2">2 เท่า</option>
-                <option value="2.5">2.5 เท่า</option>
-                <option value="3">3 เท่า</option>
-                <option value="3.5">3.5 เท่า</option>
-                <option value="4">4 เท่า</option>
-                <option value="4.5">4.5 เท่า</option>
-                <option value="5">5 เท่า</option>
-            </select>
-            <button id="multiply-button" class="calculate-button">คำนวณการคูณ</button>
+  <div class="container">
+    <!-- รอบ 1: คำนวณพื้นฐาน -->
+    <div class="calc-box">
+      <form id="dobutamine-form" class="calc-form">
+        <div class="field">
+          <label for="desired_dosage">ขนาดยาที่ต้องการ (mg):</label>
+          <input type="number" id="desired_dosage" name="desired_dosage" placeholder="เช่น 5" step="0.01" required>
         </div>
 
-        <!-- แสดงผลลัพธ์การคูณ -->
-        <div id="final-result" class="result" style="display: none;"></div>
+        <div class="field">
+          <label for="original_volume">ปริมาตรสารละลายเป้าหมาย (ml):</label>
+          <input type="number" id="original_volume" name="original_volume" placeholder="เช่น 10" step="0.01" required>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-blue">คำนวณ</button>
+        </div>
+      </form>
     </div>
 
-    <script>
-        let DobutamineVolume = 0;
-        let originalVolume = 0;
+    <!-- ผลลัพธ์รอบแรก -->
+    <div id="result" class="result" style="display:none;"></div>
 
-        // เมื่อกดปุ่มคำนวณครั้งแรก
-        document.getElementById('Dobutamine-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            let desiredDosage = parseFloat(document.getElementById('desired_dosage').value);
-            originalVolume = parseFloat(document.getElementById('original_volume').value);
-
-            // คำนวณปริมาณ Dobutamine
-            DobutamineVolume = desiredDosage / 50; 
-
-            // คำนวณสารละลายที่เหลือ (1 เท่า)
-            let remainingVolume = originalVolume - DobutamineVolume;
-
-            // แสดงผลลัพธ์ครั้งแรก
-            document.getElementById('result').innerHTML = `
-                <div style="text-align: left; background-color: #fcfaf2; padding: 10px; border-radius: 5px;">
-                    <p style="text-align: center;"><strong>ปริมาณยา + สารละลายที่ต้องใช้ 1เท่า</strong></p>
-                    <strong>ปริมาณยาที่ต้องการ:</strong> ${DobutamineVolume.toFixed(2)} ml<br>
-                    <strong>ปริมาณสารละลาย:</strong> ${originalVolume.toFixed(2)} ml - ${DobutamineVolume.toFixed(2)} ml = ${remainingVolume.toFixed(2)} ml
-                </div>
-            `;
-
-            // แสดง dropdown ตัวคูณและผลลัพธ์
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('multiplier-container').style.display = 'block';
-        });
-
-        // เมื่อกดปุ่มคำนวณการคูณ
-        document.getElementById('multiply-button').addEventListener('click', function() {
-            let multiplication = parseFloat(document.getElementById('multiplication').value);
-            let finalResult = DobutamineVolume * multiplication;
-
-            // คำนวณสารละลายที่ต้องใช้หลังการคูณ
-            let originalVolumeMultiplied = originalVolume * multiplication;
-            let remainingVolumeAfterMultiplier = originalVolumeMultiplied - finalResult;
-
-            // แสดงผลลัพธ์การคูณ
-            document.getElementById('final-result').innerHTML = `
-                <div style="text-align: left; background-color: #e0f7fa; padding: 10px; border-radius: 5px; border: 2px solid #0277bd;">
-                    <p style="text-align: center;"><strong>ปริมาณยา + สารละลายที่ต้องใช้ ${multiplication} เท่า</strong></p>
-                    <strong>ปริมาณยา ${multiplication} เท่า:</strong> ${finalResult.toFixed(2)} ml<br>
-                    <strong>ดังนั้น สารละลาย:</strong> ${originalVolumeMultiplied.toFixed(2)} ml - ${finalResult.toFixed(2)} ml = ${remainingVolumeAfterMultiplier.toFixed(2)} ml
-                </div>
-            `;
-            
-            document.getElementById('final-result').style.display = 'block';
-        });
-    </script>
-
-    <!-- ปุ่มกลับ -->
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
+    <!-- รอบ 2: เลือกตัวคูณ -->
+    <div id="multiplier-container" class="calc-box" style="display:none;">
+      <form id="multiplier-form" class="calc-row">
+        <label for="multiplication">เลือกเงื่อนไข (ตัวคูณ):</label>
+        <select id="multiplication" required>
+          <option value="1.5">1.5 เท่า</option>
+          <option value="2">2 เท่า</option>
+          <option value="2.5">2.5 เท่า</option>
+          <option value="3">3 เท่า</option>
+          <option value="3.5">3.5 เท่า</option>
+          <option value="4">4 เท่า</option>
+          <option value="4.5">4.5 เท่า</option>
+          <option value="5">5 เท่า</option>
+        </select>
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+      </form>
     </div>
 
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-    </footer>
+    <!-- ผลลัพธ์รอบสอง -->
+    <div id="final-result" class="result" style="display:none;"></div>
+
+    <!-- หมายเหตุ/วิชาการ -->
+    <div class="result" style="background:#ffffff;border-color:#e5efff">
+      <p class="order-line muted">☞ <b>สต็อก:</b> 250 mg/5 ml ⇒ <b>50 mg/ml</b></p>
+      <div class="left-align muted">
+        <p><b>แนวคิด:</b> ปริมาณยาที่ต้องการ (ml) = <span class="mono">mg ÷ 50</span></p>
+        <p><b>คำแนะนำ:</b> ปรับตัวคูณเพื่อให้ได้ “ปริมาตรยาและตัวทำละลาย” ตามอุปกรณ์/เงื่อนไขการให้ยา</p>
+      </div>
+    </div>
+  </div><!-- /container -->
+
+  <!-- footer -->
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+  </footer>
+
+  <!-- ปุ่มลอย -->
+  <div class="float-actions">
+    <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+  </div>
+
+  <script>
+    // ค่าคงที่ของสต็อก: 50 mg/ml
+    const CONC = 50;
+
+    let dose_ml = 0;          // ปริมาตรยา (รอบแรก)
+    let targetVol_ml = 0;     // ปริมาตรสารละลายเป้าหมาย (รอบแรก)
+
+    // รอบที่ 1
+    document.getElementById('dobutamine-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const desiredDosage = parseFloat(document.getElementById('desired_dosage').value || '0');   // mg
+      targetVol_ml = parseFloat(document.getElementById('original_volume').value || '0');         // ml
+
+      if (isNaN(desiredDosage) || isNaN(targetVol_ml) || desiredDosage <= 0 || targetVol_ml <= 0){
+        alert('กรุณากรอกค่าที่ถูกต้อง');
+        return;
+      }
+
+      // ปริมาตรยาที่ต้องใช้ = mg / 50
+      dose_ml = desiredDosage / CONC;
+      const diluent_ml = targetVol_ml - dose_ml;
+
+      const resultEl = document.getElementById('result');
+      resultEl.innerHTML = `
+        <p class="order-line"><b>Order:</b> Dobutamine ${desiredDosage.toFixed(2)} mg</p>
+        <div class="left-align">
+          <p><b>คำนวณจากสต็อก 250 mg/5 ml (50 mg/ml):</b></p>
+          <p>ใช้สูตร <span class="mono">ml = mg ÷ 50</span> ⇒
+             <span class="mono">${desiredDosage.toFixed(2)} ÷ 50 = ${dose_ml.toFixed(2)} ml</span></p>
+          <p><b>ปริมาตรรวมเป้าหมาย:</b> ${targetVol_ml.toFixed(2)} ml</p>
+          <p><b>ส่วนผสมรอบแรก:</b> ยา <span class="pill">${dose_ml.toFixed(2)} ml</span> +
+             ตัวทำละลาย <span class="pill">${diluent_ml.toFixed(2)} ml</span></p>
+        </div>
+      `;
+      resultEl.style.display = 'block';
+      document.getElementById('multiplier-container').style.display = 'block';
+      document.getElementById('final-result').style.display = 'none';
+    });
+
+    // รอบที่ 2
+    document.getElementById('multiplier-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const multiplication = parseFloat(document.getElementById('multiplication').value || '1');
+
+      const dose_ml_mult = dose_ml * multiplication;
+      const totalVol_mult = targetVol_ml * multiplication;
+      const diluent_mult = totalVol_mult - dose_ml_mult;
+
+      const finalEl = document.getElementById('final-result');
+      finalEl.innerHTML = `
+        <p><b>ผลลัพธ์หลังคูณ ${multiplication} เท่า</b></p>
+        <div class="left-align">
+          <p>ยา: <span class="pill">${dose_ml.toFixed(2)} ml</span> × ${multiplication} = <b>${dose_ml_mult.toFixed(2)} ml</b></p>
+          <p>ปริมาตรรวม: <span class="pill">${targetVol_ml.toFixed(2)} ml</span> × ${multiplication} = <b>${totalVol_mult.toFixed(2)} ml</b></p>
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+          <p><b>ดังนั้น ตัวทำละลาย:</b> ${totalVol_mult.toFixed(2)} − ${dose_ml_mult.toFixed(2)} = <b>${diluent_mult.toFixed(2)} ml</b></p>
+        </div>
+      `;
+      finalEl.style.display = 'block';
+    });
+  </script>
+
 </body>
 </html>

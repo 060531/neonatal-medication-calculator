@@ -42,7 +42,7 @@ h1 {
     text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6); /* Enhanced text shadow for more depth */
     margin-bottom: 30px;
     background: linear-gradient(135deg, rgb(102, 119, 202), rgb(4, 71, 178)); /* Gradient background */
-    padding: 10px 15px; /* Increase padding for a larger, more prominent header */
+    padding: 15px 30px; /* Increase padding for a larger, more prominent header */
     border-radius: 15px; /* Smooth, rounded corners */
     display: inline-block;
     border: 2px solid rgba(2, 101, 22, 0.5); /* Subtle border */
@@ -157,7 +157,7 @@ footer {
             text-align: center;
             margin-top: 20px;
             color: #fff;
-            font-size: 14px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -166,32 +166,33 @@ footer {
         <div class="container">
             <a href="{{ url_for('acyclovir_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button red-button">Acyclovir</a>
         <a href="#" class="medication-dose-button">Albumin</a>
-        <a href="{{ url_for('amikin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}"
-   class="medication-dose-button red-button">Amikin</a>
+        <a href="#" class="medication-dose-button">Amikin</a>
         <a href="{{ url_for('aminophylline_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button red-button">Aminophylline</a>
 
-        <a href="{{ url_for('amoxicillin_clavimoxy_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Amoxicillin/<br>Clavimoxy</a>
+        <a href="#" class="medication-dose-button">Amoxicillin/<br>Clavimoxy</a>
         <a href="{{ url_for('amphotericinB_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Amphotericin B</a>
         <a href="{{ url_for('ampicillin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Ampicillin</a>
 
-        <a href="{{ url_for('cefotaxime_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Cefotaxime</a>
-        <a href="{{ url_for('cefazolin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">CeFAZolin</a>
+        <a href="#" class="medication-dose-button">Cefotaxime</a>
+        <a href="#" class="medication-dose-button">CeFAZolin</a>
         <a href="#" class="medication-dose-button">CefTAZidime</a>
         <a href="#" class="medication-dose-button">Clindamycin</a>
         <a href="#" class="medication-dose-button">Chloral hydrate</a>
         <a href="{{ url_for('cloxacillin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Cloxacillin</a>
-        <a href="{{ url_for('colistin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Colistin</a>
+        <a href="#" class="medication-dose-button">Colistin</a>
         <a href="#" class="medication-dose-button">Dexamethasone</a>
         <a href="#" class="medication-dose-button">Digoxin</a>
         <a href="#" class="medication-dose-button red-button">DOBUTamine</a>
         <a href="#" class="medication-dose-button red-button">DOPamine</a>
         <a href="#" class="medication-dose-button red-button">Fentanyl</a>
         <a href="{{ url_for('gentamicin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Gentamicin</a>
+
+
         <a href="#" class="medication-dose-button">Hydrocortisone</a>
         <a href="#" class="medication-dose-button">Ibuprofen</a>
         <a href="#" class="medication-dose-button">Indomethacin</a>
         <a href="#" class="medication-dose-button">Insulin Human Regular</a>
-        <a href="{{ url_for('meropenam_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Meropenam</a>
+        <a href="#" class="medication-dose-button">Meropenem</a>
         <a href="#" class="medication-dose-button red-button">Midazolam</a>
         <a href="#" class="medication-dose-button">Midazolam + Fentanyl</a>
         <a href="#" class="medication-dose-button">Metronidazole<br>(Flagyl)</a>

@@ -10,41 +10,44 @@
             margin: 0;
             padding: 0;
             background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             color: #333;
-            min-height: 100vh;
-            overflow-y: auto;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
         .container {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 400px;
+            width: 300px;
             text-align: center;
-            margin-top: 20px;
-        }
-        h1, h2 {
-            color: #fff;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
         }
         h1 {
-            font-size: 22px;
+            font-size: 18px;
             margin-bottom: 20px;
             color: #0277bd;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         h2 {
             font-size: 24px;
-            background-color: rgba(2, 119, 189, 0.8);
-            padding: 15px;
+            margin-bottom: 20px;
+            color: #fff;
+            background-color: rgba(2, 119, 189, 0.7);
+            padding: 10px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
         }
         .form-group {
             margin-bottom: 15px;
@@ -60,6 +63,7 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box;
             font-size: 14px;
         }
         button {
@@ -70,72 +74,62 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            box-shadow: 0 4px #999;
             margin-top: 10px;
-            width: 100%;
         }
         button:hover {
             background-color: #f16a21;
         }
+        button:active {
+            background-color: #ee6a6a;
+            box-shadow: 0 4px #666;
+            transform: translateY(4px);
+        }
         .result {
-            display: none;
+    display: none; /* Hide the result initially */
+    margin-top: 20px;
+    font-size: 15px; /* Increase font size */
+    color: #ffffff; /* Change text color */
+    background-color: #0277bd; /* Add background color */
+    padding: 10px; /* Add padding */
+    border-radius: 8px; /* Round the corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Add text shadow */
+}
+
+
+        .back-button {
             margin-top: 20px;
-            font-size: 16px;
-            color: #ffffff;
-            background-color: #0277bd;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            text-align: left;
-            overflow-x: auto;
-            max-width: 100%;
-        }
-        .result pre, .result p {
-            margin: 10px 0;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        .result strong {
-            font-size: 18px;
-            color: #ffeb3b;
-        }
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .back-button, .back-button-secondary {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            outline: none;
             color: #fff;
+            background-color: #f44336;
             border: none;
             border-radius: 10px;
             box-shadow: 0 5px #999;
-            display: block;
-        }
-        .back-button {
-            background-color: #f44336;
+            display: inline-block;
+            text-align: center;
         }
         .back-button:hover {
-            background-color: #d32f2f;
+            background-color: #2f7bd3;
         }
-        .back-button-secondary {
-            background-color: #008CBA;
+        .back-button:active {
+            background-color: #789df2;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
         }
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
+
         footer {
             text-align: center;
             margin-top: 20px;
-            font-size: 14px;
-            color: #fff;
+            color: rgb(255, 255, 255);
+            font-size: 16px;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -164,71 +158,37 @@
             </div>
             <button type="submit">Calculate</button>
         </form>
-        
-        <!-- เพิ่มส่วนแสดงผลลัพธ์ -->
         <div id="result" class="result"></div>
-    </div>       
-        <div class="button-group">
-            <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-            <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
-        </div> 
+    </div>
 
+    <script>
+        document.getElementById('dextrose-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // ดึงข้อมูลจากฟอร์ม
+    let baseVolume = parseFloat(document.getElementById('base_volume').value);
+    let desiredConcentration = parseFloat(document.getElementById('desired_concentration').value);
+    let solutionType = document.getElementById('solution_type').value;
+
+    // ความเข้มข้นของสารตั้งต้น
+    let initialConcentration = solutionType === "D-5-W" ? 5 : (solutionType === "D-10-W" ? 10 : 12.5);
+
+    // คำนวณปริมาณ 50% Dextrose ที่ต้องเติม
+    let volumeToAdd = (baseVolume * (desiredConcentration - initialConcentration)) / (50 - desiredConcentration);
+
+    // แสดงผลลัพธ์
+    let resultElement = document.getElementById('result');
+    resultElement.textContent = `ปริมาณ 50% Dextrose ที่ต้องเติม: ${volumeToAdd.toFixed(2)} ml`;
+
+    // แสดงผลลัพธ์เมื่อคำนวณเสร็จ
+    resultElement.style.display = 'block'; // Make the result visible
+});
+
+    </script>
+    <a href="{{ url_for('index') }}" class="back-button">Back to Home</a>
 
     <footer>
         <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
     </footer>
-
-    <script>
-        document.getElementById('dextrose-form').addEventListener('submit', function (event) {
-    event.preventDefault();
-
-    let baseVolume = parseFloat(document.getElementById('base_volume').value); // ปริมาตรสารตั้งต้น (ml)
-    let desiredConcentration = parseFloat(document.getElementById('desired_concentration').value); // ความเข้มข้นที่ต้องการ (%)
-    let solutionType = document.getElementById('solution_type').value; // ชนิดของสารตั้งต้น
-
-    // กำหนดความเข้มข้นเริ่มต้นตามชนิดของสารตั้งต้น
-    let initialConcentration = solutionType === "D-5-W" ? 5 : (solutionType === "D-10-W" ? 10 : 12.5);
-
-    // ความเข้มข้นของ D-50-W (g ต่อ 100 ml)
-    let glucoseInD50W = 50;
-
-    // ตรวจสอบว่าค่า baseVolume และ desiredConcentration เป็นตัวเลขหรือไม่
-    if (isNaN(baseVolume) || isNaN(desiredConcentration)) {
-        alert("กรุณาป้อนข้อมูลให้ถูกต้อง");
-        return;
-    }
-
-    // ตรวจสอบว่าความเข้มข้นที่ต้องการต้องมากกว่าความเข้มข้นตั้งต้น แต่ต้องน้อยกว่า 50%
-    if (desiredConcentration <= initialConcentration || desiredConcentration >= glucoseInD50W) {
-        alert(`ความเข้มข้นที่ต้องการต้องอยู่ระหว่าง ${initialConcentration}% และ 50%`);
-        return;
-    }
-
-    // คำนวณค่า Y (ปริมาณ D-50-W ที่ต้องเติม)
-    let y = ((desiredConcentration * baseVolume) - (initialConcentration * baseVolume)) / (glucoseInD50W - desiredConcentration);
-
-    // แสดงผลลัพธ์แบบละเอียด
-    let explanation = `
-        <h3>วิธีการคำนวณแบบละเอียด</h3>
-        <p>1. สารตั้งต้นที่เลือก: ${solutionType} (มีความเข้มข้นเริ่มต้น ${initialConcentration}g)</p>
-        <p>2. ปริมาตรสารตั้งต้น: ${baseVolume} ml</p>
-        <p>3. ความเข้มข้นที่ต้องการ: ${desiredConcentration}%</p>
-        <p>4. แทนค่าต่าง ๆ ในสมการ:</p>
-        <pre>Y = ((ความเข้มข้นที่ต้องการ × ปริมาตรสารตั้งต้น) - (ความเข้มข้นตั้งต้น × ปริมาตรสารตั้งต้น)) ÷ (50 - ความเข้มข้นที่ต้องการ)</pre>
-        <p>ดังนั้น:</p>
-        <pre>Y = ((${desiredConcentration} × ${baseVolume}) - (${initialConcentration} × ${baseVolume})) ÷ (${glucoseInD50W} - ${desiredConcentration})</pre>
-        <p>ผลลัพธ์:</p>
-        <strong>ปริมาณ 50% glucose ที่ต้องเติม: ${y.toFixed(2)} ml</strong>
-    `;
-
-    let resultElement = document.getElementById('result');
-    resultElement.innerHTML = explanation;
-    resultElement.style.display = 'block';
-});
-
-
-    </script>
-    
-
 </body>
 </html>
