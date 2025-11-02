@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>index</title>
 
-  <link rel="manifest" href="./static/manifest.webmanifest">
-<link rel="icon" href="./static/icons/icon-192.png" sizes="192x192">
-<meta name="theme-color" content="#0ea5a6">
+<link rel="manifest"
+      href="./static/manifest.webmanifest">
+<script defer src="./static/app.js"></script>
+<link rel="stylesheet" href="./static/style.css">
+
 
   <style>
     /* ---------- Global ---------- */
@@ -192,12 +194,6 @@
   </style>
 </head>
 
-<!-- ใน <head> ของ base.html -->
-
-  <link rel="manifest" href="./static/manifest.webmanifest">
-  <link rel="icon" href="./static/icons/icon-192.png" sizes="192x192">
-  <meta name="theme-color" content="#0ea5a6">
-
 
 <body class="home-page">
   <div class="container">
@@ -271,7 +267,7 @@
 </script>
 
   </div>
-  
+
 <script>
   if ("serviceWorker" in navigator) {
     const swPath = "./static/service-worker.js";
