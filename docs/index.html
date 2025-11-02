@@ -1,57 +1,312 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>การบริหารยาในทารกแรกเกิด</title>
-  <link rel="manifest" href="./static/manifest.webmanifest">
-  <link rel="icon" href="./static/icons/icon-192.png">
-  <meta name="theme-color" content="#0ea5a6">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>index</title>
+
   <style>
-    /* --- ใช้สไตล์จากที่ให้มา (ย่อ) --- */
-    .home-shell{max-width:1120px;margin:24px auto;padding:0 16px}
-    .home-title{display:inline-block;margin:0 0 18px;padding:12px 18px;border-radius:14px;
-      background:linear-gradient(135deg,#0ea5a6,#0b74d0);color:#fff;font-weight:800;font-size:clamp(18px,4vw,28px);
-      box-shadow:0 10px 24px rgba(0,0,0,.18)}
-    .home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-    .home-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-      text-decoration:none;text-align:center;padding:18px 14px;border-radius:16px;background:#fff;border:1px solid rgba(15,23,42,.08);
-      box-shadow:0 10px 24px rgba(2,8,23,.12);transition:.15s}
-    .home-button:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(2,8,23,.18);filter:brightness(.98)}
-    .home-button img{width:clamp(64px,8vw,96px);height:auto;filter:drop-shadow(0 4px 10px rgba(2,8,23,.12))}
-    .home-button span{color:#0f172a;font-weight:800;line-height:1.25;font-size:clamp(14px,2.6vw,18px)}
-    .home-button span small{display:block;margin-top:4px;color:#475569;font-weight:700;font-size:clamp(11px,2.2vw,13px)}
+    /* ---------- Global ---------- */
+    body{
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    h1{
+      font-size: 2.5em;
+      color: #ffffff;
+      text-shadow: 2px 2px 6px rgba(0,0,0,.6);
+      margin: 20px 0 16px;
+      background: linear-gradient(135deg, rgb(3,158,172), rgb(0,122,140));
+      padding: 15px 30px;
+      border-radius: 15px;
+      display: inline-block;
+      border: 2px solid rgba(0,122,140,.5);
+      box-shadow: 0 4px 15px rgba(0,0,0,.3);
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* กล่องครอบเนื้อหาแนวคอลัมน์: h1 อยู่บน, โซนปุ่มอยู่ถัดลงมา */
+    .container{
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,.2);
+      max-width: 1000px;
+      width: 100%;
+      background-color: transparent;
+
+      display: flex;
+      flex-direction: column;   /* สำคัญ: แยก h1 ออกจากโซนปุ่ม */
+      align-items: center;
+      gap: 20px;
+      box-sizing: border-box;
+    }
+
+    /* ปุ่มพื้นฐาน */
+    .button{
+      display: inline-flex;
+      margin: 10px;
+      padding: 10px;
+      font-size: 14px;
+      text-decoration: none;
+      color: #fff;
+      background-color: #2e8aec;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 5px #999;
+      width: 150px;
+      height: 110px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .button img{
+      max-width: 50px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .button:hover{ background-color:#0056b3; }
+    .button:active{
+      background-color:#0056b3;
+      box-shadow:0 5px #666;
+      transform: translateY(4px);
+    }
+
+    /* ปุ่มเฉพาะหน้า Home */
+    .home-button{ background-color:#008CBA; }
+    .home-button:hover{ background-color:#005f99; }
+    .home-button:active{
+      background-color:#005f99;
+      box-shadow:0 5px #666;
+      transform: translateY(4px);
+    }
+
+    /* Footer */
+    footer{
+      text-align:center;
+      margin-top:auto;
+      color:#fff;
+      font-size:16px;
+      text-shadow:2px 2px 5px rgba(3,3,3,.7);
+      padding:10px;
+    }
+
+    /* โซนปุ่มหน้า Home (เดสก์ท็อป/แท็บเล็ต: ใช้ flex wrap) */
+    .home-grid{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1000px;
+      box-sizing: border-box;
+    }
+
+    /* ---------- Mobile: ให้เฉพาะ .home-grid เป็น 2 คอลัมน์ ---------- */
+    @media (max-width: 600px){
+      .home-page h1{
+        font-size: 1.25rem;
+        padding: 8px 12px;
+        margin: 12px 0 0;
+      }
+      .home-grid{
+        display: grid;                                  /* ใช้ Grid เฉพาะโซนปุ่ม */
+        grid-template-columns: repeat(2, minmax(0,1fr));/* 2 กล่องต่อแถว */
+        gap: 16px;
+        width: 100%;
+        max-width: 420px;
+        padding: 12px;
+      }
+      .home-page .button{
+        width: 100%;   /* เต็มคอลัมน์ */
+        height: 110px;
+        margin: 0;     /* ใช้ gap ของ grid แทน */
+        font-size: 13px;
+        border-radius: 12px;
+      }
+      .home-page .button img{
+        max-width: 36px;
+        margin-bottom: 6px;
+      }
+    }
+
+/* ---------- Mobile: หน้า Home ให้ 2 คอลัมน์, ช่องไฟมากขึ้น, ปุ่มเล็กลง ---------- */
+@media (max-width: 600px){
+  .home-page h1{
+    font-size: 1.2rem;
+    padding: 8px 12px;
+    margin: 12px 0 4px;
+  }
+
+  .home-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr)); /* 2 กล่องต่อแถว */
+    column-gap: 22px;   /* เพิ่มช่องว่างแนวนอน */
+    row-gap: 22px;      /* เพิ่มช่องว่างแนวตั้ง  */
+    width: 100%;
+    max-width: 420px;
+    padding: 14px;
+    box-sizing: border-box;
+    place-items: center; /* จัดปุ่มให้อยู่กลางคอลัมน์เมื่อปุ่มแคบลง */
+  }
+
+  /* ปุ่มภายใน grid: แคบและเตี้ยลงจากเดิม */
+  .home-page .button{
+    width: 92%;          /* ลดความกว้าง (จากเดิม 100%) */
+    height: 96px;        /* ลดความสูง (เดิม ~110px)  */
+    margin: 0;           /* ใช้ช่องว่างจาก grid แทน */
+    font-size: 12.5px;   /* ย่อฟอนต์ลงเล็กน้อย */
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px #999;
+  }
+
+  .home-page .button img{
+    max-width: 32px;     /* ไอคอนเล็กลงให้สมดุลกับปุ่ม */
+    margin-bottom: 6px;
+  }
+
+  .home-page .button span small{
+    font-size: 11px;     /* ย่อข้อความวงเล็บ */
+    opacity: 0.95;
+  }
+}
   </style>
 </head>
-<body>
-  <div class="home-shell">
-    <h1 class="home-title">การบริหารยาในทารกแรกเกิด</h1>
-    <div class="home-grid" role="navigation" aria-label="เมนูหลัก">
-      <!-- ปุ่มต่าง ๆ — ตอนนี้ยังเป็น static page จึงชี้ลิงก์เป็นหน้าเปล่า/เอกสารอื่นใน docs ได้ -->
-      <a href="./pma.html" class="home-button" aria-label="Dose ยา">
-        <img src="./static/icons/icon-192.png" alt="Dose ยา" loading="lazy">
-        <span>Dose ยา<br><small>(Right patient)</small></span>
-      </a>
-      <a href="./compatibility.html" class="home-button" aria-label="Compatibility">
-        <img src="./static/icons/icon-192.png" alt="Compatibility" loading="lazy">
-        <span>Compatibility<br><small>(Right drug)</small></span>
-      </a>
-      <a href="./admin.html" class="home-button" aria-label="การบริหารยา">
-        <img src="./static/icons/icon-192.png" alt="การบริหารยา" loading="lazy">
-        <span>การบริหารยา<br><small>(Right dose)</small></span>
-      </a>
-      <a href="./time.html" class="home-button" aria-label="การบริหารเวลา">
-        <img src="./static/icons/icon-192.png" alt="การบริหารเวลา" loading="lazy">
-        <span>การบริหารเวลา<br><small>(Right time)</small></span>
-      </a>
-    </div>
+
+<body class="home-page">
+  <div class="container">
+    
+<style>
+  /* ---------- Shell + safe areas ---------- */
+  .home-shell{
+    width:100%;
+    max-width:1120px;               /* ความกว้างสูงสุดของคอนเทนต์ */
+    margin:24px auto 24px;
+    padding-left:  max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+
+  /* ---------- Title ---------- */
+  .home-title{
+    display:inline-block;
+    margin:0 auto 18px;
+    padding:12px 18px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
+    color:#fff;
+    font-weight:800;
+    font-size:clamp(18px,4vw,28px); /* ย่อ-ขยายตามจอ */
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+  }
+
+  /* ---------- Grid ---------- */
+  .home-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap:16px;
+    align-items:stretch;
+  }
+
+  /* ---------- Card button ---------- */
+  .home-button{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-decoration:none;
+    text-align:center;
+    padding:18px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.96);
+    border:1px solid rgba(15,23,42,.08);
+    box-shadow:0 10px 24px rgba(2,8,23,.12);
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .home-button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 30px rgba(2,8,23,.18);
+    filter:brightness(.98);
+  }
+  .home-button:active{ transform:translateY(0); }
+
+  .home-button img{
+    width:clamp(64px,8vw,96px);
+    height:auto;
+    object-fit:contain;
+    display:block;
+    filter:drop-shadow(0 4px 10px rgba(2,8,23,.12));
+  }
+
+  .home-button span{
+    color:#0f172a;
+    font-weight:800;
+    line-height:1.25;
+    font-size:clamp(14px,2.6vw,18px);
+  }
+  .home-button span small{
+    display:block;
+    margin-top:4px;
+    color:#475569;
+    font-weight:700;
+    font-size:clamp(11px,2.2vw,13px);
+  }
+
+  /* ---------- Small screens tweaks ---------- */
+  @media (max-width:380px){
+    .home-grid{ gap:12px; }
+    .home-button{ padding:14px 12px; border-radius:14px; }
+  }
+</style>
+
+<div class="home-shell">
+  <h1 class="home-title">การบริหารยาในทารกแรกเกิด</h1>
+
+  <div class="home-grid" role="navigation" aria-label="เมนูหลัก">
+    <a href="./pma.html" class="button home-button" aria-label="Dose ยา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="Dose ยา" loading="lazy">
+      <span>Dose ยา<br><small>(Right patient)</small></span>
+    </a>
+
+    <a href="./compatibility.html" class="button home-button" aria-label="Compatibility">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/compability.png" alt="Compatibility" loading="lazy">
+      <span>Compatibility<br><small>(Right drug)</small></span>
+    </a>
+
+    <a href="./admin.html" class="button home-button" aria-label="การบริหารยา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="การบริหารยา" loading="lazy">
+      <span>การบริหารยา<br><small>(Right dose)</small></span>
+    </a>
+
+    <a href="./time.html" class="button home-button" aria-label="การบริหารเวลา">
+      <img src="https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="การบริหารเวลา" loading="lazy">
+      <span>การบริหารเวลา<br><small>(Right time)</small></span>
+    </a>
+
+    
+    
+  </div>
+</div>
+
   </div>
 
-  <script>
-    // Register service worker (path แบบ relative)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./static/service-worker.js').catch(console.warn);
-    }
-  </script>
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
 </body>
 </html>
