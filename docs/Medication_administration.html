@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medication Administration</title>
+
+  <link rel="manifest" href="./static/manifest.webmanifest">
+<link rel="icon" href="./static/icons/icon-192.png" sizes="192x192">
+<meta name="theme-color" content="#0ea5a6">
+
+  <style>
+    /* ---------- Global ---------- */
+    body{
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      color: #228cb3;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    h1{
+      font-size: 2.5em;
+      color: #ffffff;
+      text-shadow: 2px 2px 6px rgba(0,0,0,.6);
+      margin: 20px 0 16px;
+      background: linear-gradient(135deg, rgb(3,158,172), rgb(0,122,140));
+      padding: 15px 30px;
+      border-radius: 15px;
+      display: inline-block;
+      border: 2px solid rgba(0,122,140,.5);
+      box-shadow: 0 4px 15px rgba(0,0,0,.3);
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* กล่องครอบเนื้อหาแนวคอลัมน์: h1 อยู่บน, โซนปุ่มอยู่ถัดลงมา */
+    .container{
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,.2);
+      max-width: 1000px;
+      width: 100%;
+      background-color: transparent;
+
+      display: flex;
+      flex-direction: column;   /* สำคัญ: แยก h1 ออกจากโซนปุ่ม */
+      align-items: center;
+      gap: 20px;
+      box-sizing: border-box;
+    }
+
+    /* ปุ่มพื้นฐาน */
+    .button{
+      display: inline-flex;
+      margin: 10px;
+      padding: 10px;
+      font-size: 14px;
+      text-decoration: none;
+      color: #3475ca;
+      background-color: #2e8aec;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 5px #999;
+      width: 150px;
+      height: 110px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .button img{
+      max-width: 50px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .button:hover{ background-color:#0056b3; }
+    .button:active{
+      background-color:#0056b3;
+      box-shadow:0 5px #666;
+      transform: translateY(4px);
+    }
+
+    /* ปุ่มเฉพาะหน้า Home */
+    .home-button{ background-color:#008CBA; }
+    .home-button:hover{ background-color:#005f99; }
+    .home-button:active{
+      background-color:#005f99;
+      box-shadow:0 5px #666;
+      transform: translateY(4px);
+    }
+
+    /* Footer */
+    footer{
+      text-align:center;
+      margin-top:auto;
+      color:#fff;
+      font-size:16px;
+      text-shadow:2px 2px 5px rgba(3,3,3,.7);
+      padding:10px;
+    }
+
+    /* โซนปุ่มหน้า Home (เดสก์ท็อป/แท็บเล็ต: ใช้ flex wrap) */
+    .home-grid{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1000px;
+      box-sizing: border-box;
+    }
+
+    /* ---------- Mobile: ให้เฉพาะ .home-grid เป็น 2 คอลัมน์ ---------- */
+    @media (max-width: 600px){
+      .home-page h1{
+        font-size: 1.25rem;
+        padding: 8px 12px;
+        margin: 12px 0 0;
+      }
+      .home-grid{
+        display: grid;                                  /* ใช้ Grid เฉพาะโซนปุ่ม */
+        grid-template-columns: repeat(2, minmax(0,1fr));/* 2 กล่องต่อแถว */
+        gap: 16px;
+        width: 100%;
+        max-width: 420px;
+        padding: 12px;
+      }
+      .home-page .button{
+        width: 100%;   /* เต็มคอลัมน์ */
+        height: 110px;
+        margin: 0;     /* ใช้ gap ของ grid แทน */
+        font-size: 13px;
+        border-radius: 12px;
+      }
+      .home-page .button img{
+        max-width: 36px;
+        margin-bottom: 6px;
+      }
+    }
+
+/* ---------- Mobile: หน้า Home ให้ 2 คอลัมน์, ช่องไฟมากขึ้น, ปุ่มเล็กลง ---------- */
+@media (max-width: 600px){
+  .home-page h1{
+    font-size: 1.2rem;
+    padding: 8px 12px;
+    margin: 12px 0 4px;
+  }
+
+  .home-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr)); /* 2 กล่องต่อแถว */
+    column-gap: 22px;   /* เพิ่มช่องว่างแนวนอน */
+    row-gap: 22px;      /* เพิ่มช่องว่างแนวตั้ง  */
+    width: 100%;
+    max-width: 420px;
+    padding: 14px;
+    box-sizing: border-box;
+    place-items: center; /* จัดปุ่มให้อยู่กลางคอลัมน์เมื่อปุ่มแคบลง */
+  }
+
+  /* ปุ่มภายใน grid: แคบและเตี้ยลงจากเดิม */
+  .home-page .button{
+    width: 92%;          /* ลดความกว้าง (จากเดิม 100%) */
+    height: 96px;        /* ลดความสูง (เดิม ~110px)  */
+    margin: 0;           /* ใช้ช่องว่างจาก grid แทน */
+    font-size: 12.5px;   /* ย่อฟอนต์ลงเล็กน้อย */
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px #999;
+  }
+
+  .home-page .button img{
+    max-width: 32px;     /* ไอคอนเล็กลงให้สมดุลกับปุ่ม */
+    margin-bottom: 6px;
+  }
+
+  .home-page .button span small{
+    font-size: 11px;     /* ย่อข้อความวงเล็บ */
+    opacity: 0.95;
+  }
+}
+  </style>
+</head>
+
+<!-- ใน <head> ของ base.html -->
+
+  <link rel="manifest" href="./static/manifest.webmanifest">
+  <link rel="icon" href="./static/icons/icon-192.png" sizes="192x192">
+  <meta name="theme-color" content="#0ea5a6">
+
+
+<body class="medication-page">
+  <div class="container">
+    
+<style>
+  /* ========== Global page fixes: กันสโครลแนวนอน & คุมกล่อง ========= */
+  html, body, .medication-page { overflow-x: hidden; }
+  .medication-page *, .medication-page *::before, .medication-page *::after { box-sizing: border-box; }
+
+  /* ========== แถบปุ่มลอยด้านบน (Fixed Top Actions) ========== */
+  .top-fix-actions{
+    position: fixed;
+    z-index: 60;
+    left: 50%;
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    transform: translateX(-50%);
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+
+    /* จำกัดความกว้างไม่ให้ชนขอบจอ */
+    width: min(540px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+
+    padding: 8px 10px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, .35);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 8px 18px rgba(2,8,23,.28);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+  }
+  .top-fix-actions .back-btn{
+    text-decoration:none; color:#fff; font-weight:700;
+    padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
+    background:#059a57; box-shadow:0 6px 16px rgba(0,0,0,.25);
+    white-space: nowrap;
+    transition: filter .2s ease, transform .06s ease;
+  }
+  .top-fix-actions .back-btn.alt{ background:#64748b; }
+  .top-fix-actions .back-btn:hover{ filter:brightness(1.08); transform: translateY(-1px); }
+
+  /* ตัวคั่นความสูงให้คอนเทนต์ไม่ถูกแถบลอยทับ */
+  .top-fix-spacer{ height: clamp(84px, 16vw, 120px); }
+
+  /* ========== โครงหน้า ========== */
+  body.medication-page{ display:flex; min-height:100vh; flex-direction:column; }
+  .medication-page .container{
+    flex:1;
+    display:block; max-width:none; width:100%;
+    padding:24px 12px; background:transparent; box-sizing:border-box;
+  }
+
+  .med-wrap{
+    position: relative; width:100%; max-width:1100px; margin:0 auto;
+    padding:24px 20px; min-height:85vh;
+
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+  }
+  .med-wrap::before{
+    content:""; position:absolute; inset:0; border-radius: inherit; pointer-events:none;
+    background: radial-gradient(1200px 420px at 50% -200px, rgba(255,255,255,.22), rgba(255,255,255,0));
+  }
+  .med-wrap > *{ position: relative; z-index: 1; }
+
+  /* ========== A–Z Navigation ========== */
+  .letters{
+    display:flex; flex-wrap:wrap; gap:6px 8px; justify-content:center; margin-bottom:16px;
+  }
+  .letters a{
+    text-decoration:none; padding:6px 10px; border-radius:999px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(96,152,234,.5);
+    color:#3a7be3; font-weight:600; font-size:14px;
+    backdrop-filter: blur(4px);
+  }
+  .letters a:hover{ background:rgba(143,236,224,.36); }
+
+  .letter-head{
+    margin:28px 0 10px; font-size:20px; font-weight:800;
+    text-shadow: 0 1px 6px rgba(0,0,0,.45);
+    /* เวลาโดดลิงก์จะไม่ถูกแถบลอยบัง */
+    scroll-margin-top: 130px;
+  }
+  .letters + .letter-head{ margin-top: 18px; }
+
+  /* ========== กริดปุ่มยา ========== */
+  .drug-grid{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap: 14px;
+    padding: 0 6px; /* เพิ่ม gutter ซ้าย/ขวา */
+  }
+  @media (max-width:1024px){ .drug-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media (max-width:720px){  .drug-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+  .drug-btn{
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    width:100%;
+    min-height:64px; padding:10px 12px; word-break:break-word;
+
+    text-decoration:none; color:#fff; font-weight:700; line-height:1.2;
+    border-radius:12px; border:1px solid rgba(226,227,138,.53);
+    background: rgba(24,124,223,.85);
+    box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    backdrop-filter: blur(4px);
+
+    transition: transform .06s ease, filter .2s ease, background .2s ease;
+  }
+  .drug-btn:hover{ filter:brightness(1.07); transform: translateY(-1px); }
+  .drug-btn:active{ transform: translateY(1px); }
+  .drug-btn.red{ background: rgba(244,67,54,.9); }
+
+  /* ========== ปรับบนมือถือให้ไม่ล้น/กดง่าย ========== */
+  @media (max-width: 600px){
+    .medication-page .container{ padding-left: 8px; padding-right: 8px; }
+    .med-wrap{ padding: 16px 12px; border-radius: 16px; }
+
+    .drug-grid{ gap: 12px; padding: 0 8px; }
+    .drug-btn{ min-height: 56px; padding: 8px 10px; }
+  }
+
+  /* Safe-area สำหรับ iPhone notch/ขอบโค้ง */
+  @supports (padding: max(0px)){
+    .medication-page{
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+  }
+</style>
+
+<!-- แถบปุ่มลอย -->
+<div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+  <a href="./index.html" class="back-btn">⬅ Back to Home</a>
+  <a href="#top" class="back-btn alt">⬆ Back to A–Z</a>
+</div>
+
+<!-- ตัวคั่นความสูงเพื่อไม่ให้เนื้อหาถูกทับ -->
+<div class="top-fix-spacer" aria-hidden="true"></div>
+
+<div id="top" class="med-wrap">
+  <h1>Medication Administration</h1>
+
+  <!-- A–Z -->
+  <nav class="letters" aria-label="Jump to letter">
+    
+  </nav>
+
+  <!-- กลุ่มตามตัวอักษร -->
+  
+</div>
+
+  </div>
+  
+<script>
+  if ("serviceWorker" in navigator) {
+    const swPath = "./static/service-worker.js";
+    navigator.serviceWorker.register(swPath).catch(console.error);
+</script>
+
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
+</body>
+</html>
