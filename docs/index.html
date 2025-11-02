@@ -4,11 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>การบริหารยาในทารกแรกเกิด (Offline)</title>
-  <link rel="manifest" href="/static/manifest.webmanifest">
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="manifest" href="./static/manifest.webmanifest">
   <meta name="theme-color" content="#0ea5a6">
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial; margin:0; background:#f6f7fb;}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;margin:0;background:#f6f7fb}
     .home-shell{max-width:1120px;margin:24px auto;padding:0 16px}
     .home-title{display:inline-block;margin:0 0 18px;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,#0ea5a6,#0b74d0);color:#fff;font-weight:800;font-size:clamp(18px,4vw,28px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
     .home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
@@ -25,22 +24,18 @@
     <div id="offLineNote" style="margin:8px 0 16px;color:#0b74d0;font-weight:700;display:none">คุณกำลังใช้งานแบบออฟไลน์</div>
 
     <div class="home-grid" role="navigation" aria-label="เมนูหลัก">
-      <!-- ปุ่มพาไปเอกสาร/หน้า static หรือเปิดในแอปหลักเมื่อออนไลน์ -->
       <a href="#" class="home-button" aria-label="Dose ยา">
         <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="">
         <span>Dose ยา<br><small>(offline shell)</small></span>
       </a>
-
       <a href="#" class="home-button" aria-label="Compatibility">
         <img src="https://cdn.jsdelivr.net/gh/060531/images/compability.png" alt="">
         <span>Compatibility<br><small>(offline shell)</small></span>
       </a>
-
       <a href="#" class="home-button" aria-label="การบริหารยา">
         <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="">
         <span>การบริหารยา<br><small>(offline shell)</small></span>
       </a>
-
       <a href="#" class="home-button" aria-label="การบริหารเวลา">
         <img src="https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="">
         <span>การบริหารเวลา<br><small>(offline shell)</small></span>
@@ -49,20 +44,17 @@
   </div>
 
   <script>
-    // แสดงสถานะออฟไลน์
     function updateOfflineFlag(){
       const n = document.getElementById('offLineNote');
       if(!n) return;
       n.style.display = navigator.onLine ? 'none' : 'block';
     }
-    window.addEventListener('online', updateOfflineFlag);
-    window.addEventListener('offline', updateOfflineFlag);
+    addEventListener('online', updateOfflineFlag);
+    addEventListener('offline', updateOfflineFlag);
     updateOfflineFlag();
 
-    // สมัคร service worker (ต้องใช้ http/https; GitHub Pages OK)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/static/service-worker.js')
-        .catch(console.error);
+      navigator.serviceWorker.register('./static/service-worker.js').catch(console.error);
     }
   </script>
 </body>
