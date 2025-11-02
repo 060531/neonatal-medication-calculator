@@ -194,8 +194,8 @@
 
 <!-- ใน <head> ของ base.html -->
 
-  <link rel="manifest" href="./index.html">
-  <link rel="icon" href="./index.html" sizes="192x192">
+  <link rel="manifest" href="./static/manifest.webmanifest">
+  <link rel="icon" href="./static/icons/icon-192.png" sizes="192x192">
   <meta name="theme-color" content="#0ea5a6">
 
 
@@ -274,7 +274,7 @@
   
 <script>
   if ("serviceWorker" in navigator) {
-    const swPath = "./index.html";
+    const swPath = "./static/service-worker.js";
     navigator.serviceWorker.register(swPath).catch(console.error);
 </script>
 
