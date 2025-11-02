@@ -2,17 +2,23 @@
 {% block title %}index{% endblock %}
 {% block body_class %}home-page{% endblock %}
 
+{% block head_extra %}
+  <!-- PWA meta (ทำงานเมื่อเสิร์ฟผ่าน http/https) -->
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+{% endblock %}
+
 {% block content %}
 <style>
   /* ---------- Shell + safe areas ---------- */
   .home-shell{
     width:100%;
-    max-width:1120px;               /* ความกว้างสูงสุดของคอนเทนต์ */
+    max-width:1120px;
     margin:24px auto 24px;
-    padding-left:  max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
+    padding-left:max(16px,env(safe-area-inset-left));
+    padding-right:max(16px,env(safe-area-inset-right));
   }
-
   /* ---------- Title ---------- */
   .home-title{
     display:inline-block;
@@ -22,72 +28,45 @@
     background:linear-gradient(135deg,#0ea5a6,#0b74d0);
     color:#fff;
     font-weight:800;
-    font-size:clamp(18px,4vw,28px); /* ย่อ-ขยายตามจอ */
+    font-size:clamp(18px,4vw,28px);
     box-shadow:0 10px 24px rgba(0,0,0,.18);
   }
-
   /* ---------- Grid ---------- */
   .home-grid{
     display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:16px;
     align-items:stretch;
   }
-
   /* ---------- Card button ---------- */
   .home-button{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    text-decoration:none;
-    text-align:center;
-    padding:18px 14px;
-    border-radius:16px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; text-decoration:none; text-align:center;
+    padding:18px 14px; border-radius:16px;
     background:rgba(255,255,255,.96);
     border:1px solid rgba(15,23,42,.08);
     box-shadow:0 10px 24px rgba(2,8,23,.12);
     transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
   }
-  .home-button:hover{
-    transform:translateY(-2px);
-    box-shadow:0 14px 30px rgba(2,8,23,.18);
-    filter:brightness(.98);
-  }
+  .home-button:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(2,8,23,.18); filter:brightness(.98); }
   .home-button:active{ transform:translateY(0); }
+  .home-button img{ width:clamp(64px,8vw,96px); height:auto; object-fit:contain; display:block;
+    filter:drop-shadow(0 4px 10px rgba(2,8,23,.12)); }
+  .home-button span{ color:#0f172a; font-weight:800; line-height:1.25; font-size:clamp(14px,2.6vw,18px); }
+  .home-button span small{ display:block; margin-top:4px; color:#475569; font-weight:700; font-size:clamp(11px,2.2vw,13px); }
+  @media (max-width:380px){ .home-grid{gap:12px;} .home-button{padding:14px 12px; border-radius:14px;} }
 
-  .home-button img{
-    width:clamp(64px,8vw,96px);
-    height:auto;
-    object-fit:contain;
-    display:block;
-    filter:drop-shadow(0 4px 10px rgba(2,8,23,.12));
+  /* ---------- offline notice ---------- */
+  .offline-note{
+    display:none; margin:8px 0 16px; padding:10px 12px; border-radius:12px;
+    background:#fff8e1; border:1px solid #facc15; color:#854d0e; font-weight:700;
   }
-
-  .home-button span{
-    color:#0f172a;
-    font-weight:800;
-    line-height:1.25;
-    font-size:clamp(14px,2.6vw,18px);
-  }
-  .home-button span small{
-    display:block;
-    margin-top:4px;
-    color:#475569;
-    font-weight:700;
-    font-size:clamp(11px,2.2vw,13px);
-  }
-
-  /* ---------- Small screens tweaks ---------- */
-  @media (max-width:380px){
-    .home-grid{ gap:12px; }
-    .home-button{ padding:14px 12px; border-radius:14px; }
-  }
+  .offline .offline-note{ display:block; }
 </style>
 
 <div class="home-shell">
   <h1 class="home-title">การบริหารยาในทารกแรกเกิด</h1>
+  <div id="offlineNote" class="offline-note">คุณกำลังใช้งานออฟไลน์: บางหน้าที่ไม่ถูกแคชอาจเปิดไม่ได้</div>
 
   <div class="home-grid" role="navigation" aria-label="เมนูหลัก">
     <a href="{{ url_for('calculate_pma_route') }}" class="button home-button" aria-label="Dose ยา">
@@ -110,7 +89,7 @@
       <span>การบริหารเวลา<br><small>(Right time)</small></span>
     </a>
 
-    {# ✅ หากเปิดใช้ “สแกนคำสั่งยา” ให้เอา comment ออก #}
+    {# เปิดใช้เมื่อตั้งค่าหน้า scan แล้ว #}
     {#
     <a href="{{ url_for('scan_server') }}" class="button home-button" aria-label="สแกนคำสั่งยา">
       <img src="https://cdn.jsdelivr.net/gh/060531/images/scan-icon.png" alt="สแกนคำสั่งยา" loading="lazy">
@@ -119,4 +98,22 @@
     #}
   </div>
 </div>
+
+<script>
+  // แสดงป้ายเตือนเมื่อออฟไลน์
+  function updateOfflineFlag() {
+    const n = document.getElementById('offlineNote');
+    if (!n) return;
+    if (!navigator.onLine) { document.body.classList.add('offline'); }
+    else { document.body.classList.remove('offline'); }
+  }
+  window.addEventListener('online', updateOfflineFlag);
+  window.addEventListener('offline', updateOfflineFlag);
+  updateOfflineFlag();
+
+  // สมัคร service worker (เฉพาะเมื่อเสิร์ฟผ่าน http/https)
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}").catch(()=>{});
+  }
+</script>
 {% endblock %}

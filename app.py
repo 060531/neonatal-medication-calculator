@@ -4124,6 +4124,12 @@ def api_ocr():
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
     
+from flask import send_from_directory
+
+@app.route('/service-worker.js')
+def service_worker():
+    # ไฟล์จริงยังอยู่ใน static/ แต่เสิร์ฟออกมาที่รากโดเมน
+    return send_from_directory('static', 'service-worker.js', mimetype='application/javascript')
 
 
 # 6) เรียกใช้งานเซิร์ฟเวอร์
