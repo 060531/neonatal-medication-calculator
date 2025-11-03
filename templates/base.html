@@ -1,190 +1,105 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <title>{% block title %}My Application{% endblock %}</title>
+
+  <!-- PWA meta -->
+  <meta name="theme-color" content="#0ea5a6" />
+  <link rel="manifest"
+        href="{{ './static/manifest.webmanifest' if static_build else url_for('static', filename='manifest.webmanifest') }}">
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon"
+        href="{{ './static/icons/icon-192.png' if static_build else url_for('static', filename='icons/icon-192.png') }}">
+
+  <!-- App CSS/JS (dual path) -->
+  <link rel="stylesheet"
+        href="{{ './static/style.css' if static_build else url_for('static', filename='style.css') }}">
+  <script defer src="{{ './static/app.js' if static_build else url_for('static', filename='app.js') }}"></script>
 
   <style>
     /* ---------- Global ---------- */
+    :root{ color-scheme: light only; }
+    html,body{ height:100%; }
     body{
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-
-      background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align:center;
+      margin:0;
+      padding:0;
+      color:#228cb3;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      /* ใช้ https เสมอเพื่อหลีกเลี่ยง block บนบางเบราเซอร์ */
+      background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
     }
 
     h1{
-      font-size: 2.5em;
-      color: #ffffff;
-      text-shadow: 2px 2px 6px rgba(0,0,0,.6);
-      margin: 20px 0 16px;
-      background: linear-gradient(135deg, rgb(3,158,172), rgb(0,122,140));
-      padding: 15px 30px;
-      border-radius: 15px;
-      display: inline-block;
-      border: 2px solid rgba(0,122,140,.5);
-      box-shadow: 0 4px 15px rgba(0,0,0,.3);
-      font-weight: bold;
-      letter-spacing: 1px;
+      font-size:2.5em; color:#fff; margin:20px 0 16px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.6);
+      background:linear-gradient(135deg,#039eac,#007a8c);
+      padding:15px 30px; border-radius:15px; display:inline-block;
+      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
+      font-weight:700; letter-spacing:1px;
     }
 
-    /* กล่องครอบเนื้อหาแนวคอลัมน์: h1 อยู่บน, โซนปุ่มอยู่ถัดลงมา */
     .container{
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,.2);
-      max-width: 1000px;
-      width: 100%;
-      background-color: transparent;
-
-      display: flex;
-      flex-direction: column;   /* สำคัญ: แยก h1 ออกจากโซนปุ่ม */
-      align-items: center;
-      gap: 20px;
-      box-sizing: border-box;
+      max-width:1000px; width:100%;
+      box-sizing:border-box;
+      border-radius:10px; padding:20px;
+      box-shadow:0 4px 8px rgba(0,0,0,.2);
+      background:transparent;
+      display:flex; flex-direction:column; align-items:center; gap:20px;
     }
 
-    /* ปุ่มพื้นฐาน */
     .button{
-      display: inline-flex;
-      margin: 10px;
-      padding: 10px;
-      font-size: 14px;
-      text-decoration: none;
-      color: #fff;
-      background-color: #2e8aec;
-      border: none;
-      border-radius: 10px;
-      box-shadow: 0 5px #999;
-      width: 150px;
-      height: 110px;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+      width:150px; height:110px; margin:10px; padding:10px;
+      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
+      box-shadow:0 5px #999; border:none; font-size:14px;
+      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
     }
-    .button img{
-      max-width: 50px;
-      height: auto;
-      margin-bottom: 10px;
-    }
-    .button:hover{ background-color:#0056b3; }
-    .button:active{
-      background-color:#0056b3;
-      box-shadow:0 5px #666;
-      transform: translateY(4px);
-    }
+    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
+    .button:hover{ filter:brightness(.95); }
+    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
 
-    /* ปุ่มเฉพาะหน้า Home */
-    .home-button{ background-color:#008CBA; }
-    .home-button:hover{ background-color:#005f99; }
-    .home-button:active{
-      background-color:#005f99;
-      box-shadow:0 5px #666;
-      transform: translateY(4px);
-    }
+    .home-button{ background:#008CBA; }
+    .home-button:hover{ filter:brightness(.95); }
+    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
 
-    /* Footer */
     footer{
-      text-align:center;
-      margin-top:auto;
-      color:#fff;
-      font-size:16px;
+      margin-top:auto; color:#fff; font-size:16px; padding:10px;
       text-shadow:2px 2px 5px rgba(3,3,3,.7);
-      padding:10px;
     }
 
-    /* โซนปุ่มหน้า Home (เดสก์ท็อป/แท็บเล็ต: ใช้ flex wrap) */
     .home-grid{
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      width: 100%;
-      max-width: 1000px;
-      box-sizing: border-box;
+      display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:100%;
+      max-width:1000px; box-sizing:border-box;
     }
 
-    /* ---------- Mobile: ให้เฉพาะ .home-grid เป็น 2 คอลัมน์ ---------- */
-    @media (max-width: 600px){
-      .home-page h1{
-        font-size: 1.25rem;
-        padding: 8px 12px;
-        margin: 12px 0 0;
-      }
+    /* Mobile: หน้า Home → 2 คอลัมน์ */
+    @media (max-width:600px){
+      .home-page h1{ font-size:1.25rem; padding:8px 12px; margin:12px 0 0; }
       .home-grid{
-        display: grid;                                  /* ใช้ Grid เฉพาะโซนปุ่ม */
-        grid-template-columns: repeat(2, minmax(0,1fr));/* 2 กล่องต่อแถว */
-        gap: 16px;
-        width: 100%;
-        max-width: 420px;
-        padding: 12px;
+        display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:16px; width:100%; max-width:420px; padding:12px;
       }
       .home-page .button{
-        width: 100%;   /* เต็มคอลัมน์ */
-        height: 110px;
-        margin: 0;     /* ใช้ gap ของ grid แทน */
-        font-size: 13px;
-        border-radius: 12px;
+        width:100%; height:100px; margin:0; font-size:12.5px; border-radius:12px; padding:8px;
+        box-shadow:0 4px #999;
       }
-      .home-page .button img{
-        max-width: 36px;
-        margin-bottom: 6px;
-      }
+      .home-page .button img{ max-width:32px; margin-bottom:6px; }
+      .home-page .button span small{ font-size:11px; }
     }
-
-/* ---------- Mobile: หน้า Home ให้ 2 คอลัมน์, ช่องไฟมากขึ้น, ปุ่มเล็กลง ---------- */
-@media (max-width: 600px){
-  .home-page h1{
-    font-size: 1.2rem;
-    padding: 8px 12px;
-    margin: 12px 0 4px;
-  }
-
-  .home-grid{
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0,1fr)); /* 2 กล่องต่อแถว */
-    column-gap: 22px;   /* เพิ่มช่องว่างแนวนอน */
-    row-gap: 22px;      /* เพิ่มช่องว่างแนวตั้ง  */
-    width: 100%;
-    max-width: 420px;
-    padding: 14px;
-    box-sizing: border-box;
-    place-items: center; /* จัดปุ่มให้อยู่กลางคอลัมน์เมื่อปุ่มแคบลง */
-  }
-
-  /* ปุ่มภายใน grid: แคบและเตี้ยลงจากเดิม */
-  .home-page .button{
-    width: 92%;          /* ลดความกว้าง (จากเดิม 100%) */
-    height: 96px;        /* ลดความสูง (เดิม ~110px)  */
-    margin: 0;           /* ใช้ช่องว่างจาก grid แทน */
-    font-size: 12.5px;   /* ย่อฟอนต์ลงเล็กน้อย */
-    border-radius: 12px;
-    padding: 8px;
-    box-shadow: 0 4px #999;
-  }
-
-  .home-page .button img{
-    max-width: 32px;     /* ไอคอนเล็กลงให้สมดุลกับปุ่ม */
-    margin-bottom: 6px;
-  }
-
-  .home-page .button span small{
-    font-size: 11px;     /* ย่อข้อความวงเล็บ */
-    opacity: 0.95;
-  }
-}
   </style>
 </head>
 
@@ -196,5 +111,22 @@
   <footer>
     <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
   </footer>
+
+  <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
+
+      // ใช้พาธสัมพัทธ์เสมอ (รองรับ GitHub Pages ที่อยู่ใต้ /neonatal-medication-calculator/)
+      var swPath = "./static/service-worker.js";
+
+      // อย่าลงทะเบียนซ้ำ: ถ้าเคยติดตั้งไว้แล้ว ให้ข้าม
+      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
+        if (!reg) return navigator.serviceWorker.register(swPath).catch(console.error);
+      }).catch(function () {
+        navigator.serviceWorker.register(swPath).catch(console.error);
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,29 +1,20 @@
-name: Python Application
-
+name: Build static pages
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+    branches: [ main, static-build ]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'  # เปลี่ยนเวอร์ชัน Python ตามต้องการ
-
-      - name: Install dependencies
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install jinja2
+      - run: python tools/build_pages.py
+      - name: Commit docs
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          python -m unittest discover
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs
+          git commit -m "docs: rebuild" || echo "no changes"
+          git push

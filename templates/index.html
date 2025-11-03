@@ -1,76 +1,28 @@
 {% extends "base.html" %}
 {% block title %}index{% endblock %}
 {% block body_class %}home-page{% endblock %}
-
 {% block content %}
-<style>
-  .home-shell{width:100%;max-width:1120px;margin:24px auto;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));}
-  .home-title{display:inline-block;margin:0 auto 18px;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,#0ea5a6,#0b74d0);color:#fff;font-weight:800;font-size:clamp(18px,4vw,28px);box-shadow:0 10px 24px rgba(0,0,0,.18);}
-  .home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;align-items:stretch;}
-  .home-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-decoration:none;text-align:center;padding:18px 14px;border-radius:16px;background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.08);box-shadow:0 10px 24px rgba(2,8,23,.12);transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;}
-  .home-button:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(2,8,23,.18);filter:brightness(.98)}
-  .home-button:active{transform:translateY(0)}
-  .home-button img{width:clamp(64px,8vw,96px);height:auto;object-fit:contain;display:block;filter:drop-shadow(0 4px 10px rgba(2,8,23,.12));}
-  .home-button span{color:#0f172a;font-weight:800;line-height:1.25;font-size:clamp(14px,2.6vw,18px)}
-  .home-button span small{display:block;margin-top:4px;color:#475569;font-weight:700;font-size:clamp(11px,2.2vw,13px)}
-  @media (max-width:380px){.home-grid{gap:12px}.home-button{padding:14px 12px;border-radius:14px}}
-</style>
+<h1>การบริหารยาในทารกแรกเกิด</h1>
 
-<div class="home-shell">
-  <h1 class="home-title">การบริหารยาในทารกแรกเกิด</h1>
+<div class="home-grid">
+  <a class="button home-button"
+     href="{% if static_build %}./pma_template.html{% else %}{{ url_for('calculate_pma_route') }}{% endif %}">
+     PMA
+  </a>
 
-  <div class="home-grid" role="navigation" aria-label="เมนูหลัก">
-    <!-- PMA -->
-    <a href="{% if static_build %}./pma.html{% else %}{{ url_for('calculate_pma_route') }}{% endif %}"
-       class="button home-button">
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="Dose ยา" loading="lazy">
-      <span>Dose ยา<br><small>(Right patient)</small></span>
-    </a>
+  <a class="button home-button"
+     href="{% if static_build %}./compatibility.html{% else %}{{ url_for('compatibility_page') }}{% endif %}">
+     Compatibility
+  </a>
 
-    <!-- Compatibility -->
-    <a href="{% if static_build %}./compatibility.html{% else %}{{ url_for('compatibility_page') }}{% endif %}"
-       class="button home-button">
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/compability.png" alt="Compatibility" loading="lazy">
-      <span>Compatibility<br><small>(Right drug)</small></span>
-    </a>
+  <a class="button home-button"
+     href="{% if static_build %}./Medication_administration.html{% else %}{{ url_for('medication_administration') }}{% endif %}">
+     การบริหารยา
+  </a>
 
-    <!-- Medication administration (หน้า admin.html ใน docs) -->
-    <a href="{% if static_build %}./admin.html{% else %}{{ url_for('medication_administration') }}{% endif %}"
-       class="button home-button">
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="การบริหารยา" loading="lazy">
-      <span>การบริหารยา<br><small>(Right dose)</small></span>
-    </a>
-
-    <!-- Time management -->
-    <a href="{% if static_build %}./time.html{% else %}{{ url_for('time_management_route') }}{% endif %}"
-       class="button home-button">
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="การบริหารเวลา" loading="lazy">
-      <span>การบริหารเวลา<br><small>(Right time)</small></span>
-    </a>
-
-    {# สแกนคำสั่งยา: เปิดเมื่อพร้อม #}
-    {# <a href="{{ url_for('scan_server') }}" class="button home-button">
-         <img src="https://cdn.jsdelivr.net/gh/060531/images/scan-icon.png" alt="สแกนคำสั่งยา" loading="lazy">
-         <span>สแกนคำสั่งยา<br><small>(ตรวจสอบ/พาไปหน้าที่เกี่ยวข้อง)</small></span>
-       </a> #}
-  </div>
+  <a class="button home-button"
+     href="{% if static_build %}./time_management.html{% else %}{{ url_for('time_management_route') }}{% endif %}">
+     การบริหารเวลา
+  </a>
 </div>
-
-<script>
-  // สถานะ online/offline (ถ้ามี element #offlineNote)
-  function updateOfflineFlag(){
-    const n = document.getElementById('offlineNote'); if (!n) return;
-    if (!navigator.onLine) document.body.classList.add('offline');
-    else document.body.classList.remove('offline');
-  }
-  window.addEventListener('online', updateOfflineFlag);
-  window.addEventListener('offline', updateOfflineFlag);
-  updateOfflineFlag();
-
-  // สมัคร Service Worker แบบ relative path (ใช้ได้ทั้ง Pages และเซิร์ฟเวอร์จริง)
-  if ("serviceWorker" in navigator) {
-    const swPath = "./static/service-worker.js";
-    navigator.serviceWorker.register(swPath).catch(console.error);
-  }
-</script>
 {% endblock %}
