@@ -1,3 +1,16 @@
+<!doctype html><meta charset="utf-8">
+<h1>Drug calculation (demo)</h1>
+<script>
+  const q=new URLSearchParams(location.search);
+  document.write('<pre>'+JSON.stringify({
+    pma_weeks:q.get('pma_weeks'),
+    pma_days:q.get('pma_days'),
+    calc:q.get('calc'),
+    bw:q.get('bw'),
+    postnatal_days:q.get('postnatal_days'),
+  }, null, 2)+'</pre>');
+</script>
+<a href="./index.html">Back to Home</a>
 <!DOCTYPE html>
 <html lang="en">
 <head>
