@@ -1,188 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Calculate PMA</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
-
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .container {
-            max-width: 400px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-inline {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .form-inline input {
-            width: 45%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .form-inline span {
-            margin-left: 5px;
-            align-self: center;
-        }
-
-        button[type="submit"] {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        button[type="submit"]:active {
-            background-color: #0056b3;
-            box-shadow: 0 5px #666;
-            transform: translateY(4px);
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-weight: bold;
-            display: none; /* ซ่อนผลลัพธ์ไว้ก่อน */
-        }
-
-        .back-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            background-color: #f44336;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-decoration: none;
-            color: #fff;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: rgb(255, 255, 255);
-            font-size: 16px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Calculate PMA (Static)</title>
+  <style>
+    body{
+      font-family: Arial, sans-serif; margin:0; padding:0;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+      min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .container{
+      max-width:420px; width:92%;
+      padding:20px; background:rgba(255,255,255,.88);
+      border:1px solid #ddd; border-radius:12px; text-align:center;
+      box-shadow:0 6px 14px rgba(0,0,0,.18);
+    }
+    .form-group{ margin-bottom:14px; text-align:left;}
+    .form-inline{ display:flex; align-items:center; gap:8px; }
+    .form-inline input{
+      flex:1; padding:9px 10px; border:1px solid #cfd3d7; border-radius:8px;
+    }
+    button, .btn{
+      display:inline-block; padding:10px 16px; font-size:16px; line-height:1;
+      color:#fff; background:#007bff; border:none; border-radius:10px; box-shadow:0 5px #999;
+      text-decoration:none; cursor:pointer;
+    }
+    button:hover, .btn:hover{ background:#0056b3 }
+    button:active, .btn:active{ transform:translateY(2px); box-shadow:0 3px #777 }
+    .btn-danger{ background:#f44336 } .btn-danger:hover{ background:#d32f2f }
+    .btn-success{ background:#4CAF50 } .btn-success:hover{ background:#3c9742 }
+    .result{
+      margin-top:16px; padding:12px; background:#f6f7f8; border-radius:8px;
+      font-weight:bold; display:none; text-align:left;
+    }
+    .row{ display:flex; justify-content:space-between; gap:10px; margin-top:10px }
+    footer{ color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); margin-top:14px; }
+    small.hint{ color:#666; font-weight:normal }
+  </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>Calculate Postmenstrual Age (PMA)</h1>
-    
-    <form action="./pma_template.html" method="POST">
-        <div class="form-group">
-            <label>Gestational Age:</label>
-            <div class="form-inline">
-                <input type="number" name="gestational_age_weeks" placeholder="Weeks" required>
-                <span>wks</span>
-                <input type="number" name="gestational_age_days" placeholder="Days" required>
-                <span>day</span>
-            </div>
-        </div>
+  <h1>คำนวณ Postmenstrual Age (PMA)</h1>
 
-        <div class="form-inline" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <label for="postnatal_age_days" style="flex: 1;">Postnatal Age (Days):</label>
-            <input type="number" name="postnatal_age_days" placeholder="Days" required style="flex: 1; margin-left: 10px;">
-            <span style="flex: 0.2; text-align: right;">day</span>
-        </div>
-
-        <div class="form-inline" style="display: flex; align-items: center; justify-content: space-between;">
-            <label for="bw" style="flex: 1;">Birth Weight (kg):</label>
-            <input type="number" name="bw" placeholder="kg" step="0.001" required style="flex: 1; margin-left: 10px;">
-            <span style="flex: 0.2; text-align: right;">kg</span>
-        </div>
-        
-
-        <button type="submit" style="margin-top: 20px;">Calculate PMA</button>
-    </form>
-
-    <!-- แสดงผลลัพธ์หลังจากคำนวณ -->
-    
-    <div class="result" style="display: block;">
-        <p>PMA: <span style="color: blue;">0 weeks and 0 days</span></p>
-        <p>Calc.: <span style="color: blue;"> weeks</span></p>
-        <p>Postnatal Age: <span style="color: blue;"> days</span></p>
-        <p>Birth Weight (BW): <span style="color: blue;">0 kg</span></p>
-
-        <!-- ปุ่มไปคำนวณยา -->
-        <form action="./drug_calculation.html" method="POST">
-            <input type="hidden" name="pma_weeks" value="0">
-            <input type="hidden" name="pma_days" value="0">
-            <input type="hidden" name="calc" value="">
-            <input type="hidden" name="bw" value="0">
-            <input type="hidden" name="postnatal_days" value="">
-            <button class="drug-button" type="submit">คำนวณยา</button>
-        </form>
-        
-        
-        
+  <!-- เปลี่ยนเป็น onsubmit JS เพื่อไม่ยิง POST -->
+  <form id="pmaForm" onsubmit="return calcPMA(event)">
+    <div class="form-group">
+      <label><b>Gestational Age</b> <small class="hint">(GA ก่อนคลอด)</small></label>
+      <div class="form-inline">
+        <input type="number" name="ga_weeks" id="ga_weeks" placeholder="Weeks" min="0" step="1" required>
+        <span>สัปดาห์</span>
+        <input type="number" name="ga_days" id="ga_days" placeholder="Days" min="0" max="6" step="1" required>
+        <span>วัน</span>
+      </div>
     </div>
-    
+
+    <div class="form-group">
+      <label for="pna_days"><b>Postnatal Age</b> <small class="hint">(อายุหลังคลอด, วัน)</small></label>
+      <div class="form-inline">
+        <input type="number" name="pna_days" id="pna_days" placeholder="Days" min="0" step="1" required>
+        <span>วัน</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="bw"><b>Birth Weight</b> <small class="hint">(kg)</small></label>
+      <div class="form-inline">
+        <input type="number" name="bw" id="bw" placeholder="kg" step="0.001" min="0" required>
+        <span>kg</span>
+      </div>
+    </div>
+
+    <button type="submit">Calculate PMA</button>
+  </form>
+
+  <!-- ผลลัพธ์ -->
+  <div id="pmaResult" class="result" aria-live="polite"></div>
+
+  <div class="row">
+    <a href="javascript:history.back()" class="btn btn-success">Back</a>
+    <a href="./index.html" class="btn btn-danger">Back to Home</a>
+  </div>
 </div>
-<div class="button-group">
-    <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-    <a href="./index.html" class="back-button">Back to Home</a>
-</div>
+
 <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:54</p>
+  <p>Developed by Sukhontha Boonsookchan | update 2025-11-04</p>
 </footer>
+
+<script>
+  function nz(v){ const n=parseFloat(v); return Number.isFinite(n)?n:0; }
+
+  function calcPMA(e){
+    e.preventDefault();
+    const ga_w = nz(document.getElementById('ga_weeks').value);
+    const ga_d = nz(document.getElementById('ga_days').value);
+    const pna_d = nz(document.getElementById('pna_days').value);
+    const bw    = nz(document.getElementById('bw').value);
+
+    // PMA (days) = GA(weeks->days) + GA(days) + PNA(days)
+    const totalDays = ga_w*7 + ga_d + pna_d;
+    const pma_weeks = Math.floor(totalDays/7);
+    const pma_days  = totalDays % 7;
+
+    // สร้างค่าช่วยแสดง
+    const calc_weeks = (ga_w + (ga_d/7) + (pna_d/7)).toFixed(2);
+
+    const box = document.getElementById('pmaResult');
+    box.innerHTML = `
+      <div><b>PMA:</b> <span style="color:#0b63c7">${pma_weeks} weeks ${pma_days} days</span></div>
+      <div><b>Calc.:</b> <span style="color:#0b63c7">${calc_weeks} weeks</span></div>
+      <div><b>Postnatal Age:</b> <span style="color:#0b63c7">${pna_d} days</span></div>
+      <div><b>Birth Weight (BW):</b> <span style="color:#0b63c7">${bw} kg</span></div>
+      <div style="margin-top:12px;">
+        <a id="goDrug" class="btn" href="#">คำนวณยา</a>
+      </div>
+    `;
+    box.style.display = 'block';
+
+    // ปุ่ม "คำนวณยา" → ใช้ GET query แทน POST
+    const url = new URL('./drug_calculation.html', location.href);
+    url.searchParams.set('pma_weeks', pma_weeks);
+    url.searchParams.set('pma_days',  pma_days);
+    url.searchParams.set('calc',      calc_weeks);
+    url.searchParams.set('bw',        bw);
+    url.searchParams.set('postnatal_days', pna_d);
+    document.getElementById('goDrug').setAttribute('href', url.toString());
+
+    return false;
+  }
+</script>
 </body>
 </html>
