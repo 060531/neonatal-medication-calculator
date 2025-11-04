@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Midazolam Calculation</title>
+  <style>
+    /* ===== Theme tokens ===== */
+    :root{
+      --brand-900:#e70939;
+      --brand-700:#d21e1e;
+      --sky-50:#ffeeee;
+      --sky-100:#ffd7d7;
+      --panel:#ffe6e6b8;
+      --text:#0f172a;
+
+      --gutter: 12px;                           /* ระยะขอบซ้าย-ขวา */
+      --floatbar-gap: clamp(80px,16vw,110px);   /* กันปุ่มลอยไม่ทับ footer */
+    }
+
+    /* ===== Global guard + BG เต็มจอ ===== */
+    html, body { height:100%; overflow-x:hidden; }
+    *, *::before, *::after { box-sizing:border-box; }
+    img, video, canvas, svg { max-width:100%; height:auto; }
+    body{
+      margin:0; min-height:100svh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color:var(--text); text-align:center; background:none;
+      padding-left:max(0px, env(safe-area-inset-left));
+      padding-right:max(0px, env(safe-area-inset-right));
+    }
+    /* พื้นหลังเต็มจอแบบไม่กระพริบบนมือถือ */
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
+
+    /* ===== Header (กันหล่นขอบด้วย clamp + max-width) ===== */
+    .title-badge{
+      display:inline-block;
+      margin:28px auto 12px;
+      padding: clamp(8px, 1.8vw, 12px) clamp(14px, 3.2vw, 18px);
+      background:var(--brand-900); color:#fff; font-weight:900;
+      font-size: clamp(18px, 4.6vw, 28px); line-height:1.2;
+      border-radius:12px; border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      max-width: calc(100vw - (var(--gutter)*2));   /* ไม่ให้เกินจอ */
+      white-space: normal; word-break: keep-all;    /* อนุญาตขึ้นบรรทัดใหม่แบบสวย */
+    }
+
+    /* ===== Wrapper / panel ===== */
+    .container{
+      width:min(820px, calc(100vw - (var(--gutter)*2)));
+      margin:0 auto 12px; padding:20px;
+      background:var(--panel);
+      border:1px solid #b9d9ff; border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    /* ===== Calc box ===== */
+    .calc-box{
+      margin:14px auto 16px; max-width:740px;
+      padding:16px;
+      background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+      border:1px solid #b7d6ff; border-radius:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+      padding-left:max(12px, var(--gutter));
+      padding-right:max(12px, var(--gutter));
+    }
+
+    .calc-row{
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+    }
+    .calc-row label{ font-weight:800; color:#0b255e; }
+
+    .calc-row input{
+      width: clamp(160px, 50vw, 220px);
+      max-width:60vw; padding:10px 12px; border-radius:10px;
+      border:1px solid #c7d9f9; text-align:center; background:#fff; font-size:16px;
+    }
+
+    /* ===== ทำให้ label + input ใน dose-row อยู่แถวเดียวเสมอ ===== */
+    .dose-row{
+      display:grid;
+      grid-template-columns: auto 1fr;  /* ซ้าย label | ขวา input ยืด */
+      align-items:center;
+      column-gap:10px;
+      width:100%; max-width:520px;
+      margin-inline:auto;
+    }
+    .dose-row > label{
+      white-space:nowrap;         /* กันตกลบ */
+      max-width:44vw;             /* กัน label ยาวเกิน */
+      text-align:right;
+    }
+    .dose-row > input[type="number"]{
+      min-width:0; width:100%;
+    }
+    @media (max-width:360px){
+      .dose-row > label{ font-size:14px; }
+      .dose-row > input[type="number"]{ font-size:14px; padding:8px 10px; }
+    }
+
+    /* ===== Buttons ===== */
+    .btn{
+      appearance:none; border:none; border-radius:10px; cursor:pointer;
+      padding:10px 16px; font-weight:800; color:#fff;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition: transform .06s ease, filter .2s ease;
+      text-decoration:none;
+    }
+    .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px); }
+    .btn-blue{ background:var(--brand-700); }
+    .btn-red{  background:#e71f1f; } .btn-cyan{ background:#049bb5; }
+
+    /* ===== Results ===== */
+    .result{
+      text-align:left; margin:12px auto; max-width:740px;
+      background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px; padding:12px;
+      padding-left:max(12px, var(--gutter)); padding-right:max(12px, var(--gutter));
+    }
+    .result b{ color:#0b2b7a; }
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
+    }
+    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#fde047; color:#111; font-weight:800; }
+    .pill-red{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+    .muted{ color:#334155; }
+    .left-align{ text-align:left; }
+    .order-line{ text-align:center; margin:6px 0; }
+    .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:16px 0 6px; text-decoration: underline; }
+    .bullet{ text-align:left; margin:0 0 8px 0; }
+    .bullet ul{ margin:6px 0 0 22px; }
+    .item{ margin:6px 0; }
+
+    /* ===== Floating actions ===== */
+    .float-actions{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      z-index:9999;
+
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+      padding:8px 10px; border-radius:14px;
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      width:min(540px, calc(100vw - (var(--gutter)*2)));
+      max-width:calc(100vw - (var(--gutter)*2));
+      pointer-events:auto;
+    }
+    .float-actions .btn{ min-width:120px; }
+
+    /* ===== Footer (ย่อฟอนต์อัตโนมัติบนจอเล็ก) ===== */
+    footer.page-footer{
+      text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin:6px 0 var(--floatbar-gap);
+      padding-left:var(--gutter); padding-right:var(--gutter);
+      font-size: clamp(11px, 3.2vw, 14px);
+      line-height:1.4;
+    }
+
+    /* ===== Mobile tweaks ===== */
+    @media (max-width:640px){
+      .container{ padding:14px; }
+      .calc-row{ gap:10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Midazolam : 5 mg/ml (Small dose)</div>
+
+  <div class="container">
+    <!-- กล่องคำนวณ -->
+    <div class="calc-box">
+      <form method="POST" class="calc-row">
+        <input type="hidden" name="action" value="dose" />
+
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="0">
+        </div>
+
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
+    </div>
+
+    
+
+    
+      <div class="result">
+        <p class="order-line"><b>Order:</b> Midazolam 0.00 mg</p>
+
+        <div class="left-align" style="margin-top:8px">
+          <p class="item"><b>แนวทางเตรียมแบบ Small dose:</b></p>
+          <ul class="muted" style="margin-top:4px">
+            <li>วิธีเตรียม: <b>5% Dextrose in water 80 u + ยา 1 mg (20 u)</b></li>
+            <li><b>ความเข้มข้น:</b> 1 mg ใน 100 u ⇒ <span class="mono">0.01 mg/u (10 mcg/u)</span></li>
+            <li><b>สูตรคิดเป็นยูนิต:</b> <span class="mono">u = mg × 100</span></li>
+            <li>แทนค่า: <span class="mono">0.00 × 100</span>
+              = <span class="pill-red">0 u</span></li>
+          </ul>
+        </div>
+      </div>
+    
+
+    <!-- ข้อมูลวิชาการย่อ -->
+    <div class="result" style="background:#ffffff;border-color:#e5efff">
+      <div class="left-align muted">
+        <p class="item">☞ <b>ขนาดยาแนะนำ:</b> 0.05 – 0.15 mg/kg/dose</p>
+        <p class="item"><b>Solvent:</b> 5% Dextrose in water (ทำเป็น small dose)</p>
+        <p class="item"><b>การติดตาม:</b> Respiratory rate, Blood pressure</p>
+        <p class="item"><b>Half-life:</b> 4 – 6 hrs (ทารกแรกเกิด), ~22 hrs (preterm)</p>
+      </div>
+    </div>
+  </div><!-- /container -->
+
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
+  </footer>
+
+  <div class="float-actions">
+    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+    <a href="./index.html" class="btn btn-red">Back to Home</a>
+  </div>
+
+</body>
+</html>

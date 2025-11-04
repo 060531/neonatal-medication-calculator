@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Morphine</title>
+  <style>
+    /* ===== Theme tokens ===== */
+    :root{
+      --brand-900:#e70939;
+      --brand-700:#d21e1e;
+      --sky-50:#ffeeee;
+      --sky-100:#ffd7d7;
+      --panel:#ffe6e6b8;
+      --text:#0f172a;
+
+      --gutter: 12px;                           /* ระยะขอบซ้าย-ขวา */
+      --floatbar-gap: clamp(80px,16vw,110px);   /* กันพื้นที่ให้ footer ไม่ชนปุ่มลอย */
+    }
+
+    /* ===== Global guard + BG เต็มจอ (ไม่กระพริบบนมือถือ) ===== */
+    html, body { height:100%; overflow-x:hidden; }
+    *, *::before, *::after { box-sizing:border-box; }
+    body{
+      margin:0; min-height:100svh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color:var(--text); text-align:center; background:none;
+      padding-left:max(0px, env(safe-area-inset-left));
+      padding-right:max(0px, env(safe-area-inset-right));
+    }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
+
+    /* ===== Header ===== */
+    .title-badge{
+      display:inline-block;
+      margin:28px auto 12px;
+      padding:12px 24px;
+      background:var(--brand-900); color:#fff;
+      font-weight:900; font-size:28px; line-height:1.15;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      max-width: calc(100vw - (var(--gutter)*2));
+      white-space:nowrap;
+    }
+
+    /* ===== Panel / wrapper ===== */
+    .container{
+      width:min(820px, calc(100vw - (var(--gutter)*2)));
+      margin:0 auto 12px; padding:20px;
+      background:var(--panel);
+      border:1px solid #b9d9ff; border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    .box{
+      margin:14px auto 16px; max-width:640px; padding:26px;
+      background:linear-gradient(200deg, var(--sky-100), var(--sky-50));
+      border:2px solid #ffb7b7; border-radius:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+    }
+
+    /* ===== Buttons ===== */
+    .btn{
+      appearance:none; border:none; border-radius:12px; cursor:pointer;
+      padding:14px 18px; font-weight:800; color:#fff; font-size:16px;
+      text-decoration:none; display:inline-block; text-align:center;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition: transform .06s ease, filter .2s ease;
+    }
+    .btn:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px); }
+    .btn-primary{ background:var(--brand-700); }
+    .btn-red{ background:#e71f1f; }
+    .btn-cyan{ background:#049bb5; }
+
+    /* ===== Grid ปุ่มเลือกหน้า ===== */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(180px, 1fr));
+      gap:20px;        /* ลดระยะห่างให้พอดีจอเล็ก */
+      justify-items:center; align-items:stretch;
+    }
+    .grid .btn{ width:100%; }
+
+    /* ===== ปุ่มลอยติดล่าง (คุมความกว้างไม่ให้ล้น) ===== */
+    .float-actions{
+      position:fixed; left:50%;
+      bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+      transform:translateX(-50%); z-index:9999;
+
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+      padding:8px 10px; border-radius:14px;
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      width:min(540px, calc(100vw - (var(--gutter)*2)));
+      max-width:calc(100vw - (var(--gutter)*2));
+    }
+    .float-actions .btn{ min-width:130px; }
+
+    /* ===== Footer (ย่อฟอนต์อัตโนมัติ) ===== */
+    footer.page-footer{
+      text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin:6px 0 var(--floatbar-gap);
+      padding-left:var(--gutter); padding-right:var(--gutter);
+      font-size: clamp(11px, 3.2vw, 14px);
+      line-height:1.4;
+    }
+
+    /* ===== Mobile tweaks ===== */
+    @media (max-width:640px){
+      .title-badge{ font-size:22px; padding:10px 16px; }
+      .container{ padding:14px; }
+      .grid{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Morphine (10 mg/ml)</div>
+
+  <div class="container">
+    <div class="box">
+      <div class="grid">
+        <a href="./morphine_continuous_route.html" class="btn btn-primary">Morphine Continuous</a>
+        <a href="./morphine_small_dose_route.html" class="btn btn-primary">Morphine Small Dose</a>
+      </div>
+    </div>
+  </div><!-- /container -->
+
+  <footer class="page-footer">
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
+  </footer>
+
+  <!-- ปุ่มลอย -->
+  <div class="float-actions">
+    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+    <a href="./index.html" class="btn btn-red">Back to Home</a>
+  </div>
+
+</body>
+</html>

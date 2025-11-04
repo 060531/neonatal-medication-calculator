@@ -105,6 +105,7 @@
 
 <body class="">
   <div class="container">
+    
 <style>
   /* --- กันผลกระทบจากสไตล์ global --- */
   .compat-page{ display:block; text-align:initial; }
@@ -206,13 +207,14 @@
 
     <div class="card-wrap">
       <div class="glass-card">
-        <form method="get" action="#">
+        <form method="get" action="./compatibility_check.html">
           <div class="form-grid">
             <!-- ยา A -->
             <div class="field-a">
               <label for="drug">ยา A</label>
               <select id="drug" name="drug" required>
                 <option value="">-- เลือกยา --</option>
+                
               </select>
             </div>
 
@@ -221,13 +223,14 @@
               <label for="co_drug">ยา B</label>
               <select id="co_drug" name="co_drug" required>
                 <option value="">-- เลือกยา --</option>
+                
               </select>
             </div>
 
             <!-- ปุ่ม: อยู่กึ่งกลางเสมอ -->
             <div class="actions">
               <button type="submit" class="btn btn-primary">ตรวจสอบ</button>
-              <a href="#" class="btn btn-secondary">กลับหน้า Home</a>
+              <a href="./index.html" class="btn btn-secondary">กลับหน้า Home</a>
             </div>
           </div>
         </form>
@@ -245,10 +248,11 @@
 </div>
 
 
+
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-02</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
   </footer>
 
   <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->

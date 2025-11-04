@@ -2,9 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Acyclovir Calculation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Cloxacillin Calculation</title>
 <style>
   /* ========== Theme tokens ========== */
   :root{
@@ -177,13 +176,11 @@
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Acyclovir (250mg/5ml)</div>
+  <div class="title-badge">Cloxacillin : 1000 mg / Vial</div>
 
-  <!-- กรอบเนื้อหา -->
   <div class="container">
-
-    <!-- รอบ 1: คำนวณจาก mg -->
-    <div class="calc-box">
+    <!-- รอบที่ 1: คำนวณ mg → ml -->
+        <div class="calc-box">
   <form method="POST" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
@@ -196,76 +193,88 @@
   </form>
 </div>
 
-    <!-- ผลลัพธ์คำนวณ -->
-    
-
-    
-
     
 
     
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ  เท่า</b></p>
-        <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p> ×  ml = <span class="pill"><b>0</b> </span>ml
-             <span class="muted">(จากสูตร: (0 × 5) / 250)</span></p>
-          <p> ×  ml = <span class="pill"><b>0</b></span> ml
-             <span class="muted">(จากสูตร: (0 × 1) / 5)</span></p>
+        <p class="order-line"><b>Order:</b> Cloxacillin 0.00 mg</p>
+        <p><b>สูตรจากสต็อก 1000 mg / 5 ml</b> → <span class="mono">ml = (mg × 5) / 1000</span></p>
+        <p>แทนค่า: <span class="mono">0.00 × 5 / 1000 =</span> <span class="pill">0.0 ml</span></p>
+      </div>
+    
 
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-          <p class="highlight"><b>ปริมาณยา (ตัวสาร):</b> 0 ml</p>
-          <p class="highlight"><b>ปริมาณตัวทำละลาย:</b> 0.0 ml
-             <span class="muted"> (0.0 − 0.0)</span></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b>  ml → <b>drip 1 hr.</b></p>
+    <!-- รอบที่ 2: เลือกเงื่อนไข (ใช้งานก็ต่อเมื่อมี result_ml) -->
+    <div class="calc-box" >
+      <form method="POST" class="calc-row">
+        <input type="hidden" name="action" value="condition" />
+        <input type="hidden" name="dose_hidden" value="0">
+        <input type="hidden" name="result_ml_hidden" value="">
+        <label for="multiplication">เลือกเงื่อนไข:</label>
+        <select name="multiplication" required>
+          <option value="" disabled >— เลือก —</option>
+          <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
+          <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
+        </select>
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+      </form>
+    </div>
+
+    
+      
+      <div class="result">
+        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ  เท่า = 0.00 ml</b></p>
+        <div class="left-align">
+          
+
+          
         </div>
       </div>
     
 
-    <!-- สรุปข้อมูล -->
-    <div class="bullet">
-      <p class="muted">☞ <b>ขนาดยา:</b> 10 mg/kg/dose</p>
+    
 
+    <!-- หมายเหตุ/วิชาการ -->
+    <div class="bullet">
       <p class="section-head">Solvent</p>
       <ul class="muted">
-        <li><b>Sterile water 5 ml</b> (จะได้สารละลายใส ไม่มีตะกอน)</li>
-        <li>ความแรง <b>50 mg/ml</b></li>
+        <li><b>Sterile water 4.5 ml</b></li>
+        <li>จะได้สารละลายใส ไม่มีสี 5 ml</li>
+        <li><u>ความแรง 200 mg/ml</u></li>
       </ul>
 
       <p class="section-head">Solution</p>
       <ul class="muted">
-        <li>0.9% Normal saline solution/NSS</li>
+        <li>0.9% Normal saline solution / NSS</li>
         <li>5% Dextrose in water</li>
       </ul>
 
-      <p class="section-head">ความเข้มข้นสูงสุดในการบริหารยา</p>
-      <ul class="muted"><li>≤ 7 mg/ml</li></ul>
-
-      <p class="section-head">ระยะเวลาในการบริหารยา</p>
-      <ul class="muted"><li>≥ 60 mins</li></ul>
-
-      <p class="section-head">ความคงตัวหลังเจือจาง</p>
+      <p class="section-head">ความเข้มข้นขณะให้ (Max)</p>
       <ul class="muted">
-        <li>Sterile water: อยู่ได้ 12 ชม. ที่ 15–25°C</li>
-        <li>5% Dextrose: อยู่ได้ 24 ชม. ที่ 15–25°C</li>
+        <li>≤ 10 mg/ml (peripheral line)</li>
+        <li>≤ 20 mg/ml (central line)</li>
       </ul>
 
-      <p class="section-head">ข้อควรระวัง / การติดตาม (เพื่อป้องกัน Type A ADR)</p>
+      <p class="section-head">ระยะเวลาในการบริหารยา</p>
+      <ul class="muted"><li>30 – 60 mins</li></ul>
+
+      <p class="section-head">ความคงตัวหลังเจือจาง</p>
+      <ul class="muted"><li>24 ชั่วโมง ที่อุณหภูมิห้อง 15–25°C</li></ul>
+
+      <p class="section-head">ข้อควรระวัง / การติดตาม</p>
       <ul class="muted">
-        <li>ระวัง Extravasation</li>
-        <li>Liver function</li>
+        <li>ความเข้มข้น &gt; 20 mg/ml เสี่ยง phlebitis สูง (ระคายเคือง)</li>
       </ul>
     </div>
   </div><!-- /container -->
 
-  <!-- footer ชิดเนื้อหา แต่ไม่โดนปุ่มลอยทับ -->
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
   </footer>
 
-  <!-- ปุ่มลอยติดล่าง (ห่อได้, ไม่ชนขอบ) -->
   <div class="float-actions">
     <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
+
 </body>
 </html>

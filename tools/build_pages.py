@@ -1,7 +1,6 @@
 from pathlib import Path
 from datetime import datetime
-import shutil
-
+import shutil, json
 from jinja2 import Environment, FileSystemLoader, Undefined
 
 # ---------- PATHS ----------
@@ -9,15 +8,14 @@ ROOT   = Path(__file__).resolve().parents[1]
 TPL    = ROOT / "templates"
 DOCS   = ROOT / "docs"
 STATIC = ROOT / "static"
-
 DOCS.mkdir(exist_ok=True)
 
-# ---------- Undefined -> 0 (safe math) ----------
+# ---------- Undefined -> 0 (safe math/str/round) ----------
 class ZeroUndefined(Undefined):
     def __int__(self): return 0
     def __float__(self): return 0.0
     def __str__(self): return ""
-    # arithmetic
+    # arithmetic fallbacks
     def __add__(self, other): return other
     def __radd__(self, other): return other
     def __sub__(self, other): return 0
@@ -30,21 +28,49 @@ class ZeroUndefined(Undefined):
     def __rfloordiv__(self, other): return 0
     def __pow__(self, other): return 0
     def __rpow__(self, other): return 0
+    def __round__(self, n=0): 
+        try:
+            return round(float(0.0), n)
+        except Exception:
+            return 0
 
 # ---------- Jinja env ----------
 env = Environment(
     loader=FileSystemLoader(str(TPL)),
     autoescape=False,
-    undefined=ZeroUndefined,          # ป้องกัน 'UndefinedError'
+    undefined=ZeroUndefined,
 )
 
-# ฟิลเตอร์เสริม: nz(x) -> float หรือ 0.0 (กันค่า None/ว่าง)
+# ---------- Filters ----------
 def nz(x):
     try:
+        if x is None: return 0.0
         return float(x)
     except Exception:
         return 0.0
+
+def safe_round(value, ndigits=0):
+    # แทนที่ฟิลเตอร์ round ของ Jinja เพื่อกันค่า None/Undefined
+    try:
+        return round(float(nz(value)), int(ndigits))
+    except Exception:
+        return 0
+
+def tojson_safe(value):
+    def default(o):
+        # รับมือ ZeroUndefined/Undefined/อื่น ๆ
+        if isinstance(o, ZeroUndefined):
+            return 0
+        try:
+            str(o)
+            return str(o)
+        except Exception:
+            return None
+    return json.dumps(value, ensure_ascii=False, default=default)
+
 env.filters["nz"] = nz
+env.filters["round"] = safe_round          # override ฟิลเตอร์ round เดิม
+env.filters["tojson"] = tojson_safe        # override tojson ให้ปลอดภัย
 
 # ---------- url_for stub (offline build) ----------
 ROUTE_MAP = {
@@ -55,7 +81,7 @@ ROUTE_MAP = {
     "time_management_route": "time_management.html",
     "scan": "scan.html",
     "scan_server": "scan_server.html",
-    # เพิ่ม route ชื่ออื่นๆ ตามที่มีในโปรเจกต์ได้
+    # เติมเพิ่มได้หากมี endpoint อื่น
 }
 def url_for_stub(endpoint, **values):
     if endpoint == "static":
@@ -63,12 +89,23 @@ def url_for_stub(endpoint, **values):
     return f"./{ROUTE_MAP.get(endpoint, endpoint + '.html')}"
 env.globals["url_for"] = url_for_stub
 
+# ---------- ค่า default สำหรับ template ที่ต้องมีตัวเลขใช้คำนวณ ----------
+default_context = {
+    # ตัวแปร dosing ทั่วไป
+    "bw": 0, "age_days": 0, "ga_weeks": 0, "pma_weeks": 0, "pma_days": 0,
+    "dose": 0, "dose_mgkg": 0, "volume": 0, "rate": 0,
+    "final_result_1": 0, "final_result_2": 0,
+    # เผื่อชื่ออื่น ๆ ที่ใช้บ่อย
+    "result": 0, "result2": 0, "infusion_rate": 0, "dilution": 0,
+}
+
 # ---------- build steps ----------
 def render_one(template_name: str):
     tpl = env.get_template(template_name)
     html = tpl.render(
-        static_build=True,                               # ธงให้ template ใช้ path แบบ static
+        static_build=True,
         update_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        **default_context,       # อัด default context กัน undefined
     )
     out = DOCS / template_name
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -89,7 +126,10 @@ def copy_static():
     print("✓ static/ -> docs/static/")
 
 def main():
-    # เรนเดอร์ทุกไฟล์ *.html ใน templates (ยกเว้น base.html และชื่อขึ้นต้นด้วย '_')
+    # ล้าง placeholder เก่า ๆ ใน docs ถ้าต้องการ (คอมเมนต์/ยกเลิกได้)
+    # for old in DOCS.glob("*.html"): old.unlink(missing_ok=True)
+
+    # เรนเดอร์ทุกไฟล์ *.html ยกเว้น base.html และที่ขึ้นต้นด้วย "_"
     for p in sorted(TPL.glob("*.html")):
         name = p.name
         if name == "base.html" or name.startswith("_"):
@@ -97,7 +137,6 @@ def main():
         try:
             render_one(name)
         except Exception as e:
-            # ไม่ล้มทั้งงาน: log แล้วไปต่อ (ถ้ามีหน้าไหน error)
             print(f"✗ skip {name} : {e!r}")
     copy_static()
     print("Built docs/ from templates ✅")

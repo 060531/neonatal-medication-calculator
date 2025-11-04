@@ -127,7 +127,7 @@
 <div class="container">
     <h1>Calculate Postmenstrual Age (PMA)</h1>
     
-    <form action="./pma.html" method="POST">
+    <form action="./pma_template.html" method="POST">
         <div class="form-group">
             <label>Gestational Age:</label>
             <div class="form-inline">
@@ -155,18 +155,19 @@
     </form>
 
     <!-- แสดงผลลัพธ์หลังจากคำนวณ -->
+    
     <div class="result" style="display: block;">
-        <p>PMA: <span style="color: blue;"> weeks and  days</span></p>
+        <p>PMA: <span style="color: blue;">0 weeks and 0 days</span></p>
         <p>Calc.: <span style="color: blue;"> weeks</span></p>
         <p>Postnatal Age: <span style="color: blue;"> days</span></p>
-        <p>Birth Weight (BW): <span style="color: blue;"> kg</span></p>
+        <p>Birth Weight (BW): <span style="color: blue;">0 kg</span></p>
 
         <!-- ปุ่มไปคำนวณยา -->
-        <form action="#" method="POST">
-            <input type="hidden" name="pma_weeks" value="">
-            <input type="hidden" name="pma_days" value="">
+        <form action="./drug_calculation.html" method="POST">
+            <input type="hidden" name="pma_weeks" value="0">
+            <input type="hidden" name="pma_days" value="0">
             <input type="hidden" name="calc" value="">
-            <input type="hidden" name="bw" value="">
+            <input type="hidden" name="bw" value="0">
             <input type="hidden" name="postnatal_days" value="">
             <button class="drug-button" type="submit">คำนวณยา</button>
         </form>
@@ -174,13 +175,14 @@
         
         
     </div>
+    
 </div>
 <div class="button-group">
     <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-    <a href="#" class="back-button">Back to Home</a>
+    <a href="./index.html" class="back-button">Back to Home</a>
 </div>
 <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-02</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
 </footer>
 </body>
 </html>

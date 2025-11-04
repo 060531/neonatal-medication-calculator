@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colistin Dosage Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #fcf2f2;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 10px;
+            border: 2px solid #afaaaa;
+            border-radius: 10px;
+            background-color: #2c8ed0;
+            text-align: center; /* Center the text */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .highlight {
+            background-color: #c3e6cb;
+        }
+
+        .dose-range {
+            color: red;
+            font-weight: bold;
+        }
+
+        .section-title {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .section-header {
+        background-color: #f2f2f2; /* สีเทาอ่อน */
+        font-weight: bold;
+        padding: 10px;
+        text-align: left; /* ชิดซ้าย */
+        border-radius: 5px; /* เพิ่มขอบมน */
+        margin-bottom: 10px; /* เพิ่มช่องว่างด้านล่าง */
+        }
+
+        .highlight-dose {
+        color: #ff5733; /* สีแดง */
+        font-weight: bold; /* ข้อความตัวหนา */
+        background-color: #fbe9e7; /* สีพื้นหลังแดงอ่อน */
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .back-button, .back-button-secondary {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px #999;
+        }
+
+        .back-button {
+            background-color: #f44336;
+        }
+
+        .back-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .back-button-secondary {
+            background-color: #008CBA;
+        }
+
+        .back-button-secondary:hover {
+            background-color: #007B9A;
+        }
+
+        footer {
+            text-align: center;
+            color: #00000035;
+            font-size: 14px;
+            padding: 10px;
+            width: 100%;
+        }
+
+         hr {
+            border: none;
+            border-top: 2px solid #ccc; /* ความหนาและสีของเส้น */
+            margin: 20px 0; /* ระยะห่างบน-ล่างของเส้น */
+            width: 100%; /* เส้นขยายเต็มหน้าจอ */
+        }
+
+        .content {
+            margin-top: 20px; /* ระยะห่างจากเส้น */
+            line-height: 1.6;
+        }
+
+        /* Mobile-Specific Adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 20px; /* Reduce font size for mobile */
+                padding: 5px; /* Reduce padding */
+            }
+
+            hr {
+                width: 90%; /* ลดความกว้างของเส้นสำหรับหน้าจอเล็ก */
+            }
+
+            .content {
+                font-size: 14px; /* ลดขนาดตัวอักษรสำหรับหน้าจอเล็ก */
+            }
+
+            .highlight-dose {
+                font-size: 20px; /* Adjust font size */
+            }
+
+            .section-title {
+                font-size: 14px;
+            }
+
+            .table-wrapper {
+                overflow-x: auto; /* Allow horizontal scrolling */
+                margin-bottom: 15px;
+            }
+
+            table {
+                font-size: 14px; /* Reduce font size */
+            }
+
+            th, td {
+                padding: 8px; /* Reduce padding for smaller screens */
+            }
+
+        }
+    </style>
+</head>
+<body>
+        <h1>Colistin Dosage Information</h1>
+
+        <!-- Display the calculated PMA and Postnatal Age -->
+        <p><strong>PMA:</strong> 0 weeks and 0 days</p>
+        <p><strong>Calc.:</strong>  weeks</p>
+        <p><strong>Postnatal Age:</strong>  days</p>
+        <p><strong>Birth Weight (BW):</strong> 0.00 kg</p>
+        
+        <div class="section-title">Calculated Dosage</div>
+        <p>Recommended Dose: <span class="highlight-dose"> -  mg/day</span></p>
+        <p>Interval: <span class="highlight-dose"></span></p>
+
+
+        
+        
+        <div class="section-title">Dose</div>
+        <div class="section-title">Aerosolized/nebulization</div>
+        <p>Not an approved route and there are no strong data to support dose recommendations. See USES section for more information.</p>
+
+        <div class="section-title">IV</div>
+            <p>Gram-negative infections: 2.5 to 5 mg/kg/day of colistin base IV or IM in 2 to 4 divided doses,
+            depending on severity of infection. Maximum: 5 mg/kg/day of colistin base activity in patients with
+            normal renal function [1] . Doses of 5 mg/kg/day colistin base may be inadequate; average
+            concentration was 1.1 mcg/mL after a single IV dose of 5 mg/kg in 7 neonates (median 38 weeks
+            gestation and 13 days postnatal age) in the neonatal intensive care unit</p>
+
+        <div class="section-title">Dosage Adjustment</div>
+        <p>Renal impairment: There are no data available for pediatric patients with renal impairment;
+        however, the following dose adjustments are based on recommendations for adults with renal
+        impairment</p>
+        <p><strong>• 50 to 79 mL/min:</strong> 2.5 to 3.8 mg/kg/day divided into 2 doses per day</p>
+        <p><strong>• 30 to 49 mL/min:</strong> 2.5 mg/kg once daily or divided into 2 doses per day</p>
+        <p><strong>• 10 to 29 mL/min:</strong> 1.5 mg/kg every 36 hours</p>
+    
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+        <div class="section-title">Administration</div>
+        <div class="section-title">Intramuscular Route:</div>
+        <p>Administer by deep IM injection into large muscle mass (eg, gluteal muscles or lateral portion of thigh). The concentration of colistin base is 75 mg/mL</p>
+
+        <div class="section-title">Intravenous Route</div>
+        <div class="section-title">Continuous Infusion:</div>
+        <p>Slowly inject one-half the total daily dose over 3 to 5 minutes at a concentration of 75 mg/mL of
+        colistin base. Add the remaining half of the total daily dose to a compatible solution. Administer by
+        slow IV infusion, starting 1 to 2 hours after the initial dose, over the next 22 to 23 hours. The
+        choice of IV solution and the volume used are dictated by the requirements of fluid and electrolyte
+        management.</p>
+
+        <div class="section-title">Intermittent Administration:</div>
+        <p>Infuse one-half of the total daily dose slowly over 3 to 5 minutes at a concentration of 75 mg/mL
+        colistin base every 12 hours. Doses were added to 5 mL of normal saline and infused over 30
+        minutes in an observational study of 18 neonates.</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+        <div class="section-title">Uses </div>
+        <p>Optimal dosing for colistin is unknown. However, a review of adult data suggests higher colistin
+        concentrations, which may not be achieved with the manufacturer recommended dosing, and a regimen of
+        colistin combined with other antibiotics may be necessary. The safety of higher doses is unknown.</p>
+
+        <p><strong>Gram-negative infections, multi-drug resistant:</strong></p>
+        <p><strong>Intermittent IV </strong> colistin in combination with at least one other antibiotic, used for the treatment
+        of multi-drug resistant infections, mostly Acinetobacter baumannii and Klebsiella pneumoniae, resulted
+        in a 76% favorable clinical outcome in a retrospective study (n=21 treatment courses in 18
+        neonates). Microbiological clearance was documented in 17 of the 21 courses. During therapy with
+        colisin, 5 patients with severe sepsis and multi-organ dysfunction died. The dose of colistimethate
+        sodium ranged from 50,000 to 75,000 IU/kg/day in 3 divided doses [1.7 to 2.5 mg/kg/day of colistin
+        base]. Renal impairment developed in 2 neonates, both subsequently died of multi-organ
+        dysfunction.</p>
+
+        <p><strong>Aerosolized colistin </strong> either as monotherapy or in combination with other IV
+        antibiotics demonstrated potential for treating full-term and pre-term neonates
+        with Acinetobacter baumannii (13 of the 16 neonates had multidrug-resistant isolates) ventilator-
+        associated pneumonia in 2 retrospective studies. Neither clinical nor laboratory adverse events
+        were reported. The dosage of colistin base was 4 mg/kg/dose aerosolized with an ultrasonic
+        nebulizer for 15 minutes every 12 hours for a median of 9 days (4 to 14 days) in neonates on a
+        ventilator while receiving concurrent IV antibiotics. All of the 16 neonates who received nebulized
+        colistin cleared the A baumannii infection. Another regimen was colistimethate sodium 1 million
+        international units (33.4 mg colistin base) monotherapy twice daily for an average of 9.1 days (4 to
+        22 days).</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+        <div class="section-title">Contraindications/Precautions</div>  
+        <p><strong>Acute respiratory failure</strong> may result when reconstituted colistimethate solution for inhalation is
+        not used promptly. After reconstitution, colistimethate is hydrolyzed to form active components,
+        including polymyxin E1, which has shown to cause localized inflammation of the airway epithelia
+        and eosinophilic infiltration when administered by inhalation</p>
+
+        <p><strong>Bronchospasms</strong> may occur with inhalation of colistin; consider premedication with a
+        bronchodilator.</p>
+
+        <p><strong>Clostridium difficile-associated diarrhea (CDAD),</strong> including mild diarrhea to fatal colitis, has
+        been reported and may occur more than 2 months after administration. If CDAD is suspected or
+        confirmed, discontinue any ongoing antibiotic therapy</p>
+
+        <p>Concomitant use of sodium <strong>cephalothin</strong> should be avoided</p>
+
+        <p>Increased risk of <strong>neuromuscular blockade</strong> leading to apnea in patients with renal impairment.
+        Dosage adjustment should be reduced in proportion to the extent of the impairment</p>
+
+        <p><strong>Respiratory arrest</strong> has been reported after IM administration</p>
+        <p>Reversible and dose-dependent <strong>nephrotoxicity</strong> may occur</p>
+        <p>Transient <strong>neurological disturbances</strong> (eg, circumoral paresthesia or numbness, tingling or
+        formication of the extremities, generalized pruritus, vertigo, dizziness, and slurring of speech), may
+        occur and dosage adjustments may be necessary</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+        <div class="section-title">Adverse Effects</div> 
+<p>The most commonly reported adverse effects are gastrointestinal upset, slurred speech, dizziness,
+tingling of the extremities or tongue, itching, urticaria, rash, fever, respiratory distress, apnea, and
+nephrotoxicity.<br>
+Serum creatinine increased more than 0.5 mg/dL above baseline in 2 out of 18 neonates
+administered IV colistin.<br>
+Neither clinical nor laboratory adverse events were reported with aerosolized colistin in 8
+neonates. Serum creatinine and blood urea nitrogen remained within normal limits 72 hours after
+completion of colistin therapy.</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+          <div class="section-title">Monitoring</div>
+          <p>Closely monitor for toxicity in pediatric patients. Monitor urine output, BUN, and serum
+          creatinine.</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+          <div class="section-title">Pharmacology</div>
+          <div class="section-title">Microbiology</div>
+          <p>Colistimethate sodium is a surface active agent that is used to penetrate and disrupt the cell
+          membrane of bacteria. It has demonstrated bactericidal activity against most strains of aerobic
+          gram-negative microorganisms (Enterobacter aerogenes, Escherichia coli, Klebsiella pneumonia, and
+          Pseudomonas aeruginosa) both in vitro and in clinical infections.</p>
+
+          <div class="section-title">Pharmacokinetics</div>       
+          <p>Higher serum levels were obtained at 10 minutes following IV administration compared with IM
+          administration <br>
+          Half-life was 2 to 3 hours after administration (either IM or IV) in both the adult and pediatric
+          populations, including premature infants. The half-life was 2.6 hours in neonates (0 to 7 days) and
+          2.3 hours in infants 7 days or older.<br>
+          Urine levels ranged, on average, from 270 mcg/mL at 2 hours to 15 mcg/mL at 8 hours following IV
+          administration and 200 mcg/mL to 25 mcg/mL over a similar time period with IM administration.</p>
+
+          <p><strong>IV Administration</strong> Within 6 hours of IV colistin base 5 mg/kg, the colistin concentration was less
+          than 2 mcg/mL in all 7 neonates (median 38 weeks gestation and 13 days postnatal age) after a single
+          IV colistin base dose of 5 mg/kg/day.</p>
+          <p><strong>Nebulization Administration:</strong> After a single-dose of ultrasonic-nebulized colistin base 4 mg/kg in
+          6 neonates (median gestational age 39 weeks (32 to 39) and postnatal age 7 days (3 to 7)) with
+          ventilator-associated pneumonia, 50% of tracheal aspirate concentrations of colistin were below 2
+          mcg/mL 24 hours after administration. The ratio of colistin plasma concentrations-to-tracheal
+          aspirate was 0.038 (3.8%)</p>
+          <p>The following were the pharmacokinetic parameters for colistin in the tracheal aspirate and plasma
+via nebulization and in the plasma via IV administration:</p>
+
+
+<table>
+        <thead>
+            <tr>
+                <th colspan="4">Single-Dose, Colistin Pharmacokinetics in Neonates</th>
+            </tr>
+            <tr>
+                <th>Parameters</th>
+                <th>Nebulization 4 mg/kg (n=6)*</th>
+                <th>IV 5 mg/kg (mean (range)) (n=7)**</th>
+                <th>Tracheal Aspirate Plasma Plasma</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Cmax</strong></td>
+                <td>24 mcg/mL (15.6 to 34.6 mcg/mL)</td>
+                <td>0.59 mcg/mL (0.32 to 1.1 mcg/mL)</td>
+                <td>3 mcg/mL</td>
+            </tr>
+            <tr>
+                <td><strong>Tmax</strong></td>
+                <td>1.8 hours (0.5 to 6 hours)</td>
+                <td>1.9 hours</td>
+                <td>1.3 hours</td>
+            </tr>
+            <tr>
+                <td><strong>AUC (0 to 24)</strong></td>
+                <td>147.6 mcg x hr/mL</td>
+                <td>2.34 mcg x hr/mL</td>
+                <td>21.1 mcg x hr/mL</td>
+            </tr>
+            <tr>
+                <td><strong>AUC (0 to infinity)</strong></td>
+                <td>183.8 mcg x hr/mL</td>
+                <td>7.57 mcg x hr/mL</td>
+                <td>25.3 mcg x hr/mL</td>
+            </tr>
+            <tr>
+                <td><strong>Clearance of formed colistin</strong></td>
+                <td>0.027 L/hr/kg</td>
+                <td>1.01 L/hr/kg</td>
+                <td>0.6 L/hr/kg</td>
+            </tr>
+            <tr>
+                <td><strong>Half-life</strong></td>
+                <td>9.8 hours</td>
+                <td>10.2 hours</td>
+                <td>9 +/- 6.5 hours</td>
+            </tr>
+            <tr>
+                <td><strong>Vd of formed colistin</strong></td>
+                <td>0.46 L/kg</td>
+                <td>11.7 L/kg</td>
+                <td>7.7 +/- 9.3 L/kg</td>
+            </tr>
+        <tr>
+            <td colspan="4" style="text-align: left;"><strong>KEY:</strong> Cmax = maximum colistin concentration, Tmax = time to maximum colistin concentration, AUC = area under the concentration time curve, Vd = apparent volume of distribution</td>
+        </tr>
+            </tbody>
+    </table>
+
+          <div class="section-title">Pharmacodynamics</div>  
+          <p>The ratio of AUC/MIC of colistin base is the most predictive of antibacterial activity.</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+          <div class="section-title">Special Considerations/Preparation</div>
+          <p>Each vial containing colistimethate sodium (pentasodium colistin-methanesulfonate) is equivalent to
+          150 mg of colistin base activity. Colistin base 1 mg is equivalent to 2.4 mg of colistimethate
+          sodium. Colistimethate sodium is 12,500 international units/mg and colistin base is 30,000
+          international units/mg.<br>
+          Store vials at controlled room temperature between 20 and 25 degrees C (68 and 77 degrees F),
+          with excursions permitted between 15 and 30 degrees C (59 and 86 degrees F).</p>
+
+          <div class="section-title">Intravenous:</div>
+          <p>Reconstitute 150 mg (colistin base) vial with 2 mL sterile water for injection for a resulting
+          concentration of 75 mg/mL colistin base; swirl gently to avoid frothing.
+          Once diluted with sterile water for injection, store solution up to 7 days, between 20 and 25
+          degrees C (68 and 77 degrees F) or refrigerated between 2 and 8 degrees C (36 and 46 degrees
+          F).<br>
+          Colistimethate for continuous infusion should be mixed with NS, D5NS, D5W, D5-0.45%NaCl, D5-
+          0.225%NaCl, LR, or 10% invert sugar solution and used within 24 hours.</p>
+
+          <p><strong>Inhalation:</strong> Use <strong>immediately</strong> after mixed. Do not use after 24 hours. In solution, colistimethate undergoes spontaneous hydrolysis to form its 2 active components polymyxin E1 (colistin A), which
+          is toxic to the lungs, and polymyxin E2 (colistin B). Use after 24 hours can result in increased
+          colistin concentration and the potential for increased lung toxicity.</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+          <div class="section-title">Solution Compatibility</div>
+          <p>NS, D5NS, D5 0.45%NS, D5W</p>
+
+    <!-- เส้นแบ่ง -->
+    <hr>
+
+          <div class="section-title">Terminal Injection Site Compatibility</div>
+          <p>Aminophylline, atropine sulfate, calcium chloride, calcium gluconate, chloramphenicol sodium
+          succinate, chlorothiazide sodium, chlorpheniramine maleate, chlorpromazine hydrochloride,
+          clarithromycin, cloxacillin sodium, cyclophosphamide, dexamethasone sodium phosphate, digoxin,
+          edetate calcium disodium, epinephrine hydrochloride, ergonovine maleate, erythromycin
+          lactobionate, furosemide, gallamine triethiodide, gentamicin sulfate, heparin sodium, hydralazine
+          hydrochloride, hydrocortisone sodium succinate, isoproterenol hydrochloride, kanamycin sulfate,
+          lidocaine hydrochloride, lincomycin hydrochloride, mechlorethamine hydrochloride,
+          mephentermine sulfate, metaraminol bitartrate, methohexital sodium, methyldopate hydrochloride,
+          nalorphine hydrobromide, norepinephrine bitartrate, oxytocin, penicillin G potassium, penicillin G
+          sodium, phenobarbital sodium, phentolamine mesylate, polymyxin B sulfate, potassium chloride,
+          procainamide hydrochloride, prochlorperazine mesylate, promazine hydrochloride, promethazine
+          hydrochloride, propranolol hydrochloride, streptomycin sulfate, succinylcholine chloride,
+          trimetaphan camsylate, tubocurarine chloride.</p>
+
+        <div class="button-group">
+            <a href="javascript:history.back()" class="back-button-secondary">Back</a>
+            <a href="./index.html" class="back-button">Back to Home</a>
+        </div>
+    
+        <footer>
+            <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
+        </footer>
+
+</body>
+</html>

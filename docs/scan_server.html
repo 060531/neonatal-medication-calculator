@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Scan & OCR (ออฟไลน์/เซิร์ฟเวอร์)</title>
+  <style>
+    body{font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial; margin:0; padding:24px; background:#f6f7fb;}
+    .wrap{max-width:880px; margin:0 auto;}
+    .card{background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin-bottom:18px; box-shadow:0 3px 10px rgba(0,0,0,.06);}
+    h1{margin:0 0 12px;}
+    .row{display:flex; gap:18px; flex-wrap:wrap;}
+    .col{flex:1 1 320px;}
+    input[type="number"]{width:120px; padding:8px;}
+    button{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .imgbox{max-height:520px; overflow:auto; border:1px dashed #cbd5e1; border-radius:10px; padding:8px; background:#fafafa}
+    textarea{width:100%; min-height:160px; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>สแกนคำสั่งยา (ออฟไลน์ เซิร์ฟเวอร์)</h1>
+
+    <div class="card">
+      <div class="row">
+        <div class="col">
+          <p><small>อัปโหลดภาพจากหน้าจอคอม หรือกระดาษ (ชัด/ไม่เอียงดีที่สุด)</small></p>
+          <input id="file" type="file" accept="image/*">
+          <div style="margin-top:10px">
+            <label>Scale:</label>
+            <input id="scale" type="number" step="0.1" value="3.0">
+          </div>
+          <div style="margin-top:6px">
+            <label>Threshold:</label>
+            <input id="threshold" type="number" step="1" value="170">
+          </div>
+          <div style="margin-top:10px">
+            <button id="btn" disabled>⇧ OCR</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="imgbox">
+            <img id="preview" style="max-width:100%; display:none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px">ผลลัพธ์ OCR (raw)</h3>
+      <textarea id="out" placeholder="กำลังรอภาพ..."></textarea>
+    </div>
+  </div>
+
+<script>
+const $file = document.getElementById('file');
+const $btn  = document.getElementById('btn');
+const $out  = document.getElementById('out');
+const $img  = document.getElementById('preview');
+const $scale= document.getElementById('scale');
+const $thr  = document.getElementById('threshold');
+
+$file.addEventListener('change', () => {
+  $btn.disabled = !$file.files.length;
+  if ($file.files.length){
+    const url = URL.createObjectURL($file.files[0]);
+    $img.src = url;
+    $img.style.display = 'block';
+  }
+});
+
+$btn.addEventListener('click', async () => {
+  if (!$file.files.length) return;
+  $btn.disabled = true;
+  $out.value = 'กำลังประมวลผล...';
+
+  const fd = new FormData();
+  fd.append('image', $file.files[0]);
+  fd.append('scale', $scale.value || '3.0');
+  fd.append('threshold', $thr.value || '170');
+
+  try{
+    const res = await fetch('/api/ocr', { method:'POST', body: fd });
+    const data = await res.json();
+    if (!data.ok){ throw new Error(data.error || 'OCR ผิดพลาด'); }
+    $out.value = data.text || '(ไม่พบข้อความ)';
+  }catch(err){
+    alert('OCR ล้มเหลว: ' + err.message);
+    console.error(err);
+    $out.value = '';
+  }finally{
+    $btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

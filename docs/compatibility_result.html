@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>Result analyze</title>
+
+  <!-- PWA meta -->
+  <meta name="theme-color" content="#0ea5a6" />
+  <link rel="manifest"
+        href="./static/manifest.webmanifest">
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon"
+        href="./static/icons/icon-192.png">
+
+  <!-- App CSS/JS (dual path) -->
+  <link rel="stylesheet"
+        href="./static/style.css">
+  <script defer src="./static/app.js"></script>
+
+  <style>
+    /* ---------- Global ---------- */
+    :root{ color-scheme: light only; }
+    html,body{ height:100%; }
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      text-align:center;
+      margin:0;
+      padding:0;
+      color:#228cb3;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      /* ใช้ https เสมอเพื่อหลีกเลี่ยง block บนบางเบราเซอร์ */
+      background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
+    }
+
+    h1{
+      font-size:2.5em; color:#fff; margin:20px 0 16px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.6);
+      background:linear-gradient(135deg,#039eac,#007a8c);
+      padding:15px 30px; border-radius:15px; display:inline-block;
+      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
+      font-weight:700; letter-spacing:1px;
+    }
+
+    .container{
+      max-width:1000px; width:100%;
+      box-sizing:border-box;
+      border-radius:10px; padding:20px;
+      box-shadow:0 4px 8px rgba(0,0,0,.2);
+      background:transparent;
+      display:flex; flex-direction:column; align-items:center; gap:20px;
+    }
+
+    .button{
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+      width:150px; height:110px; margin:10px; padding:10px;
+      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
+      box-shadow:0 5px #999; border:none; font-size:14px;
+      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
+    }
+    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
+    .button:hover{ filter:brightness(.95); }
+    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
+
+    .home-button{ background:#008CBA; }
+    .home-button:hover{ filter:brightness(.95); }
+    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
+
+    footer{
+      margin-top:auto; color:#fff; font-size:16px; padding:10px;
+      text-shadow:2px 2px 5px rgba(3,3,3,.7);
+    }
+
+    .home-grid{
+      display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:100%;
+      max-width:1000px; box-sizing:border-box;
+    }
+
+    /* Mobile: หน้า Home → 2 คอลัมน์ */
+    @media (max-width:600px){
+      .home-page h1{ font-size:1.25rem; padding:8px 12px; margin:12px 0 0; }
+      .home-grid{
+        display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:16px; width:100%; max-width:420px; padding:12px;
+      }
+      .home-page .button{
+        width:100%; height:100px; margin:0; font-size:12.5px; border-radius:12px; padding:8px;
+        box-shadow:0 4px #999;
+      }
+      .home-page .button img{ max-width:32px; margin-bottom:6px; }
+      .home-page .button span small{ font-size:11px; }
+    }
+  </style>
+</head>
+
+<body class="">
+  <div class="container">
+    
+
+
+
+
+
+
+
+
+
+
+
+<style>
+  /* ===== รีเซ็ตผลกระทบจาก base.html และจัดให้อยู่กลางจริง ๆ ===== */
+  .result-page{ display:grid; place-items:start center; text-align:initial; }
+  .result-page *{ box-sizing:border-box; }
+
+  /* ===== โครงและแบนเนอร์ ===== */
+  .compat-shell{
+    width:100%; max-width:980px; margin:24px auto 0;
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
+  .title-wrap{ text-align:center; }
+  .title-banner{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 22px; border-radius:14px; color:#fff; font-weight:800;
+    font-size:clamp(18px, 4.2vw, 26px);
+    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+    margin:0 auto 14px;
+  }
+
+  /* ===== กล่องผลลัพธ์ (ให้อยู่กึ่งกลางแน่นอน) ===== */
+  .compat-wrap{
+    width:100%;
+    max-width:min(700px, 94vw);
+    margin:0 auto 28px;  /* << ทำให้กึ่งกลาง */
+    padding:0 10px;
+  }
+  .card{
+    background:rgba(255,255,255,0.96);
+    border:1px solid rgba(15,23,42,.08);
+    border-radius:18px;
+    box-shadow:0 10px 28px rgba(2,8,23,.15);
+    padding:clamp(16px, 3.3vw, 28px);
+    color:#0f172a;
+  }
+
+  .title{ font-weight:800; margin:0 0 16px; font-size:clamp(20px, 5vw, 28px); }
+
+  /* ===== แถวชื่อยา ===== */
+  .pair{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0 8px;}
+  .pill{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:8px 14px;font-weight:700;background:#f8fafc;border:1px solid #e2e8f0;}
+  .drug-name{ font-size:clamp(14px, 4.1vw, 18px); }
+  .muted{ color:#64748b; font-size:clamp(12px, 3.6vw, 16px); }
+
+  /* ===== รายละเอียด/ตาราง ===== */
+  .desc{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:clamp(10px, 2.8vw, 14px);margin-top:16px;font-size:clamp(13px, 3.6vw, 15px);line-height:1.45;}
+  .desc b{display:block;margin-bottom:4px;font-size:clamp(13px, 3.7vw, 16px);}
+  table.detail{width:100%;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;border-collapse:collapse;margin-top:10px;}
+  table.detail td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;font-size:clamp(12.5px, 3.5vw, 14.5px);}
+  table.detail tr:last-child td{border-bottom:0;}
+  table.detail td.head{background:#f8fafc;width:30%;font-weight:700;}
+
+  /* ===== Legend & Actions ===== */
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;color:#334155;font-size:clamp(12px, 3.4vw, 14px);justify-content:center;}
+  .legend .item{display:flex;align-items:center;gap:8px;}
+  .legend .dot{width:14px;height:14px;border-radius:50%;}
+  .actions{display:flex;justify-content:center;gap:10px;margin-top:18px;}
+  .btn{display:inline-block;padding:clamp(8px, 2.6vw, 10px) clamp(12px, 3.6vw, 16px);border-radius:12px;font-weight:800;text-decoration:none;border:1px solid transparent;font-size:clamp(13px, 3.8vw, 16px);}
+  .btn-green{background:#16a34a;color:#fff;}
+  .btn-gray{background:#e2e8f0;color:#0f172a;}
+  .btn:hover{filter:brightness(.96);}
+
+  /* ===== จอเล็ก/แท็บเล็ต ===== */
+  @media (max-width:380px){ .compat-wrap{max-width:min(720px,96vw); padding:0 8px;} .pair{gap:10px;} .pill{padding:7px 12px;} }
+  @media (min-width:600px){ .compat-wrap{max-width:740px;} .card{padding:24px;} }
+</style>
+
+<div class="result-page">
+  <div class="compat-shell">
+    <div class="title-wrap">
+      <div class="title-banner">ตรวจสอบความเข้ากันได้ของยา (Compatibility)</div>
+    </div>
+  </div>
+
+  <div class="compat-wrap">
+    <div class="card">
+      <h2 class="title">Result analyze</h2>
+
+      <!-- ชื่อยา + จุดสถานะ -->
+      <div class="pair">
+        <span class="pill">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: #2563eb;"></span>
+          <span class="drug-name">—</span>
+        </span>
+        <span class="muted">with</span>
+        <span class="pill">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: #2563eb;"></span>
+          <span class="drug-name">—</span>
+        </span>
+      </div>
+
+      <!-- ป้ายผลลัพธ์ -->
+      <div style="display:flex; justify-content:center; margin-top:6px;">
+        <span class="pill" style="background:#eef2ff; border-color:#c7d2fe;">
+          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: #2563eb;"></span>
+          <span class="drug-name">Unknown</span>
+        </span>
+      </div>
+
+      <!-- Note / meta -->
+      <div class="desc">
+        
+      </div>
+
+      
+        <div class="desc" style="margin-top:12px;">
+          <b>ข้อมูลอ้างอิง</b>
+          
+            <div class="small text-body-secondary" style="margin-top:6px;">ยังไม่พบรายละเอียดอ้างอิงในระบบ (ตรวจคู่มือสถาบัน/สืบค้นเพิ่ม)</div>
+          
+        </div>
+      
+
+      <div class="legend">
+        <div class="item"><span class="dot" style="background:#16a34a;"></span> C = Compatible / ผสมร่วมได้</div>
+        <div class="item"><span class="dot" style="background:#dc2626;"></span> I = Incompatible / ห้ามผสม</div>
+        <div class="item"><span class="dot" style="background:#f59e0b;"></span> U = Uncertain / ไม่ชัดเจน</div>
+        <div class="item"><span class="dot" style="background:#2563eb;"></span> ND = No data / ไม่มีข้อมูล</div>
+      </div>
+
+      <div class="actions">
+        <a href="./compatibility.html" class="btn btn-green">← New check</a>
+        <a href="./index.html" class="btn btn-gray">Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
+  </footer>
+
+  <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
+
+      // ใช้พาธสัมพัทธ์เสมอ (รองรับ GitHub Pages ที่อยู่ใต้ /neonatal-medication-calculator/)
+      var swPath = "./static/service-worker.js";
+
+      // อย่าลงทะเบียนซ้ำ: ถ้าเคยติดตั้งไว้แล้ว ให้ข้าม
+      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
+        if (!reg) return navigator.serviceWorker.register(swPath).catch(console.error);
+      }).catch(function () {
+        navigator.serviceWorker.register(swPath).catch(console.error);
+      });
+    })();
+  </script>
+</body>
+</html>

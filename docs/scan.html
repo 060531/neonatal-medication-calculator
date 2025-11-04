@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>Scan & OCR</title>
+
+  <style>
+    :root{
+      --blue-900:#0b2b7a; --blue-700:#1e57d2; --panel:#e6f3ffb8; --text:#0f172a;
+      --gutter: 12px;
+    }
+    html,body{height:100%;overflow-x:hidden}
+    body{
+      margin:0; min-height:100svh; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,Helvetica,sans-serif;
+      color:var(--text); background:#f6f9ff; text-align:center;
+      padding-left:max(0px,env(safe-area-inset-left)); padding-right:max(0px,env(safe-area-inset-right));
+    }
+    .wrap{ width:min(880px, calc(100vw - 2*var(--gutter))); margin:24px auto; }
+    h1{ margin:6px 0 18px; color:#0b2b7a; }
+    .row{ display:grid; grid-template-columns:1fr; gap:14px; }
+    @media (min-width:900px){ .row{ grid-template-columns: 360px 1fr; } }
+
+    .card{
+      background:var(--panel); border:1px solid #b9d9ff; border-radius:14px;
+      padding:16px; text-align:left; box-shadow:0 8px 24px rgba(15,23,42,.15);
+      backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
+    .btn{
+      appearance:none; border:none; border-radius:10px; cursor:pointer;
+      padding:10px 16px; font-weight:800; color:#fff; background:var(--blue-700);
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+    }
+    .btn:disabled{ filter:grayscale(.8); opacity:.6; cursor:not-allowed; }
+    .inline{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .hint{ color:#475569; font-size:13px; margin:8px 0 0; }
+    .out{ width:100%; min-height:160px; border:1px dashed #cfe3ff; border-radius:10px; padding:10px; }
+    .label{ font-weight:800; color:#0b2b7a; margin:0 0 6px; }
+    .section{ margin-top:16px; }
+    .slider{ width:100%; }
+    .preview{ width:100%; max-height:70svh; object-fit:contain; background:#0001; border-radius:8px; }
+    textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+
+  <!-- โหลด Tesseract จาก LOCAL เท่านั้น -->
+  <script src="/static/tesseract/tesseract.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>สแกนคำสั่งยา (ออฟไลน์ OCR)</h1>
+
+    <div class="row">
+      <!-- แผงควบคุม -->
+      <div class="card">
+        <div class="section">
+          <div class="label">เลือกรูป / ถ่ายใหม่</div>
+          <div class="inline">
+            <input type="file" id="file" accept="image/*" />
+            <small id="fname" class="hint">ยังไม่ได้เลือก</small>
+          </div>
+          <div class="hint">อัปโหลดภาพ “เฉพาะบรรทัดคำสั่ง” จะอ่านแม่นขึ้น (เช่น: <b>AMIKACIN … 46 mg IV OD</b>)</div>
+        </div>
+
+        <div class="section">
+          <div class="label">Scale × <span id="scale-val">3.0</span></div>
+          <input type="range" id="scale" class="slider" min="1.0" max="4.0" step="0.1" value="3.0">
+        </div>
+
+        <div class="section">
+          <div class="label">Threshold <span id="th-val">170</span></div>
+          <input type="range" id="th" class="slider" min="80" max="220" step="1" value="170">
+        </div>
+
+        <div class="section inline">
+          <button id="run" class="btn">รัน OCR</button>
+          <small id="status" class="hint"></small>
+        </div>
+      </div>
+
+      <!-- พรีวิว + ผลลัพธ์ -->
+      <div>
+        <div class="card">
+          <div class="label">พรีวิวภาพ</div>
+          <img id="preview" class="preview" alt="">
+          <canvas id="work" style="display:none"></canvas>
+        </div>
+
+        <div class="card section">
+          <div class="label">ผลลัพธ์ OCR (raw)</div>
+          <textarea id="out" class="out" placeholder="ผลข้อความจะมาแสดงที่นี่..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ===== DOM =====
+  const $file = document.getElementById('file');
+  const $fname = document.getElementById('fname');
+  const $scale = document.getElementById('scale');
+  const $scaleVal = document.getElementById('scale-val');
+  const $th = document.getElementById('th');
+  const $thVal = document.getElementById('th-val');
+  const $btn = document.getElementById('run');
+  const $status = document.getElementById('status');
+  const $preview = document.getElementById('preview');
+  const $canvas = document.getElementById('work');
+  const $out = document.getElementById('out');
+
+  let IMG = null;
+
+  // แสดงค่า slider
+  $scale.addEventListener('input', () => $scaleVal.textContent = (+$scale.value).toFixed(1));
+  $th.addEventListener('input', () => $thVal.textContent = $th.value);
+
+  // โหลดรูป -> พรีวิว
+  $file.addEventListener('change', () => {
+    const f = $file.files?.[0];
+    if (!f) return;
+    $fname.textContent = f.name;
+    const url = URL.createObjectURL(f);
+    IMG = new Image();
+    IMG.onload = () => { $preview.src = url; URL.revokeObjectURL(url); };
+    IMG.src = url;
+  });
+
+  // Preprocess: resize + grayscale + threshold (binary)
+  function preprocessToCanvas(img, scale=3.0, th=170){
+    const w = Math.round(img.naturalWidth * scale);
+    const h = Math.round(img.naturalHeight * scale);
+    $canvas.width = w; $canvas.height = h;
+    const ctx = $canvas.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const im = ctx.getImageData(0, 0, w, h);
+    const d = im.data;
+    for (let i=0;i<d.length;i+=4){
+      const gray = 0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2];
+      const v = gray >= th ? 255 : 0;
+      d[i]=d[i+1]=d[i+2]=v;
+    }
+    ctx.putImageData(im, 0, 0);
+    return $canvas;
+  }
+
+  // === OCR: ใช้ Tesseract.recognize แบบตรงๆ (ไม่ใช้ worker API) ===
+  async function runOCR(canvas){
+    if (typeof Tesseract === 'undefined') {
+      throw new Error('ไม่พบ Tesseract runtime (ตรวจว่า /static/tesseract/tesseract.min.js โหลดได้ 200)');
+    }
+    // สำคัญ: ใส่ภาษาเป็น STRING ('eng+tha') เป็นพารามิเตอร์ลำดับที่ 2
+    // แล้ว option เป็นลำดับที่ 3 — อย่าแทรกอ็อบเจ็กต์เป็นตัวที่ 2
+    return await Tesseract.recognize(canvas, 'eng+tha', {
+      corePath:   '/static/tesseract/tesseract-core.wasm.js',
+      workerPath: '/static/tesseract/worker.min.js',
+      langPath:   '/static/tesseract',
+      gzip: true,
+      logger: m => console.log(m)
+    });
+  }
+
+  // ปุ่มรัน
+  $btn.addEventListener('click', async () => {
+    try{
+      if (!IMG){ alert('กรุณาเลือกรูปก่อน'); return; }
+      $btn.disabled = true; $status.textContent = 'preprocessing...';
+      const canvas = preprocessToCanvas(IMG, parseFloat($scale.value), parseInt($th.value,10));
+
+      $status.textContent = 'recognizing...';
+      const ret = await runOCR(canvas);
+
+      $out.value = (ret && ret.data && ret.data.text) ? ret.data.text.trim() : '(ไม่พบข้อความ)';
+      $status.textContent = 'done';
+    }catch(err){
+      console.error(err);
+      alert('OCR ล้มเหลว: ' + (err?.message || err));
+      $status.textContent = 'error';
+    }finally{
+      $btn.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

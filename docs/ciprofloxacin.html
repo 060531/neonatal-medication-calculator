@@ -2,9 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Acyclovir Calculation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Ciprofloxacin Calculation</title>
 <style>
   /* ========== Theme tokens ========== */
   :root{
@@ -15,8 +14,8 @@
     --panel:#e6f3ffb8;
     --text:#0f172a;
 
-    --floatbar-gap: clamp(80px, 16vw, 110px); /* กันปุ่มลอยทับ footer */
-    --page-gutter: 12px;                      /* ระยะขอบซ้าย-ขวา */
+    --floatbar-gap: clamp(80px, 16vw, 110px);
+    --page-gutter: 12px;
   }
 
   /* ========== Global guard + BG เต็มจอ ========== */
@@ -80,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -130,42 +129,23 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ: label+field บรรทัดเดียว ========== */
   @media (max-width: 640px){
     .dose-row, .conc-row{
-      display:grid;
-      grid-template-columns:auto 1fr;  /* label | field */
-      align-items:center;
-      column-gap:8px;
-      width:100%;
-      max-width:520px;
+      display:grid; grid-template-columns:auto 1fr;
+      align-items:center; column-gap:8px; width:100%; max-width:520px;
       margin-left:auto; margin-right:auto;
     }
     .dose-row > label,
-    .conc-row > label{
-      white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
-      font-size:14px; line-height:1.2;
-    }
+    .conc-row > label{ white-space:nowrap; max-width:44vw; font-size:14px; line-height:1.2; }
     .dose-row > input[type="number"],
-    .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
-      font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
-    }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
+    .conc-row > select{ min-width:0; width:100%; font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box; }
     .calc-row > .btn{ min-width:120px; }
   }
-
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
-    .dose-row > label,
-    .conc-row > label{ font-size:13px; max-width:42vw; }
-    .dose-row > input[type="number"],
-    .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
+    .dose-row > label, .conc-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"], .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
   }
-
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -177,13 +157,11 @@
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Acyclovir (250mg/5ml)</div>
+  <div class="title-badge">Ciprofloxacin : 200 mg/100 mL หรือ 400 mg/200 mL → (2 mg/mL)</div>
 
-  <!-- กรอบเนื้อหา -->
   <div class="container">
-
-    <!-- รอบ 1: คำนวณจาก mg -->
-    <div class="calc-box">
+    <!-- กล่องคำนวณ (รอบเดียว: mg → mL ที่ 2 mg/mL) -->
+        <div class="calc-box">
   <form method="POST" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
@@ -196,76 +174,67 @@
   </form>
 </div>
 
-    <!-- ผลลัพธ์คำนวณ -->
     
 
     
-
-    
-
-    
+      
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ  เท่า</b></p>
-        <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p> ×  ml = <span class="pill"><b>0</b> </span>ml
-             <span class="muted">(จากสูตร: (0 × 5) / 250)</span></p>
-          <p> ×  ml = <span class="pill"><b>0</b></span> ml
-             <span class="muted">(จากสูตร: (0 × 1) / 5)</span></p>
-
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-          <p class="highlight"><b>ปริมาณยา (ตัวสาร):</b> 0 ml</p>
-          <p class="highlight"><b>ปริมาณตัวทำละลาย:</b> 0.0 ml
-             <span class="muted"> (0.0 − 0.0)</span></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b>  ml → <b>drip 1 hr.</b></p>
+        <p class="order-line"><b>Order:</b> Ciprofloxacin 0.00 mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิง (premix):</b> 200 mg/100 mL หรือ 400 mg/200 mL ⇒ <b>2 mg/mL</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">mL = mg ÷ 2</span></p>
+          <p>แทนค่า: <span class="mono">0.00 ÷ 2</span> = <span class="pill">0.0 mL</span></p>
+          <p><b>ดังนั้น:</b> 0.00 mg = <span class="pill">0.0 mL</span></p>
         </div>
       </div>
     
 
-    <!-- สรุปข้อมูล -->
+    <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
-      <p class="muted">☞ <b>ขนาดยา:</b> 10 mg/kg/dose</p>
-
-      <p class="section-head">Solvent</p>
+      <p class="section-head">Solvent / รูปแบบยา</p>
       <ul class="muted">
-        <li><b>Sterile water 5 ml</b> (จะได้สารละลายใส ไม่มีตะกอน)</li>
-        <li>ความแรง <b>50 mg/ml</b></li>
+        <li>สารละลายพร้อมใช้ (Premix) ความเข้มข้นมาตรฐาน <b>2 mg/mL</b></li>
+        <li>โดยทั่วไปสามารถให้จากถุง premix ได้เลย (พิจารณาปริมาณรวมตามแผนการรักษา)</li>
       </ul>
 
-      <p class="section-head">Solution</p>
+      <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
       <ul class="muted">
-        <li>0.9% Normal saline solution/NSS</li>
-        <li>5% Dextrose in water</li>
+        <li>ปกติใช้ที่ <b>2 mg/mL</b> (ตามถุง premix); หลีกเลี่ยงความเข้มข้นสูงกว่านี้ในเส้นรอบนอก</li>
       </ul>
-
-      <p class="section-head">ความเข้มข้นสูงสุดในการบริหารยา</p>
-      <ul class="muted"><li>≤ 7 mg/ml</li></ul>
 
       <p class="section-head">ระยะเวลาในการบริหารยา</p>
-      <ul class="muted"><li>≥ 60 mins</li></ul>
-
-      <p class="section-head">ความคงตัวหลังเจือจาง</p>
       <ul class="muted">
-        <li>Sterile water: อยู่ได้ 12 ชม. ที่ 15–25°C</li>
-        <li>5% Dextrose: อยู่ได้ 24 ชม. ที่ 15–25°C</li>
+        <li>ประมาณ <b>60 นาที</b> ต่อ 200–400 mg (ปรับตามนโยบายหน่วยงาน/ภาวะผู้ป่วย)</li>
       </ul>
 
-      <p class="section-head">ข้อควรระวัง / การติดตาม (เพื่อป้องกัน Type A ADR)</p>
+      <p class="section-head">ความคงตัว</p>
       <ul class="muted">
-        <li>ระวัง Extravasation</li>
-        <li>Liver function</li>
+        <li>ถุง premix ใช้ได้ตามวันหมดอายุของผู้ผลิต; หลังเปิด/ผสมให้ปฏิบัติตามแนวทางของหน่วยงาน</li>
       </ul>
+
+      <p class="section-head">ข้อควรระวัง / เฝ้าระวัง</p>
+      <ul class="muted">
+        <li>QT prolongation, เส้นเอ็นอักเสบ/ฉีกขาด, GI upset, ปรับขนาดยาในไตเสื่อม</li>
+      </ul>
+
+        <p class="section-head">คุณสมบัติ :</p>
+      <ul class="muted">
+        <li><b>เภสัชพลศาสตร์:</b> Ciprofioxacin เป็นสารในกลุ่มคริโนโลนคาร์บ็อกซิลิคแอชิต ออกฤทธิ์ฆ่าเชื้อแบคทีเรียได้กว้าง ทั้งชนิดแกรมบวก และแกรมดบ แต่สำหรับกลุ่ม anaerobe จะมีความไวต่อยานี้ได้น้อยกว่า การฆ่าเชื้อแบคทีเรียของ Ciprofloxacin เป็นผลจากการ ยับยั้งการทำงานของเอนไซม์ DNA gyrase ของแบคทีเรีย และกลไกการออกฤทธิ์เฉพาะนี้ ทำให้ไม่มี parallel resistance ต่อยา ต้านจุลชีพอื่นที่ไม่ได้อยู่ในกลุ่มควิโนโลนคาร์บ็อกซิลิคแอชิด ดังนั้นจึงมีประสิทธิผลในการต้านแบคทีเรียที่ตื้อต่อยาปฏิชีวนะอื่น ๆ
+เช่น ยาปฏิชีวนะกลุ่ม β-lactam, aminoglycoside, tetracycline และ macrolide</li>
+        <li><b>เภสัชจอนศาสตร์:</b> Ciprofloxacin ถูกดูดซึมได้ดี และไม่ผ่านกระบวนการ first-pass metabolism ยาส่วนใหญ่จะถูกขับออกทางปัสสาวะภายใน 24 ชั่วโมง ในผู้ป่วยที่มีภาวะไตบกพร่องอาจทำให้ค่าครึ่งชีวิตของยาเพิ่มขึ้น ดังนั้นควรได้รับการปรับขนาดยาในผู้ป่วยกลุ่มดังกล่าว</li>
+      </ul>
+
     </div>
   </div><!-- /container -->
 
-  <!-- footer ชิดเนื้อหา แต่ไม่โดนปุ่มลอยทับ -->
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update 2025-11-04 19:45</p>
   </footer>
 
-  <!-- ปุ่มลอยติดล่าง (ห่อได้, ไม่ชนขอบ) -->
   <div class="float-actions">
     <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
+
 </body>
 </html>
