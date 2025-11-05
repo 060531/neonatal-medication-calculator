@@ -5,24 +5,30 @@
 <h1>การบริหารยาในทารกแรกเกิด</h1>
 
 <div class="home-grid">
-  <a class="button home-button"
-     href="{% if static_build %}./pma_template.html{% else %}{{ url_for('calculate_pma_route') }}{% endif %}">
-     PMA
-  </a>
+    <a href="{{ url_for('calculate_pma_route') }}" class="button home-button">
+      <img src="http://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="Dose ยา">
+      <span>Dose ยา<br><small>(Right patient)</small></span>
+    </a>
 
-  <a class="button home-button"
-     href="{% if static_build %}./compatibility.html{% else %}{{ url_for('compatibility_page') }}{% endif %}">
-     Compatibility
-  </a>
+    <a href="{{ url_for('compatibility_page') }}" class="button home-button">
+      <img src="http://cdn.jsdelivr.net/gh/060531/images/compability.png" alt="compatibility">
+      <span>Compatibility<br><small>(Right drug)</small></span>
+    </a>
 
-  <a class="button home-button"
-     href="{% if static_build %}./Medication_administration.html{% else %}{{ url_for('medication_administration') }}{% endif %}">
-     การบริหารยา
-  </a>
+    <a href="{{ url_for('medication_administration') }}" class="button home-button">
+      <img src="http://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="การบริหารยา">
+      <span>การบริหารยา<br><small>(Right dose)</small></span>
+    </a>
 
-  <a class="button home-button"
-     href="{% if static_build %}./time_management.html{% else %}{{ url_for('time_management_route') }}{% endif %}">
-     การบริหารเวลา
-  </a>
+    <a href="{{ url_for('time_management_route') }}" class="button home-button">
+      <img src="http://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="การบริหารเวลา">
+      <span>การบริหารเวลา<br><small>(Right time)</small></span>
+    </a>
+
+    <!-- ✅ กล่องใหม่: สแกนคำสั่งยา (เด้งไปหน้า /scan) 
+    <a href="{{ url_for('scan_server') }}" class="button home-button">
+      <img src="http://cdn.jsdelivr.net/gh/060531/images/scan-icon.png" alt="สแกนคำสั่งยา">
+      <span>สแกนคำสั่งยา<br><small>(ตรวจสอบ/พาไปหน้าที่เกี่ยวข้อง)</small></span>
+    </a> -->
 </div>
 {% endblock %}
