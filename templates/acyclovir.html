@@ -184,7 +184,7 @@
 
     <!-- รอบ 1: คำนวณจาก mg -->
     <div class="calc-box">
-  <form method="POST" class="calc-row">
+  <form id="__will_handle_by_js__" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <div class="dose-row">
@@ -216,7 +216,7 @@
 
     {% if result_ml_1 or result_ml_2 %}
       <div class="calc-box" style="margin-top:10px">
-        <form method="POST" class="calc-row" style="gap:12px">
+        <form id="__will_handle_by_js__" class="calc-row" style="gap:12px">
           <input type="hidden" name="dose" value="{{ dose }}">
           <label for="multiplication">เลือกเงื่อนไข:</label>
           <select name="multiplication" required

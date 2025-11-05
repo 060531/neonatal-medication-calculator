@@ -187,7 +187,7 @@
 
     <!-- รอบ 1: คำนวณจาก mg → ml (สต็อก 600 mg / 4 ml และเป้าหมาย 6 mg/ml) -->
         <div class="calc-box">
-  <form method="POST" class="calc-row">
+  <form id="__will_handle_by_js__" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <div class="dose-row">
@@ -215,7 +215,7 @@
 
     <!-- รอบ 2: เลือกตัวคูณ -->
     <div class="calc-box" {% if result_ml_1 is none and result_ml_2 is none %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form method="POST" class="calc-row">
+      <form id="__will_handle_by_js__" class="calc-row">
         <input type="hidden" name="action" value="condition" />
         <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
         <input type="hidden" name="result_ml_1_hidden" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">

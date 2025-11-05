@@ -181,7 +181,7 @@
   <div class="container">
     <!-- รอบที่ 1: คำนวณ mg → ml (อ้างอิงความแรงหลังผสม 4 mg/ml) -->
         <div class="calc-box">
-  <form method="POST" class="calc-row">
+  <form id="__will_handle_by_js__" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <div class="dose-row">
@@ -212,7 +212,7 @@
 
     <!-- รอบที่ 2: เลือกเงื่อนไข (ใช้งานเมื่อมี result_ml) -->
     <div class="calc-box" {% if dose is none %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form method="POST" class="calc-row">
+      <form id="__will_handle_by_js__" class="calc-row">
         <input type="hidden" name="action" value="condition" />
         <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
         <input type="hidden" name="result_ml_hidden" value="{{ result_ml if dose is not none else '' }}">

@@ -260,7 +260,7 @@
     <h2>Amoxicillin/Clavimoxy (1.2G/Vial)</h2>
         <div class="container">
         <!-- Form for entering the dose for Amoxicillin/Clavimoxy -->
-        <form method="POST">
+        <form id="__will_handle_by_js__">
             <label for="dose"><b>กรอกขนาดยา (mg):</b></label>
             <input type="number" name="dose" placeholder="ขนาดยา (mg)" required value="{{ dose }}">
             <!-- Add some margin above the button -->
@@ -281,7 +281,7 @@
 
         {% if result_ml_1 %}
         <!-- Form for entering multiplication -->
-        <form method="POST">
+        <form id="__will_handle_by_js__">
             <input type="hidden" name="dose" value="{{ dose }}">
             <label for="multiplication">เลือกเงื่อนไข:</label>
             <select name="multiplication" required>

@@ -127,7 +127,7 @@
 <div class="container">
     <h1>Calculate Postmenstrual Age (PMA)</h1>
     
-    <form action="{{ url_for('calculate_pma_route') }}" method="POST">
+    <form action="{{ url_for('calculate_pma_route') }}" id="__will_handle_by_js__">
         <div class="form-group">
             <label>Gestational Age:</label>
             <div class="form-inline">
@@ -163,7 +163,7 @@
         <p>Birth Weight (BW): <span style="color: blue;">{{ bw }} kg</span></p>
 
         <!-- ปุ่มไปคำนวณยา -->
-        <form action="{{ url_for('drug_calculation') }}" method="POST">
+        <form action="{{ url_for('drug_calculation') }}" id="__will_handle_by_js__">
             <input type="hidden" name="pma_weeks" value="{{ pma_weeks }}">
             <input type="hidden" name="pma_days" value="{{ pma_days }}">
             <input type="hidden" name="calc" value="{{ calc }}">

@@ -181,7 +181,7 @@
   <div class="container">
     <!-- กล่องคำนวณรอบแรก -->
         <div class="calc-box">
-  <form method="POST" class="calc-row">
+  <form id="__will_handle_by_js__" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <div class="dose-row">
@@ -216,7 +216,7 @@
 
     <!-- เลือกเงื่อนไขคูณ -->
     <div class="calc-box" {% if not (result_ml_1 or result_ml_2) %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form method="POST" class="calc-row">
+      <form id="__will_handle_by_js__" class="calc-row">
         <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" required>
