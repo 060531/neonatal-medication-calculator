@@ -1,95 +1,99 @@
-import os
-import math
+# --- imports (บนสุด) ---
+import os, math, json, re, string
+from pathlib import Path
 from typing import Optional
-
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
-from sqlalchemy import and_, or_
-
-# ส่วนขยาย/โมเดล
-from extensions import db, migrate
-from models import Drug, Compatibility
-
-# MIME เพิ่มเติมสำหรับ static
-import mimetypes
-mimetypes.add_type('application/wasm', '.wasm')
-mimetypes.add_type('application/gzip', '.gz')
-
-UPDATE_DATE = "2025 September 22"
-
-app = Flask(__name__, static_folder='static', static_url_path='/static')
-app.config.from_object("config.Config")
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-# init ส่วนขยาย
-db.init_app(app)
-migrate.init_app(app, db)
-
-# ---------- routes พื้นฐาน ----------
-@app.get("/", endpoint="index")
-def index():
-    return render_template("index.html", update_date=UPDATE_DATE)
-
-def group_meds_by_letter(meds):
-    groups = {ch: [] for ch in string.ascii_uppercase}
-    for m in meds:
-        label = m["label"].strip()
-        first = label[0].upper()
-        if first in groups:
-            groups[first].append(m)
-        else:
-# เผื่อกรณีชื่อไม่ได้ขึ้นต้น A–Z
-            groups.setdefault("#", []).append(m)
-    return groups
-
-# ===== จัดกลุ่มรายการยา A–Z (รองรับทั้ง label และ name) =====
-import string
 from collections import OrderedDict
 
-def group_meds_by_letter(meds, key_preference=("label", "name", "drug", "title")):
-    """
-    รับ list ของ dict / model แล้วจัดกลุ่มตามตัวอักษรแรก:
-      - พยายามดึงชื่อจากคีย์ตามลำดับ key_preference
-      - ถ้าไม่ใช่ A–Z ให้เข้ากลุ่ม '#'
-      - คืน OrderedDict ที่เรียง A..Z และ '#' อยู่ท้าย
-    """
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+from sqlalchemy import and_, or_, func
+
+from extensions import db, migrate
+from models import Drug, Compatibility, AccessLog
+
+# ... (mime, config, init) ...
+
+# ===== utilities (KEEP ONE SET ONLY) =====
+def _data_dir() -> Path:
+    from flask import current_app
+    return Path(current_app.root_path) / "data"
+
+def _norm_txt(s: str) -> str:
+    return " ".join((s or "").strip().lower().split())
+
+def canonicalize_name(s: str) -> str:
+    if not s: return ""
+    low = re.sub(r"\s+", " ", s.strip().lower())
+    low = low.replace("meropenam", "meropenem")
+    for bad in (" small dose", " continuous"):
+        if low.endswith(bad):
+            low = low[: -len(bad)]
+    return low
+
+def status_to_code(s: str) -> str:
+    if not s: return "ND"
+    t = str(s).strip().lower()
+    if t.startswith("comp") or t in {"c","yes","true","1","เข้ากันได้"}: return "C"
+    if t.startswith("incomp") or t in {"i","no","false","0","ห้ามผสม","ไม่เข้ากัน"}: return "I"
+    if t.startswith("uncer") or t in {"u","ไม่แน่ชัด"}: return "U"
+    if t in {"nd","unknown","no data","ไม่มีข้อมูล"}: return "ND"
+    return "ND"
+
+from functools import lru_cache
+@lru_cache(maxsize=1)
+def load_pair_meta():
+    meta_map = {}
+    p = _data_dir() / "seed_compatibility.json"
+    if not p.exists(): return meta_map
+    try:
+        items = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return meta_map
+    for it in items:
+        a = _norm_txt(it.get("drug",""))
+        b = _norm_txt(it.get("co_drug",""))
+        if not a or not b or a == b: continue
+        payload = {"en": it.get("en"), "th": it.get("th"), "detail": it.get("detail"), "note": it.get("note")}
+        k = (min(a,b), max(a,b))
+        meta_map[k] = payload
+    return meta_map
+
+def get_pair_meta(name_a: str, name_b: str):
+    a, b = _norm_txt(name_a), _norm_txt(name_b)
+    if not a or not b or a == b: return None
+    return load_pair_meta().get((min(a,b), max(a,b)))
+
+def get_all_drugs_for_select():
+    q = Drug.query.filter(Drug.generic_name.isnot(None)).order_by(func.lower(Drug.generic_name))
+    return [{"id": d.id, "generic_name": d.generic_name} for d in q.all()]
+
+def get_drug_name(drug_id: int):
+    row = Drug.query.get(drug_id)
+    return row.generic_name if row else None
+
+# ===== จัดกลุ่มรายการยา A–Z (รองรับทั้ง label และ name) =====
+# ===== group by letter (KEEP THIS ONLY) =====
+def group_meds_by_letter(meds, key_preference=("label","name","drug","title")):
     if not meds:
         return OrderedDict()
-
-    # เตรียมโครง A..Z + '#'
-    groups = {ch: [] for ch in string.ascii_uppercase}
-    groups["#"] = []
-
+    groups = {ch: [] for ch in string.ascii_uppercase}; groups["#"] = []
     for item in meds:
-        # รองรับทั้ง dict และ model
         name = None
         if isinstance(item, dict):
             for k in key_preference:
                 if item.get(k):
-                    name = str(item[k]).strip()
-                    break
+                    name = str(item[k]).strip(); break
         else:
-            # SQLAlchemy model หรือ object อื่น ๆ
             for k in key_preference:
                 v = getattr(item, k, None)
-                if v:
-                    name = str(v).strip()
-                    break
-
+                if v: name = str(v).strip(); break
         if not name:
-            groups["#"].append(item)
-            continue
-
+            groups["#"].append(item); continue
         first = name[0].upper()
         (groups[first] if first in groups else groups["#"]).append(item)
-
-    # เก็บเฉพาะตัวอักษรที่มีรายการ และเรียงคีย์ A..Z + '#'
     ordered = OrderedDict()
     for ch in string.ascii_uppercase:
-        if groups[ch]:
-            ordered[ch] = groups[ch]
-    if groups["#"]:
-        ordered["#"] = groups["#"]
+        if groups[ch]: ordered[ch] = groups[ch]
+    if groups["#"]: ordered["#"] = groups["#"]
     return ordered
 
 
@@ -1726,8 +1730,8 @@ def phenytoin_route():
     return render_template('phenytoin.html', dose=dose, result_ml=result_ml, error=error, update_date=UPDATE_DATE)
 
 
-@app.route('/remdsivir', methods=['GET', 'POST'])
-def remdsivir_route():
+@app.route('/remdesivir', methods=['GET', 'POST'])
+def remdesivir_route():
     dose = None
     result_ml_1 = None
     result_ml_2 = None
@@ -1750,7 +1754,7 @@ def remdsivir_route():
         except (ValueError, KeyError) as e:
             error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {str(e)}"
 
-    return render_template('remdsivir.html', dose=dose, result_ml_1=result_ml_1, result_ml_2=result_ml_2, final_result_1=final_result_1, final_result_2=final_result_2, multiplication=multiplication, error=error, update_date=UPDATE_DATE)
+    return render_template('remdesivir.html', dose=dose, result_ml_1=result_ml_1, result_ml_2=result_ml_2, final_result_1=final_result_1, final_result_2=final_result_2, multiplication=multiplication, error=error, update_date=UPDATE_DATE)
 
 @app.route('/sul-am', methods=['GET', 'POST'])
 def sul_am_route():
@@ -2134,8 +2138,8 @@ def tazocin_route():
     )
 
 
-@app.route('/unasyun', methods=['GET', 'POST'])
-def unasyun_route():
+@app.route('/unasyn', methods=['GET', 'POST'])
+def unasyn_route():
 # ค่าตั้งต้นสำหรับส่งให้ template
     dose = None                # mg ที่ผู้ใช้กรอก
     result_ml = None           # ml ที่ได้จากรอบที่ 1 (mg -> ml)
@@ -2209,7 +2213,7 @@ def unasyun_route():
 
 # ส่งค่าไปยัง template ที่รองรับการคำนวณ 2 รอบ (มี action + hidden fields)
     return render_template(
-        'unasyun.html',
+        'unasyn.html',
         dose=dose,
         result_ml=result_ml,
         final_result=final_result,
@@ -3372,10 +3376,9 @@ def seed_drugs():
     items = json.loads(p.read_text(encoding="utf-8"))
     for it in items:
         seed_id = int(it["id"])
-        raw     = (it.get("generic_name") or "").strip()
+        raw = (it.get("generic_name") or "").strip()
         if not raw:
             skip += 1; continue
-
         norm = canonicalize_name(raw)
         if not norm:
             skip += 1; continue
@@ -3399,11 +3402,9 @@ def seed_drugs():
     db.session.commit()
     try:
         _id_map_path().write_text(json.dumps(id_map, ensure_ascii=False, indent=2), encoding="utf-8")
-        print("🗺️  wrote id map to", _id_map_path())
+        print("✅ seed:", {"inserted": ins, "updated": upd, "skipped": skip})
     except Exception as e:
-        print("⚠️ เขียน id map ไม่ได้:", e)
-
-    print(f"✅ Drug inserted={ins} updated={upd} skipped={skip} total={Drug.query.count()}")
+        print(f"⚠️ cannot write id map: {e}")
 
 # ---------------- CLI: seed compatibility (by id or name) ----------------
 @app.cli.command("seed-compat")
