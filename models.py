@@ -21,3 +21,17 @@ class AccessLog(db.Model):
     id     = db.Column(db.Integer, primary_key=True)
     path   = db.Column(db.String(255), nullable=False)
     method = db.Column(db.String(10), nullable=False)
+
+# --- normalize Compatibility(a,b) so that a <= b on insert/update ---
+from sqlalchemy import event
+
+@event.listens_for(Compatibility, "before_insert")
+def _compat_before_insert(mapper, connection, target):
+    # ทำให้ a,b เรียงลำดับเสมอ ป้องกัน (b,a) ชนกับ (a,b)
+    if target.a is not None and target.b is not None and str(target.a) > str(target.b):
+        target.a, target.b = target.b, target.a
+
+@event.listens_for(Compatibility, "before_update")
+def _compat_before_update(mapper, connection, target):
+    if target.a is not None and target.b is not None and str(target.a) > str(target.b):
+        target.a, target.b = target.b, target.a
