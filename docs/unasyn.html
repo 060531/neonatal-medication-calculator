@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Tazocin Calculation</title>
+  <title>Unasyn Calculation</title>
 <style>
   /* ========== Theme tokens ========== */
   :root{
@@ -171,37 +171,43 @@
     .calc-row{ gap:8px; }
   }
 </style>
+
+
 </head>
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Tazocin : Piperacillin 4000 mg + Tazobactam 500 mg / vial <br> → reconst. to 200 mg/ml (Piperacillin)</div>
+  <div class="title-badge">Unasyn : Ampicillin 2 g + Sulbactam 1 g / vial <br> → reconst. to 375 mg/ml</div>
+  <p class="subtitle">(Ampicillin 250 mg/ml + Sulbactam 125 mg/ml)</p>
 
   <div class="container">
-    <!-- รอบที่ 1: คำนวณ mg → ml (อ้างอิง Piperacillin 200 mg/ml) -->
+    <!-- รอบที่ 1: คำนวณ mg → ml (อ้างอิง 375 mg/ml) -->
         <div class="calc-box">
   <form id="__will_handle_by_js__" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
+    <!-- คู่ที่ 1: ขนาดยา -->
     <div class="dose-row">
       <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="0">
+      <input type="number"
+             id="dose" name="dose"
+             placeholder="ขนาดยา (mg)" required step="0.01"
+             value="0">
     </div>
-
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
+    </div>
 
     
 
     
       
       <div class="result">
-        <p class="order-line"><b>Order:</b> Tazocin 0.00 mg</p>
+        <p class="order-line"><b>Order:</b> Unasyn 0.00 mg</p>
         <div class="left-align muted">
-          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติม Sterile water 18 ml → ได้สารละลาย 20 ml ⇒ <b>200 mg/ml (Piperacillin)</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg × 20 ÷ 4000</span> (หรือ <span class="mono">mg ÷ 200</span>)</p>
-          <p>แทนค่า: <span class="mono">0.00 × 20 ÷ 4000</span> =
+          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติม Sterile water 6.4 ml → ได้สารละลาย 8 ml ⇒ <b>375 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg × 8 ÷ 3000</span></p>
+          <p>แทนค่า: <span class="mono">0.00 × 8 ÷ 3000</span> =
             <span class="pill">0.0 ml</span></p>
           <p><b>ดังนั้น:</b> 0.00 mg = <span class="pill">0.0 ml</span></p>
         </div>
@@ -241,38 +247,12 @@
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
-      <p class="section-head">Solvent / การเตรียม</p>
+      <p class="section-head">ข้อมูลการเตรียม/ให้ยา</p>
       <ul class="muted">
-        <li>Sterile water <b>18 ml</b> → ได้สารละลาย <b>20 ml</b></li>
-        <li><u>ความแรงหลังเตรียม:</u> <b>200 mg/ml (Piperacillin)</b></li>
-      </ul>
-
-      <p class="section-head">Solution</p>
-      <ul class="muted">
-        <li>0.9% Normal saline solution (NSS)</li>
-        <li>5% Dextrose in water</li>
-      </ul>
-
-      <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
-      <ul class="muted">
-        <li>≤ 80 mg/ml</li>
-      </ul>
-
-      <p class="section-head">ระยะเวลาในการบริหารยา</p>
-      <ul class="muted">
-        <li>30 mins</li>
-      </ul>
-
-      <p class="section-head">ความคงตัวหลังเจือจาง</p>
-      <ul class="muted">
-        <li>24 ชั่วโมง ที่อุณหภูมิห้อง</li>
-      </ul>
-
-      <p class="section-head">ข้อควรระวัง / การติดตาม</p>
-      <ul class="muted">
-        <li>Hyperbilirubinemia</li>
-        <li>ALT/AST, BUN, SCr เพิ่มขึ้น</li>
-        <li>Extravasation</li>
+        <li><b>Solvent:</b> Sterile water 6.4 ml → ได้สารละลาย 8 ml</li>
+        <li><u>ความแรงหลังเตรียม:</u> <b>375 mg/ml</b> (Ampicillin 250 mg/ml + Sulbactam 125 mg/ml)</li>
+        <li><b>Solution:</b> 5% Dextrose in water หรือ 0.9% NSS (เจือจางตามความเหมาะสม)</li>
+        <li><b>ความคงตัว:</b> หลังผสมเก็บตู้เย็นได้ 24 ชม.; หลัง dilute ด้วย 5% D/W อยู่ได้ ~4 ชม.</li>
       </ul>
     </div>
   </div><!-- /container -->

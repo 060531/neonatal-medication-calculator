@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Tazocin Calculation</title>
+  <title>Remdesivir Calculation</title>
 <style>
   /* ========== Theme tokens ========== */
   :root{
@@ -171,14 +171,15 @@
     .calc-row{ gap:8px; }
   }
 </style>
+
 </head>
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Tazocin : Piperacillin 4000 mg + Tazobactam 500 mg / vial <br> → reconst. to 200 mg/ml (Piperacillin)</div>
+  <div class="title-badge">Remdesivir : 100 mg / vial → reconst. to 5 mg/ml</div>
 
   <div class="container">
-    <!-- รอบที่ 1: คำนวณ mg → ml (อ้างอิง Piperacillin 200 mg/ml) -->
+    <!-- กล่องคำนวณรอบแรก -->
         <div class="calc-box">
   <form id="__will_handle_by_js__" class="calc-row">
     <input type="hidden" name="action" value="dose" />
@@ -195,84 +196,76 @@
     
 
     
-      
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Tazocin 0.00 mg</p>
-        <div class="left-align muted">
-          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติม Sterile water 18 ml → ได้สารละลาย 20 ml ⇒ <b>200 mg/ml (Piperacillin)</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg × 20 ÷ 4000</span> (หรือ <span class="mono">mg ÷ 200</span>)</p>
-          <p>แทนค่า: <span class="mono">0.00 × 20 ÷ 4000</span> =
-            <span class="pill">0.0 ml</span></p>
-          <p><b>ดังนั้น:</b> 0.00 mg = <span class="pill">0.0 ml</span></p>
-        </div>
-      </div>
-    
 
-    <!-- รอบที่ 2: เลือกเงื่อนไข (เปิดใช้เมื่อมี result_ml) -->
-    <div class="calc-box" >
+    <!-- เลือกเงื่อนไขคูณ -->
+    <div class="calc-box" style="opacity:.55; pointer-events:none">
       <form id="__will_handle_by_js__" class="calc-row">
-        <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="0">
-        <input type="hidden" name="result_ml_hidden" value="0.0">
+        <input type="hidden" name="dose" value="0">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
-          <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
-          <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
+          <option value="" disabled selected>— เลือก —</option>
+          <option value="1.5" >1.5 เท่า</option>
+          <option value="2"   >2 เท่า</option>
+          <option value="2.5" >2.5 เท่า</option>
+          <option value="3"   >3 เท่า</option>
+          <option value="3.5" >3.5 เท่า</option>
+          <option value="4"   >4 เท่า</option>
+          <option value="4.5" >4.5 เท่า</option>
+          <option value="5"   >5 เท่า</option>
         </select>
-        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+        <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณต่อ</button>
       </form>
     </div>
 
     
-      
-      
       <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ  เท่า = 0.00 ml</b></p>
+        <p class="order-line"><b>ผลลัพธ์หลังคูณ  เท่า</b></p>
         <div class="left-align">
-          
-
-          
+          <p> × 0.00 ml = <b>0.00</b> ml <span class="muted">(จากขั้นตอนที่ 1)</span></p>
+          <p> × 0.00 ml = <b>0.00</b> ml <span class="muted">(จากขั้นตอนที่ 2)</span></p>
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+          <p><b>ปริมาณยา:</b> <span class="pill">0.00 ml</span></p>
+          <p><b>ปริมาณสารละลาย:</b> <span class="pill">0.00 ml</span>
+             <span class="muted">(0.00 − 0.00)</span></p>
+          <p style="background:#fde047; padding:6px; border-radius:6px;">
+            <b>ปริมาณยาที่บริหารเข้าทารก = 0.00 ml → drip in 2 hr.</b>
+          </p>
         </div>
       </div>
-    
-
     
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
       <p class="section-head">Solvent / การเตรียม</p>
       <ul class="muted">
-        <li>Sterile water <b>18 ml</b> → ได้สารละลาย <b>20 ml</b></li>
-        <li><u>ความแรงหลังเตรียม:</u> <b>200 mg/ml (Piperacillin)</b></li>
+        <li>Sterile water 19 ml → ได้สารละลาย 20 ml</li>
+        <li><u>ความแรงหลังเตรียม: 5 mg/ml</u></li>
       </ul>
 
       <p class="section-head">Solution</p>
       <ul class="muted">
         <li>0.9% Normal saline solution (NSS)</li>
-        <li>5% Dextrose in water</li>
       </ul>
 
       <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
       <ul class="muted">
-        <li>≤ 80 mg/ml</li>
+        <li>≤ 1.25 mg/ml</li>
       </ul>
 
       <p class="section-head">ระยะเวลาในการบริหารยา</p>
       <ul class="muted">
-        <li>30 mins</li>
+        <li>ประมาณ 2 ชั่วโมง</li>
       </ul>
 
       <p class="section-head">ความคงตัวหลังเจือจาง</p>
       <ul class="muted">
-        <li>24 ชั่วโมง ที่อุณหภูมิห้อง</li>
+        <li>24 ชั่วโมงที่อุณหภูมิห้อง</li>
       </ul>
 
-      <p class="section-head">ข้อควรระวัง / การติดตาม</p>
+      <p class="section-head">ข้อควรระวัง / การติดตาม เพื่อป้องกัน Type A ADR</p>
       <ul class="muted">
-        <li>Hyperbilirubinemia</li>
-        <li>ALT/AST, BUN, SCr เพิ่มขึ้น</li>
-        <li>Extravasation</li>
+        <li>Liver function</li>
+        <li>Anaphylaxis ระหว่างการให้ครั้งแรก</li>
       </ul>
     </div>
   </div><!-- /container -->

@@ -3,3 +3,14 @@ app.db
 app.db
 app.db
 app.db
+# SQLite DB
+app.db
+instance/app.db
+*.sqlite3
+*.sqlite
+*.db
+
+# Local backups
+_backup_*/
+*.backup.*
+*.before-uniq.*

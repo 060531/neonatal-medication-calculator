@@ -15,20 +15,18 @@
 </head>
 <body>
   <h2>ผลการตรวจคำสั่งยา</h2>
-  <div class="card {{ 'ok' if ok else 'ng' }}">
-    <p><b>{{ 'ผ่าน' if ok else 'พบข้อควรทบทวน' }}</b></p>
-    <p>{{ msg }}</p>
+  <div class="card ng">
+    <p><b>พบข้อควรทบทวน</b></p>
+    <p></p>
   </div>
 
   <div class="card">
     <h3>รายละเอียดที่สแกนได้</h3>
-    <pre>{{ order|tojson }}</pre>
+    <pre>0</pre>
   </div>
 
-  {% if calc_url %}
-    <p><a href="{{ calc_url }}" class="btn">ไปหน้าคำนวณ/เตรียมยา</a></p>
-  {% endif %}
+  
 
-  <p style="color:#64748b">update {{ update_date }}</p>
+  <p style="color:#64748b">update 2025-11-09 22:31</p>
 </body>
 </html>
