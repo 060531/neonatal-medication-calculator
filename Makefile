@@ -1,4 +1,3 @@
-.RECIPEPREFIX := >
 APP=app.py
 DB=instance/app.db
 SHELL=/bin/sh
@@ -6,12 +5,12 @@ SHELL=/bin/sh
 .PHONY: current check uniq sanity
 
 current:
-> FLASK_APP=$(APP) flask db current -v
+	FLASK_APP=$(APP) flask db current -v
 
 check:
-> sqlite3 $(DB) < scripts/check.sql
+	sqlite3 $(DB) < scripts/check.sql
 
 uniq:
-> FLASK_APP=$(APP) flask shell < scripts/test_unique.py
+	FLASK_APP=$(APP) flask shell < scripts/test_unique.py
 
 sanity: current check uniq
