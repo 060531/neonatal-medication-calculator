@@ -25,3 +25,14 @@ instance/app.db
 _backup_*/
 *.backup.*
 *.before-uniq.*
+# SQLite DB
+app.db
+instance/app.db
+*.sqlite3
+*.sqlite
+*.db
+
+# Local backups
+_backup_*/
+*.backup.*
+*.before-uniq.*
