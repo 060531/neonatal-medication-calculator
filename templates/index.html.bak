@@ -8,7 +8,7 @@
 
 {# ปุ่มที่เช็คว่า endpoint มีจริงไหม ค่อยลิงก์ #}
 {% macro safe_button(endpoint, img_src, alt_text, label, sublabel) -%}
-  {%- set has_ep = has_endpoint(endpoint) %}
+  {%- set has_ep = endpoint in current_app.view_functions %}
   <a href="{{ url_for(endpoint) if has_ep else '#' }}"
      class="button home-button"
      {{ '' if has_ep else 'aria-disabled=true tabindex=-1' }}>

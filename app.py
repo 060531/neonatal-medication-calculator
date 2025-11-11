@@ -1,25 +1,31 @@
 from flask import Flask
-from flask_migrate import Migrate
-from extensions import db
+from extensions import db, migrate
 
-def create_app():
+def create_app(testing: bool = False):
     app = Flask(__name__)
     app.config.from_mapping(
         SQLALCHEMY_DATABASE_URI="sqlite:///app.db",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        TESTING=testing,
+        SECRET_KEY="dev",
     )
 
     db.init_app(app)
-    Migrate(app, db)
+    migrate.init_app(app, db)
 
-    # นำเข้า models หลัง init_app เพื่อให้ตารางถูกประกาศใน metadata
-    import models  # noqa: F401
+    try:
+        from routes.core import bp as core_bp
+        app.register_blueprint(core_bp)
+    except Exception:
+        pass
 
-    @app.route("/healthz")
-    def healthz():
-        return "ok"
+    from flask import current_app
+    @app.template_global()
+    def has_endpoint(name: str) -> bool:
+        return name in current_app.view_functions
 
     return app
 
-# สำหรับใช้งานกับ FLASK_APP=app:app
-app = create_app()
+if __name__ == "__main__":
+    app = create_app()
+    app.run(debug=True)

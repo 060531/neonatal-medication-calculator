@@ -1,0 +1,24 @@
+{% macro infusion_note(type='3X', extra_items=None, caution=None) -%}
+<div class="infusion-note">
+  <h4 class="title-badge">Intermittent infusion pump — {{ type }}</h4>
+  <ul class="bullet">
+    {% if type == '3X' %}
+      <li>เตรียมสารละลายตาม protocol 3X (เช่น ... ml, rate ...)</li>
+      <li>ตรวจ line/dilution ก่อนเริ่ม</li>
+      <li>บันทึกเวลาเริ่ม–สิ้นสุด</li>
+    {% elif type == '6X' %}
+      <li>เตรียมสารละลายตาม protocol 6X (เช่น ... ml, rate ...)</li>
+      <li>เฝ้าระวัง infiltration</li>
+      <li>ติดตาม renal function</li>
+    {% endif %}
+    {% if extra_items %}
+      {% for item in extra_items %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    {% endif %}
+  </ul>
+  {% if caution %}
+    <div class="caution"><b>ข้อควรระวัง:</b> {{ caution }}</div>
+  {% endif %}
+</div>
+{%- endmacro %}
