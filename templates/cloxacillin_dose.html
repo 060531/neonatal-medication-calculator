@@ -153,6 +153,9 @@
     </style>
 </head>
 <body>
+{% set pw = pma_weeks|nz(0) %}
+{% set pnd = postnatal_days|nz(0) %}
+
 
     <h1>Cloxacillin Dosage Information</h1>
 
@@ -193,13 +196,13 @@
             <td>40.00</td>
             <td>q 8 hr(s)</td>
         </tr>
-        <tr class="{% if 37 <= pma_weeks <= 44 and postnatal_days <= 7 %} highlight {% endif %}">
+        <tr class="{% if (pw >= 37 and pw <= 44) and (pnd <= 7) %} highlight {% endif %}">
             <td>37 - 44 wk</td>
             <td>0 - 7 days</td>
             <td>40.00</td>
             <td>q 8 hr(s)</td>
         </tr>
-        <tr class="{% if 37 <= pma_weeks <= 44 and postnatal_days > 7 %} highlight {% endif %}">
+        <tr class="{% if (pw >= 37 and pw <= 44) and (pnd > 7) %} highlight {% endif %}">
             <td>37 - 44 wk</td>
             <td>8 days+</td>
             <td>40.00</td>
