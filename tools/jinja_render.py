@@ -81,6 +81,45 @@ BASE_CTX = {
     "session": {},
 }
 
+# --- ใส่ไว้ใกล้ BASE_CTX ---
+DEFAULT_NUM_KEYS = {
+    # ค่าที่มักถูกเรียกในหลายเทมเพลต
+    "bw": 0.0,                   # Birth weight
+    "pma_weeks": 0,
+    "pma_days": 0,
+    "postnatal_days": 0,
+
+    "dose": 0.0,
+    "dose_ml": 0.0,
+    "dose_mgkg": 0.0,
+
+    "result_ml": 0.0,
+    "result_ml_1": 0.0,
+    "result_ml_2": 0.0,
+    "final_result_1": 0.0,
+    "final_result_2": 0.0,
+
+    "multiplication": 1.0,       # ตัวคูณในสูตรหลายหน้า
+    "rate_ml_hr": 0.0,
+    "concentration_mg_ml": 0.0,
+}
+
+BASE_CTX = {
+    "dose": None,
+    "result_ml": None,
+    "multiplication": None,
+    "error": None,
+    "content_extra": None,
+    "UPDATE_DATE": "",
+    "u": u,
+    "order": {},
+    "static_build": True,
+}
+
+# ผสาน default ตัวเลขเข้าไป เพื่อกัน Undefined ในทุกหน้า
+BASE_CTX.update(DEFAULT_NUM_KEYS)
+
+
 def ensure_docs_dir():
     """สร้าง docs/ และ .nojekyll"""
     out = pathlib.Path(OUTPUT_DIR)
