@@ -11,51 +11,65 @@ OUTPUT_DIR = "docs"
 OUTPUT_STATIC_DIR = f"{OUTPUT_DIR}/static"
 
 # ---------- URL mapping (แทน url_for ในโหมด static) ----------
-# ชื่อ key = ชื่อ endpoint ฝั่ง Flask/Jinja, value = ไฟล์ .html จริงภายใต้ docs/
+# เก็บ "ค่าเป็นชื่อไฟล์ .html จริง" เพื่อให้ tools/check_links.py ทำงานถูกต้อง
 URL_MAP = {
-    # root/landing
-    "index": "./index.html",
-    # ชื่อ route เดิมชี้ไปไฟล์ที่มีจริง (คงตัวพิมพ์ใหญ่ตามไฟล์)
-    "medication_administration": "./Medication_administration.html",
+    # หน้าแรก
+    "index": "index.html",
 
-    # ปุ่มบนหน้าแรกที่เคย 404
-    "calculate_pma_route": "./pma_template.html",
-    "compatibility_page": "./compatibility.html",
-    "time_management_route": "./time_management.html",
+    # ปุ่มหลักจากหน้า Home
+    "pma_template": "pma_template.html",
+    "compatibility": "compatibility.html",
+    "Medication_administration": "Medication_administration.html",
+    "time_management": "time_management.html",
 
-    # route อื่นที่หน้าแรก/ในเพจเรียกใช้
-    "drug_calculation_route": "./drug_calculation.html",
-    "compatibility": "./compatibility.html",
-    "compatibility_result": "./compatibility_result.html",
-    "run_time_route": "./run_time.html",
-    "run_time_stop_route": "./run_time_stop.html",
+    # เส้นทางย่อย/ผลลัพธ์
+    "compatibility_result": "compatibility_result.html",
+    "run_time": "run_time.html",
+    "run_time_stop": "run_time_stop.html",
+    "verify_result": "verify_result.html",
 
-    # เพจเดี่ยวที่มักอ้างถึงตรง ๆ (มี fallback ด้านล่างอยู่แล้ว แต่ระบุไว้เพื่อชัดเจน)
-    "insulin": "./insulin.html",
-    "vancomycin": "./vancomycin.html",
-    "penicillin_g_sodium": "./penicillin_g_sodium.html",
-    "fentanyl_continuous": "./fentanyl_continuous.html",
-    "scan_server": "./scan_server.html",
-    "verify_result": "./verify_result.html",
+    # ตัวอย่างหน้า drug ต่าง ๆ (เติมได้ตามจริงของโปรเจกต์)
+    "vancomycin": "vancomycin.html",
+    "insulin": "insulin.html",
+    "fentanyl_continuous": "fentanyl_continuous.html",
+    "penicillin_g_sodium": "penicillin_g_sodium.html",
+    "scan_server": "scan_server.html",
 
-    # static helper
-    "static": "./static/",
+    # static (พิเศษ)
+    "static": "static/",
 }
+
+# ---------- Helpers (Normalization) ----------
+def _strip_leading_dots(path: str) -> str:
+    """ตัด './' นำหน้าซ้ำ ๆ ออก"""
+    while path.startswith("./"):
+        path = path[2:]
+    return path
+
+def _ensure_html_file(name_or_file: str) -> str:
+    """รับชื่อไฟล์หรือ slug -> คืนชื่อไฟล์ลงท้าย .html ครั้งเดียว"""
+    s = name_or_file.strip()
+    s = _strip_leading_dots(s)
+    if s.endswith(".html"):
+        return s
+    return f"{s}.html"
 
 def u(name: str, **kwargs) -> str:
     """
-    ตัวแทน url_for แบบย่อ:
+    ตัวแทน url_for แบบ static:
       - u('static', filename='x.css') -> ./static/x.css
-      - u('<endpoint>') -> map ตาม URL_MAP, ไม่เจอ -> เดาเป็น ./<endpoint>.html
+      - u('<endpoint>') -> map เป็นไฟล์ .html; ไม่เจอ -> เดาเป็น ./<endpoint>.html
       - u(None) / u('') -> ./index.html
+    คืนค่าเป็นพาธสัมพัทธ์เสมอ และไม่มี .html ซ้ำ
     """
     if not name:
         return "./index.html"
     if name == "static":
         fn = kwargs.get("filename", "")
         return f"./static/{fn}" if fn else "./static/"
-    # ถ้าเจอใน URL_MAP ใช้เลย; ไม่งั้นเดาเป็นไฟล์ .html ชื่อเดียวกับ endpoint
-    return URL_MAP.get(name, f"./{name}.html")
+    target = URL_MAP.get(name, f"{name}.html")
+    target = _ensure_html_file(target)
+    return f"./{_strip_leading_dots(target)}"
 
 def static_url(endpoint: str, filename: str = "") -> str:
     """รองรับรูปแบบเดิม url_for('static', filename=...) และ endpoint ใน URL_MAP"""
@@ -65,23 +79,22 @@ def static_url(endpoint: str, filename: str = "") -> str:
 
 def resolve_endpoint(endpoint: str) -> str:
     """
-    ใช้ใน macro safe_button(...)
-    - http(s) URL -> คืนตรง ๆ
-    - endpoint -> map ตาม URL_MAP; ไม่เจอ -> เดาเป็น ./<endpoint>.html
+    ใช้ใน macro/button ที่รับได้ทั้ง URL และ endpoint
+    - http(s) URL / anchor -> คืนตรง ๆ
+    - endpoint -> map เป็นไฟล์ .html
     - ค่าว่าง -> ./index.html
     """
     if not endpoint:
         return "./index.html"
-    if isinstance(endpoint, str) and endpoint.startswith(("http://", "https://")):
+    if isinstance(endpoint, str) and endpoint.startswith(("http://", "https://", "#")):
         return endpoint
-    return URL_MAP.get(endpoint, f"./{endpoint}.html")
+    target = URL_MAP.get(endpoint, f"{endpoint}.html")
+    target = _ensure_html_file(target)
+    return f"./{_strip_leading_dots(target)}"
 
-# ---------- Jinja environment & filters ----------
+# ---------- Jinja filters & env ----------
 def safe_fmt(value, fmt="%.2f"):
-    """
-    ป้องกัน format error เวลา value เป็น None/ไม่ใช่ตัวเลข:
-    ใช้: {{ some_var|safe_fmt('%.2f') }}
-    """
+    """ป้องกัน format error เวลา value เป็น None/ไม่ใช่ตัวเลข"""
     try:
         return fmt % (value,)
     except Exception:
@@ -102,58 +115,28 @@ env.globals.update({
     "resolve_endpoint": resolve_endpoint,
 })
 
-# ---------- ค่า context เริ่มต้น + ค่าเริ่มต้นเชิงตัวเลข ----------
+# ---------- Context ตั้งต้น ----------
 BASE_CTX = {
-    # ทั่วไป
     "error": None,
     "content_extra": None,
     "UPDATE_DATE": "",
     "u": u,
-    "order": {},               # กัน {{ order|tojson }} พัง
     "static_build": True,
-    # mock ที่บางเทมเพลตอาจเรียก
     "request": {"path": "/"},
     "session": {},
+    "order": {},  # <- สำคัญ: กัน {{ order|tojson }} พัง
+
+    # ป้องกันตัวเลขที่บางหน้าเรียกใช้
+    "bw": 0.0, "pma_weeks": 0, "pma_days": 0, "postnatal_days": 0,
+    "dose": 0.0, "dose_ml": 0.0, "dose_mgkg": 0.0,
+    "result_ml": 0.0, "result_ml_1": 0.0, "result_ml_2": 0.0, "result_ml_3": 0.0,
+    "final_result_1": 0.0, "final_result_2": 0.0, "final_result_3": 0.0,
+    "calculated_ml": 0.0, "vol_ml": 0.0,
+    "multiplication": 1.0, "rate_ml_hr": 0.0, "concentration_mg_ml": 0.0,
+    "target_conc": 0.0, "stock_conc": 0.0,
+    "loading_dose_ml": 0.0, "maintenance_dose_ml": 0.0,
+    "infusion_rate_ml_hr": 0.0, "total_volume_ml": 0.0, "dilution_volume_ml": 0.0,
 }
-
-DEFAULT_NUM_KEYS = {
-    # สถานะผู้ป่วย/อายุ
-    "bw": 0.0,
-    "pma_weeks": 0,
-    "pma_days": 0,
-    "postnatal_days": 0,
-
-    # ปริมาณ/ผลลัพธ์
-    "dose": 0.0,
-    "dose_ml": 0.0,
-    "dose_mgkg": 0.0,
-
-    "result_ml": 0.0,
-    "result_ml_1": 0.0,
-    "result_ml_2": 0.0,
-    "result_ml_3": 0.0,
-    "final_result_1": 0.0,
-    "final_result_2": 0.0,
-    "final_result_3": 0.0,
-
-    "calculated_ml": 0.0,      # กันหน้า benzathine_penicillin_g.html
-    "vol_ml": 0.0,             # กันหน้า phenobarbital.html
-
-    # infusion/ความเข้มข้น/ตัวคูณ
-    "multiplication": 1.0,
-    "rate_ml_hr": 0.0,
-    "concentration_mg_ml": 0.0,
-
-    # ตัวแปรเฉพาะบางหน้า
-    "target_conc": 0.0,
-    "stock_conc": 0.0,
-    "loading_dose_ml": 0.0,
-    "maintenance_dose_ml": 0.0,
-    "infusion_rate_ml_hr": 0.0,
-    "total_volume_ml": 0.0,
-    "dilution_volume_ml": 0.0,
-}
-BASE_CTX.update(DEFAULT_NUM_KEYS)
 
 # ---------- Utilities ----------
 def ensure_docs_dir():
@@ -190,7 +173,7 @@ def render_all():
             rel_path = src_path.relative_to(TEMPLATES_DIR)
             out_path = pathlib.Path(OUTPUT_DIR) / rel_path
 
-            # พิเศษ: templates/index.html -> docs/index.html
+            # templates/index.html -> docs/index.html (ไม่สร้างโฟลเดอร์ซ้อน)
             if str(rel_path) == "index.html":
                 out_path = pathlib.Path(OUTPUT_DIR) / "index.html"
             else:
@@ -198,6 +181,11 @@ def render_all():
 
             tmpl = env.get_template(str(rel_path))
             html = tmpl.render(**BASE_CTX)
+
+            # safety nets: กัน .html.html และ ././ ที่หลุดมาจาก template
+            html = html.replace(".html.html", ".html")
+            html = html.replace('href="././', 'href="./')
+            html = html.replace('href=".//', 'href="./')
 
             with open(out_path, "w", encoding="utf-8") as fp:
                 fp.write(html)
