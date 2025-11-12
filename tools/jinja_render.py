@@ -3,6 +3,7 @@
 import os
 import shutil
 import pathlib
+from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 TEMPLATES_DIR = "templates"
@@ -10,58 +11,91 @@ STATIC_DIR = "static"
 OUTPUT_DIR = "docs"
 OUTPUT_STATIC_DIR = f"{OUTPUT_DIR}/static"
 
-# ---------- URL mapping (แทน url_for ในโหมด static) ----------
-# เก็บ "ค่าเป็นชื่อไฟล์ .html จริง" เพื่อให้ tools/check_links.py ทำงานถูกต้อง
+# ---------- URL mapping ----------
 URL_MAP = {
-    # หน้าแรก
     "index": "index.html",
-
-    # ปุ่มหลักจากหน้า Home
     "pma_template": "pma_template.html",
     "compatibility": "compatibility.html",
     "Medication_administration": "Medication_administration.html",
     "time_management": "time_management.html",
-
-    # เส้นทางย่อย/ผลลัพธ์
     "compatibility_result": "compatibility_result.html",
     "run_time": "run_time.html",
     "run_time_stop": "run_time_stop.html",
     "verify_result": "verify_result.html",
-
-    # ตัวอย่างหน้า drug ต่าง ๆ (เติมได้ตามจริงของโปรเจกต์)
     "vancomycin": "vancomycin.html",
     "insulin": "insulin.html",
     "fentanyl_continuous": "fentanyl_continuous.html",
     "penicillin_g_sodium": "penicillin_g_sodium.html",
     "scan_server": "scan_server.html",
-
-    # static (พิเศษ)
     "static": "static/",
 }
 
-# ---------- Helpers (Normalization) ----------
+# >>> NEW: รายการยาแบบเดียวกับใน Flask route
+MEDS = [
+    {"label": "Acyclovir", "endpoint": "acyclovir_route"},
+    {"label": "Amikacin", "endpoint": "amikin_route"},
+    {"label": "Aminophylline", "endpoint": "aminophylline_route", "danger": True},
+    {"label": "Amoxicillin / Clavimoxy", "endpoint": "amoxicillin_clavimoxy_route"},
+    {"label": "Amphotericin B", "endpoint": "amphotericinB_route"},
+    {"label": "Ampicillin", "endpoint": "ampicillin_route"},
+    {"label": "Benzathine penicillin G", "endpoint": "benzathine_penicillin_g_route"},
+    {"label": "Cefazolin", "endpoint": "cefazolin_route"},
+    {"label": "Cefotaxime", "endpoint": "cefotaxime_route"},
+    {"label": "Ceftazidime", "endpoint": "ceftazidime_route"},
+    {"label": "Ciprofloxacin", "endpoint": "ciprofloxacin_route"},
+    {"label": "Clindamycin", "endpoint": "clindamycin_route"},
+    {"label": "Cloxacillin", "endpoint": "cloxacillin_route"},
+    {"label": "Colistin", "endpoint": "colistin_route"},
+    {"label": "Dexamethasone", "endpoint": "dexamethasone_route"},
+    {"label": "Dobutamine", "endpoint": "dobutamine_route", "danger": True},
+    {"label": "Dopamine", "endpoint": "dopamine_route", "danger": True},
+    {"label": "Fentanyl", "endpoint": "fentanyl_route", "danger": True},
+    {"label": "Furosemide", "endpoint": "furosemide_route"},
+    {"label": "Gentamicin", "endpoint": "gentamicin_route"},
+    {"label": "Hydrocortisone", "endpoint": "hydrocortisone_route"},
+    {"label": "Insulin Human Regular", "endpoint": "insulin_route"},
+    {"label": "Levofloxacin", "endpoint": "levofloxacin_route"},
+    {"label": "Meropenem", "endpoint": "meropenem_route"},
+    {"label": "Metronidazole (Flagyl)", "endpoint": "metronidazole"},
+    {"label": "Midazolam", "endpoint": "midazolam_route", "danger": True},
+    {"label": "Midazolam + Fentanyl", "endpoint": "midazolam_fentanyl_route", "danger": True},
+    {"label": "Morphine", "endpoint": "morphine_route", "danger": True},
+    {"label": "Nimbex (Cisatracurium)", "endpoint": "nimbex_route"},
+    {"label": "Omeprazole", "endpoint": "omeprazole_route"},
+    {"label": "Penicillin G sodium", "endpoint": "penicillin_g_sodium_route"},
+    {"label": "Phenobarbital", "endpoint": "phenobarbital_route"},
+    {"label": "Phenytoin (Dilantin)", "endpoint": "phenytoin_route"},
+    {"label": "Remdesivir", "endpoint": "remdesivir_route"},
+    {"label": "Sul-am®", "endpoint": "sul_am_route"},
+    {"label": "Sulbactam", "endpoint": "sulbactam_route"},
+    {"label": "Sulperazone", "endpoint": "sulperazone_route"},
+    {"label": "Tazocin", "endpoint": "tazocin_route"},
+    {"label": "Unasyn", "endpoint": "unasyn_route"},
+    {"label": "Vancomycin", "endpoint": "vancomycin_route"},
+]
+
+# >>> NEW: เติม URL_MAP ของ endpoint ยา → ชื่อไฟล์ .html อัตโนมัติ
+for m in MEDS:
+    ep = m["endpoint"]
+    if ep.endswith("_route"):
+        page = ep[:-6] + ".html"   # ตัด "_route"
+    else:
+        page = ep + ".html"
+    URL_MAP.setdefault(ep, page)
+
+# ---------- Helpers ----------
 def _strip_leading_dots(path: str) -> str:
-    """ตัด './' นำหน้าซ้ำ ๆ ออก"""
     while path.startswith("./"):
         path = path[2:]
     return path
 
 def _ensure_html_file(name_or_file: str) -> str:
-    """รับชื่อไฟล์หรือ slug -> คืนชื่อไฟล์ลงท้าย .html ครั้งเดียว"""
     s = name_or_file.strip()
     s = _strip_leading_dots(s)
-    if s.endswith(".html"):
-        return s
+    if s.endswith(".html"): return s
     return f"{s}.html"
 
 def u(name: str, **kwargs) -> str:
-    """
-    ตัวแทน url_for แบบ static:
-      - u('static', filename='x.css') -> ./static/x.css
-      - u('<endpoint>') -> map เป็นไฟล์ .html; ไม่เจอ -> เดาเป็น ./<endpoint>.html
-      - u(None) / u('') -> ./index.html
-    คืนค่าเป็นพาธสัมพัทธ์เสมอ และไม่มี .html ซ้ำ
-    """
     if not name:
         return "./index.html"
     if name == "static":
@@ -72,18 +106,11 @@ def u(name: str, **kwargs) -> str:
     return f"./{_strip_leading_dots(target)}"
 
 def static_url(endpoint: str, filename: str = "") -> str:
-    """รองรับรูปแบบเดิม url_for('static', filename=...) และ endpoint ใน URL_MAP"""
     if endpoint == "static":
         return f"./static/{filename}" if filename else "./static/"
     return u(endpoint)
 
 def resolve_endpoint(endpoint: str) -> str:
-    """
-    ใช้ใน macro/button ที่รับได้ทั้ง URL และ endpoint
-    - http(s) URL / anchor -> คืนตรง ๆ
-    - endpoint -> map เป็นไฟล์ .html
-    - ค่าว่าง -> ./index.html
-    """
     if not endpoint:
         return "./index.html"
     if isinstance(endpoint, str) and endpoint.startswith(("http://", "https://", "#")):
@@ -92,9 +119,8 @@ def resolve_endpoint(endpoint: str) -> str:
     target = _ensure_html_file(target)
     return f"./{_strip_leading_dots(target)}"
 
-# ---------- Jinja filters & env ----------
+# ---------- Jinja env ----------
 def safe_fmt(value, fmt="%.2f"):
-    """ป้องกัน format error เวลา value เป็น None/ไม่ใช่ตัวเลข"""
     try:
         return fmt % (value,)
     except Exception:
@@ -110,23 +136,18 @@ env = Environment(
 env.filters["safe_fmt"] = safe_fmt
 env.globals.update({
     "u": u,
-    "url_for": static_url,     # ให้ base.html ใช้ได้
-    "static_build": True,      # เงื่อนไขใน base.html
+    "url_for": static_url,
+    "static_build": True,
     "resolve_endpoint": resolve_endpoint,
 })
 
-# ---------- Context ตั้งต้น ----------
+# ---------- Base context ----------
 BASE_CTX = {
-    "error": None,
-    "content_extra": None,
-    "UPDATE_DATE": "",
-    "u": u,
-    "static_build": True,
-    "request": {"path": "/"},
-    "session": {},
-    "order": {},  # <- สำคัญ: กัน {{ order|tojson }} พัง
+    "error": None, "content_extra": None, "UPDATE_DATE": "",
+    "u": u, "static_build": True, "request": {"path": "/"}, "session": {},
+    "order": {},  # for verify_result.html
 
-    # ป้องกันตัวเลขที่บางหน้าเรียกใช้
+    # defaults used in drug pages
     "bw": 0.0, "pma_weeks": 0, "pma_days": 0, "postnatal_days": 0,
     "dose": 0.0, "dose_ml": 0.0, "dose_mgkg": 0.0,
     "result_ml": 0.0, "result_ml_1": 0.0, "result_ml_2": 0.0, "result_ml_3": 0.0,
@@ -138,15 +159,12 @@ BASE_CTX = {
     "infusion_rate_ml_hr": 0.0, "total_volume_ml": 0.0, "dilution_volume_ml": 0.0,
 }
 
-# ---------- Utilities ----------
 def ensure_docs_dir():
-    """สร้าง docs/ และ .nojekyll"""
     out = pathlib.Path(OUTPUT_DIR)
     out.mkdir(parents=True, exist_ok=True)
     (out / ".nojekyll").write_text("", encoding="utf-8")
 
 def copy_static():
-    """คัดลอก static/ → docs/static/"""
     if os.path.isdir(STATIC_DIR):
         if os.path.isdir(OUTPUT_STATIC_DIR):
             shutil.rmtree(OUTPUT_STATIC_DIR)
@@ -156,8 +174,18 @@ def copy_static():
         print("skip: no static/ folder found")
 
 def should_render(filename: str) -> bool:
-    """ข้าม partial เช่น _header.html และเลือกเฉพาะ .html"""
     return filename.endswith(".html") and not filename.startswith("_")
+
+# >>> NEW: สร้าง context ของหน้าการบริหารยา (A–Z)
+def build_med_ctx():
+    groups = defaultdict(list)
+    for m in MEDS:
+        groups[m["label"][0].upper()].append(m)
+    for k in list(groups.keys()):
+        groups[k].sort(key=lambda x: x["label"].lower())
+    groups = dict(sorted(groups.items()))
+    letters = list(groups.keys())
+    return {"meds": MEDS, "groups": groups, "letters": letters}
 
 # ---------- Render all ----------
 def render_all():
@@ -173,16 +201,21 @@ def render_all():
             rel_path = src_path.relative_to(TEMPLATES_DIR)
             out_path = pathlib.Path(OUTPUT_DIR) / rel_path
 
-            # templates/index.html -> docs/index.html (ไม่สร้างโฟลเดอร์ซ้อน)
             if str(rel_path) == "index.html":
                 out_path = pathlib.Path(OUTPUT_DIR) / "index.html"
             else:
                 out_path.parent.mkdir(parents=True, exist_ok=True)
 
             tmpl = env.get_template(str(rel_path))
-            html = tmpl.render(**BASE_CTX)
 
-            # safety nets: กัน .html.html และ ././ ที่หลุดมาจาก template
+            ctx = dict(BASE_CTX)
+            # >>> NEW: อัด groups/letters/meds เข้าเฉพาะหน้านี้
+            if str(rel_path) == "Medication_administration.html":
+                ctx.update(build_med_ctx())
+
+            html = tmpl.render(**ctx)
+
+            # safety net
             html = html.replace(".html.html", ".html")
             html = html.replace('href="././', 'href="./')
             html = html.replace('href=".//', 'href="./')
