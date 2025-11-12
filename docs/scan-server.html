@@ -136,11 +136,11 @@
 
 <!-- Footer + ปุ่มลอย (ตามที่ขอให้ใส่เหมือนหน้าอื่น) -->
 <footer class="page-footer">
-  <p>Developed by Sukhontha Boonsookchan | update 2025-11-09 22:31</p>
+  <p>Developed by Sukhontha Boonsookchan | update </p>
 </footer>
 
 <div class="float-actions">
-  <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+  <a href="./index.html" class="btn btn-cyan">Back</a>
   <a href="./index.html" class="btn btn-red">Back to Home</a>
 </div>
 
@@ -208,7 +208,7 @@ formEl.addEventListener('submit', async (e) => {
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-09 22:31</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->
@@ -227,5 +227,12 @@ formEl.addEventListener('submit', async (e) => {
       });
     })();
   </script>
+  
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("./static/service-worker.js");
+}
+</script>
+
 </body>
 </html>

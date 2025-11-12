@@ -344,14 +344,14 @@
 
 <!-- ปุ่มล่าง: ลอยติดขอบล่าง กึ่งกลางจอ -->
 <div class="foot-actions">
-  <a href="./Medication_administration.html" class="back">Back</a>
+  <a href="./index.html" class="back">Back</a>
   <a href="./index.html" class="home">Back to Home</a>
 </div>
 
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-09 22:31</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->
@@ -370,5 +370,12 @@
       });
     })();
   </script>
+  
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("./static/service-worker.js");
+}
+</script>
+
 </body>
 </html>

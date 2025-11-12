@@ -183,18 +183,21 @@
   <div class="container">
 
     <!-- รอบ 1: คำนวณจาก mg -->
-    <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
+    <!-- ฟอร์ม #1: คำนวณจาก mg -->
+<div class="calc-box">
+  <form action="./acyclovir_route.html" method="post" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <div class="dose-row">
       <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="0">
+      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
+             required step="0.01" value="0.0">
     </div>
 
     <button type="submit" class="btn btn-blue">คำนวณ</button>
   </form>
 </div>
+
 
     <!-- ผลลัพธ์คำนวณ -->
     
@@ -203,20 +206,21 @@
 
     
 
+
     
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ  เท่า</b></p>
+        <p><b>ผลลัพธ์หลังจากคูณ 1.0 เท่า</b></p>
         <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p> ×  ml = <span class="pill"><b>0</b> </span>ml
-             <span class="muted">(จากสูตร: (0 × 5) / 250)</span></p>
-          <p> ×  ml = <span class="pill"><b>0</b></span> ml
-             <span class="muted">(จากสูตร: (0 × 1) / 5)</span></p>
+          <p>1.0 × 0.0 ml = <span class="pill"><b>0.0</b> </span>ml
+             <span class="muted">(จากสูตร: (0.0 × 5) / 250)</span></p>
+          <p>1.0 × 0.0 ml = <span class="pill"><b>0.0</b></span> ml
+             <span class="muted">(จากสูตร: (0.0 × 1) / 5)</span></p>
 
           <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-          <p class="highlight"><b>ปริมาณยา (ตัวสาร):</b> 0 ml</p>
+          <p class="highlight"><b>ปริมาณยา (ตัวสาร):</b> 0.0 ml</p>
           <p class="highlight"><b>ปริมาณตัวทำละลาย:</b> 0.0 ml
              <span class="muted"> (0.0 − 0.0)</span></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b>  ml → <b>drip 1 hr.</b></p>
+          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> 0.0 ml → <b>drip 1 hr.</b></p>
         </div>
       </div>
     
@@ -259,12 +263,12 @@
 
   <!-- footer ชิดเนื้อหา แต่ไม่โดนปุ่มลอยทับ -->
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-09 22:31</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <!-- ปุ่มลอยติดล่าง (ห่อได้, ไม่ชนขอบ) -->
   <div class="float-actions">
-    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+    <a href="./index.html" class="btn btn-cyan">Back</a>
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 </body>

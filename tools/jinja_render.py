@@ -99,9 +99,30 @@ DEFAULT_NUM_KEYS = {
     "final_result_1": 0.0,
     "final_result_2": 0.0,
 
+<<<<<<< HEAD
     "multiplication": 1.0,       # ตัวคูณในสูตรหลายหน้า
     "rate_ml_hr": 0.0,
     "concentration_mg_ml": 0.0,
+=======
+    "calculated_ml": 0.0,      # ใช้ใน benzathine_penicillin_g.html
+
+    # infusion/ความเข้มข้น/ตัวคูณ
+    "multiplication": 1.0,
+    "rate_ml_hr": 0.0,
+    "concentration_mg_ml": 0.0,
+
+    # ตัวแปรเฉพาะที่มักโผล่ในหน้าเฉพาะยา
+    "target_conc": 0.0,            # เช่น phenobarbital
+    "stock_conc": 0.0,
+    "loading_dose_ml": 0.0,
+    "maintenance_dose_ml": 0.0,
+    "infusion_rate_ml_hr": 0.0,
+    "total_volume_ml": 0.0,
+    "dilution_volume_ml": 0.0,
+
+    # **สำคัญสำหรับ phenobarbital.html**
+    "vol_ml": 0.0,
+>>>>>>> 558d820b (build(pages): robust static prerender with safe_fmt and numeric defaults)
 }
 
 BASE_CTX = {
