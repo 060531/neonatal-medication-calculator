@@ -16,8 +16,7 @@ URL_MAP = {
     "index": "./index.html",
     "medication_administration": "./index.html",
 
-    # เพจคำนวณ/หน้าเดี่ยวที่ต้องการ build เป็นไฟล์
-    # (เติมเพิ่มได้ตามที่มีเทมเพลต)
+    # เพจคำนวณ/หน้าเดี่ยวที่ต้องการ build เป็นไฟล์ (เติมเพิ่มได้)
     "insulin": "./insulin.html",
     "vancomycin": "./vancomycin.html",
     "penicillin_g_sodium": "./penicillin_g_sodium.html",
@@ -26,16 +25,21 @@ URL_MAP = {
     "verify_result": "./verify_result.html",
 }
 
-def u(name: str) -> str:
-    """เทียบชื่อ endpoint -> ไฟล์ใน docs"""
+def u(name: str, **kwargs) -> str:
+    """
+    ตัวแทน url_for แบบย่อ:
+      - u('static', filename='x.css') -> ./static/x.css
+      - u('index') / u('<endpoint>') -> map ตาม URL_MAP (หรือเดาเป็น ./<endpoint>.html)
+    """
+    if name == "static":
+        fn = kwargs.get("filename", "")
+        return f"./static/{fn}" if fn else "./static/"
+    if not name:
+        return "./index.html"
     return URL_MAP.get(name, f"./{name}.html")
 
 def static_url(endpoint: str, filename: str = "") -> str:
-    """
-    แทน url_for แบบย่อสำหรับโหมด static:
-    - url_for('static', filename='x.css') -> ./static/x.css
-    - url_for('index') -> ใช้ URL_MAP
-    """
+    """รองรับรูปแบบเดิม url_for('static', filename=...) และ endpoint ใน URL_MAP"""
     if endpoint == "static":
         return f"./static/{filename}" if filename else "./static/"
     return u(endpoint)
@@ -53,11 +57,25 @@ def resolve_endpoint(endpoint: str) -> str:
         return endpoint
     return URL_MAP.get(endpoint, f"./{endpoint}.html")
 
-# ---------- Jinja environment ----------
+# ---------- Jinja environment & filters ----------
+def safe_fmt(value, fmt="%.2f"):
+    """
+    ป้องกันการฟอร์แมตตัวเลขแล้วล้มเมื่อ value เป็น None/Undefined/ไม่ใช่ตัวเลข
+    ใช้: {{ some_var|safe_fmt('%.2f') }}
+    """
+    try:
+        return fmt % (value,)
+    except Exception:
+        try:
+            return fmt % (0,)
+        except Exception:
+            return str(value)
+
 env = Environment(
     loader=FileSystemLoader(TEMPLATES_DIR),
     autoescape=select_autoescape(["html", "xml"]),
 )
+env.filters["safe_fmt"] = safe_fmt
 env.globals.update({
     "u": u,
     "url_for": static_url,     # ให้ base.html ใช้ได้
@@ -65,30 +83,29 @@ env.globals.update({
     "resolve_endpoint": resolve_endpoint,
 })
 
-# ---------- ค่า context เริ่มต้น ----------
+# ---------- ค่า context เริ่มต้น + ค่าเริ่มต้นเชิงตัวเลข ----------
 BASE_CTX = {
-    "dose": None,
-    "result_ml": None,
-    "multiplication": None,
+    # ค่าทั่วไป
     "error": None,
     "content_extra": None,
     "UPDATE_DATE": "",
     "u": u,
     "order": {},               # กัน {{ order|tojson }} พัง
     "static_build": True,
-    # mock บางตัวที่บางเทมเพลตอาจเรียก (ปลอดภัยไว้ก่อน)
+    # mock ที่บางเทมเพลตอาจเรียก
     "request": {"path": "/"},
     "session": {},
 }
 
-# --- ใส่ไว้ใกล้ BASE_CTX ---
+# ค่า default สำหรับตัวเลขที่ถูก format/คำนวณบ่อย ๆ
 DEFAULT_NUM_KEYS = {
-    # ค่าที่มักถูกเรียกในหลายเทมเพลต
-    "bw": 0.0,                   # Birth weight
+    # สถานะผู้ป่วย/อายุ
+    "bw": 0.0,                 # Birth weight (kg)
     "pma_weeks": 0,
     "pma_days": 0,
     "postnatal_days": 0,
 
+    # ปริมาณ/ผลลัพธ์
     "dose": 0.0,
     "dose_ml": 0.0,
     "dose_mgkg": 0.0,
@@ -96,51 +113,32 @@ DEFAULT_NUM_KEYS = {
     "result_ml": 0.0,
     "result_ml_1": 0.0,
     "result_ml_2": 0.0,
+    "result_ml_3": 0.0,        # กันเผื่อหลายสเต็ป
     "final_result_1": 0.0,
     "final_result_2": 0.0,
+    "final_result_3": 0.0,
 
-<<<<<<< HEAD
-    "multiplication": 1.0,       # ตัวคูณในสูตรหลายหน้า
-    "rate_ml_hr": 0.0,
-    "concentration_mg_ml": 0.0,
-=======
-    "calculated_ml": 0.0,      # ใช้ใน benzathine_penicillin_g.html
+    "calculated_ml": 0.0,      # เผื่อหน้า benzathine_penicillin_g.html
 
     # infusion/ความเข้มข้น/ตัวคูณ
     "multiplication": 1.0,
     "rate_ml_hr": 0.0,
     "concentration_mg_ml": 0.0,
 
-    # ตัวแปรเฉพาะที่มักโผล่ในหน้าเฉพาะยา
-    "target_conc": 0.0,            # เช่น phenobarbital
+    # ตัวแปรเฉพาะบางหน้า (เช่น phenobarbital)
+    "target_conc": 0.0,
     "stock_conc": 0.0,
     "loading_dose_ml": 0.0,
     "maintenance_dose_ml": 0.0,
     "infusion_rate_ml_hr": 0.0,
     "total_volume_ml": 0.0,
     "dilution_volume_ml": 0.0,
-
-    # **สำคัญสำหรับ phenobarbital.html**
-    "vol_ml": 0.0,
->>>>>>> 558d820b (build(pages): robust static prerender with safe_fmt and numeric defaults)
 }
 
-BASE_CTX = {
-    "dose": None,
-    "result_ml": None,
-    "multiplication": None,
-    "error": None,
-    "content_extra": None,
-    "UPDATE_DATE": "",
-    "u": u,
-    "order": {},
-    "static_build": True,
-}
-
-# ผสาน default ตัวเลขเข้าไป เพื่อกัน Undefined ในทุกหน้า
+# ผสาน default เข้ากับ context หลัก
 BASE_CTX.update(DEFAULT_NUM_KEYS)
 
-
+# ---------- Utilities ----------
 def ensure_docs_dir():
     """สร้าง docs/ และ .nojekyll"""
     out = pathlib.Path(OUTPUT_DIR)
@@ -158,9 +156,10 @@ def copy_static():
         print("skip: no static/ folder found")
 
 def should_render(filename: str) -> bool:
-    """ข้าม partial เช่น _header.html, และไม่เรนเดอร์ไฟล์ที่ไม่ใช่ .html"""
+    """ข้าม partial เช่น _header.html และเลือกเฉพาะ .html"""
     return filename.endswith(".html") and not filename.startswith("_")
 
+# ---------- Render all ----------
 def render_all():
     ensure_docs_dir()
     copy_static()
