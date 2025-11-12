@@ -1,36 +1,29 @@
-const CACHE = "neo-med-v1";
-const CORE = [
-  "./",
-  "./index.html",
-  "./static/style.css",
-  "./static/app.js",
-  "./static/manifest.webmanifest"
+const CACHE_NAME = 'nmcalc-v2';
+const ASSETS = [
+  'style.css',
+  'app.js',
+  'manifest.webmanifest'
 ];
 
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)));
+self.addEventListener('install', (e) => {
   self.skipWaiting();
+  e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS)));
 });
 
-self.addEventListener("activate", (e) => {
+self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(k => (k !== CACHE ? caches.delete(k) : null)))
-    )
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (e) => {
+self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // ใช้ cache-first สำหรับไฟล์ภายใน
-  if (url.origin === location.origin) {
+  // ให้ทำงานเฉพาะไฟล์ใต้ /static/
+  if (url.origin === location.origin && url.pathname.startsWith(new URL('.', location).pathname)) {
     e.respondWith(
-      caches.match(e.request).then((res) => res || fetch(e.request).then(resp => {
-        const copy = resp.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
-        return resp;
-      }).catch(() => caches.match("./index.html")))
+      caches.match(e.request).then((res) => res || fetch(e.request))
     );
   }
 });
