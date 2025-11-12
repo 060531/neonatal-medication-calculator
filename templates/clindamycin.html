@@ -201,15 +201,15 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Clindamycin {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Clindamycin {{ dose|fmt(2) } mg</p>
 
         <p><b>ขั้นตอนที่ 1: ปริมาณยา (600 mg / 4 ml)</b></p>
         <p>ใช้สูตร <span class="mono">(mg × 4) / 600</span> ⇒
-          <span class="mono">{{ '%.2f'|format(dose) }} × 4 / 600 = </span><span class="pill">{{ result_ml_1 | default(0) }} ml</span></p>
+          <span class="mono">{{ dose|fmt(2) } × 4 / 600 = </span><span class="pill">{{ result_ml_1 | default(0) }} ml</span></p>
 
         <p style="margin-top:10px"><b>ขั้นตอนที่ 2: ปริมาณสารละลายเป้าหมาย (6 mg/ml)</b></p>
         <p>ใช้สูตร <span class="mono">(mg × 1) / 6</span> ⇒
-          <span class="mono">{{ '%.2f'|format(dose) }} × 1 / 6 = </span><span class="pill">{{ result_ml_2 | default(0) }} ml</span></p>
+          <span class="mono">{{ dose|fmt(2) } × 1 / 6 = </span><span class="pill">{{ result_ml_2 | default(0) }} ml</span></p>
       </div>
     {% endif %}
 
@@ -242,15 +242,15 @@
       <div class="result">
         <p lass="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า</b></p>
         <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p>{{ multiplication }} × {{ result_ml_1 }} ml = <b>{{ '%.2f'|format(final1) }}</b> ml
+          <p>{{ multiplication }} × {{ result_ml_1 }} ml = <b>{{ final1|fmt(2) }</b> ml
             <span class="muted">(จากสูตร: (mg × 4) / 600)</span></p>
-          <p>{{ multiplication }} × {{ result_ml_2 }} ml = <b>{{ '%.2f'|format(final2) }}</b> ml
+          <p>{{ multiplication }} × {{ result_ml_2 }} ml = <b>{{ final2|fmt(2) }</b> ml
             <span class="muted">(จากสูตร: (mg × 1) / 6)</span></p>
 
           <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-          <p><b>ดูดยา :</b> <span class="pill">{{ '%.2f'|format(final1) }} ml</span></p>
-          <p><b>ดูดน้ำ (ตัวทำละลาย):</b> <span class="pill">{{ '%.2f'|format(final2 - final1) }} ml</span>
-             <span class="muted">({{ '%.2f'|format(final2) }} − {{ '%.2f'|format(final1) }})</span></p>
+          <p><b>ดูดยา :</b> <span class="pill">{{ final1|fmt(2) } ml</span></p>
+          <p><b>ดูดน้ำ (ตัวทำละลาย):</b> <span class="pill">{{ final2 - final1|fmt(2) } ml</span>
+             <span class="muted">({{ final2|fmt(2) } − {{ final1|fmt(2) })</span></p>
           <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> <span class="pill">{{ result_ml_2 }} ml</span></p>
         </div>
       </div>

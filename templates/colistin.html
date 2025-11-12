@@ -199,9 +199,9 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Colistin {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Colistin {{ dose|fmt(2) } mg</p>
         <p><b>สูตรจากสต็อก 150 mg / 2 ml</b> → <span class="mono">ml = (mg × 2) / 150</span></p>
-        <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} × 2 / 150 = </span><span class="pill">{{ ((dose * 2) / 150) | round(2) }} ml</span></p>
+        <p>แทนค่า: <span class="mono">{{ dose|fmt(2) } × 2 / 150 = </span><span class="pill">{{ ((dose * 2) / 150) | round(2) }} ml</span></p>
       </div>
     {% endif %}
 
@@ -224,11 +224,11 @@
     {% if multiplication is not none and result_ml is not none %}
       {% set total = (result_ml * multiplication) %}
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ '%.2f' | format(total) }} ml</b></p>
+        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) } ml</b></p>
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ '%.2f' | format(total) }}) = {{ '%.2f' | format(9 - total) }} ml</p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }) = {{ 9 - total|fmt(2) } ml</p>
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -239,7 +239,7 @@
 
           {% if multiplication == 6 %}
             {% if total < 6 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ '%.2f' | format(total) }}) = {{ '%.2f' | format(6 - total) }} ml</p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }) = {{ 6 - total|fmt(2) } ml</p>
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}

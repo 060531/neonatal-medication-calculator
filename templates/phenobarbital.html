@@ -146,7 +146,7 @@
 
   {% if vol_ml is not none %}
     <div class="result">
-      <div class="big">{{ '%.2f'|format(vol_ml) }} ml</div>
+      <div class="big">{{ vol_ml|fmt(2) } ml</div>
       <div class="hint">ให้ตามปริมาณนี้ที่ความเข้มข้น {{ target_conc|sig(3) }} mg/ml</div>
 
       <!-- สูตร/แทนค่า (แถวเดียว) -->
@@ -157,7 +157,7 @@
         </div>
         <div class="line" style="margin-top:6px">
           <span>แทนค่า:</span>
-          <span class="mono">{{ '%.2f'|format(dose) }} ÷ {{ target_conc|sig(3) }} = {{ '%.2f'|format(vol_ml) }} ml</span>
+          <span class="mono">{{ dose|fmt(2) } ÷ {{ target_conc|sig(3) }} = {{ vol_ml|fmt(2) } ml</span>
         </div>
       </div>
 
@@ -173,7 +173,7 @@
         {% set last_batch_vol = last_batch_mg / 20.0 %}
 
         <ul>
-          <li>ปริมาณที่ต้องการ <b>{{ '%.2f'|format(last_batch_mg) }} mg</b> = <b>{{ '%.2f'|format(last_batch_vol) }} ml</b> (20 mg/ml)</li>
+          <li>ปริมาณที่ต้องการ <b>{{ last_batch_mg|fmt(2) } mg</b> = <b>{{ last_batch_vol|fmt(2) } ml</b> (20 mg/ml)</li>
         </ul>
 
       </div>

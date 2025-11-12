@@ -200,12 +200,12 @@
     {% if dose is not none %}
       {% set result_ml = (dose / 5.0) %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Metronidazole {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Metronidazole {{ dose|fmt(2) } mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง (premix):</b> 500 mg / 100 ml ⇒ <b>5 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 5</span></p>
-          <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} ÷ 5</span> = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
-          <p><b>ดังนั้น:</b> {{ '%.2f'|format(dose) }} mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) } ÷ 5</span> = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p><b>ดังนั้น:</b> {{ dose|fmt(2) } mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
         </div>
       </div>
     {% endif %}

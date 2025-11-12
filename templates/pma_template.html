@@ -41,7 +41,7 @@
     <p>PMA: <b style="color:blue">{{ pma_weeks }} weeks and {{ pma_days }} days</b></p>
     <p>Calc.: <b style="color:blue">{{ calc_unit or 'weeks' }}</b></p>
     <p>Postnatal Age: <b style="color:blue">{{ postnatal_days }} days</b></p>
-    <p>Birth Weight (BW): <b style="color:blue">{{ '%.3f'|format(bw|default(0)) }} kg</b></p>
+    <p>Birth Weight (BW): <b style="color:blue">{{ bw|fmt(3) }} kg</b></p>
 
     <form method="get" action="{{ u('drug_calculation') }}">
       <input type="hidden" name="pma_weeks" value="{{ pma_weeks }}">

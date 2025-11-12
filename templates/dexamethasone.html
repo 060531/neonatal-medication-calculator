@@ -199,14 +199,14 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Dexamethasone {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Dexamethasone {{ dose|fmt(2) } mg</p>
 
         <div class="left-align" style="margin-top:8px">
           <p class="item"><b>แนวทางเตรียมแบบ Small dose (ทำให้ได้ 1 mg/ml):</b></p>
           <ul class="muted" style="margin-top:4px">
             <li><b>สูตร 1 mg/ml</b> : ยา 0.2 ml + D5W เติมจนได้ <b>1 ml</b> → <b>1 mg/ml</b></li>
             <li><b>วิธีเตรียม :</b> Sterile water 80 u + ยา 20 u = 1 mg (รวม 100 u)</li>
-            <li><b>ดังนั้น</b> {{ '%.2f'|format(dose) }} mg = <b><span class="pill">{{ (dose * 100) | int }}</span></b> u</li>
+            <li><b>ดังนั้น</b> {{ dose|fmt(2) } mg = <b><span class="pill">{{ (dose * 100) | int }}</span></b> u</li>
           </ul>
         </div>
       </div>

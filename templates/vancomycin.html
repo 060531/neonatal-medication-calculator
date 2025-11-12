@@ -217,7 +217,7 @@
       {% set result_ml_1 = result_ml_1 %}
       {% set result_ml_2 = result_ml_2 %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Vancomycin {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Vancomycin {{ dose|fmt(2) } mg</p>
         <div class="left-align muted">
           <p><b>หลังละลาย:</b> เติม Sterile water 10 ml → ได้สารละลาย 10 ml ⇒ <b>50 mg/ml</b></p>
           <p><b>ขั้นที่ 1 (จาก stock 50 mg/ml):</b> <span class="mono">ml = mg × 10 ÷ 500</span> ⇒

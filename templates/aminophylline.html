@@ -82,14 +82,14 @@
     {# แสดงผลเมื่อมีการคำนวณ (POST) #}
     {% if dose is not none %}
       <div class="result">
-        <p style="text-align:center;margin:6px 0;"><b>Order :</b> Aminophylline {{ '%.2f'|format(dose) }} mg</p>
+        <p style="text-align:center;margin:6px 0;"><b>Order :</b> Aminophylline {{ dose|fmt(2) } mg</p>
         <div class="left-align">
           <p><b>วิธีเตรียมตัวอย่าง:</b> 5% Dextrose in water 60 u + ยา 40 u (10 mg)</p>
           <p>
             <b>สูตร:</b> <code>u = mg × 10</code>
             &nbsp;⇒&nbsp; <b>ขนาดยาที่ใช้:</b>
             <span style="background:#ffea00;padding:3px 6px;border-radius:6px;font-weight:800;">
-              {{ '%.0f'|format(result_ml|default(0)) }} u
+              {{ result_ml|default(0)|fmt_int }} u
             </span>
           </p>
         </div>
