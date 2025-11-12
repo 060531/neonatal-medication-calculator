@@ -168,7 +168,9 @@
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
           <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
-                 required step="0.01" value="{{ dose if dose is defined and dose is not none else '' }}">
+       required step="0.01"
+       value="{{ dose if (dose is defined and dose is not none) else '' }}">
+
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -304,99 +306,88 @@
   <!-- Logic ทำงานได้ทั้ง Static (GH Pages) และ Flask -->
   <script>
   (function(){
-    var isStatic = {{ static_build|default(true)|tojson }};
+  var isStatic = {{ static_build|default(true)|tojson }};
 
-    // helpers
-    function $(sel){ return document.querySelector(sel); }
-    function n(x){ var v = parseFloat(x); return isFinite(v) ? v : 0; }
-    function r2(x){ return Math.round((x + Number.EPSILON) * 100) / 100; }
-    function show(el){ if(el) el.classList.remove('hidden'); }
-    function hide(el){ if(el) el.classList.add('hidden'); }
+  // helpers
+  function $(sel){ return document.querySelector(sel); }
+  function n(x){ var v = parseFloat(x); return isFinite(v) ? v : 0; }
+  function r2(x){ return Math.round((x + Number.EPSILON) * 100) / 100; }
+  function show(el){ if(el) el.classList.remove('hidden'); }
+  function hide(el){ if(el) el.classList.add('hidden'); }
 
-    var calcForm = document.getElementById('calcForm');
-    var multForm = document.getElementById('multForm');
+  var calcForm = $('#calcForm');
+  var multForm = $('#multForm');
 
-    var box1 = $('#res-first-1');
-    var box2 = $('#res-first-2');
-    var boxF = $('#res-final');
-    var boxMultForm = $('#res-mult-form');
+  var box1 = $('#res-first-1');
+  var box2 = $('#res-first-2');
+  var boxF = $('#res-final');
+  var boxMultForm = $('#res-mult-form');
 
-    // ค่าที่อาจถูกฝังมาจาก Flask (ครั้งแรกจะเป็น null → ซ่อนด้วย Jinja)
-    var _r1   = {{ result_ml_1|default(None)|tojson }};
-    var _r2   = {{ result_ml_2|default(None)|tojson }};
-    var _dose = {{ dose|default(None)|tojson }};
+  // ⛔ ซ่อนทุกกล่องผลลัพธ์ “ตั้งแต่ตอนโหลดหน้า”
+  [box1, box2, boxMultForm, boxF].forEach(function(b){ if(b) hide(b); });
 
-    function computeFirst(dose){
-      var r1 = (dose * 5) / 250;
-      var r2 = (dose * 1) / 5;
+  // ค่าที่อาจถูกฝังจาก Flask
+  var _r1   = {{ result_ml_1|default(None)|tojson }};
+  var _r2   = {{ result_ml_2|default(None)|tojson }};
+  var _dose = {{ dose|default(None)|tojson }};
 
-      // inject text
-      var doseText = $('#doseText'), doseA = $('#doseA'), doseB = $('#doseB');
-      var r1El = $('#r1'), r2El = $('#r2');
-      if(doseText) doseText.textContent = r2(dose);
-      if(doseA) doseA.textContent = r2(dose);
-      if(doseB) doseB.textContent = r2(dose);
-      if(r1El) r1El.textContent = r2(r1);
-      if(r2El) r2El.textContent = r2(r2);
+  function computeFirst(dose){
+    var r1 = (dose * 5) / 250;
+    var r2v = (dose * 1) / 5;
 
-      // เปิดผลลัพธ์ 1/2 และแบบฟอร์มคูณ
-      show(box1); show(box2); show(boxMultForm);
-      // ปิดผลลัพธ์สุดท้าย (เผื่อเคยแสดงมาก่อน)
-      hide(boxF);
+    // inject text
+    var doseText = $('#doseText'), doseA = $('#doseA'), doseB = $('#doseB');
+    var r1El = $('#r1'), r2El = $('#r2');
+    if(doseText) doseText.textContent = r2(dose);
+    if(doseA) doseA.textContent = r2(dose);
+    if(doseB) doseB.textContent = r2(dose);
+    if(r1El) r1El.textContent = r2(r1);
+    if(r2El) r2El.textContent = r2(r2v);
 
-      _r1 = r1; _r2 = r2; _dose = dose;
-    }
+    // ✅ ค่อยๆ เปิดหลังคำนวณ
+    show(box1); show(box2); show(boxMultForm);
+    hide(boxF); // ปิดผลคูณเก่า
 
-    function computeMultiply(mult){
-      if(_r1 == null || _r2 == null) return;
+    _r1 = r1; _r2 = r2v; _dose = dose;
+  }
 
-      var f1 = r2(_r1 * mult);
-      var f2 = r2(_r2 * mult);
+  function computeMultiply(mult){
+    if(_r1 == null || _r2 == null) return;
 
-      // inject final texts
-      var multVal  = $('#multVal'), multVal1 = $('#multVal_1'), multVal2 = $('#multVal_2');
-      var r1show   = $('#r1_show'), r2show   = $('#r2_show');
-      var final1   = $('#final1'), final2 = $('#final2');
-      var final1s  = $('#final1_show'), dil = $('#dilution'), inj = $('#doseInj');
-      var doseA2   = $('#doseA2'), doseB2 = $('#doseB2');
+    var f1 = r2(_r1 * mult);
+    var f2 = r2(_r2 * mult);
 
-      if(multVal) multVal.textContent = r2(mult);
-      if(multVal1) multVal1.textContent = r2(mult);
-      if(multVal2) multVal2.textContent = r2(mult);
+    // inject final
+    function set(id, val){ var el = $(id); if(el) el.textContent = val; }
+    set('#multVal', r2(mult)); set('#multVal_1', r2(mult)); set('#multVal_2', r2(mult));
+    set('#r1_show', r2(_r1)); set('#r2_show', r2(_r2));
+    set('#final1', f1); set('#final2', f2); set('#final1_show', f1);
+    set('#dilution', r2(f2 - f1)); set('#doseInj', r2(_r2));
+    set('#doseA2', r2(_dose || 0)); set('#doseB2', r2(_dose || 0));
 
-      if(r1show) r1show.textContent = r2(_r1);
-      if(r2show) r2show.textContent = r2(_r2);
+    show(boxF);
+  }
 
-      if(final1) final1.textContent = f1;
-      if(final2) final2.textContent = f2;
-      if(final1s) final1s.textContent = f1;
-      if(dil) dil.textContent = r2(f2 - f1);
-      if(inj) inj.textContent = r2(_r2);
+  // โหมด Static: คำนวณบน client
+  if(calcForm && isStatic){
+    calcForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var dose = n(calcForm.querySelector('[name="dose"]').value);
+      computeFirst(dose);
+    });
+  }
 
-      if(doseA2) doseA2.textContent = r2(_dose || 0);
-      if(doseB2) doseB2.textContent = r2(_dose || 0);
+  if(multForm && isStatic){
+    multForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var mult = n(multForm.querySelector('[name="multiplication"]').value);
+      computeMultiply(mult);
+    });
+  }
+  // โหมด Flask: ถึงแม้ฝั่งเซิร์ฟเวอร์จะส่งค่ามาแล้ว เราก็ซ่อนกล่องไว้ตั้งแต่แรกด้านบน
+  // จนกว่าจะ submit (POST) ครั้งนี้ โค้ดบน server จะ render ค่ามาและ JS ไม่ไปเปิดเอง
+})();
 
-      show(boxF);
-    }
-
-    // โหมด Static: คำนวณบน client และ “เปิด” กล่องทีหลังเท่านั้น
-    if(calcForm && isStatic){
-      calcForm.addEventListener('submit', function(e){
-        e.preventDefault();
-        var dose = n(calcForm.querySelector('[name="dose"]').value);
-        computeFirst(dose);
-      });
-    }
-
-    if(multForm && isStatic){
-      multForm.addEventListener('submit', function(e){
-        e.preventDefault();
-        var mult = n(multForm.querySelector('[name="multiplication"]').value);
-        computeMultiply(mult);
-      });
-    }
-    // โหมด Flask: ปล่อยให้ Jinja เป็นคนเปิด/ซ่อนด้วยเงื่อนไขด้านบนอยู่แล้ว
-  })();
   </script>
 </body>
 </html>
