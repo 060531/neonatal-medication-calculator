@@ -36,8 +36,8 @@
 </footer>
 
 <div class="float-actions">
-  <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
-  <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+  <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+  <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
 </div>
 
 <script>
@@ -50,11 +50,11 @@ const nav = document.getElementById('drugNav');
 
 // เผื่อกรณี API ส่ง endpoint มาแต่ไม่ได้ส่ง URL — แมพลิงก์เองได้เฉพาะที่มีหน้า
 const routeMap = {
-  amikacin_calc: "{{ url_for('amikacin_calc') }}",
-  cefotaxime_calc: "{{ url_for('cefotaxime_calc') }}",
+  amikacin_calc: "{{ u('amikacin_calc') }}",
+  cefotaxime_calc: "{{ u('cefotaxime_calc') }}",
   // เพิ่มยาอื่นๆ เมื่อพร้อมหน้าได้เลย เช่น:
-  // meropenem_calc: "{{ url_for('meropenem_calc') }}",
-  // ciprofloxacin_calc: "{{ url_for('ciprofloxacin_calc') }}",
+  // meropenem_calc: "{{ u('meropenem_calc') }}",
+  // ciprofloxacin_calc: "{{ u('ciprofloxacin_calc') }}",
 };
 
 formEl.addEventListener('submit', async (e) => {

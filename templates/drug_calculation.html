@@ -164,28 +164,28 @@ footer {
 <body>
         <h1>Select a Medication</h1>
         <div class="container">
-            <a href="{{ url_for('acyclovir_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button red-button">Acyclovir</a>
+            <a href="{{ u('acyclovir_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button red-button">Acyclovir</a>
         <a href="#" class="medication-dose-button">Albumin</a>
         <a href="#" class="medication-dose-button">Amikin</a>
-        <a href="{{ url_for('aminophylline_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button red-button">Aminophylline</a>
+        <a href="{{ u('aminophylline_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button red-button">Aminophylline</a>
 
         <a href="#" class="medication-dose-button">Amoxicillin/<br>Clavimoxy</a>
-        <a href="{{ url_for('amphotericinB_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Amphotericin B</a>
-        <a href="{{ url_for('ampicillin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Ampicillin</a>
+        <a href="{{ u('amphotericinB_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Amphotericin B</a>
+        <a href="{{ u('ampicillin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Ampicillin</a>
 
         <a href="#" class="medication-dose-button">Cefotaxime</a>
         <a href="#" class="medication-dose-button">CeFAZolin</a>
         <a href="#" class="medication-dose-button">CefTAZidime</a>
         <a href="#" class="medication-dose-button">Clindamycin</a>
         <a href="#" class="medication-dose-button">Chloral hydrate</a>
-        <a href="{{ url_for('cloxacillin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Cloxacillin</a>
+        <a href="{{ u('cloxacillin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Cloxacillin</a>
         <a href="#" class="medication-dose-button">Colistin</a>
         <a href="#" class="medication-dose-button">Dexamethasone</a>
         <a href="#" class="medication-dose-button">Digoxin</a>
         <a href="#" class="medication-dose-button red-button">DOBUTamine</a>
         <a href="#" class="medication-dose-button red-button">DOPamine</a>
         <a href="#" class="medication-dose-button red-button">Fentanyl</a>
-        <a href="{{ url_for('gentamicin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Gentamicin</a>
+        <a href="{{ u('gentamicin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Gentamicin</a>
 
 
         <a href="#" class="medication-dose-button">Hydrocortisone</a>
@@ -208,11 +208,11 @@ footer {
         <a href="#" class="medication-dose-button">Sulperazone</a>
         <a href="#" class="medication-dose-button">Tazocin</a>
         <a href="#" class="medication-dose-button">Unasyun</a>
-        <a href="{{ url_for('vancomycin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Vancomycin</a>
+        <a href="{{ u('vancomycin_dose', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw) }}" class="medication-dose-button">Vancomycin</a>
     </div> 
     <div class="button-group">
     <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-    <a href="{{ url_for('index') }}" class="back-button">Back to Home</a> 
+    <a href="{{ u('index') }}" class="back-button">Back to Home</a> 
     </div>
 
     <footer>

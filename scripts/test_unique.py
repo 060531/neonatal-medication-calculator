@@ -1,23 +1,30 @@
-from extensions import db
-from models import Drug, Compatibility
+import pytest
 from sqlalchemy.exc import IntegrityError
 
-d1 = Drug.query.filter_by(name="Ampicillin").first() or Drug(name="Ampicillin")
-d2 = Drug.query.filter_by(name="Gentamicin").first() or Drug(name="Gentamicin")
-db.session.add_all([d1, d2]); db.session.commit()
+from models import Drug, Compatibility
 
-a, b = (d1.id, d2.id) if d1.id <= d2.id else (d2.id, d1.id)
-if not Compatibility.query.filter_by(a=a, b=b).first():
-    db.session.add(Compatibility(a=a, b=b, status="Compatible"))
-    db.session.commit()
+def test_unique_and_symmetry(db_session):
+    d1 = Drug(generic_name="Ampicillin")
+    d2 = Drug(generic_name="Gentamicin")
+    db_session.add_all([d1, d2])
+    db_session.commit()
 
-dup = Compatibility(a=b, b=a, status="Compatible")
-db.session.add(dup)
-try:
-    db.session.commit()
-    print("ERROR: UNIQUE not enforced")
-except IntegrityError:
-    db.session.rollback()
-    print("OK: UNIQUE enforced")
+    # ใส่กลับลำดับให้ event จัด normalize เป็น a<b
+    pair = Compatibility(drug_id=d2.id, co_drug_id=d1.id, status="Compatible")
+    db_session.add(pair)
+    db_session.commit()
 
-print("Rows:", [(r.id, r.a, r.b, r.status) for r in Compatibility.query.order_by(Compatibility.id).all()])
+    # สลับซ้ำ => ต้องชน UNIQUE
+    with pytest.raises(IntegrityError):
+        db_session.add(Compatibility(drug_id=d1.id, co_drug_id=d2.id, status="Compatible"))
+        db_session.commit()
+
+def test_self_pair_rejected(db_session):
+    d = Drug(generic_name="Vancomycin")
+    db_session.add(d)
+    db_session.commit()
+
+    # ORM event ควร raise ValueError ก่อนถึง DB
+    with pytest.raises(ValueError):
+        db_session.add(Compatibility(drug_id=d.id, co_drug_id=d.id, status="N/A"))
+        db_session.flush()

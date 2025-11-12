@@ -8,10 +8,10 @@
 
 {# ปุ่มที่เช็คว่า endpoint มีจริงไหม ค่อยลิงก์ #}
 {% macro safe_button(endpoint, img_src, alt_text, label, sublabel) -%}
-  {%- set has_ep = has_endpoint(endpoint) %}
-  <a href="{{ url_for(endpoint) if has_ep else '#' }}"
+  {%- set ep = resolve_endpoint(endpoint) %}
+  <a href="{{ url_for(ep) if ep else '#' }}"
      class="button home-button"
-     {{ '' if has_ep else 'aria-disabled=true tabindex=-1' }}>
+     {{ '' if ep else 'aria-disabled=true tabindex=-1' }}>
     <img src="{{ img_src }}" alt="{{ alt_text }}">
     <span>{{ label }}<br><small>{{ sublabel }}</small></span>
   </a>

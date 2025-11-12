@@ -183,18 +183,21 @@
   <div class="container">
 
     <!-- รอบ 1: คำนวณจาก mg -->
-    <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
+    <!-- ฟอร์ม #1: คำนวณจาก mg -->
+<div class="calc-box">
+  <form action="{{ u('acyclovir_route') }}" method="post" class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <div class="dose-row">
       <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
+             required step="0.01" value="{{ dose if dose is not none else '' }}">
     </div>
 
     <button type="submit" class="btn btn-blue">คำนวณ</button>
   </form>
 </div>
+
 
     <!-- ผลลัพธ์คำนวณ -->
     {% if result_ml_1 %}
@@ -215,25 +218,26 @@
     {% endif %}
 
     {% if result_ml_1 or result_ml_2 %}
-      <div class="calc-box" style="margin-top:10px">
-        <form id="__will_handle_by_js__" class="calc-row" style="gap:12px">
-          <input type="hidden" name="dose" value="{{ dose }}">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select name="multiplication" required
-                  style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
-            <option value="1.5">1.5 เท่า</option>
-            <option value="2">2 เท่า</option>
-            <option value="2.5">2.5 เท่า</option>
-            <option value="3">3 เท่า</option>
-            <option value="3.5">3.5 เท่า</option>
-            <option value="4">4 เท่า</option>
-            <option value="4.5">4.5 เท่า</option>
-            <option value="5">5 เท่า</option>
-          </select>
-          <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณการคูณ</button>
-        </form>
-      </div>
-    {% endif %}
+  <div class="calc-box" style="margin-top:10px">
+    <form action="{{ u('acyclovir_route') }}" method="post" class="calc-row" style="gap:12px">
+      <input type="hidden" name="dose" value="{{ dose }}">
+      <label for="multiplication">เลือกเงื่อนไข:</label>
+      <select name="multiplication" required
+              style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
+        <option value="1.5">1.5 เท่า</option>
+        <option value="2">2 เท่า</option>
+        <option value="2.5">2.5 เท่า</option>
+        <option value="3">3 เท่า</option>
+        <option value="3.5">3.5 เท่า</option>
+        <option value="4">4 เท่า</option>
+        <option value="4.5">4.5 เท่า</option>
+        <option value="5">5 เท่า</option>
+      </select>
+      <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณการคูณ</button>
+    </form>
+  </div>
+{% endif %}
+
 
     {% if final_result_1 is not none and final_result_2 is not none %}
       <div class="result">
@@ -291,13 +295,13 @@
 
   <!-- footer ชิดเนื้อหา แต่ไม่โดนปุ่มลอยทับ -->
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+    <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
   </footer>
 
   <!-- ปุ่มลอยติดล่าง (ห่อได้, ไม่ชนขอบ) -->
   <div class="float-actions">
-    <a href="{{ url_for('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ url_for('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 </body>
 </html>

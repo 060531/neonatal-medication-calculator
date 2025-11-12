@@ -135,7 +135,7 @@
 
 <!-- แถบปุ่มลอย -->
 <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
-  <a href="{{ url_for('index') }}" class="back-btn">⬅ Back to Home</a>
+  <a href="{{ u('index') }}" class="back-btn">⬅ Back to Home</a>
   <a href="#top" class="back-btn alt">⬆ Back to A–Z</a>
 </div>
 
@@ -161,7 +161,7 @@
         {% for m in items %}
           <a
             class="drug-btn {% if m.danger %}red{% endif %}"
-            href="{{ url_for(m.endpoint) if m.endpoint else '#' }}"
+            href="{{ u(m.endpoint) }}"
             title="{{ m.label }}"
           >
             {{ m.label }}
