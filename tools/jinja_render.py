@@ -133,6 +133,28 @@ env = Environment(
     loader=FileSystemLoader(TEMPLATES_DIR),
     autoescape=select_autoescape(["html", "xml"]),
 )
+# -------- Safe formatting filters --------
+def fmt(value, digits=2):
+    """format ตัวเลขเป็นทศนิยม N ตำแหน่ง; หาก None -> คืนสตริงว่าง"""
+    try:
+        if value is None or value == "":
+            return ""
+        return f"{float(value):.{int(digits)}f}"
+    except Exception:
+        return ""
+
+def fmt_int(value):
+    """format เป็นจำนวนเต็ม; หาก None -> "" """
+    try:
+        if value is None or value == "":
+            return ""
+        return f"{int(round(float(value)))}"
+    except Exception:
+        return ""
+
+env.filters["fmt"] = fmt      # ใช้แบบ {{ val|fmt(2) }}
+env.filters["fmt2"] = lambda v: fmt(v, 2)  # สั้น ๆ {{ val|fmt2 }}
+env.filters["fmt_int"] = fmt_int
 env.filters["safe_fmt"] = safe_fmt
 env.globals.update({
     "u": u,
