@@ -95,9 +95,9 @@
 
     {% if result_ml is not none and dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Cefotaxime {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Cefotaxime {{ dose|fmt(2) }} mg</p>
         <p><b>สูตรจากสต็อก 1000 mg / 10 mL</b> → <span class="mono">mL = (mg × 10) / 1000</span></p>
-        <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} × 10 / 1000 = <span class="pill">{{ '%.2f'|format(result_ml) }}</span> mL</span></p>
+        <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 10 / 1000 = <span class="pill">{{ result_ml|fmt(2) }}</span> mL</span></p>
       </div>
 
       <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ -->
@@ -120,11 +120,11 @@
     {% if multiplication is not none and result_ml is not none %}
       {% set total = result_ml * multiplication %}
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ '%.2f'|format(total) }} mL</b></p>
+        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) }} mL</b></p>
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ '%.2f'|format(total) }}) = {{ '%.2f'|format(9 - total) }} mL</p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) = {{ 9 - total|fmt(2) }} mL</p>
             {% else %}
               <p><b>**ดูดยา : 9 mL ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -135,7 +135,7 @@
 
           {% if multiplication == 6 %}
             {% if total < 6 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ '%.2f'|format(total) }}) = {{ '%.2f'|format(6 - total) }} mL</p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) = {{ 6 - total|fmt(2) }} mL</p>
             {% else %}
               <p><b>**ดูดยา : 6 mL ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}

@@ -197,17 +197,17 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Fentanyl {{ '%.2f'|format(dose) }} mcg</p>
+        <p class="order-line"><b>Order:</b> Fentanyl {{ dose|fmt(2) }} mcg</p>
 
         <div class="left-align" style="margin-top:8px">
           <p class="item"><b>แนวทางเตรียมแบบ Small dose:</b></p>
           <ul class="muted" style="margin-top:4px">
             <li>วิธีเตรียม: <b>5% Dextrose in water 80 u + ยา 10 mcg (20 u)</b></li>
             <li><b>สูตรจากความแรง ~ 50 mcg/ml</b> → <span class="mono">ml = mcg ÷ 50</span></li>
-            <li>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} ÷ 50</span>
+            <li>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span>
               = <span class="pill">{{ (dose / 50) | round(2) }}</span> ml</li>
             <li><b>คิดเป็นหน่วยยูนิต (u):</b>
-              <b>ดังนั้น</b> {{ '%.2f'|format(dose) }} mcg =
+              <b>ดังนั้น</b> {{ dose|fmt(2) }} mcg =
               <b><span class="pill-red">{{ (dose * 10) | int }}</span></b> u</li>
           </ul>
         </div>

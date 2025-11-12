@@ -40,7 +40,7 @@
         <input type="hidden" name="step" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="0.0">
+          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -49,38 +49,7 @@
     
 
     
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Ceftazidime 0.00 mg</p>
-        <p><b>สูตรจากสต็อก 1000 mg / 10 mL</b> → <span class="mono">mL = (mg × 10) / 1000</span></p>
-        <p>แทนค่า: <span class="mono">0.00 × 10 / 1000 = <span class="pill">0.00</span> mL</span></p>
-      </div>
 
-      <!-- รอบที่ 2: เลือกเงื่อนไข -->
-      <div class="calc-box">
-        <form action="./ceftazidime.html" method="post" class="calc-row">
-          <input type="hidden" name="step" value="condition" />
-          <input type="hidden" name="dose" value="0.0">
-          <input type="hidden" name="result_ml" value="0.0">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select name="multiplication" required>
-            <option value="" disabled >— เลือก —</option>
-            <option value="3" >3 เท่า (รวมเป้าหมาย 9 mL)</option>
-            <option value="6" >6 เท่า (รวมเป้าหมาย 6 mL)</option>
-          </select>
-          <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
-        </form>
-      </div>
-    
-
-    
-      
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ 1.0 เท่า = 0.00 mL</b></p>
-        <div class="left-align">
-          
-          
-        </div>
-      </div>
     
 
     

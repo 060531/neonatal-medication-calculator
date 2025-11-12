@@ -154,6 +154,7 @@
 </head>
 <body>
 
+
     <h1>Ampicillin Dosage Information</h1>
 
     <!-- Display the calculated PMA and Postnatal Age -->
@@ -176,7 +177,7 @@
             <th>/dose</th>
             <th>Interval</th>
         </tr>
-        <tr class="{% if pma_weeks <= 29 and postnatal_days <= 28 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0))|nz(0)) <= 29 and ((postnatal_days|nz(0))|nz(0)) <= 28 %} highlight {% endif %}">
             <td>29 wk-</td>
             <td>0 - 28 days</td>
             <td>75.00</td>
@@ -184,7 +185,7 @@
             <td>mg</td>
             <td>q 12 hr(s)</td>
         </tr>
-        <tr class="{% if pma_weeks <= 29 and postnatal_days > 28 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0))|nz(0)) <= 29 and ((postnatal_days|nz(0))|nz(0)) > 28 %} highlight {% endif %}">
             <td>29 wk-</td>
             <td>29 days+</td>
             <td>50.00</td>
@@ -192,7 +193,8 @@
             <td>mg</td>
             <td>q 8 hr(s)</td>
         </tr>
-        <tr class="{% if 30 <= pma_weeks <= 36 and postnatal_days <= 14 %} highlight {% endif %}">
+        <tr class="{% if (((pma_weeks|nz(0))|nz(0)) >= 30 and ((pma_weeks|nz(0))|nz(0)) <= 36)
+               and ((postnatal_days|nz(0))|nz(0)) <= 14 %} highlight {% endif %}">
             <td>30 - 36 wk</td>
             <td>0 - 14 days</td>
             <td>75.00</td>
@@ -200,7 +202,7 @@
             <td>mg</td>
             <td>q 12 hr(s)</td>
         </tr>
-        <tr class="{% if 30 <= pma_weeks <= 36 and postnatal_days > 14 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0)) >= 30 and (pma_weeks|nz(0)) <= 36) and ((postnatal_days|nz(0)) > 14) %} highlight {% endif %}">
             <td>30 - 36 wk</td>
             <td>15 days+</td>
             <td>50.00</td>
@@ -208,7 +210,7 @@
             <td>mg</td>
             <td>q 8 hr(s)</td>
         </tr>
-        <tr class="{% if 37 <= pma_weeks <= 44 and postnatal_days <= 7 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0)) >= 37 and (pma_weeks|nz(0)) <= 44) and ((postnatal_days|nz(0)) <= 7) %} highlight {% endif %}">
             <td>37 - 44 wk</td>
             <td>0 - 7 days</td>
             <td>75.00</td>
@@ -216,7 +218,7 @@
             <td>mg</td>
             <td>q 12 hr(s)</td>
         </tr>
-        <tr class="{% if 37 <= pma_weeks <= 44 and postnatal_days > 7 %} highlight {% endif %}">
+        <tr class="{% if 37 <= (pma_weeks|nz(0)) <= 44 and (postnatal_days|nz(0)) > 7 %} highlight {% endif %}">
             <td>37 - 44 wk</td>
             <td>8 days+</td>
             <td>50.00</td>
@@ -224,7 +226,7 @@
             <td>mg</td>
             <td>q 8 hr(s)</td>
         </tr>
-        <tr class="{% if pma_weeks > 44 %} highlight {% endif %}">
+        <tr class="{% if (pma_weeks|nz(0)) > 44 %} highlight {% endif %}">
             <td>45 wk+</td>
             <td>ALL</td>
             <td>37.50</td>

@@ -196,12 +196,12 @@
     {% if dose is not none %}
       {% set calculated_ml = (dose / 500000.0) %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Penicillin G sodium {{ '%.0f'|format(dose) }} unit</p>
+        <p class="order-line"><b>Order:</b> Penicillin G sodium {{ dose|fmt_int }} unit</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติมตัวทำละลายรวมเป็น 10 ml ⇒ <b>500,000 unit/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = unit ÷ 500,000</span></p>
-          <p>แทนค่า: <span class="mono">{{ '%.0f'|format(dose) }} ÷ 500,000 = <span class="pill">{{ (calculated_ml) | round(3) }}</span> ml</span></p>
-          <p><b>ดังนั้น:</b> {{ '%.0f'|format(dose) }} unit = <span class="pill">{{ (calculated_ml) | round(3) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt_int }} ÷ 500,000 = <span class="pill">{{ (calculated_ml) | round(3) }}</span> ml</span></p>
+          <p><b>ดังนั้น:</b> {{ dose|fmt_int }} unit = <span class="pill">{{ (calculated_ml) | round(3) }} ml</span></p>
         </div>
       </div>
     {% endif %}

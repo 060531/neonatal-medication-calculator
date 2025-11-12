@@ -153,8 +153,12 @@
     </style>
 </head>
 <body>
+{% set pw = (pma_weeks|nz(0)) %}
+{% set pnd = (postnatal_days|nz(0)) %}
 
-    <h1>Gentamicin Dosage Information</h1>
+{% set pw = (pma_weeks|nz(0)) %}
+{% set pnd = (postnatal_days|nz(0)) %}
+<h1>Gentamicin Dosage Information</h1>
 
     <!-- Display the calculated PMA and Postnatal Age -->
     <p><strong>PMA:</strong> {{ pma_weeks }} weeks and {{ pma_days }} days</p>
@@ -174,37 +178,37 @@
             <th>Dose (mg)</th>
             <th>Interval</th>
         </tr>
-        <tr class="{% if pma_weeks <= 29 and postnatal_days <= 7 %} highlight {% endif %}">
+        <tr class="{% if (pma_weeks|nz(0)) <= 29 and (postnatal_days|nz(0)) <= 7 %} highlight {% endif %}">
             <td>29 wk-</td>
             <td>0 - 7 days</td>
             <td>5.00</td>
             <td>q 48 hr(s)</td>
         </tr>
-        <tr class="{% if pma_weeks <= 29 and 8 <= postnatal_days <= 28 %} highlight {% endif %}">
+        <tr class="{% if (pma_weeks|nz(0)) <= 29 and ((postnatal_days|nz(0)) >= 8 and (postnatal_days|nz(0)) <= 28) %} highlight {% endif %}">
             <td>29 wk-</td>
             <td>8 - 28 days</td>
             <td>4.00</td>
             <td>q 36 hr(s)</td>
         </tr>
-        <tr class="{% if pma_weeks <= 29 and postnatal_days > 28 %} highlight {% endif %}">
+        <tr class="{% if (pma_weeks|nz(0)) <= 29 and (postnatal_days|nz(0)) > 28 %} highlight {% endif %}">
             <td>29 wk-</td>
             <td>29 days+</td>
             <td>4.00</td>
             <td>q 24 hr(s)</td>
         </tr>
-        <tr class="{% if 30 <= pma_weeks <= 34 and postnatal_days <= 7 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0)) >= 30 and (pma_weeks|nz(0)) <= 34) and (postnatal_days|nz(0)) <= 7 %} highlight {% endif %}">
             <td>30 - 34 wk</td>
             <td>0 - 7 days</td>
             <td>4.50</td>
             <td>q 36 hr(s)</td>
         </tr>
-        <tr class="{% if 30 <= pma_weeks <= 34 and postnatal_days > 7 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0)) >= 30 and (pma_weeks|nz(0)) <= 34) and (postnatal_days|nz(0)) > 7 %} highlight {% endif %}">
             <td>30 - 34 wk</td>
             <td>8 days+</td>
             <td>4.00</td>
             <td>q 24 hr(s)</td>
         </tr>
-        <tr class="{% if pma_weeks >= 35 %} highlight {% endif %}">
+        <tr class="{% if (pma_weeks|nz(0)) >= 35 %} highlight {% endif %}">
             <td>35 wk+</td>
             <td>ALL</td>
             <td>4.00</td>

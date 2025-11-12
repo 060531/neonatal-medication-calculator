@@ -133,7 +133,7 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Insulin {{ '%.2f'|format(dose) }} units</p>
+        <p class="order-line"><b>Order:</b> Insulin {{ dose|fmt(2) }} units</p>
 
         <div class="left-align" style="margin-top:8px">
           <p class="item section-head">แนวทางเตรียมแบบ Small dose (ทำให้ <span class="mono">1 unit = 1 ml</span>)</p>
@@ -145,11 +145,11 @@
           <p class="item section-head">คำนวณปริมาตรให้ยา</p>
           <ul class="muted">
             <li><b>จากขวดสต็อก (100 U/ml):</b> <span class="mono">ml = units ÷ 100</span> → 
-              <span class="mono">{{ '%.2f'|format(dose) }} ÷ 100</span> = 
+              <span class="mono">{{ dose|fmt(2) }} ÷ 100</span> = 
               <span class="pill">{{ (dose / 100) | round(2) }}</span> ml <i>(ใช้เมื่อฉีดจากขวดโดยตรง)</i></li>
             <li><b>จากกระบอก Small dose (1 U/ml):</b> <span class="mono">ml = units ÷ 1</span> → 
               <span class="pill">{{ (dose) | round(2) }}</span> ml <i>(แนะนำในทารก/ขนาดเล็กเพื่อลด error)</i></li>
-            <li><b>หน่วยยูนิต:</b> {{ '%.2f'|format(dose) }} units =
+            <li><b>หน่วยยูนิต:</b> {{ dose|fmt(2) }} units =
               <span class="pill-red">{{ (dose) | round(2) }}</span> u</li>
           </ul>
         </div>

@@ -55,3 +55,4 @@ instance/
 .env
 coverage*
 .pytest_cache/
+*.bak

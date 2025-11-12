@@ -190,7 +190,7 @@
 
     <!-- ใช้เงื่อนไข Jinja2 เพื่อตรวจสอบ pma_weeks แล้วไฮไลต์บรรทัดที่ตรงกับเงื่อนไข -->
     <p 
-      {% if pma_weeks < 30 %}
+      {% if (pma_weeks|nz(0)) < 30 %}
          class="highlight-green"
       {% endif %}
     >
@@ -198,7 +198,7 @@
       20 mg/kg V every 8 to 12 hours
     </p>
     <p
-      {% if pma_weeks >= 30 %}
+      {% if (pma_weeks|nz(0)) >= 30 %}
          class="highlight-green"
       {% endif %}
     >

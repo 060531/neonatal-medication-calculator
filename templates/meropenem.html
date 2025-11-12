@@ -187,12 +187,12 @@
     {% if dose is not none %}
       {% set result_ml = (dose / 50.0) %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Meropenem {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Meropenem {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิงหลังผสม:</b> เติม Sterile water 19 ml → ได้สารละลาย 20 ml ⇒ <b>50 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 50</span></p>
-          <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} ÷ 50</span> = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
-          <p><b>ดังนั้น:</b> {{ '%.2f'|format(dose) }} mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span> = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
         </div>
       </div>
     {% endif %}
@@ -221,11 +221,11 @@
       {% set base_ml = result_ml %}
       {% set total = (base_ml * multiplication) %}
       <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ '%.2f' | format(total) }} ml</b></p>
+        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) }} ml</b></p>
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ '%.2f' | format(total) }}) = <b>{{ '%.2f' | format(9 - total) }} ml</b></p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) = <b>{{ 9 - total|fmt(2) }} ml</b></p>
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -236,7 +236,7 @@
 
           {% if multiplication == 6 %}
             {% if total < 6 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ '%.2f' | format(total) }}) = <b>{{ '%.2f' | format(6 - total) }} ml</b></p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) = <b>{{ 6 - total|fmt(2) }} ml</b></p>
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}

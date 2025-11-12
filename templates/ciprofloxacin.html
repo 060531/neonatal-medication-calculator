@@ -181,12 +181,12 @@
     {% if dose is not none %}
       {% set result_ml = (dose / 2.0) %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Ciprofloxacin {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Ciprofloxacin {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง (premix):</b> 200 mg/100 mL หรือ 400 mg/200 mL ⇒ <b>2 mg/mL</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">mL = mg ÷ 2</span></p>
-          <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} ÷ 2</span> = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
-          <p><b>ดังนั้น:</b> {{ '%.2f'|format(dose) }} mg = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 2</span> = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
+          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
         </div>
       </div>
     {% endif %}

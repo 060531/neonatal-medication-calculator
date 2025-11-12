@@ -121,10 +121,10 @@
     <!-- แสดงผลลัพธ์เมื่อคำนวณได้ (รองรับค่า 0 ด้วย is not none) -->
     {% if result_ml is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Ampicillin {{ '%.2f'|format(dose|default(0.0)) }} mg</p>
+        <p class="order-line"><b>Order:</b> Ampicillin {{ dose|default(0.0)|fmt(2) }} mg</p>
         <p><b>สูตรจากสต็อก 1000 mg / 5 mL</b> → <span class="mono">mL = (mg × 5) / 1000</span></p>
-        <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose|default(0.0)) }} × 5 / 1000 =
-          <span class="pill">{{ '%.2f'|format(result_ml) }}</span> mL</span></p>
+        <p>แทนค่า: <span class="mono">{{ dose|default(0.0)|fmt(2) }} × 5 / 1000 =
+          <span class="pill">{{ result_ml|fmt(2) }}</span> mL</span></p>
       </div>
     {% endif %}
 

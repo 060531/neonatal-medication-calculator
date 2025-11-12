@@ -187,7 +187,7 @@
         <p><strong>PMA:</strong> {{ pma_weeks }} weeks and {{ pma_days }} days</p>
         <p><strong>Calc.:</strong> {{ calc }} weeks</p>
         <p><strong>Postnatal Age:</strong> {{ postnatal_days }} days</p>
-        <p><strong>Birth Weight (BW):</strong> {{ "%.2f" | format(bw) }} kg</p>
+        <p><strong>Birth Weight (BW):</strong> {{ bw|fmt(2) }} kg</p>
         
         <div class="section-title">Calculated Dosage</div>
         <p>Recommended Dose: <span class="highlight-dose">{{ min_dose }} - {{ max_dose }} mg/day</span></p>

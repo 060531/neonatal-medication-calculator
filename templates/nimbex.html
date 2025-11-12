@@ -201,11 +201,11 @@
       {% set ml_calc = (result_ml if result_ml is not none else (dose / 2.0)) %}
       {% set diluent = (10 - ml_calc) %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Cisatracurium (Nimbex) {{ '%.2f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Cisatracurium (Nimbex) {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง:</b> 10 mg / 5 ml ⇒ <b>2 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 2</span></p>
-          <p>แทนค่า: <span class="mono">{{ '%.2f'|format(dose) }} ÷ 2</span> = <span class="pill">{{ ml_calc|round(2) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 2</span> = <span class="pill">{{ ml_calc|round(2) }} ml</span></p>
           <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
           <p><b>ทำแบบ Small dose (Up to 10 ml):</b> เติม D5W / 0.9% NSS จนได้ปริมาตรรวม 10 ml</p>
           <p>ตัวทำละลายที่ต้องเติม = <span class="mono">10 − {{ ml_calc|round(2) }}</span>

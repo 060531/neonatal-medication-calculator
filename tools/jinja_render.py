@@ -30,7 +30,7 @@ URL_MAP = {
     "static": "static/",
 }
 
-# >>> NEW: รายการยาแบบเดียวกับใน Flask route
+# >>> รายการยา (ให้แม็ป endpoint -> หน้า .html อัตโนมัติ)
 MEDS = [
     {"label": "Acyclovir", "endpoint": "acyclovir_route"},
     {"label": "Amikacin", "endpoint": "amikin_route"},
@@ -74,16 +74,15 @@ MEDS = [
     {"label": "Vancomycin", "endpoint": "vancomycin_route"},
 ]
 
-# >>> NEW: เติม URL_MAP ของ endpoint ยา → ชื่อไฟล์ .html อัตโนมัติ
 for m in MEDS:
     ep = m["endpoint"]
     if ep.endswith("_route"):
-        page = ep[:-6] + ".html"   # ตัด "_route"
+        page = ep[:-6] + ".html"
     else:
         page = ep + ".html"
     URL_MAP.setdefault(ep, page)
 
-# ---------- Helpers ----------
+# ---------- Helpers for URLs ----------
 def _strip_leading_dots(path: str) -> str:
     while path.startswith("./"):
         path = path[2:]
@@ -92,7 +91,8 @@ def _strip_leading_dots(path: str) -> str:
 def _ensure_html_file(name_or_file: str) -> str:
     s = name_or_file.strip()
     s = _strip_leading_dots(s)
-    if s.endswith(".html"): return s
+    if s.endswith(".html"):
+        return s
     return f"{s}.html"
 
 def u(name: str, **kwargs) -> str:
@@ -119,21 +119,75 @@ def resolve_endpoint(endpoint: str) -> str:
     target = _ensure_html_file(target)
     return f"./{_strip_leading_dots(target)}"
 
-# ---------- Jinja env ----------
-def safe_fmt(value, fmt="%.2f"):
+# ---------- Safe numeric helpers & filters (นิยามก่อนค่อยไป register) ----------
+def nz(v, default=0):
+    """None -> default; อย่างอื่นคืนค่าเดิม"""
     try:
-        return fmt % (value,)
+        return default if v is None else v
+    except Exception:
+        return default
+
+def fmt(v, nd=2):
+    """format ทศนิยมคงที่ (เช่น 2 ตำแหน่ง); รองรับ None/สตริง -> คืน '' """
+    try:
+        if v is None or v == "":
+            return ""
+        x = float(v)
+    except Exception:
+        return ""
+    try:
+        nd = int(nd)
+    except Exception:
+        nd = 2
+    return f"{x:.{nd}f}"
+
+def fmt_int(v):
+    """format เป็นจำนวนเต็ม; รองรับ None -> '' """
+    try:
+        if v is None or v == "":
+            return ""
+        return f"{int(round(float(v)))}"
+    except Exception:
+        return ""
+
+def sig(v, n=3):
+    """format ตัวเลขนัยสำคัญ (เช่น '%g'); รองรับ None -> '' """
+    try:
+        if v is None or v == "":
+            return ""
+        x = float(v)
+    except Exception:
+        return ""
+    try:
+        n = int(n)
+    except Exception:
+        n = 3
+    return f"{x:.{n}g}"
+
+def safe_fmt(value, fmt_pattern="%.2f"):
+    """รูปแบบเดิมแบบ '% .2f'|safe_fmt; รองรับ None -> ใช้ 0"""
+    try:
+        return fmt_pattern % (value,)
     except Exception:
         try:
-            return fmt % (0,)
+            return fmt_pattern % (0,)
         except Exception:
             return str(value)
 
+# ---------- Jinja env ----------
 env = Environment(
     loader=FileSystemLoader(TEMPLATES_DIR),
     autoescape=select_autoescape(["html", "xml"]),
 )
+
+# ลงทะเบียนฟิลเตอร์ (ทำครั้งเดียว)
+env.filters["nz"] = nz
+env.filters["fmt"] = fmt         # {{ val|fmt(2) }}
+env.filters["fmt2"] = lambda v: fmt(v, 2)
+env.filters["fmt_int"] = fmt_int
+env.filters["sig"] = sig         # {{ val|sig(3) }}
 env.filters["safe_fmt"] = safe_fmt
+
 env.globals.update({
     "u": u,
     "url_for": static_url,
@@ -141,7 +195,6 @@ env.globals.update({
     "resolve_endpoint": resolve_endpoint,
 })
 
-# ---------- Base context ----------
 # ---------- Base context ----------
 BASE_CTX = {
     "error": None,
@@ -153,70 +206,22 @@ BASE_CTX = {
     "session": {},
     "order": {},  # for verify_result.html
 
-    # defaults used in drug pages
-    # ใส่ None เพื่อไม่ให้เทมเพลตแสดง 0.0 ตั้งแต่แรก
-    "bw": None,
-    "pma_weeks": None,
-    "pma_days": None,
-    "postnatal_days": None,
-
-    "dose": None,
-    "dose_ml": None,
-    "dose_mgkg": None,
-
-    "result_ml": None,
-    "result_ml_1": None,
-    "result_ml_2": None,
-    "result_ml_3": None,
-
-    "final_result_1": None,
-    "final_result_2": None,
-    "final_result_3": None,
-
-    "calculated_ml": None,
-    "vol_ml": None,
-
-    "multiplication": None,          # ให้ผู้ใช้เลือกเอง ไม่เติม 1.0 ล่วงหน้า
-    "rate_ml_hr": None,
-    "concentration_mg_ml": None,
-    "target_conc": None,
-    "stock_conc": None,
-
-    "loading_dose_ml": None,
-    "maintenance_dose_ml": None,
-    "infusion_rate_ml_hr": None,
-    "total_volume_ml": None,
-    "dilution_volume_ml": None,
+    # defaults used in drug pages (ปล่อยเป็น None เพื่อไม่ให้โชว์ 0.0 ตั้งแต่แรก)
+    "bw": None, "pma_weeks": None, "pma_days": None, "postnatal_days": None,
+    "dose": None, "dose_ml": None, "dose_mgkg": None,
+    "result_ml": None, "result_ml_1": None, "result_ml_2": None, "result_ml_3": None,
+    "final_result_1": None, "final_result_2": None, "final_result_3": None,
+    "calculated_ml": None, "vol_ml": None,
+    "multiplication": None,
+    "rate_ml_hr": None, "concentration_mg_ml": None, "target_conc": None, "stock_conc": None,
+    "loading_dose_ml": None, "maintenance_dose_ml": None,
+    "infusion_rate_ml_hr": None, "total_volume_ml": None, "dilution_volume_ml": None,
 }
 
+# (ใช้เมื่ออยากรีเซ็ตเติมเลขเริ่มต้นบางคีย์ – ตอนนี้ไม่บังคับใช้)
 DEFAULT_NUM_KEYS = {
-    "bw": None,
-    "pma_weeks": None,
-    "pma_days": None,
-    "postnatal_days": None,
-    "dose": None,
-    "dose_ml": None,
-    "dose_mgkg": None,
-    "result_ml": None,
-    "result_ml_1": None,
-    "result_ml_2": None,
-    "final_result_1": None,
-    "final_result_2": None,
-    "final_result_3": None,
-    "calculated_ml": None,
-    "vol_ml": None,
     "multiplication": 1.0,
-    "rate_ml_hr": None,
-    "concentration_mg_ml": None,
-    "target_conc": None,
-    "stock_conc": None,
-    "loading_dose_ml": None,
-    "maintenance_dose_ml": None,
-    "infusion_rate_ml_hr": None,
-    "total_volume_ml": None,
-    "dilution_volume_ml": None,
 }
-
 
 def ensure_docs_dir():
     out = pathlib.Path(OUTPUT_DIR)
@@ -235,7 +240,6 @@ def copy_static():
 def should_render(filename: str) -> bool:
     return filename.endswith(".html") and not filename.startswith("_")
 
-# >>> NEW: สร้าง context ของหน้าการบริหารยา (A–Z)
 def build_med_ctx():
     groups = defaultdict(list)
     for m in MEDS:
@@ -246,7 +250,6 @@ def build_med_ctx():
     letters = list(groups.keys())
     return {"meds": MEDS, "groups": groups, "letters": letters}
 
-# ---------- Render all ----------
 def render_all():
     ensure_docs_dir()
     copy_static()
@@ -266,9 +269,8 @@ def render_all():
                 out_path.parent.mkdir(parents=True, exist_ok=True)
 
             tmpl = env.get_template(str(rel_path))
-
             ctx = dict(BASE_CTX)
-            # >>> NEW: อัด groups/letters/meds เข้าเฉพาะหน้านี้
+
             if str(rel_path) == "Medication_administration.html":
                 ctx.update(build_med_ctx())
 

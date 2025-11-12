@@ -199,12 +199,12 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Furosemide {{ '%.3f'|format(dose) }} mg</p>
+        <p class="order-line"><b>Order:</b> Furosemide {{ dose|fmt(3) }} mg</p>
         <div class="left-align muted">
           <p><b>ความเข้มข้นอ้างอิง:</b> 20 mg / 2 ml ⇒ <b>10 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 10</span></p>
-          <p>แทนค่า: <span class="mono">{{ '%.3f'|format(dose) }} ÷ 10 = <span class="pill">{{ (dose / 10) | round(3) }}</span> ml</span></p>
-          <p><b>ดังนั้น:</b> ขนาดยา {{ '%.3f'|format(dose) }} mg = <span class="pill">{{ (dose / 10) | round(3) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(3) }} ÷ 10 = <span class="pill">{{ (dose / 10) | round(3) }}</span> ml</span></p>
+          <p><b>ดังนั้น:</b> ขนาดยา {{ dose|fmt(3) }} mg = <span class="pill">{{ (dose / 10) | round(3) }} ml</span></p>
         </div>
       </div>
     {% endif %}
