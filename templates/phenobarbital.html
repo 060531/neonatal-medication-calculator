@@ -128,8 +128,8 @@
 <div class="card">
   <h2 class="title">Phenobarbital</h2>
   <div class="hint">
-    คำนวณที่ความเข้มข้นมาตรฐาน <b>{{ '%g'|format(target_conc) }} mg/ml</b><br>
-    <small>สูตร: ml = mg ÷ {{ '%g'|format(target_conc) }}</small>
+    คำนวณที่ความเข้มข้นมาตรฐาน <b>{{ target_conc|sig(3) }} mg/ml</b>
+    <small>สูตร: ml = mg ÷ {{ target_conc|sig(3) }}</small>
   </div>
 
   <form method="post" class="row">
@@ -147,17 +147,17 @@
   {% if vol_ml is not none %}
     <div class="result">
       <div class="big">{{ '%.2f'|format(vol_ml) }} ml</div>
-      <div class="hint">ให้ตามปริมาณนี้ที่ความเข้มข้น {{ '%g'|format(target_conc) }} mg/ml</div>
+      <div class="hint">ให้ตามปริมาณนี้ที่ความเข้มข้น {{ target_conc|sig(3) }} mg/ml</div>
 
       <!-- สูตร/แทนค่า (แถวเดียว) -->
       <div class="formula">
         <div class="line">
           <span class="hl">สูตร:</span>
-          <span class="mono">ml = mg ÷ {{ '%g'|format(target_conc) }}</span>
+          <span class="mono">ml = mg ÷ {{ target_conc|sig(3) }}</span>
         </div>
         <div class="line" style="margin-top:6px">
           <span>แทนค่า:</span>
-          <span class="mono">{{ '%.2f'|format(dose) }} ÷ {{ '%g'|format(target_conc) }} = {{ '%.2f'|format(vol_ml) }} ml</span>
+          <span class="mono">{{ '%.2f'|format(dose) }} ÷ {{ target_conc|sig(3) }} = {{ '%.2f'|format(vol_ml) }} ml</span>
         </div>
       </div>
 
