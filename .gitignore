@@ -47,3 +47,11 @@ instance/app.db
 _backup_*/
 *.backup.*
 *.before-uniq.*
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+instance/
+.env
+coverage*
+.pytest_cache/
