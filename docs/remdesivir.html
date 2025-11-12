@@ -186,7 +186,7 @@
 
     <div class="dose-row">
       <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="0.0">
+      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="">
     </div>
 
     <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -200,10 +200,10 @@
     <!-- เลือกเงื่อนไขคูณ -->
     <div class="calc-box" style="opacity:.55; pointer-events:none">
       <form id="__will_handle_by_js__" class="calc-row">
-        <input type="hidden" name="dose" value="0.0">
+        <input type="hidden" name="dose" value="">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="1.5" >1.5 เท่า</option>
           <option value="2"   >2 เท่า</option>
           <option value="2.5" >2.5 เท่า</option>
@@ -217,21 +217,6 @@
       </form>
     </div>
 
-    
-      <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังคูณ 1.0 เท่า</b></p>
-        <div class="left-align">
-          <p>1.0 × 0.00 ml = <b>0.00</b> ml <span class="muted">(จากขั้นตอนที่ 1)</span></p>
-          <p>1.0 × 0.00 ml = <b>0.00</b> ml <span class="muted">(จากขั้นตอนที่ 2)</span></p>
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ปริมาณยา:</b> <span class="pill">0.00 ml</span></p>
-          <p><b>ปริมาณสารละลาย:</b> <span class="pill">0.00 ml</span>
-             <span class="muted">(0.00 − 0.00)</span></p>
-          <p style="background:#fde047; padding:6px; border-radius:6px;">
-            <b>ปริมาณยาที่บริหารเข้าทารก = 0.00 ml → drip in 2 hr.</b>
-          </p>
-        </div>
-      </div>
     
 
     <!-- หมายเหตุ/วิชาการ -->

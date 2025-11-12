@@ -121,9 +121,9 @@
 
         <p>แทนค่า:
           {% if scheme == '300k' %}
-            <span class="mono">{{ "{:,}".format(dose|int) }} / 300,000 = <b><span class="pill">{{ "%.2f"|format(calculated_ml) }}</span></b> mL</span>
+            <span class="mono">{{ "{:,}".format(dose|int) }} / 300,000 = <b><span class="pill">{{ calculated_ml|fmt(2) }}</span></b> mL</span>
           {% else %}
-            <span class="mono">{{ "{:,}".format(dose|int) }} / 150,000 = <b><span class="pill">{{ "%.2f"|format(calculated_ml) }}</span></b> mL</span>
+            <span class="mono">{{ "{:,}".format(dose|int) }} / 150,000 = <b><span class="pill">{{ calculated_ml|fmt(2) }}</span></b> mL</span>
           {% endif %}
         </p>
       </div>

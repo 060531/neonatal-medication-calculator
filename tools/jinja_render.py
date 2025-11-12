@@ -175,7 +175,7 @@ def nz(value, default=0):
         return default
 
 env.filters["nz"] = nz   # ใช้แบบ {{ x|nz(0) }}
-
+env.filters["fmt"] = fmt
 # ---------- Base context ----------
 # ---------- Base context ----------
 BASE_CTX = {
