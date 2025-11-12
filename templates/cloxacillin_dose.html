@@ -187,7 +187,7 @@
             <td>40.00</td>
             <td>q 12 hr(s)</td>
         </tr>
-        <tr class="{% if 30 <= pma_weeks <= 36 and postnatal_days > 14 %} highlight {% endif %}">
+        <tr class="{% if ((pma_weeks|nz(0)) >= 30 and (pma_weeks|nz(0)) <= 36) and ((postnatal_days|nz(0)) > 14) %} highlight {% endif %}">
             <td>30 - 36 wk</td>
             <td>15 days+</td>
             <td>40.00</td>
