@@ -139,13 +139,13 @@ DEFAULT_NUM_KEYS = {
 # ผสาน default เข้ากับ context หลัก
 BASE_CTX.update(DEFAULT_NUM_KEYS)
 
-URL_MAP = {
-    # ... ของเดิม ...
+URL_MAP.update({
     "calculate_pma_route": "./pma_template.html",
     "calculate_runtime_route": "./run_time.html",
     "calculate_runtime_stop_route": "./run_time_stop.html",
     "drug_calculation_route": "./drug_calculation.html",
-}
+})
+
 
 # ---------- Utilities ----------
 def ensure_docs_dir():
