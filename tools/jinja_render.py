@@ -167,6 +167,15 @@ URL_MAP = {
     "static": "./static/",
 }
 
+URL_MAP.update({
+    "calculate_pma_route": "./pma_template.html",
+    "drug_calculation_route": "./drug_calculation.html",
+    "time_management_route": "./time_management.html",
+    "compatibility": "./compatibility.html",
+    "compatibility_result": "./compatibility_result.html",
+    "run_time_route": "./run_time.html",
+    "run_time_stop_route": "./run_time_stop.html",
+})
 
 
 # ---------- Utilities ----------
