@@ -5,257 +5,242 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Acyclovir Calculation</title>
-<style>
-  /* ========== Theme tokens ========== */
-  :root{
-    --blue-900:#0b2b7a;
-    --blue-700:#1e57d2;
-    --sky-50:#eef7ff;
-    --sky-100:#d7ecff;
-    --panel:#e6f3ffb8;
-    --text:#0f172a;
 
-    --floatbar-gap: clamp(80px, 16vw, 110px); /* กันปุ่มลอยทับ footer */
-    --page-gutter: 12px;                      /* ระยะขอบซ้าย-ขวา */
-  }
+  <style>
+    /* ========== Theme tokens ========== */
+    :root{
+      --blue-900:#0b2b7a;
+      --blue-700:#1e57d2;
+      --sky-50:#eef7ff;
+      --sky-100:#d7ecff;
+      --panel:#e6f3ffb8;
+      --text:#0f172a;
 
-  /* ========== Global guard + BG เต็มจอ ========== */
-  html, body { overflow-x: hidden; height: 100%; }
-  *, *::before, *::after { box-sizing: border-box; }
-  img, video, canvas, svg { max-width: 100%; height: auto; }
-  pre, code { white-space: pre-wrap; word-break: break-word; }
+      --floatbar-gap: clamp(80px, 16vw, 110px);
+      --page-gutter: 12px;
+    }
+    html, body { overflow-x: hidden; height: 100%; }
+    *, *::before, *::after { box-sizing: border-box; }
+    img, video, canvas, svg { max-width: 100%; height: auto; }
+    pre, code { white-space: pre-wrap; word-break: break-word; }
+    .hidden{display:none;}
 
-  body{
-    margin:0; min-height:100svh;
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    color:var(--text); text-align:center;
-    background:none;
-    padding-left:max(0px, env(safe-area-inset-left));
-    padding-right:max(0px, env(safe-area-inset-right));
-  }
-  body::before{
-    content:""; position:fixed; inset:0; z-index:-1;
-    background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
-    background-size:cover; background-position:center; background-repeat:no-repeat;
-  }
+    body{
+      margin:0; min-height:100svh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color:var(--text); text-align:center;
+      background:none;
+      padding-left:max(0px, env(safe-area-inset-left));
+      padding-right:max(0px, env(safe-area-inset-right));
+    }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
 
-  /* ========== Header ========== */
-  .title-badge{
-    display:inline-block; margin:28px auto 12px; padding:10px 18px;
-    background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
-    border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
-    border:1px solid rgba(255,255,255,.14);
-    max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
-  }
+    .title-badge{
+      display:inline-block; margin:28px auto 12px; padding:10px 18px;
+      background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
+      border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.14);
+      max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
+    }
 
-  /* ========== Wrapper / panel ========== */
-  .container{
-    width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
-    margin:0 auto 12px; padding:20px;
-    background:var(--panel);
-    border:1px solid #b9d9ff; border-radius:16px;
-    box-shadow:0 8px 24px rgba(15,23,42,.18);
-    backdrop-filter: blur(6px) saturate(120%);
-    -webkit-backdrop-filter: blur(6px) saturate(120%);
-  }
+    .container{
+      width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
+      margin:0 auto 12px; padding:20px;
+      background:var(--panel);
+      border:1px solid #b9d9ff; border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter: blur(6px) saturate(120%);
+      -webkit-backdrop-filter: blur(6px) saturate(120%);
+    }
 
-  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
-  .calc-box{
-    margin:14px auto 20px; max-width:740px; padding:16px;
-    background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
-    border:1px solid #b7d6ff; border-radius:14px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
-    padding-left:max(12px, var(--page-gutter));
-    padding-right:max(12px, var(--page-gutter));
-  }
-  .calc-row{
-    display:flex; flex-wrap:wrap;
-    gap:10px; align-items:center; justify-content:center;
-  }
+    .calc-box{
+      margin:14px auto 20px; max-width:740px; padding:16px;
+      background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+      border:1px solid #b7d6ff; border-radius:14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+      padding-left:max(12px, var(--page-gutter));
+      padding-right:max(12px, var(--page-gutter));
+    }
+    .calc-row{
+      display:flex; flex-wrap:wrap;
+      gap:10px; align-items:center; justify-content:center;
+    }
 
-  /* ฟิลด์มาตรฐาน */
-  input[type="number"], select{
-    width: clamp(160px, 50vw, 220px);
-    max-width:60vw; padding:10px 12px; border-radius:10px;
-    border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
-  }
-  .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
+    input[type="number"], select{
+      width: clamp(160px, 50vw, 220px);
+      max-width:60vw; padding:10px 12px; border-radius:10px;
+      border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
+    }
+    .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
     .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
     .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
-  /* ========== ปุ่มมาตรฐาน ========== */
-  .btn{
-    appearance:none; border:none; border-radius:10px; cursor:pointer;
-    padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
-    box-shadow:0 6px 0 rgba(10,30,85,.25);
-    transition: transform .06s ease, filter .2s ease;
-  }
-  .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
-  .btn:active{ transform:translateY(1px); }
-  .btn-blue{ background:var(--blue-700); }
-  .btn-red{ background:#e71f1f; }
-  .btn-cyan{ background:#049bb5; }
-
-  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
-  .result{
-    text-align:left; margin:14px auto; max-width:740px; padding:14px;
-    background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
-    padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
-  }
-  .result b{ color:#0b2b7a; }
-  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
-  .muted{ color:#334155; }
-  .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
-  .bullet{ text-align:left; margin:0 0 10px 0; }
-  .bullet ul{ margin:6px 0 0 22px; }
-
-  /* ========== ปุ่มลอยล่าง ========== */
-  .float-actions{
-    position:fixed; left:50%; transform:translateX(-50%);
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
-    display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
-    padding:8px 10px; border-radius:14px;
-    background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2);
-    box-shadow:0 8px 18px rgba(2,8,23,.28);
-    backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
-    width:min(540px, calc(100vw - calc(var(--page-gutter)*2)));
-    max-width: calc(100vw - calc(var(--page-gutter)*2));
-  }
-
-  /* ========== Footer ========== */
-  footer.page-footer{
-    text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
-    margin: 6px 0 var(--floatbar-gap);
-    padding-left: var(--page-gutter); padding-right: var(--page-gutter);
-    font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
-  }
-
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
-  @media (max-width: 640px){
-    .dose-row, .conc-row{
-      display:grid;
-      grid-template-columns:auto 1fr;  /* label | field */
-      align-items:center;
-      column-gap:8px;
-      width:100%;
-      max-width:520px;
-      margin-left:auto; margin-right:auto;
+    .btn{
+      appearance:none; border:none; border-radius:10px; cursor:pointer;
+      padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition: transform .06s ease, filter .2s ease;
     }
-    .dose-row > label,
-    .conc-row > label{
-      white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
-      font-size:14px; line-height:1.2;
+    .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px); }
+    .btn-blue{ background:var(--blue-700); }
+    .btn-red{ background:#e71f1f; }
+    .btn-cyan{ background:#049bb5; }
+
+    .result{
+      text-align:left; margin:14px auto; max-width:740px; padding:14px;
+      background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
+      padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
     }
-    .dose-row > input[type="number"],
-    .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
-      font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
+    .result b{ color:#0b2b7a; }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+    .muted{ color:#334155; }
+    .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
+    .bullet{ text-align:left; margin:0 0 10px 0; }
+    .bullet ul{ margin:6px 0 0 22px; }
+
+    .float-actions{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+      padding:8px 10px; border-radius:14px;
+      background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      width:min(540px, calc(100vw - calc(var(--page-gutter)*2)));
+      max-width: calc(100vw - calc(var(--page-gutter)*2));
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
-    .calc-row > .btn{ min-width:120px; }
-  }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
-  @media (max-width: 360px){
-    .dose-row > label,
-    .conc-row > label{ font-size:13px; max-width:42vw; }
-    .dose-row > input[type="number"],
-    .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
-  }
+    footer.page-footer{
+      text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin: 6px 0 var(--floatbar-gap);
+      padding-left: var(--page-gutter); padding-right: var(--page-gutter);
+      font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
+    }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
-  @media (max-width:640px){
-    .title-badge{ font-size:22px; padding:8px 14px; }
-    .container{ padding:14px; }
-    .calc-row{ gap:8px; }
-  }
-</style>
-
+    @media (max-width: 640px){
+      .dose-row, .conc-row{
+        display:grid;
+        grid-template-columns:auto 1fr;
+        align-items:center;
+        column-gap:8px;
+        width:100%;
+        max-width:520px;
+        margin-left:auto; margin-right:auto;
+      }
+      .dose-row > label,
+      .conc-row > label{
+        white-space:nowrap;
+        max-width:44vw;
+        font-size:14px; line-height:1.2;
+      }
+      .dose-row > input[type="number"],
+      .conc-row > select{
+        min-width:0; width:100%;
+        font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
+      }
+      .calc-row > .btn{ min-width:120px; }
+      .title-badge{ font-size:22px; padding:8px 14px; }
+      .container{ padding:14px; }
+      .calc-row{ gap:8px; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- หัวข้อบนสุด -->
+  <!-- หัวข้อ -->
   <div class="title-badge">Acyclovir (250mg/5ml)</div>
 
   <!-- กรอบเนื้อหา -->
   <div class="container">
 
-    <!-- รอบ 1: คำนวณจาก mg -->
-    <!-- ฟอร์ม #1: คำนวณจาก mg -->
-<div class="calc-box">
-  <form action="{{ u('acyclovir_route') }}" method="post" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
-
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
-             required step="0.01" value="{{ dose if dose is not none else '' }}">
+    <!-- ฟอร์มคำนวณรอบแรก -->
+    <div class="calc-box">
+      <form id="calcForm"
+            action="{{ '#' if static_build else u('acyclovir_route') }}"
+            method="{{ 'get' if static_build else 'post' }}"
+            class="calc-row">
+        <input type="hidden" name="action" value="dose" />
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
+                 required step="0.01" value="{{ dose if dose is not none else '' }}">
+        </div>
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
 
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
+    <!-- ผลลัพธ์ Step 1 -->
+    <div id="res-first-1" class="result {{ '' if (result_ml_1) else 'hidden' }}">
+      <p><b>Order:</b> Acyclovir <span id="doseText">{{ dose if dose is not none else '' }}</span> mg</p>
+      <p><b>ขั้นตอนที่ 1: คำนวณปริมาณยา (สต็อก 250 mg / 5 ml)</b></p>
+      <p>
+        ใช้สูตร <span class="mono">(<span id="doseA">{{ dose if dose is not none else '' }}</span> × 5) / 250</span>
+        ⇒ <span class="mono"><span id="r1">{{ result_ml_1 if result_ml_1 is not none else '' }}</span> ml</span>
+      </p>
+    </div>
 
+    <!-- ผลลัพธ์ Step 2 -->
+    <div id="res-first-2" class="result {{ '' if (result_ml_2) else 'hidden' }}">
+      <p><b>ขั้นตอนที่ 2: คำนวณปริมาณสารละลายเป้าหมาย (5 mg/ml)</b></p>
+      <p>
+        ใช้สูตร <span class="mono">(<span id="doseB">{{ dose if dose is not none else '' }}</span> × 1) / 5</span>
+        ⇒ <span class="mono"><span id="r2">{{ result_ml_2 if result_ml_2 is not none else '' }}</span> ml</span>
+      </p>
+    </div>
 
-    <!-- ผลลัพธ์คำนวณ -->
-    {% if result_ml_1 %}
-      <div class="result">
-        <p><b>Order:</b> Acyclovir {{ dose }} mg</p>
-        <p><b>ขั้นตอนที่ 1: คำนวณปริมาณยา (สต็อก 250 mg / 5 ml)</b></p>
-        <p>ใช้สูตร <span class="mono">(mg × 5) / 250</span> ⇒
-           <span class="mono">{{ dose }} × 5 / 250 = {{ result_ml_1 }} ml</span></p>
+    <!-- ฟอร์มคูณหลายเท่า (แสดงหลัง Step1/2) -->
+    <div id="res-mult-form" class="{{ '' if (result_ml_1 or result_ml_2) else 'hidden' }}">
+      <div class="calc-box" style="margin-top:10px">
+        <form id="multForm"
+              action="{{ '#' if static_build else u('acyclovir_route') }}"
+              method="{{ 'get' if static_build else 'post' }}"
+              class="calc-row" style="gap:12px">
+          <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
+          <label for="multiplication">เลือกเงื่อนไข:</label>
+          <select name="multiplication" required
+                  style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
+            <option value="1.5">1.5 เท่า</option>
+            <option value="2">2 เท่า</option>
+            <option value="2.5">2.5 เท่า</option>
+            <option value="3">3 เท่า</option>
+            <option value="3.5">3.5 เท่า</option>
+            <option value="4">4 เท่า</option>
+            <option value="4.5">4.5 เท่า</option>
+            <option value="5">5 เท่า</option>
+          </select>
+          <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณการคูณ</button>
+        </form>
       </div>
-    {% endif %}
+    </div>
 
-    {% if result_ml_2 %}
-      <div class="result">
-        <p><b>ขั้นตอนที่ 2: คำนวณปริมาณสารละลายเป้าหมาย (5 mg/ml)</b></p>
-        <p>ใช้สูตร <span class="mono">(mg × 1) / 5</span> ⇒
-           <span class="mono">{{ dose }} × 1 / 5 = {{ result_ml_2 }} ml</span></p>
+    <!-- ผลลัพธ์สุดท้าย -->
+    <div id="res-final" class="result {{ '' if (final_result_1 is not none and final_result_2 is not none) else 'hidden' }}">
+      <p><b>ผลลัพธ์หลังจากคูณ <span id="multVal">{{ multiplication if multiplication is not none else '' }}</span> เท่า</b></p>
+      <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
+        <p>
+          <span id="multVal_1">{{ multiplication if multiplication is not none else '' }}</span>
+          × <span id="r1_show">{{ result_ml_1 if result_ml_1 is not none else '' }}</span> ml =
+          <span class="pill"><b id="final1">{{ final_result_1 if final_result_1 is not none else '' }}</b></span> ml
+          <span class="muted">(จากสูตร: (<span id="doseA2">{{ dose if dose is not none else '' }}</span> × 5) / 250)</span>
+        </p>
+        <p>
+          <span id="multVal_2">{{ multiplication if multiplication is not none else '' }}</span>
+          × <span id="r2_show">{{ result_ml_2 if result_ml_2 is not none else '' }}</span> ml =
+          <span class="pill"><b id="final2">{{ final_result_2 if final_result_2 is not none else '' }}</b></span> ml
+          <span class="muted">(จากสูตร: (<span id="doseB2">{{ dose if dose is not none else '' }}</span> × 1) / 5)</span>
+        </p>
+
+        <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
+        <p class="highlight"><b>ปริมาณยา (ตัวสาร):</b> <span id="final1_show">{{ final_result_1 if final_result_1 is not none else '' }}</span> ml</p>
+        <p class="highlight"><b>ปริมาณตัวทำละลาย:</b> <span id="dilution">{{ (final_result_2 - final_result_1) | round(2) if (final_result_1 is not none and final_result_2 is not none) else '' }}</span> ml</p>
+        <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> <span id="doseInj">{{ result_ml_2 if result_ml_2 is not none else '' }}</span> ml → <b>drip 1 hr.</b></p>
       </div>
-    {% endif %}
-
-    {% if result_ml_1 or result_ml_2 %}
-  <div class="calc-box" style="margin-top:10px">
-    <form action="{{ u('acyclovir_route') }}" method="post" class="calc-row" style="gap:12px">
-      <input type="hidden" name="dose" value="{{ dose }}">
-      <label for="multiplication">เลือกเงื่อนไข:</label>
-      <select name="multiplication" required
-              style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
-        <option value="1.5">1.5 เท่า</option>
-        <option value="2">2 เท่า</option>
-        <option value="2.5">2.5 เท่า</option>
-        <option value="3">3 เท่า</option>
-        <option value="3.5">3.5 เท่า</option>
-        <option value="4">4 เท่า</option>
-        <option value="4.5">4.5 เท่า</option>
-        <option value="5">5 เท่า</option>
-      </select>
-      <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณการคูณ</button>
-    </form>
-  </div>
-{% endif %}
-
-
-    {% if final_result_1 is not none and final_result_2 is not none %}
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า</b></p>
-        <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p>{{ multiplication }} × {{ result_ml_1 }} ml = <span class="pill"><b>{{ final_result_1 }}</b> </span>ml
-             <span class="muted">(จากสูตร: ({{ dose }} × 5) / 250)</span></p>
-          <p>{{ multiplication }} × {{ result_ml_2 }} ml = <span class="pill"><b>{{ final_result_2 }}</b></span> ml
-             <span class="muted">(จากสูตร: ({{ dose }} × 1) / 5)</span></p>
-
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-          <p class="highlight"><b>ปริมาณยา (ตัวสาร):</b> {{ final_result_1 }} ml</p>
-          <p class="highlight"><b>ปริมาณตัวทำละลาย:</b> {{ (final_result_2 - final_result_1) | round(2) }} ml
-             <span class="muted"> ({{ final_result_2 | round(2) }} − {{ final_result_1 | round(2) }})</span></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> {{ result_ml_2 }} ml → <b>drip 1 hr.</b></p>
-        </div>
-      </div>
-    {% endif %}
+    </div>
 
     <!-- สรุปข้อมูล -->
     <div class="bullet">
@@ -293,15 +278,114 @@
     </div>
   </div><!-- /container -->
 
-  <!-- footer ชิดเนื้อหา แต่ไม่โดนปุ่มลอยทับ -->
+  <!-- footer -->
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
   </footer>
 
-  <!-- ปุ่มลอยติดล่าง (ห่อได้, ไม่ชนขอบ) -->
+  <!-- ปุ่มลอย -->
   <div class="float-actions">
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <!-- Logic ทำงานได้ทั้ง Static (GH Pages) และ Flask -->
+  <script>
+  (function(){
+    var isStatic = {{ 'true' if static_build else 'false' }};
+
+    // helpers
+    function $(sel){ return document.querySelector(sel); }
+    function n(x){ var v = parseFloat(x); return isFinite(v) ? v : 0; }
+    function r2(x){ return Math.round((x + Number.EPSILON) * 100) / 100; }
+    function show(el){ if(el) el.classList.remove('hidden'); }
+    function hide(el){ if(el) el.classList.add('hidden'); }
+
+    var calcForm = document.getElementById('calcForm');
+    var multForm = document.getElementById('multForm');
+
+    var box1 = $('#res-first-1');
+    var box2 = $('#res-first-2');
+    var boxF = $('#res-final');
+    var boxMultForm = $('#res-mult-form');
+
+    // เก็บค่าไว้ใช้ตอนคูณ
+    var _r1 = {{ result_ml_1 if result_ml_1 is not none else 'null' }};
+    var _r2 = {{ result_ml_2 if result_ml_2 is not none else 'null' }};
+    var _dose = {{ dose if dose is not none else 'null' }};
+
+    function computeFirst(dose){
+      var r1 = (dose * 5) / 250;
+      var r2 = (dose * 1) / 5;
+
+      // inject text
+      var doseText = $('#doseText'), doseA = $('#doseA'), doseB = $('#doseB');
+      var r1El = $('#r1'), r2El = $('#r2');
+      if(doseText) doseText.textContent = r2(dose);
+      if(doseA) doseA.textContent = r2(dose);
+      if(doseB) doseB.textContent = r2(dose);
+      if(r1El) r1El.textContent = r2(r1);
+      if(r2El) r2El.textContent = r2(r2);
+
+      show(box1); show(box2); show(boxMultForm);
+
+      _r1 = r1; _r2 = r2; _dose = dose;
+    }
+
+    function computeMultiply(mult){
+      if(_r1 == null || _r2 == null) return;
+
+      var f1 = r2(_r1 * mult);
+      var f2 = r2(_r2 * mult);
+
+      // inject final texts
+      var multVal  = $('#multVal'), multVal1 = $('#multVal_1'), multVal2 = $('#multVal_2');
+      var r1show   = $('#r1_show'), r2show   = $('#r2_show');
+      var final1   = $('#final1'), final2 = $('#final2');
+      var final1s  = $('#final1_show'), dil = $('#dilution'), inj = $('#doseInj');
+      var doseA2   = $('#doseA2'), doseB2 = $('#doseB2');
+
+      if(multVal) multVal.textContent = r2(mult);
+      if(multVal1) multVal1.textContent = r2(mult);
+      if(multVal2) multVal2.textContent = r2(mult);
+
+      if(r1show) r1show.textContent = r2(_r1);
+      if(r2show) r2show.textContent = r2(_r2);
+
+      if(final1) final1.textContent = f1;
+      if(final2) final2.textContent = f2;
+      if(final1s) final1s.textContent = f1;
+      if(dil) dil.textContent = r2(f2 - f1);
+      if(inj) inj.textContent = r2(_r2);
+
+      if(doseA2) doseA2.textContent = r2(_dose || 0);
+      if(doseB2) doseB2.textContent = r2(_dose || 0);
+
+      show(boxF);
+    }
+
+    if(calcForm){
+      if(isStatic){
+        calcForm.addEventListener('submit', function(e){
+          e.preventDefault();
+          hide(boxF);
+          var dose = n(calcForm.querySelector('[name="dose"]').value);
+          computeFirst(dose);
+        });
+      }
+      // Flask: ปล่อยให้ server render → sections ถูกเปิดด้วยเงื่อนไข Jinja ด้านบนแล้ว
+    }
+
+    if(multForm){
+      if(isStatic){
+        multForm.addEventListener('submit', function(e){
+          e.preventDefault();
+          var mult = n(multForm.querySelector('[name="multiplication"]').value);
+          computeMultiply(mult);
+        });
+      }
+    }
+  })();
+  </script>
 </body>
 </html>
