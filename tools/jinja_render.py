@@ -142,21 +142,51 @@ env.globals.update({
 })
 
 # ---------- Base context ----------
+# ---------- Base context ----------
 BASE_CTX = {
-    "error": None, "content_extra": None, "UPDATE_DATE": "",
-    "u": u, "static_build": True, "request": {"path": "/"}, "session": {},
+    "error": None,
+    "content_extra": None,
+    "UPDATE_DATE": "",
+    "u": u,
+    "static_build": True,
+    "request": {"path": "/"},
+    "session": {},
     "order": {},  # for verify_result.html
 
     # defaults used in drug pages
-    "bw": 0.0, "pma_weeks": 0, "pma_days": 0, "postnatal_days": 0,
-    "dose": 0.0, "dose_ml": 0.0, "dose_mgkg": 0.0,
-    "result_ml": 0.0, "result_ml_1": 0.0, "result_ml_2": 0.0, "result_ml_3": 0.0,
-    "final_result_1": 0.0, "final_result_2": 0.0, "final_result_3": 0.0,
-    "calculated_ml": 0.0, "vol_ml": 0.0,
-    "multiplication": 1.0, "rate_ml_hr": 0.0, "concentration_mg_ml": 0.0,
-    "target_conc": 0.0, "stock_conc": 0.0,
-    "loading_dose_ml": 0.0, "maintenance_dose_ml": 0.0,
-    "infusion_rate_ml_hr": 0.0, "total_volume_ml": 0.0, "dilution_volume_ml": 0.0,
+    # ใส่ None เพื่อไม่ให้เทมเพลตแสดง 0.0 ตั้งแต่แรก
+    "bw": None,
+    "pma_weeks": None,
+    "pma_days": None,
+    "postnatal_days": None,
+
+    "dose": None,
+    "dose_ml": None,
+    "dose_mgkg": None,
+
+    "result_ml": None,
+    "result_ml_1": None,
+    "result_ml_2": None,
+    "result_ml_3": None,
+
+    "final_result_1": None,
+    "final_result_2": None,
+    "final_result_3": None,
+
+    "calculated_ml": None,
+    "vol_ml": None,
+
+    "multiplication": None,          # ให้ผู้ใช้เลือกเอง ไม่เติม 1.0 ล่วงหน้า
+    "rate_ml_hr": None,
+    "concentration_mg_ml": None,
+    "target_conc": None,
+    "stock_conc": None,
+
+    "loading_dose_ml": None,
+    "maintenance_dose_ml": None,
+    "infusion_rate_ml_hr": None,
+    "total_volume_ml": None,
+    "dilution_volume_ml": None,
 }
 
 DEFAULT_NUM_KEYS = {
