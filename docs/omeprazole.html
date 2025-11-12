@@ -186,7 +186,7 @@
 
     <div class="dose-row">
       <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="0.0">
+      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="">
     </div>
 
     <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -196,27 +196,16 @@
     
 
     
-      
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Omeprazole 0.00 mg</p>
-        <div class="left-align muted">
-          <p><b>ความแรงอ้างอิงหลังละลายผง:</b> เติม Sterile water 10 ml → ได้สารละลายใส 10 ml ⇒ <b>4 mg/ml</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 4</span></p>
-          <p>แทนค่า: <span class="mono">0.00 ÷ 4</span> = <span class="pill">0.0 ml</span></p>
-          <p><b>ดังนั้น:</b> 0.00 mg = <span class="pill">0.0 ml</span></p>
-        </div>
-      </div>
-    
 
     <!-- รอบที่ 2: เลือกเงื่อนไข (ใช้งานเมื่อมี result_ml) -->
-    <div class="calc-box" >
+    <div class="calc-box" style="opacity:.55; pointer-events:none">
       <form id="__will_handle_by_js__" class="calc-row">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="0.0">
-        <input type="hidden" name="result_ml_hidden" value="0.0">
+        <input type="hidden" name="dose_hidden" value="">
+        <input type="hidden" name="result_ml_hidden" value="">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
         </select>
@@ -224,17 +213,6 @@
       </form>
     </div>
 
-    
-      
-      
-      <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ 1.0 เท่า = 0.00 ml</b></p>
-        <div class="left-align">
-          
-
-          
-        </div>
-      </div>
     
 
     

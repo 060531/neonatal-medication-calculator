@@ -153,6 +153,9 @@
     </style>
 </head>
 <body>
+{% set pw = (pma_weeks|nz(0)) %}
+{% set pnd = (postnatal_days|nz(0)) %}
+
 {% set pw = pma_weeks|nz(0) %}
 {% set pnd = postnatal_days|nz(0) %}
 

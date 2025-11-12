@@ -72,9 +72,9 @@
           <p><b>วิธีคิด:</b></p>
           <p>
             ปริมาตร (mL) = mg × 110 / 1200
-            ⇒ {{ dose|float|round(2) }} × 110 / 1200 = <b>{{ result_ml_1|fmt(2) } mL</b>
+            ⇒ {{ dose|float|round(2) }} × 110 / 1200 = <b>{{ result_ml_1|fmt(2) }} mL</b>
           </p>
-          <p><b>ดังนั้น ขนาดยา {{ dose|float|round(2) }} mg = {{ result_ml_1|fmt(2) } mL</b></p>
+          <p><b>ดังนั้น ขนาดยา {{ dose|float|round(2) }} mg = {{ result_ml_1|fmt(2) }} mL</b></p>
         </div>
       </div>
     {% endif %}
@@ -106,8 +106,8 @@
       <div class="result">
         <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า:</b></p>
         <div class="left-align">
-          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) } mL = <b>{{ final_result_1|fmt(2) } mL</b></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> {{ result_ml_1|fmt(2) } mL → <b>drip within 30 min.</b></p>
+          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) }} mL = <b>{{ final_result_1|fmt(2) }}} mL</b></p>
+          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> {{ result_ml_1|fmt(2) }} mL → <b>drip within 30 min.</b></p>
         </div>
       </div>
     {% endif %}

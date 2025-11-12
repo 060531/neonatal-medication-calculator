@@ -62,9 +62,9 @@
 
     {% if dose is not none %}
       <div class="result">
-        <p><b>Order:</b> Amikacin {{ dose|fmt(2) } mg</p>
+        <p><b>Order:</b> Amikacin {{ dose|fmt(2) }} mg</p>
         <p><b>สูตรจากสต็อก 500 mg / 2 ml</b> → <span class="mono">ml = (mg × 2) / 500</span></p>
-        <p>แทนค่า: <span class="mono">{{ dose|fmt(2) } × 2 / 500 = <span class="pill-red">{{ result_ml|fmt(2) }</span> ml</span></p>
+        <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 2 / 500 = <span class="pill-red">{{ result_ml|fmt(2) }}</span> ml</span></p>
       </div>
     {% endif %}
 
@@ -86,10 +86,10 @@
 
     {% if multiplication is not none %}
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ result_ml * multiplication|fmt(2) } ml</b></p>
+        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ result_ml * multiplication|fmt(2) }} ml</b></p>
         <div class="left-align">
           {% if multiplication == 3 and (final_result|nz(0)) < 9 %}
-            <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 - {{ result_ml * multiplication|fmt(2) }) = {{ 9 - (result_ml * multiplication)|fmt(2) } ml</p>
+            <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 - {{ result_ml * multiplication|fmt(2) }}) = {{ (9 - (result_ml|default(0) * multiplication|default(1)))|fmt(2) }} ml</p>
           {% elif multiplication == 3 and (final_result|nz(0)) >= 9 %}
             <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
           {% endif %}
@@ -101,7 +101,7 @@
           {% endif %}
 
           {% if multiplication == 6 and (final_result|nz(0)) < 6 %}
-            <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 - {{ result_ml * multiplication|fmt(2) }) = {{ 6 - (result_ml * multiplication)|fmt(2) } ml</p>
+            <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> ( 6 - {{ (result_ml|default(0) * multiplication|default(1))|fmt(2) }}) = {{ (6 - (result_ml|default(0) * multiplication|default(1)))|fmt(2) }} ml</p>
           {% elif multiplication == 6 and (final_result|nz(0)) >= 6 %}
             <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
           {% endif %}

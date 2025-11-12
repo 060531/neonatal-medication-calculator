@@ -60,56 +60,15 @@
       <div class="form-group">
         <label for="dose"><b>กรอกขนาดยา (mg):</b></label>
         <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
-               value="0.0">
+               value="">
       </div>
       <button type="submit" class="calculate-button">Calculate</button>
     </form>
 
     
-      <div class="result">
-        <p><b>Order: Amoxicillin/Clavimoxy 0.0 mg</b></p>
-        <div class="left-align">
-          <p><b>วิธีคิด:</b></p>
-          <p>
-            ปริมาตร (mL) = mg × 110 / 1200
-            ⇒ 0.0 × 110 / 1200 = <b>0.00 mL</b>
-          </p>
-          <p><b>ดังนั้น ขนาดยา 0.0 mg = 0.00 mL</b></p>
-        </div>
-      </div>
-    
 
     
-      <!-- รอบที่ 2: คูณเงื่อนไข -->
-      <form action="./amoxicillin_clavimoxy.html" method="post" style="margin-top:10px;">
-        <input type="hidden" name="action" value="condition">
-        <input type="hidden" name="dose_hidden" value="0.0">
-        <input type="hidden" name="result_ml_1_hidden" value="0.0">
-        <div class="form-group">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select id="multiplication" name="multiplication" required>
-            <option value="1.5">1.5 เท่า</option>
-            <option value="2">2 เท่า</option>
-            <option value="2.5">2.5 เท่า</option>
-            <option value="3">3 เท่า</option>
-            <option value="3.5">3.5 เท่า</option>
-            <option value="4">4 เท่า</option>
-            <option value="4.5">4.5 เท่า</option>
-            <option value="5">5 เท่า</option>
-          </select>
-        </div>
-        <button type="submit" class="calculate-button" name="calculate_multiplication">คำนวณการคูณ</button>
-      </form>
-    
 
-    
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ 1.0 เท่า:</b></p>
-        <div class="left-align">
-          <p>1.0 × 0.00 mL = <b>0.00 mL</b></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> 0.00 mL → <b>drip within 30 min.</b></p>
-        </div>
-      </div>
     
 
     <!-- ข้อมูลเตรียมยา -->

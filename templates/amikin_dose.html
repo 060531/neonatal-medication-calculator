@@ -153,6 +153,12 @@
     </style>
 </head>
 <body>
+{% set pw = (pma_weeks|nz(0)) %}
+{% set pnd = (postnatal_days|nz(0)) %}
+
+{% set bw0 = (bw|nz(0)) %}
+{% set pw = (pw|nz(0)) %}
+{% set pnd = (pnd|nz(0)) %}
         <h1>Amikacin Dosage Information</h1>
 
         <!-- Display the calculated PMA and Postnatal Age -->
@@ -204,7 +210,7 @@
             <td>15 mg/kg/dose every 36 hours</td>
             <td>18 mg/kg/dose every 24 hours</td>
         </tr>
-        <tr class="{% if bw > 2.8 %} highlight {% endif %}">
+        <tr class="{% if bw0 > 2.8 %} highlight {% endif %}">
             <td>2800 g or greater</td>
             <td>15 mg/kg/dose every 30 hours</td>
             <td>18 mg/kg/dose every 20 hours</td>
@@ -227,35 +233,35 @@
         </tr>
     </thead>
     <tbody>
-        <tr class="{% if (pma_weeks|nz(0)) <= 29 and (postnatal_days|nz(0)) <= 7 %} highlight {% endif %}">
+        <tr class="{% if (pw|nz(0)) <= 29 and (pnd|nz(0)) <= 7 %} highlight {% endif %}">
             <td>29 weeks or less</td>
             <td>0 to 7 days</td>
             <td>14 mg/kg/dose every 48 hours</td>
         </tr>
-        <tr class="{% if (pma_weeks|nz(0)) <= 29
-               and ((postnatal_days|nz(0)) >= 8 and (postnatal_days|nz(0)) <= 28) %} highlight {% endif %}">
+        <tr class="{% if (pw|nz(0)) <= 29
+               and ((pnd|nz(0)) >= 8 and (pnd|nz(0)) <= 28) %} highlight {% endif %}">
             <td>29 weeks or less</td>
             <td>8 to 28 days</td>
             <td>12 mg/kg/dose every 36 hours</td>
         </tr>
-        <tr class="{% if (pma_weeks|nz(0)) <= 29 and (postnatal_days|nz(0)) > 28 %} highlight {% endif %}">
+        <tr class="{% if (pw|nz(0)) <= 29 and (pnd|nz(0)) > 28 %} highlight {% endif %}">
             <td>29 weeks or less</td>
             <td>29 days or older</td>
             <td>12 mg/kg/dose every 24 hours</td>
         </tr>
-        <tr class="{% if ((pma_weeks|nz(0)) >= 30 and (pma_weeks|nz(0)) <= 34)
-               and (postnatal_days|nz(0)) <= 7 %} highlight {% endif %}">
+        <tr class="{% if ((pw|nz(0)) >= 30 and (pw|nz(0)) <= 34)
+               and (pnd|nz(0)) <= 7 %} highlight {% endif %}">
             <td>30 to 34 weeks</td>
             <td>0 to 7 days</td>
             <td>12 mg/kg/dose every 36 hours</td>
         </tr>
-        <tr class="{% if ((pma_weeks|nz(0)) >= 30 and (pma_weeks|nz(0)) <= 34)
-               and (postnatal_days|nz(0)) > 7 %} highlight {% endif %}">
+        <tr class="{% if ((pw|nz(0)) >= 30 and (pw|nz(0)) <= 34)
+               and (pnd|nz(0)) > 7 %} highlight {% endif %}">
             <td>30 to 34 weeks</td>
             <td>8 days or older</td>
             <td>12 mg/kg/dose every 24 hours</td>
         </tr>
-        <tr class="{% if pma_weeks >= 35 %} highlight {% endif %}">
+        <tr class="{% if pw >= 35 %} highlight {% endif %}">
             <td>35 weeks or more</td>
             <td>All ages</td>
             <td>12 mg/kg/dose every 24 hours</td>

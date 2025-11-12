@@ -195,11 +195,11 @@
 
     {% if result_ml_1 %}
       <div class="result">
-        <p class="order-line"><b>Order:</b> Remdesivir {{ dose|fmt(2) } mg</p>
+        <p class="order-line"><b>Order:</b> Remdesivir {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ขั้นตอนที่ 1 — คำนวณปริมาณยา (หลังละลาย 100 mg → 20 ml = 5 mg/ml):</b></p>
           <p>สูตร: <span class="mono">ml = (mg × 20) ÷ 100</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) } × 20 ÷ 100</span> = <span class="pill">{{ result_ml_1|fmt(2) } ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 20 ÷ 100</span> = <span class="pill">{{ result_ml_1|fmt(2) }} ml</span></p>
         </div>
       </div>
     {% endif %}
@@ -209,7 +209,7 @@
         <div class="left-align muted">
           <p><b>ขั้นตอนที่ 2 — คำนวณปริมาณสารละลาย (ต้องไม่เกิน 1.25 mg/ml):</b></p>
           <p>สูตร: <span class="mono">ml = (mg × 1) ÷ 1.25</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) } ÷ 1.25</span> = <span class="pill">{{ result_ml_2|fmt(2) } ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 1.25</span> = <span class="pill">{{ result_ml_2|fmt(2) }} ml</span></p>
         </div>
       </div>
     {% endif %}
@@ -238,14 +238,14 @@
       <div class="result">
         <p class="order-line"><b>ผลลัพธ์หลังคูณ {{ multiplication }} เท่า</b></p>
         <div class="left-align">
-          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) } ml = <b>{{ final_result_1|fmt(2) }</b> ml <span class="muted">(จากขั้นตอนที่ 1)</span></p>
-          <p>{{ multiplication }} × {{ result_ml_2|fmt(2) } ml = <b>{{ final_result_2|fmt(2) }</b> ml <span class="muted">(จากขั้นตอนที่ 2)</span></p>
+          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) }} ml = <b>{{ final_result_1|fmt(2) }}}</b> ml <span class="muted">(จากขั้นตอนที่ 1)</span></p>
+          <p>{{ multiplication }} × {{ result_ml_2|fmt(2) }} ml = <b>{{ final_result_2|fmt(2) }}</b> ml <span class="muted">(จากขั้นตอนที่ 2)</span></p>
           <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ปริมาณยา:</b> <span class="pill">{{ final_result_1|fmt(2) } ml</span></p>
-          <p><b>ปริมาณสารละลาย:</b> <span class="pill">{{ final_result_2 - final_result_1|fmt(2) } ml</span>
-             <span class="muted">({{ final_result_2|fmt(2) } − {{ final_result_1|fmt(2) })</span></p>
+          <p><b>ปริมาณยา:</b> <span class="pill">{{ final_result_1|fmt(2) }}} ml</span></p>
+          <p><b>ปริมาณสารละลาย:</b> <span class="pill">{{ final_result_2 - final_result_1|fmt(2) }} ml</span>
+             <span class="muted">({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }}})</span></p>
           <p style="background:#fde047; padding:6px; border-radius:6px;">
-            <b>ปริมาณยาที่บริหารเข้าทารก = {{ result_ml_2|fmt(2) } ml → drip in 2 hr.</b>
+            <b>ปริมาณยาที่บริหารเข้าทารก = {{ result_ml_2|fmt(2) }} ml → drip in 2 hr.</b>
           </p>
         </div>
       </div>

@@ -172,9 +172,9 @@
       {% set conc = concentration|default(5, true) %}
       {% set calc_ml = (dose / conc) %}
       <div class="result">
-        <p class="order-line"><b>Order :</b> Levofloxacin {{ dose|fmt(2) } mg</p>
+        <p class="order-line"><b>Order :</b> Levofloxacin {{ dose|fmt(2) }} mg</p>
         <div class="left-align">
-          <p><b>วิธีคิด:</b> <span class="mono">{{ dose|fmt(2) } ÷ {{ conc|fmt(2) }</span> = <span class="pill">{{ calc_ml|round(2) }} mL</span></p>
+          <p><b>วิธีคิด:</b> <span class="mono">{{ dose|fmt(2) }} ÷ {{ conc|fmt(2) }}</span> = <span class="pill">{{ calc_ml|round(2) }} mL</span></p>
           <p><b>ดังนั้น:</b> ปริมาตรยาที่ต้องการ = <span class="pill">{{ calc_ml|round(2) }} mL</span></p>
         </div>
       </div>
