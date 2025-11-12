@@ -1,8 +1,10 @@
 # app.py
-from flask import Flask, render_template
+import os
+import argparse
 from datetime import date
+from flask import Flask, render_template
 
-# ใช้ extensions จริงถ้ามี; ถ้าไม่มีให้ข้ามได้
+# ===== optional extensions =====
 try:
     from extensions import db, migrate
 except Exception:
@@ -10,7 +12,22 @@ except Exception:
     migrate = None
 
 
-def create_app(testing: bool = False):
+def _pick_update_date(cli_value: str = None) -> str:
+    """
+    ลำดับความสำคัญของวันที่ที่จะแสดงใน {{ UPDATE_DATE }}:
+    1) --update-date "YYYY-MM-DD" (หรือข้อความใด ๆ ที่ต้องการ)
+    2) ENV UPDATE_DATE
+    3) วันนี้ (YYYY-MM-DD)
+    """
+    if cli_value:
+        return cli_value.strip()
+    env_v = os.getenv("UPDATE_DATE")
+    if env_v:
+        return env_v.strip()
+    return date.today().strftime("%Y-%m-%d")
+
+
+def create_app(testing: bool = False, update_date: str = None):
     app = Flask(__name__)
 
     # ===== Config พื้นฐาน =====
@@ -21,6 +38,9 @@ def create_app(testing: bool = False):
         SECRET_KEY="dev",
     )
 
+    # เก็บ UPDATE_DATE ใน config เพื่อให้แก้/อัปเดตได้ภายหลัง
+    app.config["UPDATE_DATE"] = _pick_update_date(update_date)
+
     # ===== init extensions (ถ้ามี) =====
     if db:
         db.init_app(app)
@@ -28,11 +48,11 @@ def create_app(testing: bool = False):
         migrate.init_app(app, db)
 
     # ===== Register Blueprints =====
-    # นำเข้า “ภายในฟังก์ชัน” เพื่อเลี่ยงวงจร import
+    # นำเข้าในฟังก์ชันเพื่อเลี่ยงวงจร import
     from routes.routes_medications import meds_bp
     app.register_blueprint(meds_bp)
 
-    # (ถ้ามี core blueprint ค่อยลงทะเบียนแบบ try/except)
+    # ลงทะเบียน core blueprint ถ้ามี
     try:
         from routes.core import bp as core_bp
         app.register_blueprint(core_bp)
@@ -42,56 +62,65 @@ def create_app(testing: bool = False):
     # ===== Context processor / Template globals =====
     @app.context_processor
     def inject_update_date():
-        return {"UPDATE_DATE": date.today().strftime("%Y-%m-%d")}
+        # ฉีดให้ทุกเทมเพลต: {{ UPDATE_DATE }}
+        return {"UPDATE_DATE": app.config.get("UPDATE_DATE", "")}
 
     @app.template_global()
     def has_endpoint(name: str) -> bool:
-        from flask import current_app
-        return name in current_app.view_functions
+        return name in app.view_functions or any(
+            f"{bp}.{name}" in app.view_functions for bp in app.blueprints.keys()
+        )
 
     @app.template_global()
     def resolve_endpoint(name: str):
-        """คืนชื่อ endpoint แบบเต็ม (เติม prefix blueprint ให้อัตโนมัติถ้าต้อง)"""
-        from flask import current_app
-        if name in current_app.view_functions:
+        """คืนชื่อ endpoint แบบเต็ม (เติม prefix blueprint ให้อัตโนมัติถ้าจำเป็น)"""
+        if name in app.view_functions:
             return name
-        for bp_name in current_app.blueprints.keys():
+        for bp_name in app.blueprints.keys():
             full = f"{bp_name}.{name}"
-            if full in current_app.view_functions:
+            if full in app.view_functions:
                 return full
         return None
 
     @app.template_global()
     def u(name: str, **values):
-        """url_for ที่ยอมรับชื่อสั้นของ endpoint ได้ (auto-prefix blueprint)"""
-        from flask import current_app, url_for
-        if name in current_app.view_functions:
+        """
+        url_for แบบยอมรับชื่อสั้น:
+          - ถ้าพบ endpoint ชื่อนั้นตรง ๆ ใช้ทันที
+          - ถ้าไม่พบ ลองเติม prefix เป็น <blueprint>.<name>
+          - ถ้ายังไม่พบ คืน "#"
+        """
+        from flask import url_for
+
+        if name in app.view_functions:
             return url_for(name, **values)
-        for bp_name in current_app.blueprints.keys():
+        for bp_name in app.blueprints.keys():
             full = f"{bp_name}.{name}"
-            if full in current_app.view_functions:
+            if full in app.view_functions:
                 return url_for(full, **values)
         return "#"
 
-    # ===== หน้าแรก (ทดสอบ) =====
+    # ===== หน้าแรก (สำหรับทดสอบ) =====
     @app.route("/")
     def index():
-        # ให้หน้าแรกลองแสดงฟอร์ม Acyclovir
+        # ตัวอย่าง: เปิดหน้า Acyclovir โดยตั้งค่าเริ่มต้นว่าง ๆ
         return render_template("acyclovir.html", dose=None)
 
     return app
 
 
 # รองรับรันแบบ: python app.py
-# app.py (ส่วนท้ายไฟล์)
 if __name__ == "__main__":
-    import argparse, os
-    app = create_app()
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default=os.getenv("HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.getenv("PORT", 5000)))
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument(
+        "--update-date",
+        help="กำหนดข้อความวันที่สำหรับ {{ UPDATE_DATE }} (เช่น 2025-11-12 หรือ 'Nov 12, 2025')",
+        default=None,
+    )
     args = parser.parse_args()
 
+    app = create_app(update_date=args.update_date)
     app.run(host=args.host, port=args.port, debug=args.debug or True)
