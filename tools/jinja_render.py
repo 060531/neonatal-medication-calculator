@@ -6,36 +6,55 @@ import pathlib
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 TEMPLATES_DIR = "templates"
-STATIC_DIR = "static"            # โฟลเดอร์ static ของโปรเจกต์ Flask
+STATIC_DIR = "static"
 OUTPUT_DIR = "docs"
 OUTPUT_STATIC_DIR = f"{OUTPUT_DIR}/static"
 
 # ---------- URL mapping (แทน url_for ในโหมด static) ----------
+# ชื่อ key = ชื่อ endpoint ฝั่ง Flask/Jinja, value = ไฟล์ .html จริงภายใต้ docs/
 URL_MAP = {
-    # หน้า root
+    # root/landing
     "index": "./index.html",
-    "medication_administration": "./index.html",
+    # ชื่อ route เดิมชี้ไปไฟล์ที่มีจริง (คงตัวพิมพ์ใหญ่ตามไฟล์)
+    "medication_administration": "./Medication_administration.html",
 
-    # เพจคำนวณ/หน้าเดี่ยวที่ต้องการ build เป็นไฟล์ (เติมเพิ่มได้)
+    # ปุ่มบนหน้าแรกที่เคย 404
+    "calculate_pma_route": "./pma_template.html",
+    "compatibility_page": "./compatibility.html",
+    "time_management_route": "./time_management.html",
+
+    # route อื่นที่หน้าแรก/ในเพจเรียกใช้
+    "drug_calculation_route": "./drug_calculation.html",
+    "compatibility": "./compatibility.html",
+    "compatibility_result": "./compatibility_result.html",
+    "run_time_route": "./run_time.html",
+    "run_time_stop_route": "./run_time_stop.html",
+
+    # เพจเดี่ยวที่มักอ้างถึงตรง ๆ (มี fallback ด้านล่างอยู่แล้ว แต่ระบุไว้เพื่อชัดเจน)
     "insulin": "./insulin.html",
     "vancomycin": "./vancomycin.html",
     "penicillin_g_sodium": "./penicillin_g_sodium.html",
     "fentanyl_continuous": "./fentanyl_continuous.html",
     "scan_server": "./scan_server.html",
     "verify_result": "./verify_result.html",
+
+    # static helper
+    "static": "./static/",
 }
 
 def u(name: str, **kwargs) -> str:
     """
     ตัวแทน url_for แบบย่อ:
       - u('static', filename='x.css') -> ./static/x.css
-      - u('index') / u('<endpoint>') -> map ตาม URL_MAP (หรือเดาเป็น ./<endpoint>.html)
+      - u('<endpoint>') -> map ตาม URL_MAP, ไม่เจอ -> เดาเป็น ./<endpoint>.html
+      - u(None) / u('') -> ./index.html
     """
+    if not name:
+        return "./index.html"
     if name == "static":
         fn = kwargs.get("filename", "")
         return f"./static/{fn}" if fn else "./static/"
-    if not name:
-        return "./index.html"
+    # ถ้าเจอใน URL_MAP ใช้เลย; ไม่งั้นเดาเป็นไฟล์ .html ชื่อเดียวกับ endpoint
     return URL_MAP.get(name, f"./{name}.html")
 
 def static_url(endpoint: str, filename: str = "") -> str:
@@ -46,21 +65,21 @@ def static_url(endpoint: str, filename: str = "") -> str:
 
 def resolve_endpoint(endpoint: str) -> str:
     """
-    ใช้ใน macro safe_button(...) ของ index.html
+    ใช้ใน macro safe_button(...)
     - http(s) URL -> คืนตรง ๆ
-    - endpoint ที่รู้จัก -> map ตาม URL_MAP
-    - อื่น ๆ -> เดาว่าเป็นไฟล์ .html ใน docs
+    - endpoint -> map ตาม URL_MAP; ไม่เจอ -> เดาเป็น ./<endpoint>.html
+    - ค่าว่าง -> ./index.html
     """
     if not endpoint:
         return "./index.html"
-    if endpoint.startswith(("http://", "https://")):
+    if isinstance(endpoint, str) and endpoint.startswith(("http://", "https://")):
         return endpoint
     return URL_MAP.get(endpoint, f"./{endpoint}.html")
 
 # ---------- Jinja environment & filters ----------
 def safe_fmt(value, fmt="%.2f"):
     """
-    ป้องกันการฟอร์แมตตัวเลขแล้วล้มเมื่อ value เป็น None/Undefined/ไม่ใช่ตัวเลข
+    ป้องกัน format error เวลา value เป็น None/ไม่ใช่ตัวเลข:
     ใช้: {{ some_var|safe_fmt('%.2f') }}
     """
     try:
@@ -85,7 +104,7 @@ env.globals.update({
 
 # ---------- ค่า context เริ่มต้น + ค่าเริ่มต้นเชิงตัวเลข ----------
 BASE_CTX = {
-    # ค่าทั่วไป
+    # ทั่วไป
     "error": None,
     "content_extra": None,
     "UPDATE_DATE": "",
@@ -97,10 +116,9 @@ BASE_CTX = {
     "session": {},
 }
 
-# ค่า default สำหรับตัวเลขที่ถูก format/คำนวณบ่อย ๆ
 DEFAULT_NUM_KEYS = {
     # สถานะผู้ป่วย/อายุ
-    "bw": 0.0,                 # Birth weight (kg)
+    "bw": 0.0,
     "pma_weeks": 0,
     "pma_days": 0,
     "postnatal_days": 0,
@@ -113,19 +131,20 @@ DEFAULT_NUM_KEYS = {
     "result_ml": 0.0,
     "result_ml_1": 0.0,
     "result_ml_2": 0.0,
-    "result_ml_3": 0.0,        # กันเผื่อหลายสเต็ป
+    "result_ml_3": 0.0,
     "final_result_1": 0.0,
     "final_result_2": 0.0,
     "final_result_3": 0.0,
 
-    "calculated_ml": 0.0,      # เผื่อหน้า benzathine_penicillin_g.html
+    "calculated_ml": 0.0,      # กันหน้า benzathine_penicillin_g.html
+    "vol_ml": 0.0,             # กันหน้า phenobarbital.html
 
     # infusion/ความเข้มข้น/ตัวคูณ
     "multiplication": 1.0,
     "rate_ml_hr": 0.0,
     "concentration_mg_ml": 0.0,
 
-    # ตัวแปรเฉพาะบางหน้า (เช่น phenobarbital)
+    # ตัวแปรเฉพาะบางหน้า
     "target_conc": 0.0,
     "stock_conc": 0.0,
     "loading_dose_ml": 0.0,
@@ -133,50 +152,8 @@ DEFAULT_NUM_KEYS = {
     "infusion_rate_ml_hr": 0.0,
     "total_volume_ml": 0.0,
     "dilution_volume_ml": 0.0,
-    "vol_ml": 0.0, 
 }
-
-# ผสาน default เข้ากับ context หลัก
 BASE_CTX.update(DEFAULT_NUM_KEYS)
-
-URL_MAP = {
-    # root/landing
-    "index": "./index.html",
-    "medication_administration": "./Medication_administration.html",  # ชื่อไฟล์จริงขึ้นต้น M ใหญ่
-
-    # กลุ่มเมนูหลักบน index
-    "compatibility": "./compatibility.html",
-    "drug_calculation_route": "./drug_calculation.html",
-    "time_management_route": "./time_management.html",
-    "calculate_pma_route": "./pma_template.html",
-
-    # เผื่อมีชื่อ route อื่นที่หน้า/ปุ่มเรียกใช้
-    "compatibility_result": "./compatibility_result.html",
-    "run_time_route": "./run_time.html",
-    "run_time_stop_route": "./run_time_stop.html",
-
-    # เพจยาที่ลิงก์ตรงเป็นรายตัว (ตัวอย่าง—เพิ่มได้ตามต้องใช้)
-    "vancomycin": "./vancomycin.html",
-    "insulin": "./insulin.html",
-    "fentanyl_continuous": "./fentanyl_continuous.html",
-    "penicillin_g_sodium": "./penicillin_g_sodium.html",
-    "scan_server": "./scan_server.html",
-    "verify_result": "./verify_result.html",
-
-    # static helper
-    "static": "./static/",
-}
-
-URL_MAP.update({
-    "calculate_pma_route": "./pma_template.html",
-    "drug_calculation_route": "./drug_calculation.html",
-    "time_management_route": "./time_management.html",
-    "compatibility": "./compatibility.html",
-    "compatibility_result": "./compatibility_result.html",
-    "run_time_route": "./run_time.html",
-    "run_time_stop_route": "./run_time_stop.html",
-})
-
 
 # ---------- Utilities ----------
 def ensure_docs_dir():
