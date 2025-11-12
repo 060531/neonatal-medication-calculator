@@ -139,12 +139,34 @@ DEFAULT_NUM_KEYS = {
 # ผสาน default เข้ากับ context หลัก
 BASE_CTX.update(DEFAULT_NUM_KEYS)
 
-URL_MAP.update({
-    "calculate_pma_route": "./pma_template.html",
-    "calculate_runtime_route": "./run_time.html",
-    "calculate_runtime_stop_route": "./run_time_stop.html",
+URL_MAP = {
+    # root/landing
+    "index": "./index.html",
+    "medication_administration": "./Medication_administration.html",  # ชื่อไฟล์จริงขึ้นต้น M ใหญ่
+
+    # กลุ่มเมนูหลักบน index
+    "compatibility": "./compatibility.html",
     "drug_calculation_route": "./drug_calculation.html",
-})
+    "time_management_route": "./time_management.html",
+    "calculate_pma_route": "./pma_template.html",
+
+    # เผื่อมีชื่อ route อื่นที่หน้า/ปุ่มเรียกใช้
+    "compatibility_result": "./compatibility_result.html",
+    "run_time_route": "./run_time.html",
+    "run_time_stop_route": "./run_time_stop.html",
+
+    # เพจยาที่ลิงก์ตรงเป็นรายตัว (ตัวอย่าง—เพิ่มได้ตามต้องใช้)
+    "vancomycin": "./vancomycin.html",
+    "insulin": "./insulin.html",
+    "fentanyl_continuous": "./fentanyl_continuous.html",
+    "penicillin_g_sodium": "./penicillin_g_sodium.html",
+    "scan_server": "./scan_server.html",
+    "verify_result": "./verify_result.html",
+
+    # static helper
+    "static": "./static/",
+}
+
 
 
 # ---------- Utilities ----------
