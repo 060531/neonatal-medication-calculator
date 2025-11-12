@@ -133,6 +133,7 @@ DEFAULT_NUM_KEYS = {
     "infusion_rate_ml_hr": 0.0,
     "total_volume_ml": 0.0,
     "dilution_volume_ml": 0.0,
+    "vol_ml": 0.0, 
 }
 
 # ผสาน default เข้ากับ context หลัก
