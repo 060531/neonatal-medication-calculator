@@ -95,9 +95,8 @@ def _ml_from_conc(dose_mg, mg_per_ml):
 @meds_bp.route("/acyclovir_route", methods=["GET", "POST"])  # รองรับ URL เก่า
 def acyclovir_route():
     """
-    กรอก dose (mg) → คำนวณปริมาตร 2 วิธี แล้วถ้ามี multiplication (3 หรือ 6) ก็คิดผลรวมให้
-    - result_ml_1 = (dose * 5) / 250
-    - result_ml_2 = (dose * 1) / 7
+    dose (mg) → result_ml_1 = (dose*5)/250
+                result_ml_2 = (dose*1)/5
     """
     dose = None
     result_ml_1 = None
@@ -109,23 +108,21 @@ def acyclovir_route():
 
     if request.method == "POST":
         try:
-            # รอบที่ 1: คำนวณจาก dose
-            dose = float(request.form.get("dose", "").strip())
+            dose = float((request.form.get("dose") or "").strip())
             result_ml_1 = round((dose * 5) / 250.0, 2)
-            result_ml_2 = round(dose / 7.0, 2)
+            result_ml_2 = round(dose / 5.0, 2)   # ✅ แก้เป็น 5
 
-            # รอบที่ 2: ถ้าเลือกตัวคูณ
             mult_raw = (request.form.get("multiplication") or "").strip()
             if mult_raw:
                 multiplication = float(mult_raw)
                 final_result_1 = round(result_ml_1 * multiplication, 2)
                 final_result_2 = round(result_ml_2 * multiplication, 2)
-
         except Exception as e:
             error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
 
     return render_template(
         "acyclovir.html",
+        static_build=False,             # ✅ บอกเทมเพลตว่าเป็น Flask
         dose=dose,
         result_ml_1=result_ml_1,
         result_ml_2=result_ml_2,
@@ -134,6 +131,7 @@ def acyclovir_route():
         multiplication=multiplication,
         error=error,
     )
+
 
 
 

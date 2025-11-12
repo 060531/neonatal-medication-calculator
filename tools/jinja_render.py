@@ -159,6 +159,35 @@ BASE_CTX = {
     "infusion_rate_ml_hr": 0.0, "total_volume_ml": 0.0, "dilution_volume_ml": 0.0,
 }
 
+DEFAULT_NUM_KEYS = {
+    "bw": None,
+    "pma_weeks": None,
+    "pma_days": None,
+    "postnatal_days": None,
+    "dose": None,
+    "dose_ml": None,
+    "dose_mgkg": None,
+    "result_ml": None,
+    "result_ml_1": None,
+    "result_ml_2": None,
+    "final_result_1": None,
+    "final_result_2": None,
+    "final_result_3": None,
+    "calculated_ml": None,
+    "vol_ml": None,
+    "multiplication": 1.0,
+    "rate_ml_hr": None,
+    "concentration_mg_ml": None,
+    "target_conc": None,
+    "stock_conc": None,
+    "loading_dose_ml": None,
+    "maintenance_dose_ml": None,
+    "infusion_rate_ml_hr": None,
+    "total_volume_ml": None,
+    "dilution_volume_ml": None,
+}
+
+
 def ensure_docs_dir():
     out = pathlib.Path(OUTPUT_DIR)
     out.mkdir(parents=True, exist_ok=True)
