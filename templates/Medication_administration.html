@@ -155,7 +155,7 @@
   <!-- กลุ่มตามตัวอักษร -->
   {% for ch in letters %}
     {% set items = groups.get(ch, []) %}
-    {% if items and items|length > 0 %}
+    {% if (items|default([], true))|length > 0 %}
       <h2 id="L-{{ ch }}" class="letter-head">{{ ch }}</h2>
       <div class="drug-grid">
         {% for m in items %}

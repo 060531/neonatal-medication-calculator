@@ -162,6 +162,19 @@ env.globals.update({
     "static_build": True,
     "resolve_endpoint": resolve_endpoint,
 })
+# -------- Safe numeric helpers --------
+def nz(value, default=0):
+    """Coalesce: ถ้า None/ว่าง → ค่า default, รองรับสตริงตัวเลข"""
+    try:
+        if value is None:
+            return default
+        if isinstance(value, str) and value.strip() == "":
+            return default
+        return float(value)  # แปลงให้แน่ใจว่าเปรียบเทียบได้
+    except Exception:
+        return default
+
+env.filters["nz"] = nz   # ใช้แบบ {{ x|nz(0) }}
 
 # ---------- Base context ----------
 # ---------- Base context ----------
