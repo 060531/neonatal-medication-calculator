@@ -137,19 +137,36 @@ def acyclovir_route():
 
 @meds_bp.route('/amikin', methods=['GET', 'POST'])
 def amikin_route():
-    dose = result_ml = multiplication = final_result = target_total = diluent_to_add = None
+    dose = result_ml = multiplication = final_result = None
+    target_total = diluent_to_add = None
     msg_block = content_extra = error = None
+
     try:
         if request.method == 'POST':
-            action = (request.form.get('action') or '').strip()
+            action = (request.form.get('action') or '').strip().lower()
+
             if action == 'dose':
+                # 1) รับ dose (mg) แล้วคำนวณ mL จาก stock 500 mg / 2 mL  ⇒ mL = mg × 2 / 500
                 dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml = _round2((dose * 2) / 500.0)  # stock 500 mg / 2 mL
+                if dose is None or dose < 0:
+                    raise ValueError("dose ต้องเป็นตัวเลข ≥ 0")
+                result_ml = _round2((dose * 2.0) / 500.0)
+
             elif action == 'condition':
+                # 2) รับค่าจาก hidden field + ตัวเลือก multiplication (3 หรือ 6)
                 dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
                 result_ml = _as_float(request.form.get('result_ml_hidden'), 'result_ml_hidden')
                 multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
+
+                if dose is None or result_ml is None:
+                    raise ValueError("ข้อมูลคำนวณเดิมไม่ครบ โปรดคำนวณขั้นแรกก่อน")
+                if multiplication not in (3, 6):
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6")
+
+                # 3) ปริมาณยาหลังคูณ (mL)
                 final_result = _round2(result_ml * multiplication)
+
+                # 4) ตั้งเป้า total volume ตามเงื่อนไข และเตรียม block ข้อความ
                 if multiplication == 3:
                     target_total = 9.0
                     msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 3 mL → ตั้งอัตรา 6 mL/hr"
@@ -157,48 +174,46 @@ def amikin_route():
                         "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
                         "details": [
                             "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
-                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
-                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
-                            "<div style='text-align: center;'>(3X + สารละลายเจือจางยา Up to 9 ml.)</div>",
-                            "การเตรียมยา:",
-                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
-                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
-                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
-                            "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
-                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
-                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจาง) = 8–9 ml",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจาง Up to 9 ml.)</div>",
+                            "ขั้นตอนย่อ: คำนวณ X (mL) → ดูดยา X → เติม diluent จนรวม ≈ 9 mL → ตั้ง 6 mL/hr",
                         ],
                     }
-                elif multiplication == 6:
+                else:  # multiplication == 6
                     target_total = 6.0
                     msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 1 mL → ตั้งอัตรา 2 mL/hr"
                     content_extra = {
                         "message": "การบริหารยาโดย Intermittent intravenous infusion",
                         "details": [
                             "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
-                        "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
-                        "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
-                        "<div style='text-align: center;'>6X + สารละลายเจือจางยา Up to 6 ml.</div>",
-                        "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
-                        "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 2 ml/hr.",
+                            "กำหนดให้ปริมาณสารละลายทั้งหมด 6 ml",
+                            "<div style='text-align:center'>(6X + สารละลายเจือจาง Up to 6 ml.)</div>",
+                            "ขั้นตอนย่อ: คำนวณ X (mL) → ดูดยา X → เติม diluent จนรวม 6 mL → ตั้ง 2 mL/hr",
                         ],
                     }
+
+                # 5) คำนวณ diluent ที่ต้องเติม: max(0, target_total - final_result)
                 if target_total is not None and final_result is not None:
                     need = target_total - final_result
                     diluent_to_add = _round2(need) if need > 0 else 0.0
+
     except Exception as e:
         error = f"ข้อมูลไม่ถูกต้อง: {e}"
-    return render_template('amikin.html',
-                           dose=dose,
-                           result_ml=result_ml,
-                           multiplication=multiplication,
-                           final_result=final_result,
-                           target_total=target_total,
-                           diluent_to_add=diluent_to_add,
-                           msg_block=msg_block,
-                           content_extra=content_extra,
-                           error=error,
-                           update_date=UPDATE_DATE)
+
+    return render_template(
+        'amikin.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        final_result=final_result,
+        target_total=target_total,
+        diluent_to_add=diluent_to_add,
+        msg_block=msg_block,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
+
 
 
 @meds_bp.route('/aminophylline', methods=['GET', 'POST'])

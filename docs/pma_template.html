@@ -134,7 +134,7 @@
     <div class="form-inline" style="display:flex;align-items:center;gap:10px">
       <label style="flex:1">Birth Weight (kg):</label>
       <input type="number" name="bw" placeholder="kg" step="0.001" required style="flex:1"
-             value="None">
+             value="">
       <span style="flex:0.2;text-align:right">kg</span>
     </div>
 
@@ -143,16 +143,28 @@
 
   
   <div class="result" style="display:block;margin-top:16px;background:#f0f0f0;padding:12px;border-radius:8px">
-    <p>PMA: <b style="color:blue">None weeks and None days</b></p>
+    <p>PMA:
+  <b style="color:blue">
+    
+      -
+    
+  </b>
+</p>
     <p>Calc.: <b style="color:blue">weeks</b></p>
-    <p>Postnatal Age: <b style="color:blue">None days</b></p>
+    <p>Postnatal Age:
+  <b style="color:blue">
+    
+      -
+    
+  </b>
+</p>
     <p>Birth Weight (BW): <b style="color:blue"> kg</b></p>
 
     <form method="get" action="./drug_calculation.html">
-      <input type="hidden" name="pma_weeks" value="None">
-      <input type="hidden" name="pma_days"  value="None">
-      <input type="hidden" name="postnatal_days" value="None">
-      <input type="hidden" name="bw" value="None">
+      <input type="hidden" name="pma_weeks" value="">
+<input type="hidden" name="pma_days"  value="">
+<input type="hidden" name="postnatal_days" value="">
+<input type="hidden" name="bw" value="">
       <button class="drug-button" type="submit">คำนวณยา</button>
     </form>
   </div>

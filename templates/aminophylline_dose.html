@@ -156,10 +156,31 @@
 
     <h1>Aminophylline Dosage Information</h1>
     <!-- Display the calculated PMA and Postnatal Age -->
-    <p><strong>PMA:</strong> {{ pma_weeks }} weeks and {{ pma_days }} days</p>
-    <p><strong>Calc.:</strong> {{ calc }} weeks</p>
-    <p><strong>Postnatal Age:</strong> {{ postnatal_days }} days</p>
-    <p><strong>Birth Weight (BW):</strong> {{ bw }} kg</p>
+    <!-- Display the calculated PMA and Postnatal Age -->
+<p><strong>PMA:</strong>
+    {% if pma_weeks is not none and pma_days is not none %}
+        {{ pma_weeks }} weeks and {{ pma_days }} days
+    {% else %}
+        -
+    {% endif %}
+</p>
+
+<p><strong>Postnatal Age:</strong>
+    {% if postnatal_days is not none %}
+        {{ postnatal_days }} days
+    {% else %}
+        -
+    {% endif %}
+</p>
+
+<p><strong>Birth Weight (BW):</strong>
+    {% if bw is not none %}
+        {{ bw }} kg
+    {% else %}
+        -
+    {% endif %}
+</p>
+
 
     <!-- Display the calculated dosage for neonates -->
     <div class="section-title">Calculated Dosage for Neonates</div>
