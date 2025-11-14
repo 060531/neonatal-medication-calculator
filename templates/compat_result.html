@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}ผลการตรวจสอบ Drug Compatibility{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:900px;margin:auto">
+  <h2 class="title-badge">ผลการตรวจสอบ Drug Compatibility</h2>
+
+  <div class="calc-box">
+    <p><b>Drug A:</b> {{ drug_a_name }} (ID: {{ drug_a_id }})</p>
+    <p><b>Drug B:</b> {{ drug_b_name }} (ID: {{ drug_b_id }})</p>
+
+    <hr>
+
+    <p><b>Status:</b>
+      <span class="pill">
+        {{ status_en }} – {{ status_th }}
+        (code: {{ status_code }})
+      </span>
+    </p>
+
+    {% if compat %}
+      {% if compat.source %}
+        <p><b>Source:</b> {{ compat.source }}</p>
+      {% endif %}
+      {% if compat.note %}
+        <p><b>Note (DB):</b> {{ compat.note }}</p>
+      {% endif %}
+    {% endif %}
+
+    {% if meta %}
+      <hr>
+      <h4>คำอธิบายเพิ่มเติม</h4>
+      {% if meta.en %}
+        <p><b>EN:</b> {{ meta.en }}</p>
+      {% endif %}
+      {% if meta.th %}
+        <p><b>TH:</b> {{ meta.th }}</p>
+      {% endif %}
+      {% if meta.detail %}
+        <p><b>Detail:</b> {{ meta.detail }}</p>
+      {% endif %}
+      {% if meta.note %}
+        <p><b>Note (meta):</b> {{ meta.note }}</p>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <div style="margin-top:1rem;text-align:center">
+    <a href="{{ url_for('compat.compat_index') }}" class="btn btn-primary">ตรวจสอบคู่อื่น</a>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">กลับหน้า Home</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,253 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <title>Amoxicilline/Clavimoxy Dosage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title>Amoxicilline/Clavimoxy Dosage</title>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #2c8ed0;
-            text-align: center; /* Center the text */
-        }
+    /* พื้นหลังรอบนอก */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
+    /* กล่องเนื้อหาให้อยู่กลางจอ เหมือนหน้าอื่น */
+    .page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 150px;  /* เว้นล่างให้พอสำหรับปุ่มล่าง */
+      box-sizing: border-box;
+      background-color: #fff;
+      min-height: 100vh;
+    }
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
+    h1 {
+      color: #fcf2f2;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px;
+      border: 2px solid #afaaaa;
+      border-radius: 10px;
+      background-color: #2c8ed0;
+      text-align: center;
+    }
 
-        th {
-            background-color: #f2f2f2;
-        }
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-        .highlight {
-            background-color: #c3e6cb;
-        }
+    .highlight-dose {
+      color: #ff5733;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: #fbe9e7;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
 
-        .dose-range {
-            color: red;
-            font-weight: bold;
-        }
+    .highlight-green {
+      background-color: #c3e6cb;
+      padding: 5px;
+      border-radius: 5px;
+    }
 
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+    }
 
-        .highlight-dose {
-            color: #ff5733;
-            font-size: 24px;
-            font-weight: bold;
-            background-color: #fbe9e7;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
 
-        .highlight-green {
-          background-color: #c3e6cb;
-          padding: 5px;
-          border-radius: 5px;
-        }
+    th {
+      background-color: #f2f2f2;
+    }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
+    footer.page-footer {
+      text-align: center;
+      color: #00000035;
+      font-size: 13px;
+      margin-top: 32px;
+    }
 
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
+    /* ===== แถบปุ่มลอยด้านล่างทุกจอ ===== */
+    .top-fix-actions {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
 
-        .back-button {
-            background-color: #f44336;
-        }
+      width: min(100% - 32px, 560px);  /* จอใหญ่ไม่เต็มจอ จอเล็กเผื่อขอบ */
+      box-sizing: border-box;
 
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
+      display: flex;
+      justify-content: center;
+      gap: 12px;
 
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
 
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px #999;
+      color: #fff;
+      background-color: #f44336;   /* Home = แดง */
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+    }
 
-        footer {
-            text-align: center;
-            color: #00000035;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
+    .back-btn.alt {
+      background-color: #008CBA;   /* Back = ฟ้า */
+    }
 
-        /* Mobile-Specific Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+    .back-btn:hover {
+      filter: brightness(1.05);
+    }
 
-            h1 {
-                font-size: 20px; /* Reduce font size for mobile */
-                padding: 5px; /* Reduce padding */
-            }
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #666;
+    }
 
-            .highlight-dose {
-                font-size: 20px; /* Adjust font size */
-            }
+    /* ===== มือถือ ===== */
+    @media (max-width: 600px) {
+      .page-wrap {
+        padding: 10px 10px 160px;  /* เว้นล่างเพิ่มให้ไม่ชนปุ่ม */
+      }
 
-            .section-title {
-                font-size: 14px;
-            }
+      h1 {
+        font-size: 20px;
+        padding: 6px;
+      }
 
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 15px;
-            }
+      .section-title {
+        font-size: 14px;
+      }
 
-            table {
-                font-size: 14px; /* Reduce font size */
-            }
+      .highlight-dose {
+        font-size: 20px;
+      }
 
-            th, td {
-                padding: 8px; /* Reduce padding for smaller screens */
-            }
+      table {
+        font-size: 14px;
+      }
 
-        }
-    </style>
+      th, td {
+        padding: 8px;
+      }
+
+      .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+        flex: 1 1 0;   /* แบ่ง 2 ปุ่มเท่าๆ กัน */
+      }
+    }
+  </style>
 </head>
 <body>
 
+  <div class="page-wrap">
     <h1>Amoxicilline/Clavimoxy Dosage Information</h1>
 
-  <!-- แสดง PMA, Postnatal Age, BW -->
-  <!-- Display the calculated PMA and Postnatal Age -->
-<p><strong>PMA:</strong>
-    {% if pma_weeks is not none and pma_days is not none %}
+    <!-- PMA / PNA / BW -->
+    <p><strong>PMA:</strong>
+      {% if pma_weeks is not none and pma_days is not none %}
         {{ pma_weeks }} weeks and {{ pma_days }} days
-    {% else %}
+      {% else %}
         -
-    {% endif %}
-</p>
+      {% endif %}
+    </p>
 
-<p><strong>Postnatal Age:</strong>
-    {% if postnatal_days is not none %}
+    <p><strong>Postnatal Age:</strong>
+      {% if postnatal_days is not none %}
         {{ postnatal_days }} days
-    {% else %}
+      {% else %}
         -
-    {% endif %}
-</p>
+      {% endif %}
+    </p>
 
-<p><strong>Birth Weight (BW):</strong>
-    {% if bw is not none %}
-        {{ bw }} kg
-    {% else %}
+    <p><strong>Birth Weight (BW):</strong>
+      {% if bw is not none %}
+        {{ "%.2f"|format(bw) }} kg
+      {% else %}
         -
-    {% endif %}
-</p>
+      {% endif %}
+    </p>
 
+    <!-- Calculated dose -->
+    <div class="section-title">Calculated Dosage</div>
 
-  <!-- ส่วนแสดงผลลัพธ์การคำนวณ -->
-  <div class="section-title">Calculated Dosage</div>
+    <p><strong>Recommended Dose (per kg):</strong>
+      <span class="highlight-dose">
+        {{ "%.2f"|format(min_dose) }} mg/kg/dose
+      </span>
+    </p>
 
-  <!-- ถ้ายังอยากแสดง mg/kg/dose -->
-  <p><strong> Recommended Dose (per kg):</strong>
-    <span class="highlight-dose">
-      {{ min_dose }} mg/kg/dose
-    </span>
-  </p>
+    <p><strong>Recommended Dose (actual):</strong>
+      <span class="highlight-dose">
+        {{ "%.2f"|format(actual_dose) }} mg/dose
+      </span>
+    </p>
 
-  <!-- แสดง mg/dose (คูณน้ำหนักแล้ว) -->
-  <p><strong> Recommended Dose (actual):</strong>
-    <span class="highlight-dose">
-      {{ actual_dose }} mg/dose
-    </span>
-  </p>
+    <p><strong>Interval:</strong>
+      <span class="highlight-dose">
+        {{ interval }}
+      </span>
+    </p>
 
-  <p><strong>Interval:</strong>
-    <span class="highlight-dose">
-      {{ interval }}
-    </span>
-  </p>
+    <hr>
 
-  <hr>
-  <!-- ตัวอย่างข้อความอธิบายเพิ่มเติม -->
-  <p class="highlight-green"><strong><em>{{ explanation }}</em></strong></p>
+    <!-- อธิบายเคสที่เลือก -->
+    <p class="highlight-green">
+      <strong><em>{{ explanation }}</em></strong>
+    </p>
 
+    <br>
+    <h3 style="color:#a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></h3>
+    <hr>
 
-<br>
-  <h3 style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></h3>
-  <hr>
     <div class="section-title">Dose</div>
+
     <div class="section-title">Usual dose:</div>
-    <p><strong>Max 30 mg/kg/day</strong> orally divided every 12 hours (manufacturer recommended) . Continue
-for a minimum of 48 to 72 hours after patient becomes asymptomatic or bacteria has been
-eradicated. For infections caused by , duration of treatment should
-be at least 10 days. Durations of several weeks may be required for some infections. 100
-mg/kg/day orally in 2 divided doses in neonates 2 kg or more and 75 mg/kg/day
-orally in 2 divided doses in neonates less than 2 kg have been used in infants 0 to 59 days
-with possible serious infections.</p>
+    <p><strong>Max 30 mg/kg/day</strong> orally divided every 12 hours (manufacturer recommended). Continue
+      for a minimum of 48 to 72 hours after patient becomes asymptomatic or bacteria has been
+      eradicated. For infections caused by β-lactamase–negative organisms, duration of treatment
+      should be at least 10 days. Durations of several weeks may be required for some infections.
+      100 mg/kg/day orally in 2 divided doses in neonates 2 kg or more and 75 mg/kg/day
+      orally in 2 divided doses in neonates less than 2 kg have been used in infants 0 to 59 days
+      with possible serious infections.</p>
 
     <div class="section-title">Anthrax</div>
-        <p><strong>32 to 37 weeks gestational age</strong></p>
-        <p><strong>0 to 1 week of age:</strong> 50 mg/kg/day orally divided every 12 hours</p>
-        <p><strong>1 to 4 weeks of age:</strong> 75 mg/kg/day orally divided every 8 hours</p>
-        <p><strong>Term newborn</strong></p>
-        <p><strong>0 to 4 week of age:</strong> 75 mg/kg/day orally divided every 8 hours</p>
-        <p><strong>Duration:</strong> For prophylaxis, continue for 60 days after exposure. For naturally acquired
-cutaneous infection, 7 to 10 days. As follow-up therapy for severe anthrax, complete course
-for 14 days or longer until clinical criteria for stability are met.</p>
+    <p><strong>32 to 37 weeks gestational age</strong></p>
+    <p><strong>0 to 1 week of age:</strong> 50 mg/kg/day orally divided every 12 hours</p>
+    <p><strong>1 to 4 weeks of age:</strong> 75 mg/kg/day orally divided every 8 hours</p>
+    <p><strong>Term newborn</strong></p>
+    <p><strong>0 to 4 week of age:</strong> 75 mg/kg/day orally divided every 8 hours</p>
+    <p><strong>Duration:</strong> For prophylaxis, continue for 60 days after exposure. For naturally acquired
+      cutaneous infection, 7 to 10 days. As follow-up therapy for severe anthrax, complete course
+      for 14 days or longer until clinical criteria for stability are met.</p>
 
-        <p><strong>Urinary Tract Infection, Prophylaxis:</strong> 10 to 15 mg/kg/day orally once daily.</p>
+    <p><strong>Urinary Tract Infection, Prophylaxis:</strong> 10 to 15 mg/kg/day orally once daily.</p>
 
-        <p><strong>Dose Adjustments</strong> There are no data available for dosing amoxicillin in pediatric patients
-with renal impairment. In adults, based on the severity of the infection, the lower end of the
-dose and/or frequency are recommended.</p>
-<br> 
+    <p><strong>Dose Adjustments:</strong> There are no data available for dosing amoxicillin in pediatric patients
+      with renal impairment. In adults, based on the severity of the infection, the lower end of the
+      dose and/or frequency are recommended.</p>
+
+    <br>
     <h3>Uses</h3>
-<hr>   
+    <hr>
+
   <h4>Anthrax, Treatment and Prophylaxis:</h4>
 
   <!-- Postexposure prophylaxis for Bacillus anthracis (Oral) -->
@@ -423,14 +443,16 @@ water and shake again.</p>
 amoxicillin reconstituted with water in 16 healthy, adult, fasted (10 hours before and 4 hours
 after dose) volunteers.</p>
 <hr>
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ u('index') }}" class="back-button">Back to Home</a>
-    </div>
-    
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+    <footer class="page-footer">
+      <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
     </footer>
+  </div>
+
+  <!-- แถบปุ่มลอยด้านล่าง -->
+  <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
+  </div>
 
 </body>
 </html>

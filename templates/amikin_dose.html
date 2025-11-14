@@ -112,7 +112,7 @@
         footer {
             text-align: center;
             color: #00000035;
-            font-size: 14px;
+            font-size: 13px;
             padding: 10px;
             width: 100%;
         }
@@ -150,48 +150,151 @@
             }
 
         }
+
+        /* =========================
+   แถบปุ่มลอยด้านล่าง
+   ========================= */
+.top-fix-actions {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+
+    width: min(100% - 32px, 560px);   /* จอใหญ่ไม่เต็มจอ, จอเล็กเผื่อขอบ 16px ซ้ายขวา */
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+
+    padding: 8px 12px;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+}
+
+/* ปุ่ม */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px #999;
+    color: #fff;
+    background-color: #f44336;   /* Home = แดง */
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.back-btn.alt {
+    background-color: #008CBA;   /* Back = ฟ้า */
+}
+
+.back-btn:hover {
+    filter: brightness(1.05);
+}
+.back-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #666;
+}
+        /* ===== จอเล็ก (มือถือ) ===== */
+@media (max-width: 600px) {
+
+    .page-wrap {
+        padding: 10px 10px 140px;   /* เว้นล่างเพิ่มให้ปุ่มไม่ทับข้อความ */
+    }
+
+    h1 {
+        font-size: 20px;
+        padding: 6px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+    th, td {
+        padding: 8px;
+    }
+
+    .highlight-dose {
+                font-size: 18px; /* Adjust font size */
+            }
+
+            .section-title {
+                font-size: 13px;
+            }
+
+            .table-wrapper {
+                overflow-x: auto; /* Allow horizontal scrolling */
+                margin-bottom: 14px;
+            }
+
+    .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+    }
+
+    .back-btn {
+        font-size: 13px;         /* ลดขนาดตัวอักษร */
+        padding: 8px 10px;       /* ปุ่มเตี้ยลง */
+        flex: 1 1 0;             /* แบ่งพื้นที่ 2 ปุ่มเท่าๆ กัน */
+    }
+}
     </style>
 </head>
 <body>
-{% set pw = (pma_weeks|nz(0)) %}
-{% set pnd = (postnatal_days|nz(0)) %}
+{% set pw  = pma_weeks|nz(0) %}
+{% set pnd = postnatal_days|nz(0) %}
+{% set bw0 = bw|nz(0) %}
 
-{% set bw0 = (bw|nz(0)) %}
-{% set pw = (pw|nz(0)) %}
-{% set pnd = (pnd|nz(0)) %}
-        <h1>Amikacin Dosage Information</h1>
+    <h1>Amikacin Dosage Information</h1>
 
-        <!-- Display the calculated PMA and Postnatal Age -->
+    <!-- Display the calculated PMA and Postnatal Age -->
     <p><strong>PMA:</strong>
-    {% if pma_weeks is not none and pma_days is not none %}
-        {{ pma_weeks }} weeks and {{ pma_days }} days
-    {% else %}
-        -
-    {% endif %}
-</p>
-    <p><strong>Calc.:</strong> {{ calc }} weeks</p>
-    <p><strong>Postnatal Age:</strong>
-    {% if postnatal_days is not none %}
-        {{ postnatal_days }} days
-    {% else %}
-        -
-    {% endif %}
-</p>
+        {% if pma_weeks is not none and pma_days is not none %}
+            {{ pma_weeks }} weeks and {{ pma_days }} days
+        {% else %}
+            -
+        {% endif %}
+    </p>
 
-<p><strong>Birth Weight (BW):</strong>
-    {% if bw is not none %}
-        {{ bw }} kg
-    {% else %}
-        -
-    {% endif %}
-</p>
+    <p><strong>Calc.:</strong> {{ calc }} weeks</p>
+
+    <p><strong>Postnatal Age:</strong>
+        {% if postnatal_days is not none %}
+            {{ postnatal_days }} days
+        {% else %}
+            -
+        {% endif %}
+    </p>
+
+    <p><strong>Birth Weight (BW):</strong>
+        {% if bw is not none %}
+            {{ bw|fmt(3) }} kg
+        {% else %}
+            -
+        {% endif %}
+    </p>
 
     <!-- Display the calculated dosage for neonates -->
     <div class="section-title">Calculated Dosage for Neonates</div>
-    <p><strong>Recommended Dose:</strong> <span class="highlight-dose">{{ calculated_dose }} mg</span></p>
-<br>
-<span style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
-<hr>   
+    <p><strong>Recommended Dose:</strong>
+      <span class="highlight-dose">
+         {{ calculated_dose|fmt_int }} mg/dose
+      </span>
+    </p>
+
+    <br>
+    <span style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
+    <hr>
+    <!-- ...ส่วน table ต่าง ๆ ด้านล่างใช้ต่อได้เลย... -->  
         <div class="section-title">Dose</div>
         <div class="section-title">Postnatal Age (Weight Dosing)</div>
         <p>
@@ -573,7 +676,7 @@ concentrations should be spun and refrigerated or frozen as soon as possible.</p
     </tbody>
 </table>
 <span style="color: #a4a0a0;"><strong>MECHANISM OF ACTION/PHARMACOKINETICS</strong></span>
-<>hr
+<hr>
 <div class="section-title">Pharmacology</div>
         <p><strong>Mechanism of action: </strong>Amikacin, a semi-synthetic aminoglycoside [7] bactericidal antibiotic,
 inhibits normal protein synthesis in susceptible microorganisms [16]. Amikacin resists degradation by most aminoglycosides inactivating enzymes known to affect gentamicin, tobramycin, and kanamycin.</p>
@@ -652,15 +755,15 @@ inhibits normal protein synthesis in susceptible microorganisms [16]. Amikacin r
 Solutions stored for 60 days at 4 degrees C and then stored at 25 degrees C had utility times
 of 24 hours. At concentrations of 0.25 and 5 mg/mL, solutions frozen (-15 degrees C) for 30
 days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
-
-        <div class="button-group">
-            <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-            <a href="{{ u('index') }}" class="back-button">Back to Home</a>
-        </div>
     
         <footer>
             <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
         </footer>
+
+          <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
+  </div>
 
 </body>
 </html>

@@ -2687,6 +2687,8 @@ def ampicillin_dose():
 
 # ส่งค่าไปที่ template พร้อมกับ update_date และปริมาณยาที่คำนวณได้
     return render_template('ampicillin_dose.html', pma_weeks=pma_weeks, pma_days=pma_days, calc=calc, postnatal_days=postnatal_days, bw=bw, calculated_dose=calculated_dose, update_date=UPDATE_DATE)
+
+
 @app.route('/cefazolin_dose')
 def cefazolin_dose():
 # รับค่าจาก query parameters
@@ -2734,6 +2736,7 @@ def cefazolin_dose():
         interval=interval,
         update_date=UPDATE_DATE
     )
+    
 @app.route('/cefotaxime_dose')
 def cefotaxime_dose():
 # รับค่าจาก query parameters

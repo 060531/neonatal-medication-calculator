@@ -1,284 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <title>Aminophylline Dosage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title>Aminophylline Dosage</title>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #2c8ed0;
-            text-align: center; /* Center the text */
-        }
+    /* พื้นหลังรอบนอก */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
+    /* กรอบเนื้อหากลางจอ */
+    .page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 150px;  /* เผื่อที่ให้ปุ่มล่าง */
+      box-sizing: border-box;
+      background-color: #fff;
+      min-height: 100vh;
+    }
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
+    h1 {
+      color: #fcf2f2;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px;
+      border: 2px solid #afaaaa;
+      border-radius: 10px;
+      background-color: #2c8ed0;
+      text-align: center;
+    }
 
-        th {
-            background-color: #f2f2f2;
-        }
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-        .highlight {
-            background-color: #c3e6cb;
-        }
+    .highlight-dose {
+      color: #ff5733;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: #fbe9e7;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
 
-        .dose-range {
-            color: red;
-            font-weight: bold;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+    }
 
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
 
-        .highlight-dose {
-            color: #ff5733;
-            font-size: 24px;
-            font-weight: bold;
-            background-color: #fbe9e7;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
+    th {
+      background-color: #f2f2f2;
+    }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
+    footer.page-footer {
+      text-align: center;
+      color: #00000035;
+      font-size: 13px;
+      margin-top: 32px;
+    }
 
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
+    /* ============ แถบปุ่มลอยด้านล่าง ============ */
+    .top-fix-actions {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
 
-        .back-button {
-            background-color: #f44336;
-        }
+      width: min(100% - 32px, 560px);   /* จอใหญ่ไม่เต็มจอ จอเล็กเว้นขอบ */
+      box-sizing: border-box;
 
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
+      display: flex;
+      justify-content: center;
+      gap: 12px;
 
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
 
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px #999;
+      color: #fff;
+      background-color: #f44336;   /* Home = แดง */
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+    }
 
-        footer {
-            text-align: center;
-            color: #00000035;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
+    .back-btn.alt {
+      background-color: #008CBA;   /* Back = ฟ้า */
+    }
 
-        /* Mobile-Specific Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+    .back-btn:hover {
+      filter: brightness(1.05);
+    }
 
-            h1 {
-                font-size: 20px; /* Reduce font size for mobile */
-                padding: 5px; /* Reduce padding */
-            }
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #666;
+    }
 
-            .highlight-dose {
-                font-size: 20px; /* Adjust font size */
-            }
+    /* ============ มือถือ ============ */
+    @media (max-width: 600px) {
 
-            .section-title {
-                font-size: 14px;
-            }
+      .page-wrap {
+        padding: 10px 10px 160px;   /* เว้นล่างเพิ่มให้ไม่ชนปุ่ม */
+      }
 
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 15px;
-            }
+      h1 {
+        font-size: 20px;
+        padding: 6px;
+      }
 
-            table {
-                font-size: 14px; /* Reduce font size */
-            }
+      .section-title {
+        font-size: 14px;
+      }
 
-            th, td {
-                padding: 8px; /* Reduce padding for smaller screens */
-            }
+      .highlight-dose {
+        font-size: 20px;
+      }
 
-        }
-    </style>
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+        flex: 1 1 0;    /* สองปุ่มแบ่งพื้นที่เท่า ๆ กัน */
+      }
+    }
+  </style>
 </head>
 <body>
 
+  <div class="page-wrap">
     <h1>Aminophylline Dosage Information</h1>
-    <!-- Display the calculated PMA and Postnatal Age -->
-    <!-- Display the calculated PMA and Postnatal Age -->
-<p><strong>PMA:</strong>
-    {% if pma_weeks is not none and pma_days is not none %}
+
+    <!-- PMA / PNA / BW -->
+    <p><strong>PMA:</strong>
+      {% if pma_weeks is not none and pma_days is not none %}
         {{ pma_weeks }} weeks and {{ pma_days }} days
-    {% else %}
+      {% else %}
         -
-    {% endif %}
-</p>
+      {% endif %}
+    </p>
 
-<p><strong>Postnatal Age:</strong>
-    {% if postnatal_days is not none %}
+    <p><strong>Postnatal Age:</strong>
+      {% if postnatal_days is not none %}
         {{ postnatal_days }} days
-    {% else %}
+      {% else %}
         -
-    {% endif %}
-</p>
+      {% endif %}
+    </p>
 
-<p><strong>Birth Weight (BW):</strong>
-    {% if bw is not none %}
-        {{ bw }} kg
-    {% else %}
+    <p><strong>Birth Weight (BW):</strong>
+      {% if bw is not none %}
+        {{ "%.2f"|format(bw) }} kg
+      {% else %}
         -
-    {% endif %}
-</p>
+      {% endif %}
+    </p>
 
-
-    <!-- Display the calculated dosage for neonates -->
+    <!-- Calculated doses -->
     <div class="section-title">Calculated Dosage for Neonates</div>
 
-    <!-- Display the Loading Dose -->
-    <p><strong>Loading Dose:</strong> <span class="highlight-dose">{{ loading_dose }} mg</span></p>
+    <p><strong>Loading Dose:</strong>
+      <span class="highlight-dose">
+        {{ "%.2f"|format(loading_dose) }} mg
+      </span>
+    </p>
 
-    <!-- Display the Maintenance Dose (Range) -->
-    <p><strong>Maintenance Dose:</strong> <span class="highlight-dose">{{ maintenance_dose_min }} to {{ maintenance_dose_max }} mg</span></p>
-<br>
-  <h3 style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></h3>
-  <hr>
+    <p><strong>Maintenance Dose:</strong>
+      <span class="highlight-dose">
+        {{ "%.2f"|format(maintenance_dose_min) }} to
+        {{ "%.2f"|format(maintenance_dose_max) }} mg
+      </span>
+    </p>
+
+    <br>
+    <h3 style="color:#a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></h3>
+    <hr>
+
     <div class="section-title">Dose</div>
     <p><strong>Loading dose:</strong> 8 mg/kg IV infusion over 30 to 60 minutes, or orally.</p>
     <p><strong>Maintenance dose:</strong> 1.5 to 3 mg/kg/dose orally, or IV every 8 to 12 hours (start maintenance dose 8 to 12 hours after the loading dose).</p>
     <p>In preterm infants, changing from IV aminophylline to oral theophylline requires no dose adjustment.</p>
-<hr>
+
+    <hr>
     <div class="section-title">Uses</div>
     <p>Treatment of neonatal apnea, including post-extubation, post-anesthesia, and prostaglandin E1-induced. Bronchodilator. May improve respiratory function.</p>
-<hr>    
-    <div class="section-title">Administration</div>
-    <p>Intravenous bolus over 30 to 60 minutes. May give as 25-mg/mL
-concentration or further dilute to as low as 1 mg/mL for continuous infusion.</p>
-<br>
 
-  <h3 style="color: #a4a0a0;"><strong>MEDICATION SAFETY</strong></h3>
-<hr>
+    <hr>
+    <div class="section-title">Administration</div>
+    <p>Intravenous bolus over 30 to 60 minutes. May give as 25-mg/mL concentration or further dilute to as low as 1 mg/mL for continuous infusion.</p>
+
+    <br>
+    <h3 style="color:#a4a0a0;"><strong>MEDICATION SAFETY</strong></h3>
+    <hr>
+
     <div class="section-title">Adverse Effects</div>
     <p>GI irritation, hyperglycemia, CNS irritability, and sleeplessness. May be associated with renal calcifications when used with furosemide and dexamethasone.</p>
     <p><strong>Signs of toxicity:</strong> Sinus tachycardia, failure to gain weight, vomiting, jitteriness, hyperreflexia, and seizures.</p>
 
     <div class="section-title">Treatment of Serious Theophylline Toxicity</div>
     <p>Activated charcoal, 1 g/kg as a slurry by gavage tube every 2 to 4 hours. Avoid sorbitol-containing preparations as they may cause osmotic diarrhea.</p>
-<hr>
+
+    <hr>
     <div class="section-title">Solution Compatibility</div>
-    <p>D5W, D10W, and NS.</p>    
-<hr>
+    <p>D5W, D10W, and NS.</p>
+
+    <hr>
     <div class="section-title">Terminal Injection Site Compatibility</div>
     <p>Acyclovir, ampicillin, amikacin, aztreonam, caffeine citrate, calcium gluconate, ceftazidime,
-chloramphenicol, cimetidine, dexamethasone, dopamine, enalaprilat, erythromycin
-lactobionate, esmolol, famotidine, fluconazole, flumazenil, furosemide, heparin,
-hydrocortisone succinate, lidocaine, linezolid, meropenem, metoclopramide, midazolam,
-morphine, nafcillin, nicardipine, nitroglycerin, pancuronium bromide, pentobarbital,
-phenobarbital, piperacillin, piperacillin/tazobactam, potassium chloride, propofol,
-prostaglandin E1, ranitidine, remifentanil, sodium bicarbonate, vancomycin, and vecuronium.</p>
-<hr>
+      chloramphenicol, cimetidine, dexamethasone, dopamine, enalaprilat, erythromycin
+      lactobionate, esmolol, famotidine, fluconazole, flumazenil, furosemide, heparin,
+      hydrocortisone succinate, lidocaine, linezolid, meropenem, metoclopramide, midazolam,
+      morphine, nafcillin, nicardipine, nitroglycerin, pancuronium bromide, pentobarbital,
+      phenobarbital, piperacillin, piperacillin/tazobactam, potassium chloride, propofol,
+      prostaglandin E1, ranitidine, remifentanil, sodium bicarbonate, vancomycin, and vecuronium.</p>
+
+    <hr>
     <div class="section-title">Terminal Injection Site Incompatibility</div>
     <p>Amiodarone, cefepime, ceftriaxone, ciprofloxacin, clindamycin, dobutamine, epinephrine,
-hydralazine, insulin, isoproterenol, methylprednisolone, and penicillin G.</p>
-<hr>
+      hydralazine, insulin, isoproterenol, methylprednisolone, and penicillin G.</p>
+
+    <hr>
     <div class="section-title">Monitoring</div>
     <p>Monitor heart rate and check blood glucose periodically with reagent strips. Assess for
-agitation and feeding intolerance.</p>
+      agitation and feeding intolerance.</p>
     <p><strong>Consider withholding next dose if heart rate is greater than 180 beats per minute.</strong></p>
     <p>When indicated by lack of efficacy or clinical signs of toxicity, serum trough concentration
-should be obtained. Therapeutic ranges are:
-1) Apnea of prematurity: 7 to 12 mcg/mL.
-2) Bronchospasm: 10 to 20 mcg/mL (older infants with bronchospasm may need these
-higher levels because of increased protein binding).</p>
-<br>
-  <h3 style="color: #a4a0a0;"><strong>MECHANISM OF ACTION/PHARMACOKINETICS</strong></h3>
-<hr>
-<p><strong>Pharmacology</strong></p>
+      should be obtained. Therapeutic ranges are:
+      1) Apnea of prematurity: 7 to 12 mcg/mL.
+      2) Bronchospasm: 10 to 20 mcg/mL (older infants with bronchospasm may need these
+      higher levels because of increased protein binding).</p>
+
+    <br>
+    <h3 style="color:#a4a0a0;"><strong>MECHANISM OF ACTION/PHARMACOKINETICS</strong></h3>
+    <hr>
+
+    <p><strong>Pharmacology</strong></p>
     <p>Stimulates central respiratory drive and peripheral chemoreceptor activity. May increase
-diaphragmatic contractility. Cerebral blood flow is acutely decreased following IV bolus dose.
-Renal effects include diuresis and increased urinary calcium excretion. Stimulates gastric acid
-secretion and may cause gastroesophageal reflux. Cardiac output is increased due to higher
-sensitivity to catecholamines. Elimination in preterm infants is primarily as unchanged drug,
-although significant interconversion to caffeine occurs. In the very immature neonate, the
-serum half-life of theophylline is prolonged (20 to 30 hours). Theophylline metabolism and
-clearance mature to adult values by 55 weeks postmenstrual age. Aminophylline salt is 78.9% theophylline. Theophylline administered orally is approximately 80% bioavailable;
-therefore, no dosage adjustment is necessary when changing from IV aminophylline to oral
-theophylline.</p>
-<br>
-  <h3 style="color: #a4a0a0;"><strong>ABOUT</strong></h3>
-<hr>
+      diaphragmatic contractility. Cerebral blood flow is acutely decreased following IV bolus dose.
+      Renal effects include diuresis and increased urinary calcium excretion. Stimulates gastric acid
+      secretion and may cause gastroesophageal reflux. Cardiac output is increased due to higher
+      sensitivity to catecholamines. Elimination in preterm infants is primarily as unchanged drug,
+      although significant interconversion to caffeine occurs. In the very immature neonate, the
+      serum half-life of theophylline is prolonged (20 to 30 hours). Theophylline metabolism and
+      clearance mature to adult values by 55 weeks postmenstrual age. Aminophylline salt is 78.9%
+      theophylline. Theophylline administered orally is approximately 80% bioavailable;
+      therefore, no dosage adjustment is necessary when changing from IV aminophylline to oral
+      theophylline.</p>
+
+    <br>
+    <h3 style="color:#a4a0a0;"><strong>ABOUT</strong></h3>
+    <hr>
 
     <div class="section-title">Special Considerations/Preparation</div>
-    <p><strong>Availability : </strong> Aminophylline for IV use (25 mg/mL) in 10- and 20-mL vials. Dilute 1 mL (25
-mg) with 4 mL NS or D5W to yield a final concentration of 5 mg/mL. Stable for 4 days
-refrigerated.</p>
+    <p><strong>Availability:</strong> Aminophylline for IV use (25 mg/mL) in 10- and 20-mL vials. Dilute 1 mL (25
+      mg) with 4 mL NS or D5W to yield a final concentration of 5 mg/mL. Stable for 4 days
+      refrigerated.</p>
     <p>Oral theophylline is available only as an elixir at a concentration of 80 mg/15 mL (5.33
-mg/mL) and contains 20% alcohol.
-Aminophylline oral solution is no longer available.</p>
+      mg/mL) and contains 20% alcohol.
+      Aminophylline oral solution is no longer available.</p>
 
-    <p><strong>Extemporaneous Suspension </strong></p>
+    <p><strong>Extemporaneous Suspension</strong></p>
     <p>Oral aminophylline 3 mg/mL liquid suspension made with aminophylline injection 25 mg/mL
-and mixed with 1:1 Ora Sweet/Ora Plus was stable for 91 days at 4°C and 25° C. Store in
-amber glass bottle</p>
-<hr>
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="{{ u('index') }}" class="back-button">Back to Home</a>
-    </div>
-    
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+      and mixed with 1:1 Ora Sweet/Ora Plus was stable for 91 days at 4°C and 25° C. Store in
+      amber glass bottle.</p>
+
+    <footer class="page-footer">
+      <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
     </footer>
+  </div>
+
+  <!-- แถบปุ่มลอยด้านล่าง -->
+  <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
+  </div>
 
 </body>
 </html>

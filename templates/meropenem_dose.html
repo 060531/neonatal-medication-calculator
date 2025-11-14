@@ -1,273 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meropenam Dosage Information</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title>Meropenem Dosage Information</title>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #2c8ed0;
-            text-align: center; /* Center the text */
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
+    /* กล่องเนื้อหาให้อยู่กลางจอ และเว้นด้านล่างเผื่อปุ่มลอย */
+    .page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 150px;
+      box-sizing: border-box;
+      background-color: #fff;
+      min-height: 100vh;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
+    h1 {
+      color: #fcf2f2;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px;
+      border: 2px solid #afaaaa;
+      border-radius: 10px;
+      background-color: #2c8ed0;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
 
-        th {
-            background-color: #f2f2f2;
-        }
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
 
-        .highlight {
-            background-color: #c3e6cb;
-        }
+    .section-header {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      padding: 10px;
+      text-align: left;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
 
-        .dose-range {
-            color: red;
-            font-weight: bold;
-        }
+    p {
+      font-size: 1em;
+      line-height: 1.6;
+      color: #333;
+      margin: 6px 0;
+    }
 
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+    }
 
-        .section-header {
-        background-color: #f2f2f2; /* สีเทาอ่อน */
-        font-weight: bold;
-        padding: 10px;
-        text-align: left; /* ชิดซ้าย */
-        border-radius: 5px; /* เพิ่มขอบมน */
-        margin-bottom: 10px; /* เพิ่มช่องว่างด้านล่าง */
-        }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
 
-        .highlight-dose {
-        color: #ff5733; /* สีแดง */
-        font-weight: bold; /* ข้อความตัวหนา */
-        background-color: #fbe9e7; /* สีพื้นหลังแดงอ่อน */
-        padding: 5px 10px;
-        border-radius: 5px;
-        }
+    th {
+      background-color: #f2f2f2;
+    }
 
-        /* CSS สำหรับไฮไลต์พื้นหลังสีเขียว */
-        .highlight-green {
-        background-color: #c3e6cb;
-        padding: 5px;
-        border-radius: 5px;
-        }
+    .highlight {
+      background-color: #c3e6cb;
+    }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
+    .dose-range {
+      color: red;
+      font-weight: bold;
+    }
 
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
+    .highlight-dose {
+      color: #ff5733;
+      font-weight: bold;
+      background-color: #fbe9e7;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 22px;
+      display: inline-block;
+      margin-top: 4px;
+    }
 
-        .back-button {
-            background-color: #f44336;
-        }
+    .highlight-green {
+      background-color: #c3e6cb;
+      padding: 5px;
+      border-radius: 5px;
+    }
 
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
+    hr {
+      border: none;
+      border-top: 2px solid #ccc;
+      margin: 20px 0;
+      width: 100%;
+    }
 
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
+    .content {
+      margin-top: 20px;
+      line-height: 1.6;
+    }
 
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
+    footer.page-footer {
+      text-align: center;
+      color: #00000035;
+      font-size: 13px;
+      margin-top: 32px;
+    }
 
-        footer {
-            text-align: center;
-            color: #00000035;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
+    /* ===== ปุ่มลอยด้านล่าง ===== */
+    .top-fix-actions {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
 
-         hr {
-            border: none;
-            border-top: 2px solid #ccc; /* ความหนาและสีของเส้น */
-            margin: 20px 0; /* ระยะห่างบน-ล่างของเส้น */
-            width: 100%; /* เส้นขยายเต็มหน้าจอ */
-        }
+      width: min(100% - 32px, 560px);
+      box-sizing: border-box;
 
-        .content {
-            margin-top: 20px; /* ระยะห่างจากเส้น */
-            line-height: 1.6;
-        }
+      display: flex;
+      justify-content: center;
+      gap: 12px;
 
-        /* Mobile-Specific Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
 
-            h1 {
-                font-size: 20px; /* Reduce font size for mobile */
-                padding: 5px; /* Reduce padding */
-            }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px #999;
+      color: #fff;
+      background-color: #f44336;   /* Home = แดง */
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+    }
 
-            hr {
-                width: 90%; /* ลดความกว้างของเส้นสำหรับหน้าจอเล็ก */
-            }
+    .back-btn.alt {
+      background-color: #008CBA;   /* Back = ฟ้า */
+    }
 
-            .content {
-                font-size: 14px; /* ลดขนาดตัวอักษรสำหรับหน้าจอเล็ก */
-            }
-                
-            .highlight-green {
-                background-color: #c3e6cb; /* สีเขียวอ่อนสำหรับ highlight */
-            }
+    .back-btn:hover {
+      filter: brightness(1.05);
+    }
 
-            .highlight-dose {
-                font-size: 20px; /* Adjust font size */
-            }
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #666;
+    }
 
-            .section-title {
-                font-size: 14px;
-            }
+    /* ===== มือถือ ===== */
+    @media (max-width: 600px) {
+      .page-wrap {
+        padding: 10px 10px 160px;
+      }
 
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 15px;
-            }
+      h1 {
+        font-size: 20px;
+        padding: 6px;
+      }
 
-            table {
-                font-size: 14px; /* Reduce font size */
-            }
+      .section-title {
+        font-size: 15px;
+      }
 
-            th, td {
-                padding: 8px; /* Reduce padding for smaller screens */
-            }
+      .highlight-dose {
+        font-size: 18px;
+      }
 
-        }
-    </style>
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      hr {
+        width: 90%;
+      }
+
+      .content {
+        font-size: 14px;
+      }
+
+      .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+        flex: 1 1 0;
+      }
+    }
+  </style>
 </head>
 <body>
-        <h1>Meropenam Dosage Information</h1>
+  <div class="page-wrap">
+    <h1>Meropenem Dosage Information</h1>
 
- <!-- แสดงค่าที่คำนวณได้จาก Flask -->
-     <!-- Display the calculated PMA and Postnatal Age -->
+    <!-- PMA / Calc / PNA / BW -->
     <p><strong>PMA:</strong>
-        {% if pma_weeks is not none and pma_days is not none %}
-            {{ pma_weeks }} weeks and {{ pma_days }} days
-        {% else %}
-            -
-        {% endif %}
+      {% if pma_weeks is not none and pma_days is not none %}
+        {{ pma_weeks }} weeks and {{ pma_days }} days
+      {% else %}
+        -
+      {% endif %}
     </p>
 
     <p><strong>Calc.:</strong>
-        {% if calc is not none %}
-            {{ calc }} weeks
-        {% else %}
-            -
-        {% endif %}
+      {% if calc is not none %}
+        {{ calc }} weeks
+      {% else %}
+        -
+      {% endif %}
     </p>
 
     <p><strong>Postnatal Age:</strong>
-        {% if postnatal_days is not none %}
-            {{ postnatal_days }} days
-        {% else %}
-            -
-        {% endif %}
+      {% if postnatal_days is not none %}
+        {{ postnatal_days }} days
+      {% else %}
+        -
+      {% endif %}
     </p>
 
     <p><strong>Birth Weight (BW):</strong>
-        {% if bw is not none %}
-            {{ bw }} kg
-        {% else %}
-            -
-        {% endif %}
+      {% if bw is not none %}
+        {{ bw }} kg
+      {% else %}
+        -
+      {% endif %}
     </p>
 
+    <!-- Calculated dosage -->
+    <div class="section-title">Calculated Dosage</div>
+    <p>
+      Recommended Dose:
+      <span class="highlight-dose">
+        {{ dose_per_kg }} mg/kg/dose (≈ {{ total_dose }} mg/dose)
+      </span>
+    </p>
+    <p>
+      Interval:
+      <span class="highlight-dose">
+        {{ interval }}
+      </span>
+    </p>
 
- <!-- ส่วนแสดงผลลัพธ์การคำนวณ -->
- <div class="section-title">Calculated Dosage</div>
- <p>Recommended Dose:
-   <span class="highlight-dose">
-     {{ min_dose }} mg/kg/dose
-   </span>
- </p>
- <p>Interval:
-   <span class="highlight-dose">
-     {{ interval }}
-   </span>
- </p>
+    <hr>
 
- <hr>
+    <!-- Dose block (Intra-abdominal and non-CNS infections) -->
+    <div class="section-title">Dose</div>
+    <div class="section-title">Intra-abdominal and non-CNS infections</div>
 
- <!-- ส่วนตารางหรือข้อมูลยาอื่น ๆ -->
- <div class="section-title">Dose</div>
- <div class="section-title">Intra-abdominal and non-CNS infections</div>
+    <p {% if scenario == 'intra1' %}class="highlight-green"{% endif %}>
+      <strong>• Less than 32 weeks GA and less than 14 days PNA :</strong>
+      20 mg/kg IV every 12 hours
+    </p>
+    <p {% if scenario == 'intra2' %}class="highlight-green"{% endif %}>
+      <strong>• Less than 32 weeks GA and 14 days PNA and older :</strong>
+      20 mg/kg IV every 8 hours
+    </p>
+    <p {% if scenario == 'intra3' %}class="highlight-green"{% endif %}>
+      <strong>• 32 weeks GA and older, and less than 14 days PNA :</strong>
+      20 mg/kg IV every 8 hours
+    </p>
+    <p {% if scenario == 'intra4' %}class="highlight-green"{% endif %}>
+      <strong>• 32 weeks GA and older, and 14 days PNA and older :</strong>
+      30 mg/kg IV every 8 hours
+    </p>
 
- <!-- ไฮไลต์ด้วย class="highlight-green" เมื่อ scenario ตรงกับเงื่อนไข -->
- <p {% if scenario == 'intra1' %}class="highlight-green"{% endif %}>
-   <strong>• Less than 32 weeks GA and less than 14 days PNA :</strong>
-   20 mg/kg IV every 12 hours
- </p>
- <p {% if scenario == 'intra2' %}class="highlight-green"{% endif %}>
-   <strong>• Less than 32 weeks GA and 14 days PNA and older :</strong>
-   20 mg/kg IV every 8 hours
- </p>
- <p {% if scenario == 'intra3' %}class="highlight-green"{% endif %}>
-   <strong>• 32 weeks GA and older, and less than 14 days PNA :</strong>
-   20 mg/kg IV every 8 hours
- </p>
- <p {% if scenario == 'intra4' %}class="highlight-green"{% endif %}>
-   <strong>• 32 weeks GA and older, and 14 days PNA and older :</strong>
-   30 mg/kg IV every 8 hours
- </p>
-
- <p>Consider concomitant use of an aminoglycoside antibiotic</p>
- <br>
+    <p>Consider concomitant use of an aminoglycoside antibiotic</p>
+    <br>
 
  <!-- ส่วนอื่น ๆ (Meningitis, Anthrax) คงโค้ดเดิมไว้ตามต้องการ -->
  <div class="section-title">Meningitis, Bacterial</div>
@@ -565,14 +599,17 @@ vancomycin.</p>
     <!-- เส้นแบ่ง -->
     <hr>
 
-        <div class="button-group">
-            <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-            <a href="{{ u('index') }}" class="back-button">Back to Home</a>
-        </div>
-    
-        <footer>
-            <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-        </footer>
+    <!-- ใส่ footer ไว้ในกล่อง -->
+    <footer class="page-footer">
+      <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+    </footer>
+  </div>
+
+  <!-- ปุ่มลอยด้านล่าง -->
+  <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
+  </div>
 
 </body>
 </html>

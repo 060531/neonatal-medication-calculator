@@ -1,0 +1,37 @@
+{# templates/macros/home_macros.html #}
+{% macro safe_button(
+    endpoint_name,
+    static_href,
+    img_src,
+    title_text,
+    label_text,
+    subtitle_text
+) %}
+  {# ตรวจว่าอยู่ในโหมด static (GitHub) หรือโหมด Flask #}
+  {%- set is_static = static_build if static_build is defined else False -%}
+
+  {%- if is_static %}
+    {# โหมด static → ใช้ลิงก์ไฟล์ .html ที่ build ไว้แล้ว #}
+    {%- set href = static_href %}
+  {%- else %}
+    {# โหมด Flask → ใช้ endpoint ของ Flask #}
+    {%- if endpoint_name %}
+      {%- set resolved = resolve_endpoint(endpoint_name) %}
+      {%- if resolved %}
+        {%- set href = u(endpoint_name) %}
+      {%- else %}
+        {%- set href = '#' %}
+      {%- endif %}
+    {%- else %}
+      {%- set href = '#' %}
+    {%- endif %}
+  {%- endif %}
+
+  <a href="{{ href }}" class="button home-button">
+    {% if img_src %}
+      <img src="{{ img_src }}" alt="{{ title_text }}">
+    {% endif %}
+    <span>{{ label_text }}</span><br>
+    <span><small>{{ subtitle_text }}</small></span>
+  </a>
+{% endmacro %}

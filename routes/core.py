@@ -1,14 +1,28 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template
 
 bp = Blueprint("core", __name__)
 
 @bp.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", home_page=True)
 
-@bp.route("/calculate-pma", methods=["GET","POST"], endpoint="calculate_pma_route")
+# ใน routes/core.py
+@bp.route("/calculate-pma")
 def calculate_pma_page():
-    return render_template("pma_template.html")
+    return render_template(
+        "pma_template.html",
+        ga_w_val=None,
+        ga_d_val=None,
+        pna_d_val=None,
+        bw=None,
+        pma_weeks=None,
+        pma_days=None,
+        calc_unit=None,
+        postnatal_days=None,
+        error=None,
+    )
+
+
 
 @bp.route("/compatibility", endpoint="compatibility_page")
 def compatibility_page():

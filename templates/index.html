@@ -1,51 +1,55 @@
 {# templates/index.html #}
 {% extends "base.html" %}
-{% block title %}index{% endblock %}
-{% block body_class %}home-page{% endblock %}
+{% from "macros/home_macros.html" import safe_button %}
+
+{% block title %}Neonatal Medication Calculator{% endblock %}
 
 {% block content %}
-<h1>การบริหารยาในทารกแรกเกิด</h1>
+<div class="home-container">
+  <h1 class="app-title">Neonatal Medication Calculator</h1>
+  <p class="app-subtitle">
+    เครื่องมือช่วยคำนวณยาและบริหารยาในทารกแรกเกิด
+  </p>
 
-{# ปุ่มลิงก์แบบปลอดภัย: ให้ resolve_endpoint คืน href ที่ถูกต้อง (เช่น ./pma_template.html) แล้วใช้ตรง ๆ #}
-{% macro safe_button(endpoint, img_src, alt_text, label, sublabel) -%}
-  {%- set href = resolve_endpoint(endpoint) %}
-  <a href="{{ href }}" class="button home-button">
-    <img src="{{ img_src }}" alt="{{ alt_text }}">
-    <span>{{ label }}<br><small>{{ sublabel }}</small></span>
-  </a>
-{%- endmacro %}
+  <div class="home-grid">
 
-<div class="home-grid">
-  {{ safe_button(
-      'pma_template',
-      'https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png',
-      'Dose ยา',
-      'Dose ยา',
-      '(Right patient)'
-  ) }}
+    
+    {{ safe_button(
+        'calculate_pma_page',                     
+        '/calculate-pma',                         
+        'https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png',
+        'Dose ยา',
+        'Dose ยา',
+        '(Right patient)'
+    ) }}
 
-  {{ safe_button(
-      'compatibility',
-      'https://cdn.jsdelivr.net/gh/060531/images/compability.png',
-      'compatibility',
-      'Compatibility',
-      '(Right drug)'
-  ) }}
+    {{ safe_button(
+        'core.compatibility_page',
+        '/compatibility',
+        'https://cdn.jsdelivr.net/gh/060531/images/compability.png',
+        'compatibility',
+        'Compatibility',
+        '(Right drug)'
+    ) }}
 
-  {{ safe_button(
-      'Medication_administration',
-      'https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png',
-      'การบริหารยา',
-      'การบริหารยา',
-      '(Right dose)'
-  ) }}
+    {{ safe_button(
+        'medication_administration',
+        '/medication_administration',
+        'https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png',
+        'การบริหารยา',
+        'การบริหารยา',
+        '(Right dose)'
+    ) }}
 
-  {{ safe_button(
-      'time_management',
-      'https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png',
-      'การบริหารเวลา',
-      'การบริหารเวลา',
-      '(Right time)'
-  ) }}
+    {{ safe_button(
+        'core.time_management_route',
+        '/time_management',
+        'https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png',
+        'การบริหารเวลา',
+        'การบริหารเวลา',
+        '(Right time)'
+    ) }}
+
+  </div>
 </div>
 {% endblock %}

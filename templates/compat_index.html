@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Drug Compatibility{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:900px;margin:auto">
+  <h2 class="title-badge">ตรวจสอบความเข้ากันได้ของยา (Drug Compatibility)</h2>
+
+  {% if error %}
+    <div class="alert alert-danger" style="margin-bottom:1rem">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('compat.compat_index') }}" class="calc-box">
+    <div class="row">
+      <div class="col-md-6">
+        <label for="drug_a"><b>Drug A</b></label>
+        <select id="drug_a" name="drug_a" class="form-control" required>
+          <option value="">-- เลือกยา --</option>
+          {% for letter, items in groups.items() %}
+            <optgroup label="{{ letter }}">
+              {% for d in items %}
+                <option value="{{ d.id }}">{{ d.generic_name }}</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label for="drug_b"><b>Drug B</b></label>
+        <select id="drug_b" name="drug_b" class="form-control" required>
+          <option value="">-- เลือกยา --</option>
+          {% for letter, items in groups.items() %}
+            <optgroup label="{{ letter }}">
+              {% for d in items %}
+                <option value="{{ d.id }}">{{ d.generic_name }}</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;text-align:center">
+      <button type="submit" class="btn btn-primary">ตรวจสอบ Compatibility</button>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">กลับหน้า Home</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

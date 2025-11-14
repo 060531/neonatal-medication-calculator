@@ -1,27 +1,24 @@
 [
   {
     "drug": "Acyclovir",
-    "co_drug": "Amikacin",
+    "co_drug": "Ampicillin",
     "status": "Compatible",
-    "note": "ยาสามารถผสมร่วมกันได้",
-    "en": "Y-site compatible under standard conditions.",
-    "th": "ยาสามารถผสมร่วมกันได้ (Y-site) หากเงื่อนไขมาตรฐาน",
-    "detail": {
-      "context": "Y-site",
-      "diluent": ["NS", "D5W"],
-      "conc_a": "Acyclovir 1–5 mg/mL",
-      "conc_b": "Amikacin 1–5 mg/mL",
-      "contact_time": "≤ 60 นาที",
-      "temperature": "Room temperature",
-      "flush": "Flush NS 5–10 mL ก่อน-หลัง",
-      "cautions": ["สังเกตการขุ่น/ตกผลึกที่ Y-site"],
-      "evidence": {
-        "level": "B",
-        "sources": [
-          {"name":"Trissel’s IV Compatibility","year":2024,"note":"Y-site data"}
-        ]
-      },
-      "last_reviewed": "2025-09-30"
-    }
+    "source": "Trissel's Handbook 2024",
+    "note": "สามารถ Y-site ได้ใน D5W",
+    "en": "Acyclovir is generally compatible with ampicillin when diluted appropriately.",
+    "th": "Acyclovir โดยทั่วไปเข้ากันได้กับ ampicillin เมื่อเจือจางในสารละลายที่เหมาะสม",
+    "detail": "ศึกษาจาก in vitro study และ guideline",
+    "note_meta": "ปรับปรุงข้อมูลตาม evidence ใหม่เป็นระยะ"
+  },
+  {
+    "drug": "Acyclovir",
+    "co_drug": "Calcium gluconate",
+    "status": "Incompatible",
+    "source": "Pediatric Injectable Drugs",
+    "note": "ห้ามผสมใน line เดียวกัน",
+    "en": "Incompatible – precipitation risk.",
+    "th": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน",
+    "detail": "",
+    "note": ""
   }
 ]
