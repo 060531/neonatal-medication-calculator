@@ -6,10 +6,13 @@
 
   <title>Result analyze</title>
 
+  
+
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
         href="./static/manifest.webmanifest">
+
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -19,7 +22,8 @@
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
         href="./static/style.css">
-  <script defer src="./static/app.js"></script>
+  <script defer
+          src="./static/app.js"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -36,7 +40,6 @@
       flex-direction:column;
       align-items:center;
       justify-content:flex-start;
-      /* ใช้ https เสมอเพื่อหลีกเลี่ยง block บนบางเบราเซอร์ */
       background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
       background-size:cover;
       background-position:center;
@@ -82,30 +85,56 @@
     }
 
     .home-grid{
-      display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:90%;
+      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
       max-width:1000px; box-sizing:border-box;
     }
+
+    
 
     .hidden{ display:none !important; }
 
     /* Mobile: หน้า Home → 2 คอลัมน์ */
     @media (max-width:600px){
-      .home-page h1{ font-size:1.25rem; padding:8px 12px; margin:12px 0 0; }
+      .home-page h1{
+        font-size:1.25rem;
+        padding:8px 12px;
+        margin:12px 0 0;
+      }
       .home-grid{
-        display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
-        gap:16px; width:100%; max-width:420px; padding:12px;
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:25px;
+        width:100%;
+        max-width:420px;
+        padding:10px;
       }
       .home-page .button{
-        width:100%; height:100px; margin:0; font-size:12.5px; border-radius:12px; padding:8px;
+        width:100%;
+        height:100px;
+        margin:0;
+        font-size:12.5px;
+        border-radius:12px;
+        padding:8px;
         box-shadow:0 4px #999;
       }
-      .home-page .button img{ max-width:32px; margin-bottom:6px; }
-      .home-page .button span small{ font-size:11px; }
+      .home-page .button img{
+        max-width:32px;
+        margin-bottom:6px;
+      }
+      .home-page .button span small{
+        font-size:11px;
+      }
+      footer{
+        font-size: 11px;     /* เล็กลง */
+        padding: 6px 4px;    /* เว้นขอบน้อยลง */
+        line-height: 1.3;
+      }
+
     }
   </style>
 </head>
 
-<body class="">
+<body class=" ">
   <div class="container">
     
 
@@ -254,29 +283,21 @@
     <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
-  <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
   <script>
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      // ใช้พาธสัมพัทธ์เสมอ (รองรับ GitHub Pages ที่อยู่ใต้ /neonatal-medication-calculator/)
-      var swPath = "./static/service-worker.js";
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
-      // อย่าลงทะเบียนซ้ำ: ถ้าเคยติดตั้งไว้แล้ว ให้ข้าม
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) return navigator.serviceWorker.register(swPath).catch(console.error);
+        if (!reg) {
+          return navigator.serviceWorker.register(swPath).catch(console.error);
+        }
       }).catch(function () {
         navigator.serviceWorker.register(swPath).catch(console.error);
       });
     })();
   </script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register("./static/service-worker.js?v=2025-11-12-01");
-}
-</script>
-
-
 </body>
 </html>

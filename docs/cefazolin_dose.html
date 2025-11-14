@@ -1,688 +1,434 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CeFAZolin Dosage Information</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title>CeFAZolin Dosage Information</title>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #2c8ed0;
-            text-align: center; /* Center the text */
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .highlight {
-            background-color: #c3e6cb;
-        }
-
-        .dose-range {
-            color: red;
-            font-weight: bold;
-        }
-
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .section-header {
-        background-color: #f2f2f2; /* สีเทาอ่อน */
-        font-weight: bold;
-        padding: 10px;
-        text-align: left; /* ชิดซ้าย */
-        border-radius: 5px; /* เพิ่มขอบมน */
-        margin-bottom: 10px; /* เพิ่มช่องว่างด้านล่าง */
-        }
-
-        .highlight-dose {
-        color: #ff5733; /* สีแดง */
-        font-weight: bold; /* ข้อความตัวหนา */
-        background-color: #fbe9e7; /* สีพื้นหลังแดงอ่อน */
-        padding: 5px 10px;
-        border-radius: 5px;
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
     }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
 
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
+    /* กล่องเนื้อหาให้อยู่กลางจอ และเว้นด้านล่างเผื่อปุ่มลอย */
+    .page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 150px;
+      box-sizing: border-box;
+      background-color: #fff;
+      min-height: 100vh;
+    }
 
-        .back-button {
-            background-color: #f44336;
-        }
+    h1 {
+      color: #fcf2f2;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px;
+      border: 2px solid #afaaaa;
+      border-radius: 10px;
+      background-color: #2c8ed0;
+      text-align: center;
+    }
 
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
+    .highlight-dose {
+      color: #ff5733;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: #fbe9e7;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
 
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+    }
 
-        footer {
-            text-align: center;
-            color: #00000035;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
 
-         hr {
-            border: none;
-            border-top: 2px solid #ccc; /* ความหนาและสีของเส้น */
-            margin: 20px 0; /* ระยะห่างบน-ล่างของเส้น */
-            width: 100%; /* เส้นขยายเต็มหน้าจอ */
-        }
+    th {
+      background-color: #f2f2f2;
+    }
 
-        .content {
-            margin-top: 20px; /* ระยะห่างจากเส้น */
-            line-height: 1.6;
-        }
+    .highlight {
+      background-color: #c3e6cb;
+    }
 
-        /* Mobile-Specific Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+    ul {
+      margin-left: 20px;
+    }
 
-            h1 {
-                font-size: 20px; /* Reduce font size for mobile */
-                padding: 5px; /* Reduce padding */
-            }
+    hr {
+      border: none;
+      border-top: 2px solid #ccc;
+      margin: 20px 0;
+      width: 100%;
+    }
 
-            hr {
-                width: 90%; /* ลดความกว้างของเส้นสำหรับหน้าจอเล็ก */
-            }
+    footer.page-footer {
+      text-align: center;
+      color: #00000035;
+      font-size: 13px;
+      margin-top: 32px;
+    }
 
-            .content {
-                font-size: 14px; /* ลดขนาดตัวอักษรสำหรับหน้าจอเล็ก */
-            }
+    /* ===== แถบปุ่มลอยด้านล่าง ===== */
+    .top-fix-actions {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
 
-            .highlight-dose {
-                font-size: 20px; /* Adjust font size */
-            }
+      width: min(100% - 32px, 560px);
+      box-sizing: border-box;
 
-            .section-title {
-                font-size: 14px;
-            }
+      display: flex;
+      justify-content: center;
+      gap: 12px;
 
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 15px;
-            }
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
 
-            table {
-                font-size: 14px; /* Reduce font size */
-            }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px #999;
+      color: #fff;
+      background-color: #f44336;  /* Home = แดง */
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+    }
 
-            th, td {
-                padding: 8px; /* Reduce padding for smaller screens */
-            }
+    .back-btn.alt {
+      background-color: #008CBA;   /* Back = ฟ้า */
+    }
 
-        }
-    </style>
+    .back-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #666;
+    }
+
+    /* ===== มือถือ ===== */
+    @media (max-width: 600px) {
+      .page-wrap {
+        padding: 10px 10px 160px;
+      }
+
+      h1 {
+        font-size: 20px;
+        padding: 6px;
+      }
+
+      .section-title {
+        font-size: 14px;
+      }
+
+      .highlight-dose {
+        font-size: 20px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+        flex: 1 1 0;
+      }
+    }
+  </style>
 </head>
 <body>
-        <h1>CeFAZolin Dosage Information</h1>
 
-        <!-- Display the calculated PMA and Postnatal Age -->
-            <!-- Display the calculated PMA and Postnatal Age -->
+  <div class="page-wrap">
+    <h1>CeFAZolin Dosage Information</h1>
+
+    <!-- PMA / PNA / BW -->
     <p><strong>PMA:</strong>
-        
-            -
-        
+      
+        -
+      
     </p>
 
     <p><strong>Calc.:</strong>
-        
-             weeks
-        
+      
+         weeks
+      
     </p>
 
     <p><strong>Postnatal Age:</strong>
-        
-            -
-        
+      
+        -
+      
     </p>
 
     <p><strong>Birth Weight (BW):</strong>
-        
-            -
-        
+      
+        -
+      
     </p>
 
-
+    <!-- Calculated dose -->
+    <div class="section-title">Calculated Dosage</div>
+    <p>
+      Recommended Dose:
+      <span class="highlight-dose">
         
-        <div class="section-title">Calculated Dosage</div>
-        <p>Recommended Dose: <span class="highlight-dose"> -  mg/day</span></p>
-        <p>Interval: <span class="highlight-dose"></span></p>
+  - – - mg/day
 
-
+      </span>
+    </p>
+    <p>
+      Interval:
+      <span class="highlight-dose">
         
-        
-        <div class="section-title">Dose</div>
-        <p>25 mg/kg/dose IV or IM.</p>
+      </span>
+    </p>
 
-        <div class="section-title">Antibiotic Dosing Chart:</div>
-            <p> Renal function and drug elimination are most strongly correlated with Postmenstrual Age (PMA;
-            equivalent to Gestational Age plus Postnatal Age). PMA is the primary determinant of dosing
-            interval, with Postnatal Age as the secondary qualifier.</p>
+    <div class="section-title">Dose</div>
+    <p>25 mg/kg/dose IV or IM.</p>
+
+    <div class="section-title">Antibiotic Dosing Chart</div>
+    <p>
+      Renal function and drug elimination are most strongly correlated with Postmenstrual Age (PMA;
+      equivalent to Gestational Age plus Postnatal Age). PMA is the primary determinant of dosing
+      interval, with Postnatal Age as the secondary qualifier.
+    </p>
 
     <table>
-        <thead>
-          <th colspan="3">Dosing Interval Chart</th>
-            <tr>
-                <th>PMA (weeks)</th>
-                <th>Post Natal (days)</th>
-                <th>Interval (hours)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td rowspan="2">&lt;29</td>
-                <td>0 to 28</td>
-                <td>12</td>
-            </tr>
-            <tr>
-                <td>&gt;28</td>
-                <td>8</td>
-            </tr>
-            <tr>
-                <td rowspan="2">30 to 36</td>
-                <td>0 to 14</td>
-                <td>12</td>
-            </tr>
-            <tr>
-                <td>&gt;14</td>
-                <td>8</td>
-            </tr>
-            <tr>
-                <td rowspan="2">37 to 44</td>
-                <td>0 to 7</td>
-                <td>12</td>
-            </tr>
-            <tr>
-                <td>&gt;7</td>
-                <td>8</td>
-            </tr>
-            <tr>
-                <td>&gt;45</td>
-                <td>ALL</td>
-                <td>6</td>
-            </tr>
-        </tbody>
-    </table>
-
-    
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-        <div class="section-title">Administration</div>
-        <p>May be given by IV direct (bolus) injection, IV infusion, or IM injection.<br>
-        For IV bolus injection, inject slowly over 3 to 5 minutes at a concentration of 100 mg/mL.<br>
-        <strong>For IV infusion,</strong> dilute reconstituted solution to a concentration of <strong>5 to 20 mg/mL and infuse
-        over 10 to 60 minutes.</strong><br>
-        For IM injection, use a concentration of 225 mg/mL. Maximum 330 mg/mL</p>
-
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-        <div class="section-title">Uses</div>
-        <p>Use in neonates is generally limited to perioperative infection prophylaxis and treatment of urinary
-        tract and soft tissue infections caused by susceptible organisms, e.g. penicillin-resistant Staph.
-        aureus, Klebsiella, and Proteus.</p>
-
-        <p><strong>Infective endocarditis:</strong> The following recommendations are based on a consensus of experts [3] .
-The full pediatric guidelines can be found here: https://doi.org/10.1161/CIR.0000000000000298</p>
-
-    <table>
-        <thead>
-          <th colspan="3">Organism Directed Therapy</th>
-            <tr>
-                <th>Organism</th>
-                <th>First-Choice</th>
-                <th>Alternative Choice</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Streptococci</td>
-                <td colspan="2"></td>
-
-            </tr>
-            <tr>
-                <td>Highly susceptible to penicillin G (MBC 0.1 mcg/mL or less); includes most viridans streptococci, groups A, B, C, G nonenterococcal, group D streptococci (S bovis, S equinus)</td>    
-                <td>Penicillin G or CefTRIAXone</td>
-                <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
-            </tr>
-            <tr>
-                <td>Relatively resistant to penicillin(MBC 0.2 mcg/mL or more); less-susceptible viridans streptococci or enterococci</td>
-                <td>Penicillin G or Ampicillin + Gentamicin (for first 2 weeks, or entire course for enterococci)</td>
-                <td>Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone (for AMG-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin (not for enterococcal endocarditis)</td>
-            </tr>
-            <tr>
-                <td>Resistant to penicillin</td>
-                <td>Consult an infectious disease specialist.</td>
-                <td>---</td>
-            </tr>
-            <tr>
-                <td>Staphylococci (S aureus or coagulase-negative staphylococci) †</td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td>Penicillin G susceptible (1mcg/mL or less) (rare)</td>
-                <td>Penicillin G</td>
-                <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
-            </tr>
-            <tr>
-                <td>Penicillin G resistant (0.1 mcg/mL)</td>
-                <td>Oxacillin or Nafcillin with or without Gentamicin</td>
-                <td>Vancomycin (for those highly allergic to beta-lactam antibiotics) or First-generation cephalosporin</td>
-            </tr>
-            <tr>
-                <td>Oxacillin (MRSA) resistant (4 mcg/mL)</td>
-                <td>Vancomycin</td>
-                <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
-            </tr>
-            <tr>
-                <td>Vancomycin resistant or intolerant</td>
-                <td>Daptomycin</td>
-                <td>Unknown</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td colspan="2">†When prosthetic material present add riFAMpin + gentamicin(for first 2 weeks) for all staphylococci</td>
-            </tr>
-            <tr>
-                <td>Gram-negative enteric bacilli</td>
-                <td>CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone Plus gentamicin (or tobramycin or amikacin, depending on susceptibility)</td>
-                <td>Broad-spectrum penicillin Plus gentamicin (or tobramycin or amikacin)</td>
-            </tr>
-            <tr>
-                <td>HACEK group</td>
-                <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
-                <td>Ampicillin (when susceptible) Plus aminoglycoside</td>
-            </tr>
-            <tr>
-                <td colspan="3"><strong>KEY:</strong> AMG = aminoglycosides; HACEK = Haemophilus species, Aggregatibacter species, Cardiobacterium hominis, Eikenella corrodens, and Kingella species; MBC = minimum bactericidal concentration, MRSA = methicillin-resistant Staphylococcus aureus (includes resistance to oxacillin, nafcillin, and cephalosporins).</td>
-            </tr>
-        </tbody>
-    </table>
-
-
-
-        <div class="section-title">Intravenous Route</div>
-        <div class="section-title">Continuous Infusion:</div>
-        <p>Slowly inject one-half the total daily dose over 3 to 5 minutes at a concentration of 75 mg/mL of
-        colistin base. Add the remaining half of the total daily dose to a compatible solution. Administer by
-        slow IV infusion, starting 1 to 2 hours after the initial dose, over the next 22 to 23 hours. The
-        choice of IV solution and the volume used are dictated by the requirements of fluid and electrolyte
-        management.</p>
-
-        <div class="section-title">Intermittent Administration:</div>
-        <p>Infuse one-half of the total daily dose slowly over 3 to 5 minutes at a concentration of 75 mg/mL
-        colistin base every 12 hours. Doses were added to 5 mL of normal saline and infused over 30
-        minutes in an observational study of 18 neonates.</p>
-
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-        <div class="section-title">Uses </div>
-        <p>Optimal dosing for colistin is unknown. However, a review of adult data suggests higher colistin
-        concentrations, which may not be achieved with the manufacturer recommended dosing, and a regimen of
-        colistin combined with other antibiotics may be necessary. The safety of higher doses is unknown.</p>
-
-        <p><strong>Gram-negative infections, multi-drug resistant:</strong></p>
-        <p><strong>Intermittent IV </strong> colistin in combination with at least one other antibiotic, used for the treatment
-        of multi-drug resistant infections, mostly Acinetobacter baumannii and Klebsiella pneumoniae, resulted
-        in a 76% favorable clinical outcome in a retrospective study (n=21 treatment courses in 18
-        neonates). Microbiological clearance was documented in 17 of the 21 courses. During therapy with
-        colisin, 5 patients with severe sepsis and multi-organ dysfunction died. The dose of colistimethate
-        sodium ranged from 50,000 to 75,000 IU/kg/day in 3 divided doses [1.7 to 2.5 mg/kg/day of colistin
-        base]. Renal impairment developed in 2 neonates, both subsequently died of multi-organ
-        dysfunction.</p>
-
-        <p><strong>Aerosolized colistin </strong> either as monotherapy or in combination with other IV
-        antibiotics demonstrated potential for treating full-term and pre-term neonates
-        with Acinetobacter baumannii (13 of the 16 neonates had multidrug-resistant isolates) ventilator-
-        associated pneumonia in 2 retrospective studies. Neither clinical nor laboratory adverse events
-        were reported. The dosage of colistin base was 4 mg/kg/dose aerosolized with an ultrasonic
-        nebulizer for 15 minutes every 12 hours for a median of 9 days (4 to 14 days) in neonates on a
-        ventilator while receiving concurrent IV antibiotics. All of the 16 neonates who received nebulized
-        colistin cleared the A baumannii infection. Another regimen was colistimethate sodium 1 million
-        international units (33.4 mg colistin base) monotherapy twice daily for an average of 9.1 days (4 to
-        22 days).</p>
-
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-<title>Organism Directed Therapy</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 14px;
-            text-align: left;
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <h1>Organism Directed Therapy</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Organism</th>
-                <th>First-Choice</th>
-                <th>Alternative Choice</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td rowspan="3">Streptococci</td>
-                <td>Penicillin G or CefTRIAXone</td>
-                <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
-            </tr>
-            <tr>
-                <td>Penicillin G or Ampicillin + Gentamicin (for first 2 weeks, or entire course for enterococci)</td>
-                <td>Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone (for AMG-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin (not for enterococcal endocarditis)</td>
-            </tr>
-            <tr>
-                <td>Consult an infectious disease specialist.</td>
-                <td>---</td>
-            </tr>
-            <tr>
-                <td rowspan="4">Staphylococci (S aureus or coagulase-negative staphylococci) †</td>
-                <td>Penicillin G</td>
-                <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
-            </tr>
-            <tr>
-                <td>Oxacillin or Nafcillin with or without Gentamicin</td>
-                <td>Vancomycin (for those highly allergic to beta-lactam antibiotics) or First-generation cephalosporin</td>
-            </tr>
-            <tr>
-                <td>Vancomycin</td>
-                <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
-            </tr>
-            <tr>
-                <td>Daptomycin</td>
-                <td>Unknown</td>
-            </tr>
-            <tr>
-                <td>Gram-negative enteric bacilli</td>
-                <td>CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone Plus gentamicin (or tobramycin or amikacin, depending on susceptibility)</td>
-                <td>Broad-spectrum penicillin Plus gentamicin (or tobramycin or amikacin)</td>
-            </tr>
-            <tr>
-                <td>HACEK group</td>
-                <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
-                <td>Ampicillin (when susceptible) Plus aminoglycoside</td>
-            </tr>
-        </tbody>
-    </table>
-    <p><strong>KEY:</strong> AMG = aminoglycosides; HACEK = Haemophilus species, Aggregatibacter species, Cardiobacterium hominis, Eikenella corrodens, and Kingella species; MBC = minimum bactericidal concentration, MRSA = methicillin-resistant Staphylococcus aureus (includes resistance to oxacillin, nafcillin, and cephalosporins).</p>
-
-    
-        <div class="section-title">Contraindications/Precautions</div>  
-        <p><strong>Acute respiratory failure</strong> may result when reconstituted colistimethate solution for inhalation is
-        not used promptly. After reconstitution, colistimethate is hydrolyzed to form active components,
-        including polymyxin E1, which has shown to cause localized inflammation of the airway epithelia
-        and eosinophilic infiltration when administered by inhalation</p>
-
-        <p><strong>Bronchospasms</strong> may occur with inhalation of colistin; consider premedication with a
-        bronchodilator.</p>
-
-        <p><strong>Clostridium difficile-associated diarrhea (CDAD),</strong> including mild diarrhea to fatal colitis, has
-        been reported and may occur more than 2 months after administration. If CDAD is suspected or
-        confirmed, discontinue any ongoing antibiotic therapy</p>
-
-        <p>Concomitant use of sodium <strong>cephalothin</strong> should be avoided</p>
-
-        <p>Increased risk of <strong>neuromuscular blockade</strong> leading to apnea in patients with renal impairment.
-        Dosage adjustment should be reduced in proportion to the extent of the impairment</p>
-
-        <p><strong>Respiratory arrest</strong> has been reported after IM administration</p>
-        <p>Reversible and dose-dependent <strong>nephrotoxicity</strong> may occur</p>
-        <p>Transient <strong>neurological disturbances</strong> (eg, circumoral paresthesia or numbness, tingling or
-        formication of the extremities, generalized pruritus, vertigo, dizziness, and slurring of speech), may
-        occur and dosage adjustments may be necessary</p>
-
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-        <div class="section-title">Adverse Effects</div> 
-<p>The most commonly reported adverse effects are gastrointestinal upset, slurred speech, dizziness,
-tingling of the extremities or tongue, itching, urticaria, rash, fever, respiratory distress, apnea, and
-nephrotoxicity.<br>
-Serum creatinine increased more than 0.5 mg/dL above baseline in 2 out of 18 neonates
-administered IV colistin.<br>
-Neither clinical nor laboratory adverse events were reported with aerosolized colistin in 8
-neonates. Serum creatinine and blood urea nitrogen remained within normal limits 72 hours after
-completion of colistin therapy.</p>
-
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-          <div class="section-title">Monitoring</div>
-          <p>Closely monitor for toxicity in pediatric patients. Monitor urine output, BUN, and serum
-          creatinine.</p>
-
-    <!-- เส้นแบ่ง -->
-    <hr>
-
-          <div class="section-title">Pharmacology</div>
-          <div class="section-title">Microbiology</div>
-          <p>Colistimethate sodium is a surface active agent that is used to penetrate and disrupt the cell
-          membrane of bacteria. It has demonstrated bactericidal activity against most strains of aerobic
-          gram-negative microorganisms (Enterobacter aerogenes, Escherichia coli, Klebsiella pneumonia, and
-          Pseudomonas aeruginosa) both in vitro and in clinical infections.</p>
-
-          <div class="section-title">Pharmacokinetics</div>       
-          <p>Higher serum levels were obtained at 10 minutes following IV administration compared with IM
-          administration <br>
-          Half-life was 2 to 3 hours after administration (either IM or IV) in both the adult and pediatric
-          populations, including premature infants. The half-life was 2.6 hours in neonates (0 to 7 days) and
-          2.3 hours in infants 7 days or older.<br>
-          Urine levels ranged, on average, from 270 mcg/mL at 2 hours to 15 mcg/mL at 8 hours following IV
-          administration and 200 mcg/mL to 25 mcg/mL over a similar time period with IM administration.</p>
-
-          <p><strong>IV Administration</strong> Within 6 hours of IV colistin base 5 mg/kg, the colistin concentration was less
-          than 2 mcg/mL in all 7 neonates (median 38 weeks gestation and 13 days postnatal age) after a single
-          IV colistin base dose of 5 mg/kg/day.</p>
-          <p><strong>Nebulization Administration:</strong> After a single-dose of ultrasonic-nebulized colistin base 4 mg/kg in
-          6 neonates (median gestational age 39 weeks (32 to 39) and postnatal age 7 days (3 to 7)) with
-          ventilator-associated pneumonia, 50% of tracheal aspirate concentrations of colistin were below 2
-          mcg/mL 24 hours after administration. The ratio of colistin plasma concentrations-to-tracheal
-          aspirate was 0.038 (3.8%)</p>
-          <p>The following were the pharmacokinetic parameters for colistin in the tracheal aspirate and plasma
-via nebulization and in the plasma via IV administration:</p>
-
-
-<table>
-        <thead>
-            <tr>
-                <th colspan="4">Single-Dose, Colistin Pharmacokinetics in Neonates</th>
-            </tr>
-            <tr>
-                <th>Parameters</th>
-                <th>Nebulization 4 mg/kg (n=6)*</th>
-                <th>IV 5 mg/kg (mean (range)) (n=7)**</th>
-                <th>Tracheal Aspirate Plasma Plasma</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>Cmax</strong></td>
-                <td>24 mcg/mL (15.6 to 34.6 mcg/mL)</td>
-                <td>0.59 mcg/mL (0.32 to 1.1 mcg/mL)</td>
-                <td>3 mcg/mL</td>
-            </tr>
-            <tr>
-                <td><strong>Tmax</strong></td>
-                <td>1.8 hours (0.5 to 6 hours)</td>
-                <td>1.9 hours</td>
-                <td>1.3 hours</td>
-            </tr>
-            <tr>
-                <td><strong>AUC (0 to 24)</strong></td>
-                <td>147.6 mcg x hr/mL</td>
-                <td>2.34 mcg x hr/mL</td>
-                <td>21.1 mcg x hr/mL</td>
-            </tr>
-            <tr>
-                <td><strong>AUC (0 to infinity)</strong></td>
-                <td>183.8 mcg x hr/mL</td>
-                <td>7.57 mcg x hr/mL</td>
-                <td>25.3 mcg x hr/mL</td>
-            </tr>
-            <tr>
-                <td><strong>Clearance of formed colistin</strong></td>
-                <td>0.027 L/hr/kg</td>
-                <td>1.01 L/hr/kg</td>
-                <td>0.6 L/hr/kg</td>
-            </tr>
-            <tr>
-                <td><strong>Half-life</strong></td>
-                <td>9.8 hours</td>
-                <td>10.2 hours</td>
-                <td>9 +/- 6.5 hours</td>
-            </tr>
-            <tr>
-                <td><strong>Vd of formed colistin</strong></td>
-                <td>0.46 L/kg</td>
-                <td>11.7 L/kg</td>
-                <td>7.7 +/- 9.3 L/kg</td>
-            </tr>
+      <thead>
         <tr>
-            <td colspan="4" style="text-align: left;"><strong>KEY:</strong> Cmax = maximum colistin concentration, Tmax = time to maximum colistin concentration, AUC = area under the concentration time curve, Vd = apparent volume of distribution</td>
+          <th colspan="3">Dosing Interval Chart</th>
         </tr>
-            </tbody>
+        <tr>
+          <th>PMA (weeks)</th>
+          <th>Postnatal (days)</th>
+          <th>Interval (hours)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="2">&lt;29</td>
+          <td>0 to 28</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>&gt;28</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td rowspan="2">30 to 36</td>
+          <td>0 to 14</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>&gt;14</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td rowspan="2">37 to 44</td>
+          <td>0 to 7</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>&gt;7</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td>&gt;45</td>
+          <td>ALL</td>
+          <td>6</td>
+        </tr>
+      </tbody>
     </table>
 
-          <div class="section-title">Pharmacodynamics</div>  
-          <p>The ratio of AUC/MIC of colistin base is the most predictive of antibacterial activity.</p>
-
-    <!-- เส้นแบ่ง -->
     <hr>
 
-          <div class="section-title">Special Considerations/Preparation</div>
-          <p>Each vial containing colistimethate sodium (pentasodium colistin-methanesulfonate) is equivalent to
-          150 mg of colistin base activity. Colistin base 1 mg is equivalent to 2.4 mg of colistimethate
-          sodium. Colistimethate sodium is 12,500 international units/mg and colistin base is 30,000
-          international units/mg.<br>
-          Store vials at controlled room temperature between 20 and 25 degrees C (68 and 77 degrees F),
-          with excursions permitted between 15 and 30 degrees C (59 and 86 degrees F).</p>
+    <div class="section-title">Administration</div>
+    <p>
+      May be given by IV direct (bolus) injection, IV infusion, or IM injection.<br>
+      For IV bolus injection, inject slowly over 3 to 5 minutes at a concentration of 100 mg/mL.<br>
+      <strong>For IV infusion,</strong> dilute reconstituted solution to a concentration of
+      <strong>5 to 20 mg/mL and infuse over 10 to 60 minutes.</strong><br>
+      For IM injection, use a concentration of 225 mg/mL. Maximum 330 mg/mL.
+    </p>
 
-          <div class="section-title">Intravenous:</div>
-          <p>Reconstitute 150 mg (colistin base) vial with 2 mL sterile water for injection for a resulting
-          concentration of 75 mg/mL colistin base; swirl gently to avoid frothing.
-          Once diluted with sterile water for injection, store solution up to 7 days, between 20 and 25
-          degrees C (68 and 77 degrees F) or refrigerated between 2 and 8 degrees C (36 and 46 degrees
-          F).<br>
-          Colistimethate for continuous infusion should be mixed with NS, D5NS, D5W, D5-0.45%NaCl, D5-
-          0.225%NaCl, LR, or 10% invert sugar solution and used within 24 hours.</p>
-
-          <p><strong>Inhalation:</strong> Use <strong>immediately</strong> after mixed. Do not use after 24 hours. In solution, colistimethate undergoes spontaneous hydrolysis to form its 2 active components polymyxin E1 (colistin A), which
-          is toxic to the lungs, and polymyxin E2 (colistin B). Use after 24 hours can result in increased
-          colistin concentration and the potential for increased lung toxicity.</p>
-
-    <!-- เส้นแบ่ง -->
     <hr>
 
-          <div class="section-title">Solution Compatibility</div>
-          <p>NS, D5NS, D5 0.45%NS, D5W</p>
+    <div class="section-title">Uses</div>
+    <p>
+      Use in neonates is generally limited to perioperative infection prophylaxis and treatment of urinary
+      tract and soft tissue infections caused by susceptible organisms, e.g. penicillin-resistant
+      <em>Staph. aureus</em>, <em>Klebsiella</em>, and <em>Proteus</em>.
+    </p>
 
-    <!-- เส้นแบ่ง -->
-    <hr>
+    <p>
+      <strong>Infective endocarditis:</strong> The following recommendations are based on a consensus of experts [3].
+      The full pediatric guidelines can be found here: https://doi.org/10.1161/CIR.0000000000000298
+    </p>
 
-          <div class="section-title">Terminal Injection Site Compatibility</div>
-          <p>Aminophylline, atropine sulfate, calcium chloride, calcium gluconate, chloramphenicol sodium
-          succinate, chlorothiazide sodium, chlorpheniramine maleate, chlorpromazine hydrochloride,
-          clarithromycin, cloxacillin sodium, cyclophosphamide, dexamethasone sodium phosphate, digoxin,
-          edetate calcium disodium, epinephrine hydrochloride, ergonovine maleate, erythromycin
-          lactobionate, furosemide, gallamine triethiodide, gentamicin sulfate, heparin sodium, hydralazine
-          hydrochloride, hydrocortisone sodium succinate, isoproterenol hydrochloride, kanamycin sulfate,
-          lidocaine hydrochloride, lincomycin hydrochloride, mechlorethamine hydrochloride,
-          mephentermine sulfate, metaraminol bitartrate, methohexital sodium, methyldopate hydrochloride,
-          nalorphine hydrobromide, norepinephrine bitartrate, oxytocin, penicillin G potassium, penicillin G
-          sodium, phenobarbital sodium, phentolamine mesylate, polymyxin B sulfate, potassium chloride,
-          procainamide hydrochloride, prochlorperazine mesylate, promazine hydrochloride, promethazine
-          hydrochloride, propranolol hydrochloride, streptomycin sulfate, succinylcholine chloride,
-          trimetaphan camsylate, tubocurarine chloride.</p>
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3">Organism Directed Therapy</th>
+        </tr>
+        <tr>
+          <th>Organism</th>
+          <th>First-Choice</th>
+          <th>Alternative Choice</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Streptococci</td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td>
+            Highly susceptible to penicillin G (MBC 0.1 mcg/mL or less); includes most viridans
+            streptococci, groups A, B, C, G nonenterococcal, group D streptococci
+            (<em>S bovis, S equinus</em>)
+          </td>
+          <td>Penicillin G or CefTRIAXone</td>
+          <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
+        </tr>
+        <tr>
+          <td>
+            Relatively resistant to penicillin (MBC 0.2 mcg/mL or more); less-susceptible viridans
+            streptococci or enterococci
+          </td>
+          <td>
+            Penicillin G or Ampicillin + Gentamicin
+            (for first 2 weeks, or entire course for enterococci)
+          </td>
+          <td>
+            Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone
+            (for AMG-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin
+            (not for enterococcal endocarditis)
+          </td>
+        </tr>
+        <tr>
+          <td>Resistant to penicillin</td>
+          <td>Consult an infectious disease specialist.</td>
+          <td>---</td>
+        </tr>
+        <tr>
+          <td>Staphylococci (S aureus or coagulase-negative staphylococci) †</td>
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td>Penicillin G susceptible (1 mcg/mL or less) (rare)</td>
+          <td>Penicillin G</td>
+          <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
+        </tr>
+        <tr>
+          <td>Penicillin G resistant (0.1 mcg/mL)</td>
+          <td>Oxacillin or Nafcillin with or without Gentamicin</td>
+          <td>
+            Vancomycin (for those highly allergic to beta-lactam antibiotics)
+            or First-generation cephalosporin
+          </td>
+        </tr>
+        <tr>
+          <td>Oxacillin (MRSA) resistant (4 mcg/mL)</td>
+          <td>Vancomycin</td>
+          <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
+        </tr>
+        <tr>
+          <td>Vancomycin resistant or intolerant</td>
+          <td>Daptomycin</td>
+          <td>Unknown</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan="2">
+            † When prosthetic material present add riFAMpin + gentamicin
+            (for first 2 weeks) for all staphylococci
+          </td>
+        </tr>
+        <tr>
+          <td>Gram-negative enteric bacilli</td>
+          <td>
+            CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone
+            plus gentamicin (or tobramycin or amikacin, depending on susceptibility)
+          </td>
+          <td>
+            Broad-spectrum penicillin plus gentamicin
+            (or tobramycin or amikacin)
+          </td>
+        </tr>
+        <tr>
+          <td>HACEK group</td>
+          <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
+          <td>Ampicillin (when susceptible) plus aminoglycoside</td>
+        </tr>
+        <tr>
+          <td colspan="3" style="text-align: left;">
+            <strong>KEY:</strong> AMG = aminoglycosides; HACEK = <em>Haemophilus</em> species,
+            <em>Aggregatibacter</em> species, <em>Cardiobacterium hominis</em>,
+            <em>Eikenella corrodens</em>, and <em>Kingella</em> species; MBC = minimum bactericidal
+            concentration; MRSA = methicillin-resistant <em>Staphylococcus aureus</em>
+            (includes resistance to oxacillin, nafcillin, and cephalosporins).
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-        <div class="button-group">
-            <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-            <a href="./index.html" class="back-button">Back to Home</a>
-        </div>
-    
-        <footer>
-            <p>Developed by Sukhontha Boonsookchan | update </p>
-        </footer>
+    <footer class="page-footer">
+      <p>Developed by Sukhontha Boonsookchan | update </p>
+    </footer>
+  </div>
+
+  <!-- ปุ่มลอยด้านล่าง -->
+  <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="./index.html" class="back-btn">🏠 Back to Home</a>
+  </div>
 
 </body>
 </html>

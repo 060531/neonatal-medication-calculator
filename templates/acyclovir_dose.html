@@ -231,13 +231,21 @@ th { background-color: #f2f2f2; }
 
 <p>Birth Weight (BW):
   <span class="highlight-dose">
-    {{ "%.2f"|format(bw) }} kg
+    {% if not static_build and bw is not none %}
+  {{ "%.2f"|format(bw) }} kg
+{% else %}
+  - kg
+{% endif %}
   </span>
 </p>
 
 <p>Recommended Dose (20 mg/kg/dose):
   <span class="highlight-dose">
-    {{ "%.2f"|format(min_dose) }} mg / dose
+    {% if not static_build %}
+  {{ "%.2f"|format(min_dose) }} mg / dose
+{% else %}
+  - mg / dose
+{% endif %}
   </span>
 </p>
 

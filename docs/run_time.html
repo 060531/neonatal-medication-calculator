@@ -1,245 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medication Schedule</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 670px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.396);
-            border: 1px solid rgba(253, 253, 253, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            text-align: center;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            color: #ffffff;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, rgb(102, 119, 202), rgb(4, 71, 178));
-            padding: 15px 30px;
-            border-radius: 15px;
-            display: inline-block;
-            border: 2px solid rgba(2, 101, 22, 0.5);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        label, input, select, button {
-            display: block;
-            margin: 10px 0;
-            width: 100%;
-        }
-
-        .result {
-            margin-top: 20px;
-        }
-
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .back-button, .back-button-secondary {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            text-align: center;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            text-decoration: none;
-            box-shadow: 0 4px #999;
-        }
-
-        .back-button {
-            background-color: #f44336;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button:active {
-            background-color: #d32f2f;
-            box-shadow: 0 4px #666;
-            transform: translateY(4px);
-        }
-
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        .styled-button {
-        background-color: #117314; /* สีพื้นหลัง */
-        border: none;
-        color: white; /* สีตัวอักษร */
-        padding: 10px 24px; /* ลดขนาด padding เพื่อลดความสูง */
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        font-weight: bold; /* ทำให้ตัวหนังสือหนา */
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 12px; /* ขอบมน */
-        box-shadow: 0 4px #999; /* เงาปุ่ม */
-        transition: background-color 0.3s, transform 0.2s; /* เพิ่มเอฟเฟกต์การเปลี่ยนสีและการกด */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medication Schedule</title>
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .container{
+      max-width: 670px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.396);
+      border: 1px solid rgba(253, 253, 253, 0.8);
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    h1{
+      font-size: 2.5em;
+      color: #ffffff;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, rgb(102, 119, 202), rgb(4, 71, 178));
+      padding: 15px 30px;
+      border-radius: 15px;
+      display: inline-block;
+      border: 2px solid rgba(2, 101, 22, 0.5);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    label,input,select,button{
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+    }
+    .result{ margin-top: 20px; }
+    .button-group{
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .back-button,
+    .back-button-secondary{
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-align: center;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 4px #999;
+    }
+    .back-button{
+      background-color: #f44336;
+    }
+    .back-button:hover{
+      background-color: #d32f2f;
+    }
+    .back-button:active{
+      background-color: #d32f2f;
+      box-shadow: 0 4px #666;
+      transform: translateY(4px);
+    }
+    .back-button-secondary{
+      background-color: #008CBA;
+    }
+    .back-button-secondary:hover{
+      background-color: #007B9A;
+    }
+    .styled-button{
+      background-color: #117314;
+      border: none;
+      color: white;
+      padding: 10px 24px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 4px #999;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .styled-button:hover{
+      background-color: #45a049;
+    }
+    .styled-button:active{
+      background-color: #3e8e41;
+      box-shadow: 0 2px #666;
+      transform: translateY(4px);
+    }
+    footer{
+      text-align: center;
+      margin-top: 20px;
+      color: #fff;
+      font-size: 16px;
     }
 
-    .styled-button:hover {
-        background-color: #45a049; /* สีเมื่อเอาเมาส์ชี้ */
+      @media (max-width: 640px) {
+    h1 {
+      font-size: 1.6em;       /* เล็กลง */
+      padding: 10px 18px;      /* ลด padding ให้กล่องไม่ใหญ่เกินไป */
+      margin-bottom: 20px;     /* ลดระยะห่างด้านล่างนิดหน่อย */
     }
 
-    .styled-button:active {
-        background-color: #3e8e41; /* สีเมื่อกด */
-        box-shadow: 0 2px #666; /* เงาเมื่อกด */
-        transform: translateY(4px); /* ยุบลงเมื่อกด */
+    .container {
+      max-width: 90%;          /* ให้กล่องยืดตามจอเล็กสวยขึ้น (ไม่บังคับ แต่ช่วยได้) */
+      padding: 16px;
     }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #fff;
-            font-size: 16px;
-        }
-    </style>
+  }
+  
+  </style>
 </head>
 <body>
-    <h1>Medication Schedule</h1>
-    <div class="container">
-        <label for="date">Select Start Date:</label>
-        <input type="date" id="date">
+  <h1>Medication Schedule</h1>
 
-        <label for="startTime">Select Start Time:</label>
-        <select id="startTime">
-            <option value="2">2:00</option>
-            <option value="4">4:00</option>
-            <option value="6">6:00</option>
-            <option value="8">8:00</option>
-            <option value="10">10:00</option>
-            <option value="12">12:00</option>
-            <option value="14">14:00</option>
-            <option value="16">16:00</option>
-            <option value="18">18:00</option>
-            <option value="20">20:00</option>
-            <option value="22">22:00</option>
-            <option value="24">24:00</option>
-        </select>
+  <div class="container">
+    <label for="date">Select Start Date:</label>
+    <input type="date" id="date">
 
-        <label for="interval">Select Interval (hours):</label>
-        <select id="interval">
-            <option value="4">Every 4 hours</option>
-            <option value="6">Every 6 hours</option>
-            <option value="8">Every 8 hours</option>
-            <option value="12">Every 12 hours</option>
-            <option value="20">Every 20 hours</option>
-            <option value="24">Every 24 hours</option>
-            <option value="36">Every 36 hours</option>
-            <option value="48">Every 48 hours</option>
-        </select>
+    <label for="startTime">Select Start Time:</label>
+    <select id="startTime">
+      <option value="2">2:00</option>
+      <option value="4">4:00</option>
+      <option value="6">6:00</option>
+      <option value="8">8:00</option>
+      <option value="10">10:00</option>
+      <option value="12">12:00</option>
+      <option value="14">14:00</option>
+      <option value="16">16:00</option>
+      <option value="18">18:00</option>
+      <option value="20">20:00</option>
+      <option value="22">22:00</option>
+      <option value="24">24:00</option>
+    </select>
 
-        <button class="styled-button" onclick="calculateSchedule()">Calculate Schedule</button>
+    <label for="interval">Select Interval (hours):</label>
+    <select id="interval">
+      <option value="4">Every 4 hours</option>
+      <option value="6">Every 6 hours</option>
+      <option value="8">Every 8 hours</option>
+      <option value="12">Every 12 hours</option>
+      <option value="20">Every 20 hours</option>
+      <option value="24">Every 24 hours</option>
+      <option value="36">Every 36 hours</option>
+      <option value="48">Every 48 hours</option>
+    </select>
 
-        <div class="result" id="scheduleResult"></div>
-    </div>
+    <button class="styled-button" onclick="calculateSchedule()">Calculate Schedule</button>
 
-    <script>
-  function calculateSchedule() {
-    const dateStr = document.getElementById('date').value;
-    const startHourRaw = document.getElementById('startTime').value;
-    const interval = parseInt(document.getElementById('interval').value, 10);
-    const resultDiv = document.getElementById('scheduleResult');
+    <div class="result" id="scheduleResult"></div>
+  </div>
 
-    if (!dateStr || !startHourRaw) {
-      resultDiv.innerHTML = "<p style='color: red;'>Please select both date and start time.</p>";
-      return;
-    }
+  <script>
+    function calculateSchedule() {
+      const dateStr = document.getElementById('date').value;
+      const startHourRaw = document.getElementById('startTime').value;
+      const interval = parseInt(document.getElementById('interval').value, 10);
+      const resultDiv = document.getElementById('scheduleResult');
 
-    // สร้าง Date เริ่มต้นจากวันที่ + ชั่วโมงที่เลือก
-    const start = new Date(dateStr);
-    let hour = parseInt(startHourRaw, 10);
-    if (hour === 24) {               // 24:00 = 00:00 ของวันถัดไป
-      start.setDate(start.getDate() + 1);
-      hour = 0;
-    }
-    start.setHours(hour, 0, 0, 0);
-
-    const scheduleTimes = [];
-    const TEN_DAYS_HOURS = 240;
-
-    // วิ่งยาว 10 วันสำหรับช่วง 20/36/48 ชั่วโมง
-    if ([20, 36, 48].includes(interval)) {
-      for (let h = 0; h <= TEN_DAYS_HOURS; h += interval) {
-        const dose = new Date(start.getTime() + h * 60 * 60 * 1000);
-        scheduleTimes.push(
-          `${dose.toLocaleDateString()} ${dose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-        );
+      if (!dateStr || !startHourRaw) {
+        resultDiv.innerHTML = "<p style='color: red;'>Please select both date and start time.</p>";
+        return;
       }
+
+      const start = new Date(dateStr);
+      let hour = parseInt(startHourRaw, 10);
+      if (hour === 24) {
+        start.setDate(start.getDate() + 1);
+        hour = 0;
+      }
+      start.setHours(hour, 0, 0, 0);
+
+      const scheduleTimes = [];
+      const TEN_DAYS_HOURS = 240;
+
+      if ([20, 36, 48].includes(interval)) {
+        for (let h = 0; h <= TEN_DAYS_HOURS; h += interval) {
+          const dose = new Date(start.getTime() + h * 60 * 60 * 1000);
+          scheduleTimes.push(
+            `${dose.toLocaleDateString()} ${dose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+          );
+        }
+        resultDiv.innerHTML =
+          "<h3>Scheduled Times for 10 Days:</h3><ul>" +
+          scheduleTimes.map(t => `<li>${t}</li>`).join('') +
+          "</ul>";
+        return;
+      }
+
+      for (let h = interval; h <= 24; h += interval) {
+        const dose = new Date(start.getTime() + h * 60 * 60 * 1000);
+        scheduleTimes.push({
+          time: dose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          hours: dose.getHours()
+        });
+      }
+
+      scheduleTimes.sort((a, b) => a.hours - b.hours);
       resultDiv.innerHTML =
-        "<h3>Scheduled Times for 10 Days:</h3><ul>" +
-        scheduleTimes.map(t => `<li>${t}</li>`).join('') +
+        "<h3>Scheduled Times for 24 Hours:</h3><ul>" +
+        scheduleTimes.map(t => `<li>${t.time}</li>`).join('') +
         "</ul>";
-      return;
     }
+  </script>
 
-    // กรณีอื่น ๆ (เช่น 4/6/8/12/24) แสดงภายใน 24 ชั่วโมงถัดไป
-    for (let h = interval; h <= 24; h += interval) {
-      const dose = new Date(start.getTime() + h * 60 * 60 * 1000);
-      scheduleTimes.push({
-        time: dose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        hours: dose.getHours()
-      });
-    }
+  <div class="button-group">
+    <a href="javascript:history.back()" class="back-button-secondary">Back</a>
+    <a href="./index.html" class="back-button">Back to Home</a>
+  </div>
 
-    scheduleTimes.sort((a, b) => a.hours - b.hours);
-    resultDiv.innerHTML =
-      "<h3>Scheduled Times for 24 Hours:</h3><ul>" +
-      scheduleTimes.map(t => `<li>${t.time}</li>`).join('') +
-      "</ul>";
-  }
-</script>
-
-
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="./index.html" class="back-button">Back to Home</a>
-    </div>
-
-    <footer>
-        <p>Developed by Sukhontha Boonsookchan | update </p>
-    </footer>
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
 </body>
 </html>

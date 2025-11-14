@@ -6,10 +6,13 @@
 
   <title>Calculate PMA</title>
 
+  
+
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
         href="./static/manifest.webmanifest">
+
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -19,7 +22,8 @@
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
         href="./static/style.css">
-  <script defer src="./static/app.js"></script>
+  <script defer
+          src="./static/app.js"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -36,7 +40,6 @@
       flex-direction:column;
       align-items:center;
       justify-content:flex-start;
-      /* ใช้ https เสมอเพื่อหลีกเลี่ยง block บนบางเบราเซอร์ */
       background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
       background-size:cover;
       background-position:center;
@@ -82,39 +85,230 @@
     }
 
     .home-grid{
-      display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:90%;
+      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
       max-width:1000px; box-sizing:border-box;
     }
+
+    
 
     .hidden{ display:none !important; }
 
     /* Mobile: หน้า Home → 2 คอลัมน์ */
     @media (max-width:600px){
-      .home-page h1{ font-size:1.25rem; padding:8px 12px; margin:12px 0 0; }
+      .home-page h1{
+        font-size:1.25rem;
+        padding:8px 12px;
+        margin:12px 0 0;
+      }
       .home-grid{
-        display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
-        gap:16px; width:100%; max-width:420px; padding:12px;
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:25px;
+        width:100%;
+        max-width:420px;
+        padding:10px;
       }
       .home-page .button{
-        width:100%; height:100px; margin:0; font-size:12.5px; border-radius:12px; padding:8px;
+        width:100%;
+        height:100px;
+        margin:0;
+        font-size:12.5px;
+        border-radius:12px;
+        padding:8px;
         box-shadow:0 4px #999;
       }
-      .home-page .button img{ max-width:32px; margin-bottom:6px; }
-      .home-page .button span small{ font-size:11px; }
+      .home-page .button img{
+        max-width:32px;
+        margin-bottom:6px;
+      }
+      .home-page .button span small{
+        font-size:11px;
+      }
+      footer{
+        font-size: 11px;     /* เล็กลง */
+        padding: 6px 4px;    /* เว้นขอบน้อยลง */
+        line-height: 1.3;
+      }
+
     }
   </style>
 </head>
 
-<body class="pma-page">
+<body class=" pma-page">
   <div class="container">
     
-<div class="container" style="max-width:420px;margin:auto">
-  <h1>Calculate Postmenstrual Age (PMA)</h1>
+
+<style>
+  .pma-card{
+    max-width: 420px;
+    margin: 24px auto 16px;
+    padding: 18px 18px 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.86);
+    box-shadow: 0 10px 30px rgba(15,23,42,0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .pma-title{
+    margin: 0 0 16px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg,#0474a4,#059669);
+    color:#fff;
+    text-align:center;
+    font-weight: 900;
+    font-size: clamp(20px, 4.4vw, 28px);
+    box-shadow: 0 10px 22px rgba(4,47,46,0.35);
+    margin-top: 0;
+    margin-bottom: 30px;  /* ปรับตามใจ 18–24px ก็ได้ */
+  }
+  .pma-card .form-group{
+    margin-bottom: 10px;
+    text-align:left;
+    font-size: 14px;
+  }
+  .pma-card label{
+    font-weight: 600;
+  }
+  .pma-inline{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:4px;
+  }
+  .pma-inline input[type="number"]{
+    flex:1;
+    min-width:0;
+  }
+  .pma-card input[type="number"]{
+    width:100%;
+    padding:8px 10px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    font-size:14px;
+    text-align:center;
+  }
+  .pma-card input[type="number"]:focus{
+    outline:none;
+    border-color:#0ea5e9;
+    box-shadow:0 0 0 2px rgba(56,189,248,0.35);
+  }
+  .pma-btn{
+    margin-top:14px;
+    width:100%;
+    padding:10px 0;
+    border-radius:12px;
+    border:none;
+    background:linear-gradient(135deg,#0f766e,#15803d);
+    color:#fff;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(15,23,42,0.35);
+    transition:transform 0.08s ease, filter 0.15s ease;
+  }
+  .pma-btn:hover{ filter:brightness(1.04); transform:translateY(-1px); }
+  .pma-btn:active{ transform:translateY(1px); }
+
+  .pma-result{
+    margin-top:16px;
+    padding:12px 10px;
+    border-radius:10px;
+    background:#f1f5f9;
+    border:1px dashed #cbd5e1;
+    font-size:14px;
+  }
+  .pma-result p{ margin:4px 0; }
+  .pma-pill{
+    display:inline-block;
+    padding:2px 6px;
+    border-radius:6px;
+    background:#0f766e;
+    color:#fff;
+    font-weight:800;
+  }
+  .drug-button{
+    margin-top:10px;
+    width:100%;
+    padding:8px 0;
+    border-radius:10px;
+    border:none;
+    background:#1d4ed8;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .button-group{
+    text-align:center;
+    margin-top:12px;
+  }
+
+  .back-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    color: #fff;
+    background-color: #f44336;
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    box-shadow: 0 4px #999;
+}
+
+  .back-button:hover {
+      background-color: #d32f2f;
+  }
+
+  .back-button:active {
+      background-color: #d32f2f;
+      box-shadow: 0 4px #666;
+      transform: translateY(4px);
+  }
+
+  .back-button-secondary {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-align: center;
+      color: #fff;
+      background-color: #f44336;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 4px #999;
+  }
+
+  .back-button-secondary {
+      background-color: #008CBA;
+  }
+
+  .back-button-secondary:hover {
+      background-color: #007B9A;
+  }
+
+  @media (max-width:480px){
+    .pma-card{
+      margin-top:12px;
+      padding:14px 12px 16px;
+    }
+    .pma-title{
+      font-size:20px;
+      padding:8px 12px;
+      margin-bottom: 16px;
+    }
+  }
+</style>
+
+<div class="pma-card">
+  <h2 class="pma-title">Calculate Postmenstrual Age (PMA)</h2>
 
   <form method="post" action="./calculate_pma_route.html">
     <div class="form-group">
       <label>Gestational Age:</label>
-      <div class="form-inline" style="display:flex;align-items:center;gap:8px">
+      <div class="pma-inline">
         <input type="number" name="gestational_age_weeks" placeholder="Weeks" required
                value="">
         <span>wks</span>
@@ -124,61 +318,38 @@
       </div>
     </div>
 
-    <div class="form-inline" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <label style="flex:1">Postnatal Age (Days):</label>
-      <input type="number" name="postnatal_age_days" placeholder="Days" required style="flex:1"
-             value="">
-      <span style="flex:0.2;text-align:right">day</span>
+    <div class="form-group">
+      <label>Postnatal Age (Days):</label>
+      <div class="pma-inline">
+        <input type="number" name="postnatal_age_days" placeholder="Days" required
+               value="">
+        <span>day</span>
+      </div>
     </div>
 
-    <div class="form-inline" style="display:flex;align-items:center;gap:10px">
-      <label style="flex:1">Birth Weight (kg):</label>
-      <input type="number" name="bw" placeholder="kg" step="0.001" required style="flex:1"
-             value="">
-      <span style="flex:0.2;text-align:right">kg</span>
+    <div class="form-group">
+      <label>Birth Weight (kg):</label>
+      <div class="pma-inline">
+        <input type="number" name="bw" placeholder="kg" step="0.001" required
+               value="">
+        <span>kg</span>
+      </div>
     </div>
 
-    <button type="submit" style="margin-top:16px">Calculate PMA</button>
+    <button type="submit" class="pma-btn">Calculate PMA</button>
   </form>
 
   
-  <div class="result" style="display:block;margin-top:16px;background:#f0f0f0;padding:12px;border-radius:8px">
-    <p>PMA:
-  <b style="color:blue">
-    
-      -
-    
-  </b>
-</p>
-    <p>Calc.: <b style="color:blue">weeks</b></p>
-    <p>Postnatal Age:
-  <b style="color:blue">
-    
-      -
-    
-  </b>
-</p>
-    <p>Birth Weight (BW): <b style="color:blue"> kg</b></p>
 
-    <form method="get" action="./drug_calculation.html">
-      <input type="hidden" name="pma_weeks" value="">
-<input type="hidden" name="pma_days"  value="">
-<input type="hidden" name="postnatal_days" value="">
-<input type="hidden" name="bw" value="">
-      <button class="drug-button" type="submit">คำนวณยา</button>
-    </form>
-  </div>
   
 </div>
 
-<div class="button-group" style="text-align:center;margin-top:12px">
+<div class="button-group">
   <a href="javascript:history.back()" class="back-button-secondary">Back</a>
   <a href="./index.html" class="back-button">Back to Home</a>
 </div>
 
-<footer style="text-align:center;margin-top:12px;color:#fff;text-shadow:0 1px 3px #000">
-  <p>Developed by Sukhontha Boonsookchan | update 2025-11-06 01:51</p>
-</footer>
+
 
   </div>
 
@@ -186,29 +357,21 @@
     <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
-  <!-- สมัคร Service Worker แบบ relative path ให้ใช้ได้ทั้ง Flask และไฟล์ static -->
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
   <script>
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      // ใช้พาธสัมพัทธ์เสมอ (รองรับ GitHub Pages ที่อยู่ใต้ /neonatal-medication-calculator/)
-      var swPath = "./static/service-worker.js";
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
-      // อย่าลงทะเบียนซ้ำ: ถ้าเคยติดตั้งไว้แล้ว ให้ข้าม
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) return navigator.serviceWorker.register(swPath).catch(console.error);
+        if (!reg) {
+          return navigator.serviceWorker.register(swPath).catch(console.error);
+        }
       }).catch(function () {
         navigator.serviceWorker.register(swPath).catch(console.error);
       });
     })();
   </script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register("./static/service-worker.js?v=2025-11-12-01");
-}
-</script>
-
-
 </body>
 </html>

@@ -206,17 +206,65 @@ BASE_CTX = {
     "session": {},
     "order": {},  # for verify_result.html
 
-    # defaults used in drug pages (ปล่อยเป็น None เพื่อไม่ให้โชว์ 0.0 ตั้งแต่แรก)
-    "bw": None, "pma_weeks": None, "pma_days": None, "postnatal_days": None,
-    "dose": None, "dose_ml": None, "dose_mgkg": None,
-    "result_ml": None, "result_ml_1": None, "result_ml_2": None, "result_ml_3": None,
-    "final_result_1": None, "final_result_2": None, "final_result_3": None,
-    "calculated_ml": None, "vol_ml": None,
+    # เพิ่มสำหรับหน้า compatibility index
+    "groups": {},
+
+    # defaults used in drug pages (ปล่อย None สำหรับตัวที่ template เช็ค is not none แล้วค่อยโชว์)
+    "bw": None,
+    "pma_weeks": None,
+    "pma_days": None,
+    "postnatal_days": None,
+    "dose": None,
+    "dose_ml": None,
+    "dose_mgkg": None,
+    "result_ml": None,
+    "result_ml_1": None,
+    "result_ml_2": None,
+    "result_ml_3": None,
+    "final_result_1": None,
+    "final_result_2": None,
+    "final_result_3": None,
+    "calculated_ml": None,
+    "vol_ml": None,
     "multiplication": None,
-    "rate_ml_hr": None, "concentration_mg_ml": None, "target_conc": None, "stock_conc": None,
-    "loading_dose_ml": None, "maintenance_dose_ml": None,
-    "infusion_rate_ml_hr": None, "total_volume_ml": None, "dilution_volume_ml": None,
+    "rate_ml_hr": None,
+    "concentration_mg_ml": None,
+    "target_conc": None,
+    "stock_conc": None,
+    "loading_dose_ml": None,
+    "maintenance_dose_ml": None,
+    "infusion_rate_ml_hr": None,
+    "total_volume_ml": None,
+    "dilution_volume_ml": None,
+
+    # 🔹 ค่าคงที่สำหรับหน้า *dose result* ที่ใช้ "%.2f"|format(...)
+    # ให้เป็น float จริง (0.0) จะได้ format ได้โดยไม่ error ตอน static build
+    "min_dose": 0.0,
+    "max_dose": 0.0,
+    "loading_dose": 0.0,
+    "maintenance_dose_min": 0.0,
+    "maintenance_dose_max": 0.0,
+    "dose_min_mg": 0.0,
+    "dose_max_mg": 0.0,
+    "dose_min_per_kg": 0.0,
+    "dose_max_per_kg": 0.0,
+    "dose_per_kg": 0.0,
+    "total_dose": 0.0,
+    "interval": "",
+
+    # 🔹 เพิ่มตัวนี้เข้าไป
+    "actual_dose": 0.0,
+
+    # เผื่อบาง template ใช้ชื่อพวกนี้ (เช่น meropenem, gentamicin)
+    "dose_min_mg": 0.0,
+    "dose_max_mg": 0.0,
+    "dose_min_per_kg": 0.0,
+    "dose_max_per_kg": 0.0,
+    "dose_per_kg": 0.0,
+    "total_dose": 0.0,
+    "interval": "",
 }
+
 
 # (ใช้เมื่ออยากรีเซ็ตเติมเลขเริ่มต้นบางคีย์ – ตอนนี้ไม่บังคับใช้)
 DEFAULT_NUM_KEYS = {
@@ -271,8 +319,34 @@ def render_all():
             tmpl = env.get_template(str(rel_path))
             ctx = dict(BASE_CTX)
 
+            # เดิมใช้กับ Medication_administration
             if str(rel_path) == "Medication_administration.html":
                 ctx.update(build_med_ctx())
+
+            # ✅ เพิ่ม block พิเศษสำหรับ vancomycin_dose.html
+            if str(rel_path) == "vancomycin_dose.html":
+                ctx.update(
+                    # ค่า default เวลา build static (แสดงเป็น "-" ในหน้าเว็บ)
+                    pma_weeks=None,
+                    pma_days=None,
+                    calc=None,
+                    postnatal_days=None,
+                    bw=None,
+
+                    # guideline 10–15 mg/kg/dose
+                    dose_min_per_kg=10.0,
+                    dose_max_per_kg=15.0,
+
+                    # mg/dose (ใส่ 0 ไว้เฉย ๆ ตอน build static)
+                    dose_min_mg=0,
+                    dose_max_mg=0,
+
+                    # interval ตัวอย่าง
+                    interval="every 6–18 hours",
+
+                    # ไม่ต้องไฮไลต์แถวไหนตอน build static
+                    active_row=None,
+                )
 
             html = tmpl.render(**ctx)
 
@@ -284,6 +358,7 @@ def render_all():
             with open(out_path, "w", encoding="utf-8") as fp:
                 fp.write(html)
             print("rendered ->", out_path)
+
 
 if __name__ == "__main__":
     render_all()

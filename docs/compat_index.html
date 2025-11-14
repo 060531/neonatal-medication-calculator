@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <title>Neonatal Medication Calculator</title>
+  <title>Drug Compatibility</title>
 
   
 
@@ -138,68 +137,35 @@
 <body class=" ">
   <div class="container">
     
-<div class="home-container">
-  <h1 class="app-title">Neonatal Medication Calculator</h1>
-  <p class="app-subtitle">
-    เครื่องมือช่วยคำนวณยาและบริหารยาในทารกแรกเกิด
-  </p>
+<div class="container" style="max-width:900px;margin:auto">
+  <h2 class="title-badge">ตรวจสอบความเข้ากันได้ของยา (Drug Compatibility)</h2>
 
-  <div class="home-grid">
-
-    
-    
   
-    
 
-  <a href="/calculate-pma" class="button home-button">
-    
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_002_25670829_212123.png" alt="Dose ยา">
-    
-    <span>Dose ยา</span><br>
-    <span><small>(Right patient)</small></span>
-  </a>
+  <form method="post" action="./compat.compat_index.html" class="calc-box">
+    <div class="row">
+      <div class="col-md-6">
+        <label for="drug_a"><b>Drug A</b></label>
+        <select id="drug_a" name="drug_a" class="form-control" required>
+          <option value="">-- เลือกยา --</option>
+          
+        </select>
+      </div>
 
+      <div class="col-md-6">
+        <label for="drug_b"><b>Drug B</b></label>
+        <select id="drug_b" name="drug_b" class="form-control" required>
+          <option value="">-- เลือกยา --</option>
+          
+        </select>
+      </div>
+    </div>
 
-    
-  
-    
-
-  <a href="/compatibility" class="button home-button">
-    
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/compability.png" alt="compatibility">
-    
-    <span>Compatibility</span><br>
-    <span><small>(Right drug)</small></span>
-  </a>
-
-
-    
-  
-    
-
-  <a href="/medication_administration" class="button home-button">
-    
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/Photoroom_000_25670829_212123.png" alt="การบริหารยา">
-    
-    <span>การบริหารยา</span><br>
-    <span><small>(Right dose)</small></span>
-  </a>
-
-
-    
-  
-    
-
-  <a href="/time_management" class="button home-button">
-    
-      <img src="https://cdn.jsdelivr.net/gh/060531/images/IMG_3227.png" alt="การบริหารเวลา">
-    
-    <span>การบริหารเวลา</span><br>
-    <span><small>(Right time)</small></span>
-  </a>
-
-
-  </div>
+    <div style="margin-top:1.5rem;text-align:center">
+      <button type="submit" class="btn btn-primary">ตรวจสอบ Compatibility</button>
+      <a href="./index.html" class="btn btn-secondary">กลับหน้า Home</a>
+    </div>
+  </form>
 </div>
 
   </div>

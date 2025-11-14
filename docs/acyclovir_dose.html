@@ -5,61 +5,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
     <title>Acyclovir Dosage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+        <style>
+    html, body {
+    margin: 0;
+    padding: 0;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+.page-wrap {
+    max-width: 900px;               /* ความกว้างเนื้อหาจริง */
+    margin: 0 auto;                 /* จัดกลางจอ */
+    padding: 24px 24px 150px;       /* เว้นซ้าย-ขวาและเว้นล่างให้ปุ่มลอย */
+    box-sizing: border-box;
+    background-color: #fff;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #2c8ed0;
-            text-align: center; /* Center the text */
-        }
+/* พื้นหลัง body รอบนอก */
+body {
+    background-color: #f9f9f9;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
+/* หัวข้อ */
+h1 {
+    color: #fcf2f2;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 10px;
+    border: 2px solid #afaaaa;
+    border-radius: 10px;
+    background-color: #2c8ed0;
+    text-align: center;
+}
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
+/* ตาราง ฯลฯ ของเดิมใช้ต่อได้ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: center;
+}
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+th { background-color: #f2f2f2; }
 
-        th {
-            background-color: #f2f2f2;
+/* =========================
+   แถบปุ่มลอยด้านล่าง
+   ========================= */
+.top-fix-actions {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+
+    width: min(100% - 32px, 560px);   /* จอใหญ่ไม่เต็มจอ, จอเล็กเผื่อขอบ 16px ซ้ายขวา */
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+
+    padding: 8px 12px;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+}
+
+/* ปุ่ม */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px #999;
+    color: #fff;
+    background-color: #f44336;   /* Home = แดง */
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.back-btn.alt {
+    background-color: #008CBA;   /* Back = ฟ้า */
+}
+
+.back-btn:hover {
+    filter: brightness(1.05);
+}
+.back-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #666;
+}
+
+.button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .highlight {
-            background-color: #c3e6cb;
-        }
+    background-color: #c3e6cb;
+}
 
-        /* เพิ่มคลาส highlight-green สำหรับการไฮไลต์พื้นหลังสีเขียว */
-        .highlight-green {
-            background-color: #c3e6cb;
-            padding: 5px;
-            border-radius: 5px;
-        }
+/* ใช้กับ Dose ที่เข้าเงื่อนไข */
+.highlight-green {
+    background-color: #c3e6cb;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
 
         .dose-range {
             color: red;
@@ -81,117 +143,102 @@
             border-radius: 5px;
         }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-
-        .back-button {
-            background-color: #f44336;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        footer {
+          footer {
             text-align: center;
             color: #00000035;
-            font-size: 14px;
+            font-size: 13px;
             padding: 10px;
             width: 100%;
         }
 
-        /* Mobile-Specific Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+/* ===== จอเล็ก (มือถือ) ===== */
+@media (max-width: 600px) {
 
-            h1 {
-                font-size: 20px; /* Reduce font size for mobile */
-                padding: 5px; /* Reduce padding */
-            }
+    .page-wrap {
+        padding: 10px 10px 140px;   /* เว้นล่างเพิ่มให้ปุ่มไม่ทับข้อความ */
+    }
 
-            .highlight-dose {
-                font-size: 20px; /* Adjust font size */
+    h1 {
+        font-size: 20px;
+        padding: 6px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+    th, td {
+        padding: 8px;
+    }
+
+    .highlight-dose {
+                font-size: 18px; /* Adjust font size */
             }
 
             .section-title {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             .table-wrapper {
                 overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 15px;
+                margin-bottom: 14px;
             }
 
-            table {
-                font-size: 14px; /* Reduce font size */
-            }
+    .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+    }
 
-            th, td {
-                padding: 8px; /* Reduce padding for smaller screens */
-            }
+    .back-btn {
+        font-size: 13px;         /* ลดขนาดตัวอักษร */
+        padding: 8px 10px;       /* ปุ่มเตี้ยลง */
+        flex: 1 1 0;             /* แบ่งพื้นที่ 2 ปุ่มเท่าๆ กัน */
+    }
+}
 
-        }
-    </style>
+</style>
+
 </head>
 <body>
-
+  <div class="page-wrap">
     <h1>Acyclovir Dosage Information</h1>
-
     <!-- Display the calculated PMA and Postnatal Age -->
-    <!-- Display the calculated PMA and Postnatal Age -->
-<p><strong>PMA:</strong>
-    
-        -
-    
-</p>
-
-<p><strong>Postnatal Age:</strong>
-    
-        -
-    
-</p>
-
-<p><strong>Birth Weight (BW):</strong>
-    
-        -
-    
-</p>
+    <p><strong>PMA:</strong>
+        
+            -
+        
+    </p>
+    <p><strong>Calc.:</strong>
+        
+             weeks
+        
+    </p>
+    <p><strong>Postnatal Age:</strong>
+        
+            -
+        
+    </p>
 
 
    <!-- ส่วนแสดงผลลัพธ์การคำนวณ -->
 <div class="section-title">Calculated Dosage</div>
-<p>Recommended Dose:
+
+<p>Birth Weight (BW):
   <span class="highlight-dose">
-     mg/kg/dose
+    
+  - kg
+
   </span>
 </p>
+
+<p>Recommended Dose (20 mg/kg/dose):
+  <span class="highlight-dose">
+    
+  - mg / dose
+
+  </span>
+</p>
+
 <p>Interval:
   <span class="highlight-dose">
     
@@ -199,25 +246,23 @@
 </p>
 
 
+
     <br>
-    <!-- Dose Section -->
+
     <div class="section-title">Dose - Acyclovir</div>
 
-    <!-- ใช้เงื่อนไข Jinja2 เพื่อตรวจสอบ pma_weeks แล้วไฮไลต์บรรทัดที่ตรงกับเงื่อนไข -->
-    <p 
-      
-         class="highlight-green"
-      
-    >
-      <strong>Less than 30 weeks postmenstrual age: </strong>
-      20 mg/kg V every 8 to 12 hours
-    </p>
-    <p
-      
-    >
-      <strong>30 weeks or more postmenstrual age: </strong>
-      20 mg/kg IV every 8 hours
-    </p>
+<p class="highlight-green">
+  <strong>Less than 30 weeks postmenstrual age: </strong>
+  20 mg/kg IV every 8 to 12 hours
+</p>
+
+<p class="">
+  <strong>30 weeks or more postmenstrual age: </strong>
+  20 mg/kg IV every 8 hours
+</p>
+
+
+
 
     <p>Treat localized herpes simplex disease for 14 days and disseminated or CNS disease for 21 days. Continue IV therapy for another 7 days, when repeat polymerase chain reaction (cerebrospinal fluid herpes simplex virus) is positive after approximately 21 days of acyclovir therapy. The duration for preemptive therapy without proven disease is 10 days</p>
     <br>
@@ -404,13 +449,17 @@
     <p>Fat emulsion, aztreonam, caffeine citrate, caspofungin, cefepime, dobutamine, dopamine, meropenem, piperacillin-tazobactam.</p>
     <hr>
 
-    <div class="button-group">
-        <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-        <a href="./index.html" class="back-button">Back to Home</a>
-    </div>
-
-    <footer>
+          <footer>
         <p>Developed by Sukhontha Boonsookchan | update </p>
-    </footer>
+      </footer>
+            </div>
+
+
+  <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="./index.html" class="back-btn">🏠 Back to Home</a>
+  </div>
+
+
 </body>
 </html>

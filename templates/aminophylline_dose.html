@@ -205,14 +205,22 @@
 
     <p><strong>Loading Dose:</strong>
       <span class="highlight-dose">
-        {{ "%.2f"|format(loading_dose) }} mg
+        {% if not static_build %}
+  {{ "%.2f"|format(loading_dose) }} mg
+{% else %}
+  - mg
+{% endif %}
       </span>
     </p>
 
     <p><strong>Maintenance Dose:</strong>
       <span class="highlight-dose">
-        {{ "%.2f"|format(maintenance_dose_min) }} to
-        {{ "%.2f"|format(maintenance_dose_max) }} mg
+        {% if not static_build and maintenance_dose_min is not none and maintenance_dose_max is not none %}
+  {{ "%.2f"|format(maintenance_dose_min) }} to
+  {{ "%.2f"|format(maintenance_dose_max) }} mg
+{% else %}
+  - to - mg
+{% endif %}
       </span>
     </p>
 

@@ -1,240 +1,364 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <title>Vancomycin Dosage Information</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title>Vancomycin Dosage Information</title>
 
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffffb5;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2, h3 {
-            color: #ffffff;
-            background: linear-gradient(135deg, rgb(58, 175, 167), rgb(12, 115, 118));
-            padding: 10px;
-            border-radius: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        h1 {
-            font-size: 2.5em;
-        }
-        h2 {
-            font-size: 1.8em;
-            background: none;
-            text-shadow: none;
-            color: #333;
-        }
-        p {
-            font-size: 1em;
-            line-height: 1.6;
-            color: #333;
-        }
-        ul {
-            margin: 10px 0 20px 20px;
-            padding-left: 20px;
-        }
-        ul li {
-            margin-bottom: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .highlight {
-            background-color: #c3e6cb;
-        }
-        .highlight-dose {
-            color: #ff5733;
-            font-size: 24px;
-            font-weight: bold;
-            background-color: #fbe9e7;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-        .back-button {
-            background-color: #f44336;
-        }
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-        footer {
-            text-align: center;
-            color: #8f8a8adc;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
-    </style>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* กล่องเนื้อหาให้อยู่กลางจอ และเว้นด้านล่างเผื่อปุ่มลอย */
+    .page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 150px;
+      box-sizing: border-box;
+      background-color: #ffffffb5;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgb(58, 175, 167), rgb(12, 115, 118));
+      padding: 10px;
+      border-radius: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 2em;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      color: #333;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 1.1em;
+      color: #333;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      font-size: 1em;
+      line-height: 1.6;
+      color: #333;
+      margin: 6px 0;
+    }
+
+    ul {
+      margin: 10px 0 20px 20px;
+      padding-left: 20px;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+      background-color: #fff;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .highlight {
+      background-color: #c3e6cb;
+    }
+
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .highlight-dose {
+      color: #ff5733;
+      font-size: 22px;
+      font-weight: bold;
+      background-color: #fbe9e7;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    footer.page-footer {
+      text-align: center;
+      color: #00000035;
+      font-size: 13px;
+      margin-top: 32px;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid #ccc;
+      margin: 20px 0;
+      width: 100%;
+    }
+
+    /* ===== ปุ่มลอยด้านล่าง ===== */
+    .top-fix-actions {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
+
+      width: min(100% - 32px, 560px);
+      box-sizing: border-box;
+
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px #999;
+      color: #fff;
+      background-color: #f44336;   /* Home = แดง */
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .back-btn.alt {
+      background-color: #008CBA;   /* Back = ฟ้า */
+    }
+
+    .back-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #666;
+    }
+
+    /* ===== มือถือ ===== */
+    @media (max-width: 600px) {
+      .page-wrap {
+        padding: 10px 10px 160px;
+      }
+
+      h1 {
+        font-size: 1.6em;
+        padding: 8px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      .section-title {
+        font-size: 15px;
+      }
+
+      .highlight-dose {
+        font-size: 16px;
+      }
+
+      .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+        flex: 1 1 0;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Vancomycin Dosage Information</h1>
-        <!-- Display the calculated PMA and Postnatal Age -->
-            <!-- Display the calculated PMA and Postnatal Age -->
+
+  <div class="page-wrap">
+    <h1>Vancomycin Dosage Information</h1>
+
+    <!-- PMA / Calc / PNA / BW -->
     <p><strong>PMA:</strong>
-        
-            -
-        
+      
+        -
+      
     </p>
 
     <p><strong>Calc.:</strong>
-        
-             weeks
-        
+      
+        -
+      
     </p>
 
     <p><strong>Postnatal Age:</strong>
-        
-            -
-        
+      
+        -
+      
     </p>
 
     <p><strong>Birth Weight (BW):</strong>
-        
-            -
-        
+      
+        -
+      
     </p>
 
-        
-        <div class="section-title">Calculated Dosage for Neonates</div>
-        <p><strong>Recommended Dose:</strong> <span class="highlight-dose"> mg</span></p>
-        <br>
-        <p><strong>Initial Dose:</strong> 10 to 15 mg/kg dose IV every 6 to 18 hours, with adjustments based on PMA and postnatal age.</p>
-        <p><strong>PMA:</strong> Postmenstrual age is gestational age plus postnatal age. It is the primary determinant of dosing intervals, with postnatal age as a secondary qualifier.</p>
-        <table>
-            <tr>
-                <th>PMA</th>
-                <th>Postnatal Age</th>
-                <th>Interval</th>
-            </tr>
-            <tr>
-                <td>&le; 29 weeks</td>
-                <td>0 to 14 days</td>
-                <td>18 hours</td>
-            </tr>
-            <tr>
-                <td>&le; 29 weeks</td>
-                <td>Older than 14 days</td>
-                <td>12 hours</td>
-            </tr>
-            <tr>
-                <td>30 to 36 weeks</td>
-                <td>0 to 14 days</td>
-                <td>12 hours</td>
-            </tr>
-            <tr>
-                <td>30 to 36 weeks</td>
-                <td>Older than 14 days</td>
-                <td>8 hours</td>
-            </tr>
-            <tr>
-                <td>37 to 44 weeks</td>
-                <td>0 to 7 days</td>
-                <td>12 hours</td>
-            </tr>
-            <tr>
-                <td>37 to 44 weeks</td>
-                <td>Older than 7 days</td>
-                <td>8 hours</td>
-            </tr>
-            <tr>
-                <td>&ge; 45 weeks</td>
-                <td>All ages</td>
-                <td>6 hours</td>
-            </tr>
-        </table>
-        <h2>Administration</h2>
-        <ul>
-            <li>Administer via intermittent IV infusion over 60 to 120 minutes.</li>
-            <li>Max rate: 10 mg per minute, not exceeding 5 mg/mL concentration. Up to 10 mg/mL for fluid-restricted patients.</li>
-        </ul>
-        <h2>Uses</h2>
-        <p>Vancomycin is primarily used for treating serious infections caused by methicillin-resistant staphylococci and penicillin-resistant pneumococci.</p>
-        <p>Common uses include:</p>
-        <ul>
-            <li>Systemic anthrax (when meningitis can be ruled out)</li>
-            <li>Clostridium difficile infection</li>
-            <li>Infective endocarditis</li>
-        </ul>
-        <h2>Special Considerations</h2>
-        <ul>
-            <li>Renal function should be monitored closely, and dosing adjusted accordingly.</li>
-            <li>Drug elimination correlates with PMA, affecting dosing intervals.</li>
-        </ul>
-        <h2>Adverse Effects</h2>
-        <ul>
-            <li>Nephrotoxicity and ototoxicity, especially with concurrent aminoglycoside use.</li>
-            <li>Red Man Syndrome: rash and hypotension. Lengthening infusion time usually helps.</li>
-            <li>Neutropenia with prolonged use.</li>
-        </ul>
-        <h2>Monitoring</h2>
-        <ul>
-            <li>Auditory function should be monitored to prevent ototoxicity.</li>
-            <li>Monitor renal function to minimize nephrotoxicity risks.</li>
-            <li>Trough levels should be checked to maintain efficacy and avoid toxicity.</li>
-        </ul>
-        <h2>Vancomycin Concentration</h2>
-        <p><strong>Trough Concentrations:</strong> Should be obtained just before the next dose. Target troughs are around 10 mg/L (range 7-15 mg/L).</p>
-        <h2>Solution Compatibility</h2>
-        <p>Compatible solutions include D5W, D10W, and Normal Saline (NS).</p>
-        <p>Terminal injection site compatibility: Amikacin, ampicillin, calcium gluconate, insulin, and many more. Incompatible with: cefazolin, cefepime, piperacillin, and others.</p>
-        </div>
+    <div class="section-title">Calculated Dosage for Neonates</div>
+<p><strong>Recommended Dose:</strong>
+  <span class="highlight-dose">
+    10 – 15 mg/kg/dose
+    (≈ 0 – 0 mg/dose)
+  </span>
+</p>
 
-        <div class="button-group">
-            <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-            <a href="./index.html" class="back-button">Back to Home</a>
-        </div>
-        <footer>
-            <p>Developed by Sukhontha Boonsookchan | update </p>
-        </footer>
+    <br>
+
+    <p><strong>Initial Dose:</strong> 10 to 15 mg/kg/dose IV every 6 to 18 hours, with adjustments based on PMA and postnatal age.</p>
+    <p><strong>PMA:</strong> Postmenstrual age is gestational age plus postnatal age. It is the primary determinant of dosing intervals, with postnatal age as a secondary qualifier.</p>
+
+    <table>
+  <tr>
+    <th>PMA</th>
+    <th>Postnatal Age</th>
+    <th>Interval</th>
+  </tr>
+  <tr class="">
+    <td>&le; 29 weeks</td>
+    <td>0 to 14 days</td>
+    <td>18 hours</td>
+  </tr>
+  <tr class="">
+    <td>&le; 29 weeks</td>
+    <td>Older than 14 days</td>
+    <td>12 hours</td>
+  </tr>
+  <tr class="">
+    <td>30 to 36 weeks</td>
+    <td>0 to 14 days</td>
+    <td>12 hours</td>
+  </tr>
+  <tr class="">
+    <td>30 to 36 weeks</td>
+    <td>Older than 14 days</td>
+    <td>8 hours</td>
+  </tr>
+  <tr class="">
+    <td>37 to 44 weeks</td>
+    <td>0 to 7 days</td>
+    <td>12 hours</td>
+  </tr>
+  <tr class="">
+    <td>37 to 44 weeks</td>
+    <td>Older than 7 days</td>
+    <td>8 hours</td>
+  </tr>
+  <tr class="">
+    <td>&ge; 45 weeks</td>
+    <td>All ages</td>
+    <td>6 hours</td>
+  </tr>
+</table>
+
+
+    <h2>Administration</h2>
+    <ul>
+      <li>Administer via intermittent IV infusion over 60 to 120 minutes.</li>
+      <li>Max rate: 10 mg per minute, not exceeding 5 mg/mL concentration. Up to 10 mg/mL for fluid-restricted patients.</li>
+    </ul>
+
+    <h2>Uses</h2>
+    <p>Vancomycin is primarily used for treating serious infections caused by methicillin-resistant staphylococci and penicillin-resistant pneumococci.</p>
+    <p>Common uses include:</p>
+    <ul>
+      <li>Systemic anthrax (when meningitis can be ruled out)</li>
+      <li>Clostridium difficile infection</li>
+      <li>Infective endocarditis</li>
+    </ul>
+
+    <h2>Special Considerations</h2>
+    <ul>
+      <li>Renal function should be monitored closely, and dosing adjusted accordingly.</li>
+      <li>Drug elimination correlates with PMA, affecting dosing intervals.</li>
+    </ul>
+
+    <h2>Adverse Effects</h2>
+    <ul>
+      <li>Nephrotoxicity and ototoxicity, especially with concurrent aminoglycoside use.</li>
+      <li>Red Man Syndrome: rash and hypotension. Lengthening infusion time usually helps.</li>
+      <li>Neutropenia with prolonged use.</li>
+    </ul>
+
+    <h2>Monitoring</h2>
+    <ul>
+      <li>Auditory function should be monitored to prevent ototoxicity.</li>
+      <li>Monitor renal function to minimize nephrotoxicity risks.</li>
+      <li>Trough levels should be checked to maintain efficacy and avoid toxicity.</li>
+    </ul>
+
+    <h2>Vancomycin Concentration</h2>
+    <p><strong>Trough Concentrations:</strong> Should be obtained just before the next dose. Target troughs are around 10 mg/L (range 7–15 mg/L).</p>
+
+    <h2>Solution Compatibility</h2>
+    <p>Compatible solutions include D5W, D10W, and Normal Saline (NS).</p>
+    <p>Terminal injection site compatibility: Amikacin, ampicillin, calcium gluconate, insulin, and many more. Incompatible with: cefazolin, cefepime, piperacillin, and others.</p>
+
+    <footer class="page-footer">
+      <p>Developed by Sukhontha Boonsookchan | update </p>
+    </footer>
+  </div>
+
+  <!-- ปุ่มลอยด้านล่าง -->
+  <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+    <a href="./index.html" class="back-btn">🏠 Back to Home</a>
+  </div>
 
 </body>
 </html>
