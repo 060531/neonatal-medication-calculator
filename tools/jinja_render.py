@@ -204,7 +204,9 @@ env.globals.update({
 BASE_CTX = {
     "error": None,
     "content_extra": None,
-    "UPDATE_DATE": "",
+    # ใส่วันที่ที่อยากให้โชว์บน static site
+    "UPDATE_DATE": "2025-11-15",
+    "update_date": "2025-11-15",
     "u": u,
     "static_build": True,
     "request": {"path": "/"},
