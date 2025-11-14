@@ -28,6 +28,11 @@ URL_MAP = {
     "penicillin_g_sodium": "penicillin_g_sodium.html",
     "scan_server": "scan_server.html",
     "static": "static/",
+    # === เพิ่มใหม่สำหรับ static build ===
+    "calculate_pma_page": "./pma_template.html",
+    "core.compatibility_page": "./compatibility.html",
+    "core.time_management_route": "./time_management.html",
+    "medication_administration": "./Medication_administration.html",
 }
 
 # >>> รายการยา (ให้แม็ป endpoint -> หน้า .html อัตโนมัติ)
