@@ -783,108 +783,130 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
   const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
-  const calc     = parseFloat(params.get('calc')    || '0');         // PMA รวมเป็นสัปดาห์
-  const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
-  const bw       = parseFloat(params.get('bw')      || '0');         // kg
+  const calc     = parseFloat(params.get('calc')    || '0');          // PMA เป็นสัปดาห์แบบทศนิยม
+  const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10); // Postnatal age (วัน)
+  const bw       = parseFloat(params.get('bw')      || '0');          // kg
 
-  // ===== แสดงค่า PMA / Calc / PNA / BW ด้านบน =====
+  // span ที่โชว์ผลด้านบน
   const pmaSpan      = document.getElementById('pmaSpan');
   const calcSpan     = document.getElementById('calcSpan');
   const pnaSpan      = document.getElementById('pnaSpan');
   const bwSpan       = document.getElementById('bwSpan');
   const doseSpan     = document.getElementById('doseSpan');
   const intervalSpan = document.getElementById('intervalSpan');
+  const explainP     = document.getElementById('regimenExplain');   // ถ้ายังไม่มี เดี๋ยวแนะด้านล่าง
 
-  if (pmaSpan) {
-    pmaSpan.textContent = (pmaWeeks || pmaDays)
-      ? `${pmaWeeks} weeks ${pmaDays} days`
-      : '-';
+  const weightTable  = document.getElementById('weightDoseTable');
+  const pmaTable     = document.getElementById('pmaDoseTable');
+
+  if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+    console.error('missing span element, check id names');
+    return;
   }
 
-  if (calcSpan) {
-    calcSpan.textContent = calc
-      ? `${calc.toFixed(1)} weeks`
-      : 'weeks';
-  }
+  // ---------- แสดง PMA / Calc / PNA / BW ----------
+  pmaSpan.textContent = (pmaWeeks || pmaDays)
+    ? `${pmaWeeks} weeks ${pmaDays} days`
+    : '-';
 
-  if (pnaSpan) {
-    pnaSpan.textContent = pnaDays
-      ? `${pnaDays} days`
-      : '-';
-  }
+  calcSpan.textContent = calc
+    ? `${calc.toFixed(1)} weeks`
+    : 'weeks';
 
-  if (bwSpan) {
-    bwSpan.textContent = bw
-      ? `${bw.toFixed(2)} kg`
-      : '- kg';
-  }
+  pnaSpan.textContent = pnaDays
+    ? `${pnaDays} days`
+    : '-';
 
-  // (ถ้ายังไม่ได้คำนวณ mg/dose จริง ๆ สามารถปล่อย doseSpan/intervalSpan เป็นค่าเดิมได้ก่อน)
-  if (!bw || !doseSpan || !intervalSpan) {
-    // ยังไม่คำนวณ dose ใช้ค่า default ไปก่อน
-    // ถ้าจะคำนวณจริงค่อยมาเติม logic ตรงนี้
-  }
+  bwSpan.textContent = bw
+    ? `${bw.toFixed(2)} kg`
+    : '- kg';
 
-  // ===== ฟังก์ชันไฮไลท์ตารางตามเงื่อนไข =====
+  let matchedWeightRow = null;
+  let matchedPmaRow    = null;
 
-  // 1) ตาราง Weight (ใช้ BW + PNA)
-  function highlightWeightTable(bwKg, pnaDays) {
-    const table = document.getElementById('weightDoseTable');
-    if (!table || !bwKg) return;
+  // ---------- ไฮไลท์ตาราง Weight (Weight dosing) ----------
+  if (weightTable && bw > 0) {
+    const bwGrams = bw * 1000;  // แปลง kg -> g
+    const wRows = weightTable.querySelectorAll('tbody tr');
 
-    const weightGram = bwKg * 1000;       // bw เป็น kg แปลงเป็น g
-    const rows = table.querySelectorAll('tbody tr');
+    wRows.forEach(r => r.classList.remove('highlight'));
 
-    rows.forEach(tr => tr.classList.remove('highlight-green'));
-
-    rows.forEach(tr => {
-      const min = parseFloat(tr.dataset.min);
-      const max = parseFloat(tr.dataset.max);
-
-      if (isNaN(min) || isNaN(max)) return;
-
-      if (weightGram >= min && weightGram <= max) {
-        // เราไฮไลท์ทั้งแถวตาม weight (ไม่แยกคอลัมน์อายุ)
-        tr.classList.add('highlight-green');
+    for (const row of wRows) {
+      const min = parseFloat(row.dataset.min || '0');       // data-min
+      const max = parseFloat(row.dataset.max || '999999');  // data-max
+      if (bwGrams >= min && bwGrams <= max) {
+        row.classList.add('highlight');
+        matchedWeightRow = row;
+        break;
       }
-    });
+    }
   }
 
-  // 2) ตาราง PMA–PNA (ใช้ calc = PMA weeks + PNA days)
-  function highlightPmaTable(calcWeeks, pnaDays) {
-    const table = document.getElementById('pmaDoseTable');
-    if (!table || !calcWeeks) return;
+  // ---------- ไฮไลท์ตาราง PMA – Postnatal age ----------
+  if (pmaTable && calc > 0) {
+    const pRows = pmaTable.querySelectorAll('tbody tr');
+    pRows.forEach(r => r.classList.remove('highlight'));
 
-    const rows = table.querySelectorAll('tbody tr');
-    rows.forEach(tr => tr.classList.remove('highlight-green'));
+    for (const row of pRows) {
+      const pmaMin = parseFloat(row.dataset.pmaMin || '0');   // data-pma-min
+      const pmaMax = parseFloat(row.dataset.pmaMax || '999'); // data-pma-max
+      const pnaMin = parseFloat(row.dataset.pnaMin || '0');   // data-pna-min
+      const pnaMax = parseFloat(row.dataset.pnaMax || '999'); // data-pna-max
 
-    rows.forEach(tr => {
-      const pmaMin = parseFloat(tr.dataset.pmaMin);
-      const pmaMax = parseFloat(tr.dataset.pmaMax);
-      const pnaMin = parseFloat(tr.dataset.pnaMin);
-      const pnaMax = parseFloat(tr.dataset.pnaMax);
-
-      if (
-        isNaN(pmaMin) || isNaN(pmaMax) ||
-        isNaN(pnaMin) || isNaN(pnaMax)
-      ) return;
-
-      const inPma = calcWeeks >= pmaMin && calcWeeks <= pmaMax;
-      const inPna = pnaDays >= pnaMin && pnaDays <= pnaMax;
-
-      if (inPma && inPna) {
-        tr.classList.add('highlight-green');
+      if (calc >= pmaMin && calc <= pmaMax && pnaDays >= pnaMin && pnaDays <= pnaMax) {
+        row.classList.add('highlight');
+        matchedPmaRow = row;
+        break;
       }
-    });
+    }
   }
 
-  // เรียกใช้ฟังก์ชัน
-  highlightWeightTable(bw, pnaDays);
-  highlightPmaTable(calc, pnaDays);
+  // ---------- เลือก regimen ที่จะใช้คำนวณโดส ----------
+  // ให้ใช้ “ตาราง PMA” เป็นหลัก ถ้าหาแถวไม่เจอค่อย fallback ไปใช้ตาราง weight
+  let doseText   = '';
+  let mgPerKg    = null;
+  let intervalTx = '-';
+
+  if (matchedPmaRow) {
+    const cells = matchedPmaRow.querySelectorAll('td');
+    // คอลัมน์ที่ 3 เป็นข้อความ dose เช่น "14 mg/kg/dose every 48 hours"
+    doseText = cells[2].textContent.trim();
+  } else if (matchedWeightRow) {
+    const cells = matchedWeightRow.querySelectorAll('td');
+    // ถ้าอายุน้อยกว่า 14 วัน ใช้คอลัมน์ "Younger than 14 days" (index 1)
+    // ถ้าตั้งแต่ 14 วันขึ้นไป ใช้คอลัมน์ "14 days or older" (index 2)
+    const idx = (pnaDays < 14) ? 1 : 2;
+    doseText = cells[idx].textContent.trim();
+  }
+
+  // ---------- แยก mg/kg และ interval จากข้อความ doseText ----------
+  if (doseText) {
+    const m = doseText.match(/(\d+(\.\d+)?)\s*mg\/kg\/dose/i);
+    if (m) {
+      mgPerKg = parseFloat(m[1]); // เลข mg/kg
+    }
+    const parts = doseText.split('dose');
+    if (parts[1]) {
+      intervalTx = parts[1].trim(); // เช่น "every 48 hours"
+    }
+  }
+
+  // ---------- คูณน้ำหนักแล้วโชว์ Recommended Dose + Interval ----------
+  if (mgPerKg && bw > 0) {
+    const mgDose = mgPerKg * bw; // mg/ dose
+    doseSpan.textContent     = `${mgDose.toFixed(2)} mg/dose`;
+    intervalSpan.textContent = intervalTx;
+  } else {
+    doseSpan.textContent     = '- mg/dose';
+    intervalSpan.textContent = '-';
+  }
+
+  // optional: อธิบาย regimen ที่เลือกใช้
+  if (explainP && doseText) {
+    explainP.innerHTML = `<strong>Selected regimen:</strong> ${doseText}`;
+  }
 });
 </script>
-
-
     
         <footer>
             <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
