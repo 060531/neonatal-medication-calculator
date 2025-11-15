@@ -257,36 +257,48 @@
     <h1>Amikacin Dosage Information</h1>
 
     <!-- Display the calculated PMA and Postnatal Age -->
-<p><strong>PMA:</strong>
-  <span id="pmaSpan">-</span>
-</p>
+<body>
+  <div class="container">
+    <h1>Amikacin Dosage Information</h1>
 
-<p><strong>Calc.:</strong>
-  <span id="calcSpan">weeks</span>
-</p>
+    <!-- Display the calculated PMA and Postnatal Age -->
+    <p><strong>PMA:</strong>
+      <span id="pmaSpan">-</span>
+    </p>
 
-<p><strong>Postnatal Age:</strong>
-  <span id="pnaSpan">-</span>
-</p>
+    <p><strong>Calc.:</strong>
+      <span id="calcSpan">weeks</span>
+    </p>
 
-<div class="section-title">Calculated Dosage</div>
+    <p><strong>Postnatal Age:</strong>
+      <span id="pnaSpan">-</span>
+    </p>
 
-<p>Birth Weight (BW):
-  <span id="bwSpan" class="highlight-dose">- kg</span>
-</p>
+    <p><strong>Birth Weight (BW):</strong>
+      <span id="bwSpan">- kg</span>
+    </p>
 
-<p>Recommended Dose (...):
-  <span id="doseSpan" class="highlight-dose">- mg / dose</span>
-</p>
+    <!-- Display the calculated dosage for neonates -->
+    <div class="section-title">Calculated Dosage for Neonates</div>
+    <p>
+      <strong>Recommended Dose:</strong>
+      <span id="doseSpan" class="highlight-dose">
+        - mg/dose
+      </span>
+    </p>
 
-<p>Interval:
-  <span id="intervalSpan" class="highlight-dose">-</span>
-</p>
-
+    <p>
+      <strong>Interval:</strong>
+      <span id="intervalSpan" class="highlight-dose">
+        -
+      </span>
+    </p>
 
     <br>
     <span style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
     <hr>
+    <!-- จากตรงนี้ลงไป ใช้เนื้อหาเดิมของคุณได้เลย (Dose, Tables, ฯลฯ) -->
+
     <!-- ...ส่วน table ต่าง ๆ ด้านล่างใช้ต่อได้เลย... -->  
         <div class="section-title">Dose</div>
         <div class="section-title">Postnatal Age (Weight Dosing)</div>
@@ -296,42 +308,41 @@
             less than 3 mg/L.
         </p>
         
-<table>
-    <thead>
-        <tr>
-            <th>Weight</th>
-            <th>Younger than 14 days</th>
-            <th>14 days or older</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class=" highlight ">
-            <td>800 g or less</td>
-            <td>16 mg/kg/dose every 48 hours</td>
-            <td>20 mg/kg/dose every 42 hours</td>
-        </tr>
-        <tr class="">
-            <td>801 to 1200 g</td>
-            <td>16 mg/kg/dose every 42 hours</td>
-            <td>20 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="">
-            <td>1201 to 2000 g</td>
-            <td>15 mg/kg/dose every 36 hours</td>
-            <td>18 mg/kg/dose every 30 hours</td>
-        </tr>
-        <tr class="">
-            <td>2001 to 2800 g</td>
-            <td>15 mg/kg/dose every 36 hours</td>
-            <td>18 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="">
-            <td>2800 g or greater</td>
-            <td>15 mg/kg/dose every 30 hours</td>
-            <td>18 mg/kg/dose every 20 hours</td>
-        </tr>
-        
-    </tbody>
+<table id="weightDoseTable">
+  <thead>
+    <tr>
+      <th>Weight</th>
+      <th>Younger than 14 days</th>
+      <th>14 days or older</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr data-min="0" data-max="800">
+      <td>800 g or less</td>
+      <td>16 mg/kg/dose every 48 hours</td>
+      <td>20 mg/kg/dose every 42 hours</td>
+    </tr>
+    <tr data-min="801" data-max="1200">
+      <td>801 to 1200 g</td>
+      <td>16 mg/kg/dose every 42 hours</td>
+      <td>20 mg/kg/dose every 36 hours</td>
+    </tr>
+    <tr data-min="1201" data-max="2000">
+      <td>1201 to 2000 g</td>
+      <td>15 mg/kg/dose every 36 hours</td>
+      <td>18 mg/kg/dose every 30 hours</td>
+    </tr>
+    <tr data-min="2001" data-max="2800">
+      <td>2001 to 2800 g</td>
+      <td>15 mg/kg/dose every 36 hours</td>
+      <td>18 mg/kg/dose every 24 hours</td>
+    </tr>
+    <tr data-min="2801" data-max="99999">
+      <td>2800 g or greater</td>
+      <td>15 mg/kg/dose every 30 hours</td>
+      <td>18 mg/kg/dose every 20 hours</td>
+    </tr>
+  </tbody>
 </table>
 
 
@@ -339,47 +350,60 @@
         <p>
             These regimens were developed by a retrospective pharmacokinetic study (n=278). Target peak concentrations were attained in 84% of neonates (median interquartile range): gestational age 36.9 weeks (30.1 to 38.9), postnatal age 1 day (0 to 2), and postmenstrual age 37 weeks (33 to 39).Mean peak and trough concentrations were 28.5+/-5.8 mg/mL and 2+/-1.7 mg/L, respectively. Target concentrations: Peak of (30 minutes after completion of the infusion) 20 to 35 mg/L and trough (30 to 60 minutes before dose) less than 8 mg/L
         </p>
-<table>
-    <thead>
-        <tr>
-            <th>Postmenstrual Age</th>
-            <th>Postnatal Age</th>
-            <th>Dosage</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class=" highlight ">
-            <td>29 weeks or less</td>
-            <td>0 to 7 days</td>
-            <td>14 mg/kg/dose every 48 hours</td>
-        </tr>
-        <tr class="">
-            <td>29 weeks or less</td>
-            <td>8 to 28 days</td>
-            <td>12 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="">
-            <td>29 weeks or less</td>
-            <td>29 days or older</td>
-            <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="">
-            <td>30 to 34 weeks</td>
-            <td>0 to 7 days</td>
-            <td>12 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="">
-            <td>30 to 34 weeks</td>
-            <td>8 days or older</td>
-            <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="">
-            <td>35 weeks or more</td>
-            <td>All ages</td>
-            <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-    </tbody>
+        
+<table id="pmaDoseTable">
+  <thead>
+    <tr>
+      <th>Postmenstrual Age</th>
+      <th>Postnatal Age</th>
+      <th>Dosage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- ≤ 29 wk, 0–7 d -->
+    <tr data-pma-min="0" data-pma-max="29" data-pna-min="0" data-pna-max="7">
+      <td>29 weeks or less</td>
+      <td>0 to 7 days</td>
+      <td>14 mg/kg/dose every 48 hours</td>
+    </tr>
+
+    <!-- ≤ 29 wk, 8–28 d -->
+    <tr data-pma-min="0" data-pma-max="29" data-pna-min="8" data-pna-max="28">
+      <td>29 weeks or less</td>
+      <td>8 to 28 days</td>
+      <td>12 mg/kg/dose every 36 hours</td>
+    </tr>
+
+    <!-- ≤ 29 wk, ≥ 29 d -->
+    <tr data-pma-min="0" data-pma-max="29" data-pna-min="29" data-pna-max="365">
+      <td>29 weeks or less</td>
+      <td>29 days or older</td>
+      <td>12 mg/kg/dose every 24 hours</td>
+    </tr>
+
+    <!-- 30–34 wk, 0–7 d -->
+    <tr data-pma-min="30" data-pma-max="34" data-pna-min="0" data-pna-max="7">
+      <td>30 to 34 weeks</td>
+      <td>0 to 7 days</td>
+      <td>12 mg/kg/dose every 36 hours</td>
+    </tr>
+
+    <!-- 30–34 wk, ≥ 8 d -->
+    <tr data-pma-min="30" data-pma-max="34" data-pna-min="8" data-pna-max="365">
+      <td>30 to 34 weeks</td>
+      <td>8 days or older</td>
+      <td>12 mg/kg/dose every 24 hours</td>
+    </tr>
+
+    <!-- ≥ 35 wk, all ages -->
+    <tr data-pma-min="35" data-pma-max="60" data-pna-min="0" data-pna-max="365">
+      <td>35 weeks or more</td>
+      <td>All ages</td>
+      <td>12 mg/kg/dose every 24 hours</td>
+    </tr>
+  </tbody>
 </table>
+
 
 
         <div class="section-title">Dosage Adjustments</div>
@@ -747,6 +771,7 @@ of 24 hours. At concentrations of 0.25 and 5 mg/mL, solutions frozen (-15 degree
 days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
 
     <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+    <!-- SCRIPT สำหรับดึงค่าและคำนวณ Amikacin -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams(window.location.search);
@@ -765,14 +790,9 @@ days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
         const doseSpan     = document.getElementById('doseSpan');
         const intervalSpan = document.getElementById('intervalSpan');
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
-
         if (
           !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
+          !bwSpan  || !doseSpan || !intervalSpan
         ) {
           console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
           return;
@@ -795,29 +815,55 @@ days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
           ? `${bw.toFixed(2)} kg`
           : '- kg';
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
-          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
-        } else {
-          doseSpan.textContent = '- mg / dose';
+        // ----- เลือก regimen ตามตาราง PMA + Postnatal Age -----
+        // ตารางอ้างอิง:
+        //  - ≤29 wks:   0–7 d → 14 mg/kg q48h
+        //               8–28 d → 12 mg/kg q36h
+        //               ≥29 d → 12 mg/kg q24h
+        //  - 30–34 wks: 0–7 d → 12 mg/kg q36h
+        //               ≥8 d → 12 mg/kg q24h
+        //  - ≥35 wks:   all ages → 12 mg/kg q24h
+
+        let mgPerKg = null;
+        let intervalText = '-';
+
+        if (pmaWeeks > 0 && pnaDays >= 0) {
+          if (pmaWeeks <= 29) {
+            if (pnaDays <= 7) {
+              mgPerKg = 14;
+              intervalText = 'every 48 hours';
+            } else if (pnaDays <= 28) {
+              mgPerKg = 12;
+              intervalText = 'every 36 hours';
+            } else {
+              mgPerKg = 12;
+              intervalText = 'every 24 hours';
+            }
+          } else if (pmaWeeks <= 34) {
+            mgPerKg = 12;
+            if (pnaDays <= 7) {
+              intervalText = 'every 36 hours';
+            } else {
+              intervalText = 'every 24 hours';
+            }
+          } else {
+            mgPerKg = 12;
+            intervalText = 'every 24 hours';
+          }
         }
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
-
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
+        // ----- คำนวณ dose (mg/dose) -----
+        if (bw > 0 && mgPerKg !== null) {
+          const doseMg = mgPerKg * bw;
+          doseSpan.textContent = `${doseMg.toFixed(2)} mg/dose (${mgPerKg} mg/kg)`;
         } else {
-          intervalSpan.textContent = '-';
+          doseSpan.textContent = '- mg/dose';
         }
+
+        intervalSpan.textContent = intervalText;
       });
     </script>
+
     
         <footer>
             <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
