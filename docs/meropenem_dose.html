@@ -230,44 +230,33 @@
     <h1>Meropenem Dosage Information</h1>
 
     <!-- PMA / Calc / PNA / BW -->
-    <p><strong>PMA:</strong>
-      
-        -
-      
-    </p>
+<p><strong>PMA:</strong>
+  <span id="pmaSpan">-</span>
+</p>
 
-    <p><strong>Calc.:</strong>
-      
-         weeks
-      
-    </p>
+<p><strong>Calc.:</strong>
+  <span id="calcSpan">weeks</span>
+</p>
 
-    <p><strong>Postnatal Age:</strong>
-      
-        -
-      
-    </p>
+<p><strong>Postnatal Age:</strong>
+  <span id="pnaSpan">-</span>
+</p>
 
-    <p><strong>Birth Weight (BW):</strong>
-      
-        -
-      
-    </p>
+<div class="section-title">Calculated Dosage</div>
 
-    <!-- Calculated dosage -->
-    <div class="section-title">Calculated Dosage</div>
-    <p>
-      Recommended Dose:
-      <span class="highlight-dose">
-        0.0 mg/kg/dose (≈ 0.0 mg/dose)
-      </span>
-    </p>
-    <p>
-      Interval:
-      <span class="highlight-dose">
-        
-      </span>
-    </p>
+<p>Birth Weight (BW):
+  <span id="bwSpan" class="highlight-dose">- kg</span>
+</p>
+
+    <div class="section-title">Calculated Dosage for Neonates</div>
+<p>Recommended Dose:
+  <span id="doseSpan" class="highlight-dose">- mg / dose</span>
+</p>
+
+<p>Interval:
+  <span id="intervalSpan" class="highlight-dose">-</span>
+</p>
+
 
     <hr>
 
@@ -590,6 +579,78 @@ vancomycin.</p>
 
     <!-- เส้นแบ่ง -->
     <hr>
+      <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+
+        const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
+        const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
+        const calc     = parseFloat(params.get('calc')    || '0');
+        const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
+        const bw       = parseFloat(params.get('bw')      || '0');
+
+        // element สำหรับแสดงผล
+        const pmaSpan      = document.getElementById('pmaSpan');
+        const calcSpan     = document.getElementById('calcSpan');
+        const pnaSpan      = document.getElementById('pnaSpan');
+        const bwSpan       = document.getElementById('bwSpan');
+        const doseSpan     = document.getElementById('doseSpan');
+        const intervalSpan = document.getElementById('intervalSpan');
+
+        // บรรทัด dose ที่จะไฮไลต์
+        const lt30Line     = document.getElementById('acy_lt30');
+        const ge30Line     = document.getElementById('acy_ge30');
+
+        if (
+          !pmaSpan || !calcSpan || !pnaSpan ||
+          !bwSpan  || !doseSpan || !intervalSpan ||
+          !lt30Line || !ge30Line
+        ) {
+          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
+          return;
+        }
+
+        // ----- แสดงค่า PMA / Calc / Postnatal age / BW -----
+        pmaSpan.textContent = (pmaWeeks || pmaDays)
+          ? `${pmaWeeks} weeks ${pmaDays} days`
+          : '-';
+
+        calcSpan.textContent = calc
+          ? `${calc.toFixed(1)} weeks`
+          : 'weeks';
+
+        pnaSpan.textContent = pnaDays
+          ? `${pnaDays} days`
+          : '-';
+
+        bwSpan.textContent = bw
+          ? `${bw.toFixed(2)} kg`
+          : '- kg';
+
+        // ----- คำนวณ dose = 20 mg/kg/dose -----
+        if (bw > 0) {
+          const doseMg = 20 * bw;
+          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
+        } else {
+          doseSpan.textContent = '- mg / dose';
+        }
+
+        // ----- Interval + highlight สีเขียวตาม PMA -----
+        lt30Line.classList.remove('highlight-green');
+        ge30Line.classList.remove('highlight-green');
+
+        if (calc && calc < 30) {
+          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
+          lt30Line.classList.add('highlight-green');
+        } else if (calc) {
+          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
+          ge30Line.classList.add('highlight-green');
+        } else {
+          intervalSpan.textContent = '-';
+        }
+      });
+    </script>
 
     <!-- ใส่ footer ไว้ในกล่อง -->
     <footer class="page-footer">
