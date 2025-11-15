@@ -361,19 +361,13 @@
     <a href="./index.html" class="back-button">Back to Home</a>
   </div>
 
-  <script>
+<script>
   function calculatePMAStatic() {
-    // 1) อ่านค่าจาก input ให้ตรงกับ id จริง
-    const gaWeeks = Number(document.getElementById('ga_weeks').value || 0);
-    const gaDays  = Number(document.getElementById('ga_days').value  || 0);
-    const pnaDays = Number(document.getElementById('postnatal_days').value || 0);
-    const bw      = Number(document.getElementById('bw').value || 0);
-
-    // ถ้าไม่ได้กรอกอะไรเลย ให้เตือนก่อน
-    if ((gaWeeks + gaDays + pnaDays) === 0 || bw <= 0) {
-      alert('กรุณากรอก GA, Postnatal age และ Birth weight ให้ครบถ้วน');
-      return;
-    }
+    // 1) อ่านค่าจาก input
+    const gaWeeks = parseInt(document.getElementById('ga_weeks').value || '0', 10);
+    const gaDays  = parseInt(document.getElementById('ga_days').value  || '0', 10);
+    const pnaDays = parseInt(document.getElementById('postnatal_days').value || '0', 10);
+    const bw      = parseFloat(document.getElementById('bw').value     || '0');
 
     // 2) คำนวณ PMA
     const totalDays = gaWeeks * 7 + gaDays + pnaDays;
@@ -381,30 +375,22 @@
     const pmaDays   = totalDays % 7;
     const calcWeeks = totalDays / 7;
 
-    // 3) อัปเดตกล่องผลลัพธ์ (ให้เหมือนรูปที่ 2)
-    const pmaText   = document.getElementById('pmaText');
-    const calcText  = document.getElementById('calcText');
-    const pnaText   = document.getElementById('pnaText');
-    const bwText    = document.getElementById('bwText');
-    const resultBox = document.getElementById('pmaResultBox');
-    const drugBtn   = document.getElementById('drugBtn');
+    // 3) อัปเดตกล่องผลลัพธ์บนหน้า PMA
+    const box     = document.getElementById('pmaResultBox');
+    const pmaText = document.getElementById('pmaText');
+    const calcText= document.getElementById('calcText');
+    const pnaText = document.getElementById('pnaText');
+    const bwText  = document.getElementById('bwText');
 
-    // กันพลาด ถ้า id พิมพ์ผิดจะไม่พังเงียบ ๆ
-    if (!pmaText || !calcText || !pnaText || !bwText || !resultBox || !drugBtn) {
-      console.error('PMA result elements not found in DOM');
-      return;
+    if (box && pmaText && calcText && pnaText && bwText) {
+      box.style.display = 'block';                         // โชว์กล่องผลลัพธ์
+      pmaText.textContent  = `${pmaWeeks} weeks ${pmaDays} days`;
+      calcText.textContent = `${calcWeeks.toFixed(1)} weeks`;
+      pnaText.textContent  = `${pnaDays} days`;
+      bwText.textContent   = bw ? `${bw.toFixed(2)} kg` : '-';
     }
 
-    pmaText.textContent  = `${pmaWeeks} weeks ${pmaDays} days`;
-    calcText.textContent = `${calcWeeks.toFixed(1)} weeks`;
-    pnaText.textContent  = `${pnaDays} days`;
-    bwText.textContent   = `${bw.toFixed(2)} kg`;
-
-    // โชว์กล่องผลลัพธ์ + ปุ่ม "คำนวณยา"
-    resultBox.style.display = 'block';
-    drugBtn.style.display   = 'block';
-
-    // 4) เตรียม query string สำหรับส่งไปหน้า drug_calculation.html
+    // 4) เตรียม query string สำหรับส่งต่อไปหน้า drug_calculation
     const params = new URLSearchParams({
       pma_weeks:      pmaWeeks,
       pma_days:       pmaDays,
@@ -413,12 +399,17 @@
       bw:             bw.toFixed(2)
     });
 
-    // 5) คลิกปุ่ม "คำนวณยา" → redirect ไปหน้าเลือกยา
-    drugBtn.onclick = function () {
-      window.location.href = 'drug_calculation.html?' + params.toString();
-    };
+    // 5) โชว์ปุ่ม "คำนวณยา" + ผูกให้กดแล้วไปหน้า drug_calculation.html
+    const drugBtn = document.getElementById('drugBtn');
+    if (drugBtn) {
+      drugBtn.style.display = 'inline-block';   // เอาออกจาก display:none
+      drugBtn.onclick = function () {
+        window.location.href = 'drug_calculation.html?' + params.toString();
+      };
+    }
   }
 </script>
+
 
 
 
