@@ -208,6 +208,37 @@
 
   <h1>Select a Medication</h1>
 
+    <script>
+  function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const pmaWeeks = parseInt(getParam('pma_weeks') || '0', 10);
+    const pmaDays  = parseInt(getParam('pma_days')  || '0', 10);
+    const calc     = parseFloat(getParam('calc')    || '0');
+    const pnaDays  = parseInt(getParam('postnatal_days') || '0', 10);
+    const bw       = parseFloat(getParam('bw')      || '0');
+
+    // แสดงค่าพื้นฐานบนหน้า
+    document.getElementById('pmaInfo').textContent =
+      `PMA: ${pmaWeeks} weeks ${pmaDays} days (Calc: ${calc.toFixed(1)} weeks)`;
+    document.getElementById('pnaInfo').textContent = `Postnatal Age: ${pnaDays} days`;
+    document.getElementById('bwInfo').textContent  = `Birth Weight: ${bw.toFixed(2)} kg`;
+
+    // ตัวอย่างคำนวณ dose ง่าย ๆ: dose = calc × bw
+    const dose = calc * bw;
+    document.getElementById('doseInfo').textContent =
+      `ตัวอย่างขนาดยาโดยรวม (calc × BW) ≈ ${dose.toFixed(2)} หน่วย (ปรับตาม protocol จริงได้)`;
+  });
+</script>
+
+<p id="pmaInfo"></p>
+<p id="pnaInfo"></p>
+<p id="bwInfo"></p>
+<p id="doseInfo" style="font-weight:bold"></p>
+
+
   <div class="container">
     <!-- แถบ A–Z ด้านบน (เลือกเฉพาะตัวที่มีจริง) -->
     <div class="az-nav">
@@ -417,6 +448,7 @@
       </div>
     </section>
   </div>
+
 
   <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
     <a href="./index.html" class="back-btn">⬅ Back to Home</a>
