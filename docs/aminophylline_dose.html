@@ -176,42 +176,30 @@
     <h1>Aminophylline Dosage Information</h1>
 
     <!-- PMA / PNA / BW -->
-    <p><strong>PMA:</strong>
-      
-        -
-      
-    </p>
+<!-- Display the calculated PMA, Postnatal Age, BW -->
+<p><strong>PMA:</strong>
+  <span id="pmaSpan">-</span>
+</p>
 
-    <p><strong>Postnatal Age:</strong>
-      
-        -
-      
-    </p>
+<p><strong>Postnatal Age:</strong>
+  <span id="pnaSpan">-</span>
+</p>
 
-    <p><strong>Birth Weight (BW):</strong>
-      
-        -
-      
-    </p>
+<p><strong>Birth Weight (BW):</strong>
+  <span id="bwSpan">- kg</span>
+</p>
 
-    <!-- Calculated doses -->
-    <div class="section-title">Calculated Dosage for Neonates</div>
+<!-- Calculated doses -->
+<div class="section-title">Calculated Dosage for Neonates</div>
 
-    <p><strong>Loading Dose:</strong>
-      <span class="highlight-dose">
-        
-  - mg
+<p><strong>Loading Dose:</strong>
+  <span id="loadingSpan" class="highlight-dose">- mg</span>
+</p>
 
-      </span>
-    </p>
+<p><strong>Maintenance Dose:</strong>
+  <span id="maintenanceSpan" class="highlight-dose">- to - mg</span>
+</p>
 
-    <p><strong>Maintenance Dose:</strong>
-      <span class="highlight-dose">
-        
-  - to - mg
-
-      </span>
-    </p>
 
     <br>
     <h3 style="color:#a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></h3>
@@ -304,6 +292,62 @@
     <p>Oral aminophylline 3 mg/mL liquid suspension made with aminophylline injection 25 mg/mL
       and mixed with 1:1 Ora Sweet/Ora Plus was stable for 91 days at 4°C and 25° C. Store in
       amber glass bottle.</p>
+
+      <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const params   = new URLSearchParams(window.location.search);
+
+    const pmaWeeks = parseInt(params.get('pma_weeks')      || '0', 10);
+    const pmaDays  = parseInt(params.get('pma_days')       || '0', 10);
+    const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
+    const bw       = parseFloat(params.get('bw')           || '0');
+
+    // span สำหรับแสดงผล
+    const pmaSpan         = document.getElementById('pmaSpan');
+    const pnaSpan         = document.getElementById('pnaSpan');
+    const bwSpan          = document.getElementById('bwSpan');
+    const loadingSpan     = document.getElementById('loadingSpan');
+    const maintenanceSpan = document.getElementById('maintenanceSpan');
+
+    if (!pmaSpan || !pnaSpan || !bwSpan || !loadingSpan || !maintenanceSpan) {
+      console.error('ตรวจสอบ id ของ span ให้ตรงกับ script');
+      return;
+    }
+
+    // ----- แสดงค่า PMA / Postnatal age / BW -----
+    pmaSpan.textContent = (pmaWeeks || pmaDays)
+      ? `${pmaWeeks} weeks ${pmaDays} days`
+      : '-';
+
+    pnaSpan.textContent = pnaDays
+      ? `${pnaDays} days`
+      : '-';
+
+    bwSpan.textContent = bw
+      ? `${bw.toFixed(2)} kg`
+      : '- kg';
+
+    // ----- ตัวอย่างสูตร Loading / Maintenance dose -----
+    if (bw > 0) {
+      // TODO: แก้ตัวเลขตาม guideline ของยานี้
+      const loadingPerKg   = 10;  // mg/kg (ตัวอย่าง)
+      const maintLowPerKg  = 5;   // mg/kg (ต่ำสุด – ตัวอย่าง)
+      const maintHighPerKg = 8;   // mg/kg (สูงสุด – ตัวอย่าง)
+
+      const loadingMg   = loadingPerKg   * bw;
+      const maintLowMg  = maintLowPerKg  * bw;
+      const maintHighMg = maintHighPerKg * bw;
+
+      loadingSpan.textContent     = `${loadingMg.toFixed(2)} mg`;
+      maintenanceSpan.textContent = `${maintLowMg.toFixed(2)} – ${maintHighMg.toFixed(2)} mg`;
+    } else {
+      loadingSpan.textContent     = '- mg';
+      maintenanceSpan.textContent = '- to - mg';
+    }
+  });
+</script>
+
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
