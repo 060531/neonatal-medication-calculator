@@ -215,44 +215,75 @@
 
 
     <!-- Dosage Table -->
-    <table>
+        <!-- Dosage Table -->
+    <table id="gentaTable">
       <tr>
         <th>PMA</th>
         <th>Postnatal Age (days)</th>
         <th>Dose (mg/kg)</th>
         <th>Interval</th>
       </tr>
-      <tr class=" highlight ">
+
+      <!-- ≤29 wk, 0–7 d -->
+      <tr
+        data-pma-min="0"   data-pma-max="29.9"
+        data-pna-min="0"   data-pna-max="7"
+        data-dose="5"      data-interval="48">
         <td>29 wk-</td>
         <td>0 - 7 days</td>
         <td>5.00</td>
         <td>q 48 hr(s)</td>
       </tr>
-      <tr class="">
+
+      <!-- ≤29 wk, 8–28 d -->
+      <tr
+        data-pma-min="0"   data-pma-max="29.9"
+        data-pna-min="8"   data-pna-max="28"
+        data-dose="4"      data-interval="36">
         <td>29 wk-</td>
         <td>8 - 28 days</td>
         <td>4.00</td>
         <td>q 36 hr(s)</td>
       </tr>
-      <tr class="">
+
+      <!-- ≤29 wk, ≥29 d -->
+      <tr
+        data-pma-min="0"   data-pma-max="29.9"
+        data-pna-min="29"  data-pna-max="365"
+        data-dose="4"      data-interval="24">
         <td>29 wk-</td>
         <td>29 days+</td>
         <td>4.00</td>
         <td>q 24 hr(s)</td>
       </tr>
-      <tr class="">
+
+      <!-- 30–34 wk, 0–7 d -->
+      <tr
+        data-pma-min="30"  data-pma-max="34"
+        data-pna-min="0"   data-pna-max="7"
+        data-dose="4.5"    data-interval="36">
         <td>30 - 34 wk</td>
         <td>0 - 7 days</td>
         <td>4.50</td>
         <td>q 36 hr(s)</td>
       </tr>
-      <tr class="">
+
+      <!-- 30–34 wk, ≥8 d -->
+      <tr
+        data-pma-min="30"  data-pma-max="34"
+        data-pna-min="8"   data-pna-max="365"
+        data-dose="4"      data-interval="24">
         <td>30 - 34 wk</td>
         <td>8 days+</td>
         <td>4.00</td>
         <td>q 24 hr(s)</td>
       </tr>
-      <tr class="">
+
+      <!-- ≥35 wk, ทุกอายุ -->
+      <tr
+        data-pma-min="35"  data-pma-max="60"
+        data-pna-min="0"   data-pna-max="365"
+        data-dose="4"      data-interval="24">
         <td>35 wk+</td>
         <td>ALL</td>
         <td>4.00</td>
@@ -266,11 +297,10 @@
     <p>IV infusion อย่างน้อย: 30-120 นาที</p>
     <p>บริหารด้วย Syringe pump</p>
 
-      <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+    <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
-
+        const params   = new URLSearchParams(window.location.search);
         const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
         const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
         const calc     = parseFloat(params.get('calc')    || '0');
@@ -285,16 +315,8 @@
         const doseSpan     = document.getElementById('doseSpan');
         const intervalSpan = document.getElementById('intervalSpan');
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
-
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
+        if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+          console.error('Missing DOM elements on Gentamicin page');
           return;
         }
 
@@ -315,29 +337,72 @@
           ? `${bw.toFixed(2)} kg`
           : '- kg';
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
+        // ----- หาแถวที่ตรง GA/PNA เพื่อคำนวณ dose + highlight -----
+        const table = document.getElementById('gentaTable');
+        let matchedRow = null;
+        let dosePerKg = 0;
+        let intervalHours = null;
+
+        if (table) {
+          const ga = pmaWeeks || calc || 0;
+
+          const rows = table.tBodies.length
+            ? table.tBodies[0].rows
+            : table.rows;
+
+          // ล้าง highlight เดิม
+          Array.from(rows).forEach(row => {
+            if (row.querySelector('th')) return;
+            row.classList.remove('highlight');
+          });
+
+          // หา row ที่ match
+          Array.from(rows).forEach(row => {
+            if (row.querySelector('th')) return;
+
+            const pmaMin = Number(row.dataset.pmaMin);
+            const pmaMax = Number(row.dataset.pmaMax);
+            const pnaMin = Number(row.dataset.pnaMin);
+            const pnaMax = Number(row.dataset.pnaMax);
+
+            if (
+              !Number.isNaN(pmaMin) && !Number.isNaN(pmaMax) &&
+              !Number.isNaN(pnaMin) && !Number.isNaN(pnaMax) &&
+              ga      >= pmaMin && ga      <= pmaMax &&
+              pnaDays >= pnaMin && pnaDays <= pnaMax
+            ) {
+              matchedRow = row;
+            }
+          });
+
+          if (matchedRow) {
+            matchedRow.classList.add('highlight');
+
+            const d = Number(matchedRow.dataset.dose);
+            if (!Number.isNaN(d) && d > 0) dosePerKg = d;
+
+            const iv = Number(matchedRow.dataset.interval);
+            if (!Number.isNaN(iv) && iv > 0) intervalHours = iv;
+          }
+        }
+
+        // ----- คำนวณ Recommended Dose = dosePerKg × BW -----
+        if (bw > 0 && dosePerKg > 0) {
+          const doseMg = dosePerKg * bw;
           doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
         } else {
           doseSpan.textContent = '- mg / dose';
         }
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
-
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
+        // ----- แสดง interval จาก row ที่ match -----
+        if (intervalHours) {
+          intervalSpan.textContent = `q ${intervalHours} hr(s)`;
         } else {
           intervalSpan.textContent = '-';
         }
       });
     </script>
+
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>

@@ -264,19 +264,19 @@
     <div class="section-title">Dose</div>
     <div class="section-title">Intra-abdominal and non-CNS infections</div>
 
-    <p >
+    <p id="rule1">
       <strong>• Less than 32 weeks GA and less than 14 days PNA :</strong>
       20 mg/kg IV every 12 hours
     </p>
-    <p >
+    <p id="rule2">
       <strong>• Less than 32 weeks GA and 14 days PNA and older :</strong>
       20 mg/kg IV every 8 hours
     </p>
-    <p >
+    <p id="rule3">
       <strong>• 32 weeks GA and older, and less than 14 days PNA :</strong>
       20 mg/kg IV every 8 hours
     </p>
-    <p >
+    <p id="rule4">
       <strong>• 32 weeks GA and older, and 14 days PNA and older :</strong>
       30 mg/kg IV every 8 hours
     </p>
@@ -579,11 +579,10 @@ vancomycin.</p>
 
     <!-- เส้นแบ่ง -->
     <hr>
-      <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+<!-- ====== SCRIPT สำหรับดึงค่าและคำนวณ ====== -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
-
+        const params   = new URLSearchParams(window.location.search);
         const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
         const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
         const calc     = parseFloat(params.get('calc')    || '0');
@@ -598,16 +597,8 @@ vancomycin.</p>
         const doseSpan     = document.getElementById('doseSpan');
         const intervalSpan = document.getElementById('intervalSpan');
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
-
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
+        if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+          console.error('Missing DOM elements on Meropenem page');
           return;
         }
 
@@ -628,24 +619,56 @@ vancomycin.</p>
           ? `${bw.toFixed(2)} kg`
           : '- kg';
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
+        // ---------- เลือก regimen ตาม GA / PNA ----------
+        const GA = pmaWeeks || calc || 0;   // ใช้ pmaWeeks เป็นหลัก ถ้าไม่มีค่อยใช้ calc
+        let dosePerKg      = 0;
+        let intervalHours  = null;
+
+        // ล้าง highlight เดิม
+        ['rule1','rule2','rule3','rule4'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove('highlight-green');
+        });
+
+        if (GA > 0 && pnaDays >= 0) {
+          if (GA < 32 && pnaDays < 14) {
+            // rule 1
+            dosePerKg = 20;
+            intervalHours = 12;
+            const el = document.getElementById('rule1');
+            if (el) el.classList.add('highlight-green');
+          } else if (GA < 32 && pnaDays >= 14) {
+            // rule 2
+            dosePerKg = 20;
+            intervalHours = 8;
+            const el = document.getElementById('rule2');
+            if (el) el.classList.add('highlight-green');
+          } else if (GA >= 32 && pnaDays < 14) {
+            // rule 3
+            dosePerKg = 20;
+            intervalHours = 8;
+            const el = document.getElementById('rule3');
+            if (el) el.classList.add('highlight-green');
+          } else if (GA >= 32 && pnaDays >= 14) {
+            // rule 4
+            dosePerKg = 30;
+            intervalHours = 8;
+            const el = document.getElementById('rule4');
+            if (el) el.classList.add('highlight-green');
+          }
+        }
+
+        // ---------- คำนวณ Recommended dose (mg/dose) ----------
+        if (bw > 0 && dosePerKg > 0) {
+          const doseMg = dosePerKg * bw;
           doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
         } else {
           doseSpan.textContent = '- mg / dose';
         }
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
-
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
+        // ---------- แสดง Interval ----------
+        if (intervalHours) {
+          intervalSpan.textContent = `q ${intervalHours} hr(s)`;
         } else {
           intervalSpan.textContent = '-';
         }

@@ -240,37 +240,43 @@
 
     <p><strong>Sepsis:</strong> The following recommendations were based on developmental pharmacokinetic-pharmacodynamic analysis (n=100) to achieve time above MIC (2 mg/L for postnatal age younger than 7 days and 4 mg/L for postnatal age 7 days or older) of 75%.</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Gestational Age (weeks)</th>
-          <th>Postnatal Age (days)</th>
-          <th>Regimen</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>All weeks</td>
-          <td>Younger than 7 days</td>
-          <td>50 mg/kg/dose IV every 12 hours</td>
-        </tr>
-        <tr>
-          <td>Less than 32 weeks</td>
-          <td>7 days or older</td>
-          <td>50 mg/kg/dose IV every 8 hours</td>
-        </tr>
-        <tr>
-          <td>32 weeks or more</td>
-          <td>7 days or older</td>
-          <td>50 mg/kg/dose IV every 6 hours</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3" style="text-align:left;">Source: Leroux, 2016</td>
-        </tr>
-      </tfoot>
-    </table>
+    <table id="sepsisTable">
+  <thead>
+    <tr>
+      <th>Gestational Age (weeks)</th>
+      <th>Postnatal Age (days)</th>
+      <th>Regimen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- ทุก GA, PNA < 7 d -->
+    <tr data-ga-min="0" data-ga-max="60" data-pna-min="0" data-pna-max="6" data-interval="12">
+      <td>All weeks</td>
+      <td>Younger than 7 days</td>
+      <td>50 mg/kg/dose IV every 12 hours</td>
+    </tr>
+
+    <!-- GA < 32 wk, PNA ≥ 7 d -->
+    <tr data-ga-min="0" data-ga-max="31.9" data-pna-min="7" data-pna-max="365" data-interval="8">
+      <td>Less than 32 weeks</td>
+      <td>7 days or older</td>
+      <td>50 mg/kg/dose IV every 8 hours</td>
+    </tr>
+
+    <!-- GA ≥ 32 wk, PNA ≥ 7 d -->
+    <tr data-ga-min="32" data-ga-max="60" data-pna-min="7" data-pna-max="365" data-interval="6">
+      <td>32 weeks or more</td>
+      <td>7 days or older</td>
+      <td>50 mg/kg/dose IV every 6 hours</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3" style="text-align:left;">Source: Leroux, 2016</td>
+    </tr>
+  </tfoot>
+</table>
+
 
     <p><strong>Usual dose for bone and joint, genitourinary, intra-abdominal, lower respiratory tract, or skin and skin structure infection</strong></p>
     <p><strong>7 days or younger and any weight:</strong> 50 mg/kg/dose IV/IM every 12 hours.</p>
@@ -447,76 +453,100 @@
 
         <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', function () {
+  const params   = new URLSearchParams(window.location.search);
+  const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
+  const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
+  const calc     = parseFloat(params.get('calc')    || '0');          // PMA decimal (ถ้ามี)
+  const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10); // วันหลังคลอด
+  const bw       = parseFloat(params.get('bw')      || '0');          // น้ำหนักแรกเกิด (kg)
 
-        const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
-        const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
-        const calc     = parseFloat(params.get('calc')    || '0');
-        const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
-        const bw       = parseFloat(params.get('bw')      || '0');
+  // element สำหรับแสดงผล
+  const pmaSpan      = document.getElementById('pmaSpan');
+  const calcSpan     = document.getElementById('calcSpan');
+  const pnaSpan      = document.getElementById('pnaSpan');
+  const bwSpan       = document.getElementById('bwSpan');
+  const doseSpan     = document.getElementById('doseSpan');
+  const intervalSpan = document.getElementById('intervalSpan');
 
-        // element สำหรับแสดงผล
-        const pmaSpan      = document.getElementById('pmaSpan');
-        const calcSpan     = document.getElementById('calcSpan');
-        const pnaSpan      = document.getElementById('pnaSpan');
-        const bwSpan       = document.getElementById('bwSpan');
-        const doseSpan     = document.getElementById('doseSpan');
-        const intervalSpan = document.getElementById('intervalSpan');
+  if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+    console.error('Missing DOM elements on Cefotaxime page');
+    return;
+  }
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
+  // ----- แสดงค่า PMA / Calc / Postnatal age / BW -----
+  pmaSpan.textContent = (pmaWeeks || pmaDays)
+    ? `${pmaWeeks} weeks ${pmaDays} days`
+    : '-';
 
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
-          return;
-        }
+  calcSpan.textContent = calc
+    ? `${calc.toFixed(1)} weeks`
+    : 'weeks';
 
-        // ----- แสดงค่า PMA / Calc / Postnatal age / BW -----
-        pmaSpan.textContent = (pmaWeeks || pmaDays)
-          ? `${pmaWeeks} weeks ${pmaDays} days`
-          : '-';
+  pnaSpan.textContent = pnaDays
+    ? `${pnaDays} days`
+    : '-';
 
-        calcSpan.textContent = calc
-          ? `${calc.toFixed(1)} weeks`
-          : 'weeks';
+  bwSpan.textContent = bw
+    ? `${bw.toFixed(2)} kg`
+    : '- kg';
 
-        pnaSpan.textContent = pnaDays
-          ? `${pnaDays} days`
-          : '-';
+  // ----- คำนวณ Recommended Dose (ตัวอย่างใช้ 50 mg/kg/dose) -----
+  if (bw > 0) {
+    const mgPerKg = 50;           // ปรับค่าตรงนี้ถ้าต้องการ mg/kg/dose อื่น
+    const doseMg  = mgPerKg * bw;
+    doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
+  } else {
+    doseSpan.textContent = '- mg / dose';
+  }
 
-        bwSpan.textContent = bw
-          ? `${bw.toFixed(2)} kg`
-          : '- kg';
+  // ----- หา interval จากตาราง Sepsis + ไฮไลท์แถว -----
+  const table    = document.getElementById('sepsisTable');
+  let   foundRow = null;
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
-          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
-        } else {
-          doseSpan.textContent = '- mg / dose';
-        }
+  if (table && !Number.isNaN(pnaDays)) {
+    // สมมติใช้ pmaWeeks เป็นตัวแทน Gestational Age
+    const gaWeeks = pmaWeeks || calc || 0;
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
+    const rows = table.tBodies[0].rows;
 
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
-        } else {
-          intervalSpan.textContent = '-';
-        }
-      });
-    </script>
+    // ล้าง highlight เดิม
+    [...rows].forEach(tr => tr.classList.remove('highlight'));
+
+    for (const row of rows) {
+      const gaMin   = Number(row.dataset.gaMin);
+      const gaMax   = Number(row.dataset.gaMax);
+      const pnaMin  = Number(row.dataset.pnaMin);
+      const pnaMax  = Number(row.dataset.pnaMax);
+
+      if (
+        !Number.isNaN(gaMin) && !Number.isNaN(gaMax) &&
+        !Number.isNaN(pnaMin) && !Number.isNaN(pnaMax) &&
+        gaWeeks >= gaMin && gaWeeks <= gaMax &&
+        pnaDays >= pnaMin && pnaDays <= pnaMax
+      ) {
+        row.classList.add('highlight');
+        foundRow = row;
+        break;
+      }
+    }
+  }
+
+  // แสดง interval ตามแถวที่เจอ
+  if (foundRow) {
+    // ดึงค่าชั่วโมงจาก data-interval ที่เราใส่ไว้
+    const hours = Number(foundRow.dataset.interval);
+    if (!Number.isNaN(hours) && hours > 0) {
+      intervalSpan.textContent = `q ${hours} hr(s)`;
+    } else {
+      intervalSpan.textContent = '-';
+    }
+  } else {
+    intervalSpan.textContent = '-';
+  }
+});
+</script>
+
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>

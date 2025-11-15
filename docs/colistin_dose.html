@@ -500,6 +500,7 @@ via nebulization and in the plasma via IV administration:</p>
           trimetaphan camsylate, tubocurarine chloride.</p>
   
       <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+        <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams(window.location.search);
@@ -518,16 +519,8 @@ via nebulization and in the plasma via IV administration:</p>
         const doseSpan     = document.getElementById('doseSpan');
         const intervalSpan = document.getElementById('intervalSpan');
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
-
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
+        if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+          console.error('Missing DOM elements on Colistin page');
           return;
         }
 
@@ -548,29 +541,24 @@ via nebulization and in the plasma via IV administration:</p>
           ? `${bw.toFixed(2)} kg`
           : '- kg';
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
+        // ----- คำนวณ dose: 2.5–5 mg/kg/day (แสดงเป็นช่วง mg/day) -----
         if (bw > 0) {
-          const doseMg = 20 * bw;
-          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
+          const minDaily = 2.5 * bw;  // mg/day
+          const maxDaily = 5   * bw;  // mg/day
+          doseSpan.textContent =
+            `${minDaily.toFixed(2)}–${maxDaily.toFixed(2)} mg/day (2.5–5 mg/kg/day)`;
         } else {
           doseSpan.textContent = '- mg / dose';
         }
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
+        // ----- แสดงข้อความ interval ตาม guideline -----
+        intervalSpan.textContent =
+          'Give 2.5–5 mg/kg/day IV/IM in 2–4 divided doses (q6–12 hr)';
 
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
-        } else {
-          intervalSpan.textContent = '-';
-        }
+        // หน้านี้ไม่มีตาราง age-based dose จึงไม่ต้องทำ highlight แถวใดเป็นพิเศษ
       });
     </script>
+
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>

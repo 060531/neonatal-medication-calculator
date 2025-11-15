@@ -211,82 +211,83 @@
   <span id="intervalSpan" class="highlight-dose">-</span>
 </p>
 
-
-
     <!-- Dosage Table -->
-    <table>
-      <tr>
-        <th>PMA</th>
-        <th>Postnatal Age</th>
-        <th>Min (mg)</th>
-        <th>Max (mg)</th>
-        <th>/dose</th>
-        <th>Interval</th>
-      </tr>
+<table id="ampPmaTable">
+  <thead>
+    <tr>
+      <th>PMA</th>
+      <th>Postnatal Age</th>
+      <th>Min (mg)</th>
+      <th>Max (mg)</th>
+      <th>/dose</th>
+      <th>Interval</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr data-pma-min="0" data-pma-max="29" data-pna-min="0" data-pna-max="28">
+      <td>29 wk-</td>
+      <td>0 - 28 days</td>
+      <td>75.00</td>
+      <td>100.00</td>
+      <td>mg</td>
+      <td>q 12 hr(s)</td>
+    </tr>
 
-      <tr class="">
-        <td>29 wk-</td>
-        <td>0 - 28 days</td>
-        <td>75.00</td>
-        <td>100.00</td>
-        <td>mg</td>
-        <td>q 12 hr(s)</td>
-      </tr>
+    <tr data-pma-min="0" data-pma-max="29" data-pna-min="29" data-pna-max="365">
+      <td>29 wk-</td>
+      <td>29 days+</td>
+      <td>50.00</td>
+      <td>66.67</td>
+      <td>mg</td>
+      <td>q 8 hr(s)</td>
+    </tr>
 
-      <tr class="">
-        <td>29 wk-</td>
-        <td>29 days+</td>
-        <td>50.00</td>
-        <td>66.67</td>
-        <td>mg</td>
-        <td>q 8 hr(s)</td>
-      </tr>
+    <tr data-pma-min="30" data-pma-max="36" data-pna-min="0" data-pna-max="14">
+      <td>30 - 36 wk</td>
+      <td>0 - 14 days</td>
+      <td>75.00</td>
+      <td>100.00</td>
+      <td>mg</td>
+      <td>q 12 hr(s)</td>
+    </tr>
 
-      <tr class="">
-        <td>30 - 36 wk</td>
-        <td>0 - 14 days</td>
-        <td>75.00</td>
-        <td>100.00</td>
-        <td>mg</td>
-        <td>q 12 hr(s)</td>
-      </tr>
+    <tr data-pma-min="30" data-pma-max="36" data-pna-min="15" data-pna-max="365">
+      <td>30 - 36 wk</td>
+      <td>15 days+</td>
+      <td>50.00</td>
+      <td>66.67</td>
+      <td>mg</td>
+      <td>q 8 hr(s)</td>
+    </tr>
 
-      <tr class="">
-        <td>30 - 36 wk</td>
-        <td>15 days+</td>
-        <td>50.00</td>
-        <td>66.67</td>
-        <td>mg</td>
-        <td>q 8 hr(s)</td>
-      </tr>
+    <tr data-pma-min="37" data-pma-max="44" data-pna-min="0" data-pna-max="7">
+      <td>37 - 44 wk</td>
+      <td>0 - 7 days</td>
+      <td>75.00</td>
+      <td>100.00</td>
+      <td>mg</td>
+      <td>q 12 hr(s)</td>
+    </tr>
 
-      <tr class="">
-        <td>37 - 44 wk</td>
-        <td>0 - 7 days</td>
-        <td>75.00</td>
-        <td>100.00</td>
-        <td>mg</td>
-        <td>q 12 hr(s)</td>
-      </tr>
+    <tr data-pma-min="37" data-pma-max="44" data-pna-min="8" data-pna-max="365">
+      <td>37 - 44 wk</td>
+      <td>8 days+</td>
+      <td>50.00</td>
+      <td>66.67</td>
+      <td>mg</td>
+      <td>q 8 hr(s)</td>
+    </tr>
 
-      <tr class="">
-        <td>37 - 44 wk</td>
-        <td>8 days+</td>
-        <td>50.00</td>
-        <td>66.67</td>
-        <td>mg</td>
-        <td>q 8 hr(s)</td>
-      </tr>
-
-      <tr class="">
-        <td>45 wk+</td>
-        <td>ALL</td>
-        <td>37.50</td>
-        <td>50.00</td>
-        <td>mg</td>
-        <td>q 6 hr(s)</td>
-      </tr>
-    </table>
+    <tr data-pma-min="45" data-pma-max="60" data-pna-min="0" data-pna-max="365">
+      <td>45 wk+</td>
+      <td>ALL</td>
+      <td>37.50</td>
+      <td>50.00</td>
+      <td>mg</td>
+      <td>q 6 hr(s)</td>
+    </tr>
+  </tbody>
+</table>
 
     <div class="section-title">IV Slow Push or IM</div>
     <p><strong>IV slow push or IM:</strong> If the dose is less than or equal to 500 mg, push for 3–5 minutes. If the dose is greater than 500 mg, push for 10–15 minutes.</p>
@@ -302,76 +303,90 @@
 
         <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', function () {
+  const params   = new URLSearchParams(window.location.search);
+  const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
+  const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
+  const calc     = parseFloat(params.get('calc')    || '0');
+  const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
+  const bw       = parseFloat(params.get('bw')      || '0');
 
-        const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
-        const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
-        const calc     = parseFloat(params.get('calc')    || '0');
-        const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
-        const bw       = parseFloat(params.get('bw')      || '0');
+  // element แสดงผล
+  const pmaSpan      = document.getElementById('pmaSpan');
+  const calcSpan     = document.getElementById('calcSpan');
+  const pnaSpan      = document.getElementById('pnaSpan');
+  const bwSpan       = document.getElementById('bwSpan');
+  const doseSpan     = document.getElementById('doseSpan');
+  const intervalSpan = document.getElementById('intervalSpan');
 
-        // element สำหรับแสดงผล
-        const pmaSpan      = document.getElementById('pmaSpan');
-        const calcSpan     = document.getElementById('calcSpan');
-        const pnaSpan      = document.getElementById('pnaSpan');
-        const bwSpan       = document.getElementById('bwSpan');
-        const doseSpan     = document.getElementById('doseSpan');
-        const intervalSpan = document.getElementById('intervalSpan');
+  if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+    console.error('Missing elements on Ampicillin page');
+    return;
+  }
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
+  // --- แสดง PMA / Calc / PNA / BW ---
+  pmaSpan.textContent = (pmaWeeks || pmaDays)
+    ? `${pmaWeeks} weeks ${pmaDays} days`
+    : '-';
 
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
-          return;
-        }
+  calcSpan.textContent = calc
+    ? `${calc.toFixed(1)} weeks`
+    : 'weeks';
 
-        // ----- แสดงค่า PMA / Calc / Postnatal age / BW -----
-        pmaSpan.textContent = (pmaWeeks || pmaDays)
-          ? `${pmaWeeks} weeks ${pmaDays} days`
-          : '-';
+  pnaSpan.textContent = pnaDays
+    ? `${pnaDays} days`
+    : '-';
 
-        calcSpan.textContent = calc
-          ? `${calc.toFixed(1)} weeks`
-          : 'weeks';
+  bwSpan.textContent = bw
+    ? `${bw.toFixed(2)} kg`
+    : '- kg';
 
-        pnaSpan.textContent = pnaDays
-          ? `${pnaDays} days`
-          : '-';
+  // --- หาแถวในตารางที่ตรงกับ calc (PMA) + pnaDays ---
+  const table   = document.getElementById('ampPmaTable');
+  let foundRow  = null;
 
-        bwSpan.textContent = bw
-          ? `${bw.toFixed(2)} kg`
-          : '- kg';
+  if (table && calc && !Number.isNaN(pnaDays)) {
+    const rows = table.tBodies[0].rows;
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
-          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
-        } else {
-          doseSpan.textContent = '- mg / dose';
-        }
+    // เคลียร์ highlight เดิม
+    [...rows].forEach(tr => tr.classList.remove('highlight'));
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
+    for (const row of rows) {
+      const pmaMin = Number(row.dataset.pmaMin);
+      const pmaMax = Number(row.dataset.pmaMax);
+      const pnaMin = Number(row.dataset.pnaMin);
+      const pnaMax = Number(row.dataset.pnaMax);
 
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
-        } else {
-          intervalSpan.textContent = '-';
-        }
-      });
-    </script>
+      if (
+        calc   >= pmaMin && calc   <= pmaMax &&
+        pnaDays >= pnaMin && pnaDays <= pnaMax
+      ) {
+        row.classList.add('highlight');
+        foundRow = row;
+        break;
+      }
+    }
+  }
+
+  // --- คำนวณ Recommended Dose: ตัวอย่างใช้ 100 mg/kg/dose ---
+  if (bw > 0) {
+    const mgPerKg = 100;                // example using 100 mg/kg
+    const doseMg  = mgPerKg * bw;
+    doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
+  } else {
+    doseSpan.textContent = '- mg / dose';
+  }
+
+  // --- ตั้ง Interval ตามแถวที่ถูก highlight ---
+  if (foundRow) {
+    // คอลัมน์ Interval คือ cell ที่ 5 (index 5)
+    intervalSpan.textContent = foundRow.cells[5].textContent.trim();
+  } else {
+    intervalSpan.textContent = '-';
+  }
+});
+</script>
+
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>

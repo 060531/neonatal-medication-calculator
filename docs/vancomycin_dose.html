@@ -226,83 +226,103 @@
     <h1>Vancomycin Dosage Information</h1>
 
     <!-- PMA / Calc / PNA / BW -->
-<p><strong>PMA:</strong>
-  <span id="pmaSpan">-</span>
-</p>
+    <p><strong>PMA:</strong>
+      <span id="pmaSpan">-</span>
+    </p>
 
-<p><strong>Calc.:</strong>
-  <span id="calcSpan">weeks</span>
-</p>
+    <p><strong>Calc.:</strong>
+      <span id="calcSpan">weeks</span>
+    </p>
 
-<p><strong>Postnatal Age:</strong>
-  <span id="pnaSpan">-</span>
-</p>
+    <p><strong>Postnatal Age:</strong>
+      <span id="pnaSpan">-</span>
+    </p>
 
-<div class="section-title">Calculated Dosage</div>
+    <div class="section-title">Calculated Dosage</div>
 
-<p>Birth Weight (BW):
-  <span id="bwSpan" class="highlight-dose">- kg</span>
-</p>
+    <p>Birth Weight (BW):
+      <span id="bwSpan" class="highlight-dose">- kg</span>
+    </p>
 
     <div class="section-title">Calculated Dosage for Neonates</div>
-<p>Recommended Dose:
-  <span id="doseSpan" class="highlight-dose">    10 – 15 mg/kg/dose
-    (≈ 0 – 0 mg/dose)</span>
-</p>
+    <p>Recommended Dose:
+      <span id="doseSpan" class="highlight-dose">
+        10–15 mg/kg/dose (≈ 0–0 mg/dose)
+      </span>
+    </p>
 
-<p>Interval:
-  <span id="intervalSpan" class="highlight-dose">-</span>
-</p>
-
+    <p>Interval:
+      <span id="intervalSpan" class="highlight-dose">-</span>
+    </p>
 
     <br>
 
     <p><strong>Initial Dose:</strong> 10 to 15 mg/kg/dose IV every 6 to 18 hours, with adjustments based on PMA and postnatal age.</p>
     <p><strong>PMA:</strong> Postmenstrual age is gestational age plus postnatal age. It is the primary determinant of dosing intervals, with postnatal age as a secondary qualifier.</p>
 
-    <table>
-  <tr>
-    <th>PMA</th>
-    <th>Postnatal Age</th>
-    <th>Interval</th>
-  </tr>
-  <tr class="">
-    <td>&le; 29 weeks</td>
-    <td>0 to 14 days</td>
-    <td>18 hours</td>
-  </tr>
-  <tr class="">
-    <td>&le; 29 weeks</td>
-    <td>Older than 14 days</td>
-    <td>12 hours</td>
-  </tr>
-  <tr class="">
-    <td>30 to 36 weeks</td>
-    <td>0 to 14 days</td>
-    <td>12 hours</td>
-  </tr>
-  <tr class="">
-    <td>30 to 36 weeks</td>
-    <td>Older than 14 days</td>
-    <td>8 hours</td>
-  </tr>
-  <tr class="">
-    <td>37 to 44 weeks</td>
-    <td>0 to 7 days</td>
-    <td>12 hours</td>
-  </tr>
-  <tr class="">
-    <td>37 to 44 weeks</td>
-    <td>Older than 7 days</td>
-    <td>8 hours</td>
-  </tr>
-  <tr class="">
-    <td>&ge; 45 weeks</td>
-    <td>All ages</td>
-    <td>6 hours</td>
-  </tr>
-</table>
-
+    <table id="vancoTable">
+      <tr>
+        <th>PMA</th>
+        <th>Postnatal Age</th>
+        <th>Interval</th>
+      </tr>
+      <tr
+        data-pma-min="0" data-pma-max="29.99"
+        data-pna-min="0" data-pna-max="14"
+        data-interval="18">
+        <td>&le; 29 weeks</td>
+        <td>0 to 14 days</td>
+        <td>18 hours</td>
+      </tr>
+      <tr
+        data-pma-min="0" data-pma-max="29.99"
+        data-pna-min="15" data-pna-max="365"
+        data-interval="12">
+        <td>&le; 29 weeks</td>
+        <td>Older than 14 days</td>
+        <td>12 hours</td>
+      </tr>
+      <tr
+        data-pma-min="30" data-pma-max="36"
+        data-pna-min="0" data-pna-max="14"
+        data-interval="12">
+        <td>30 to 36 weeks</td>
+        <td>0 to 14 days</td>
+        <td>12 hours</td>
+      </tr>
+      <tr
+        data-pma-min="30" data-pma-max="36"
+        data-pna-min="15" data-pna-max="365"
+        data-interval="8">
+        <td>30 to 36 weeks</td>
+        <td>Older than 14 days</td>
+        <td>8 hours</td>
+      </tr>
+      <tr
+        data-pma-min="37" data-pma-max="44"
+        data-pna-min="0" data-pna-max="7"
+        data-interval="12">
+        <td>37 to 44 weeks</td>
+        <td>0 to 7 days</td>
+        <td>12 hours</td>
+      </tr>
+      <tr
+        data-pma-min="37" data-pma-max="44"
+        data-pna-min="8" data-pna-max="365"
+        data-interval="8">
+        <td>37 to 44 weeks</td>
+        <td>Older than 7 days</td>
+        <td>8 hours</td>
+      </tr>
+      <tr
+        data-pma-min="45" data-pma-max="60"
+        data-pna-min="0" data-pna-max="365"
+        data-interval="6">
+        <td>&ge; 45 weeks</td>
+        <td>All ages</td>
+        <td>6 hours</td>
+      </tr>
+    </table>
 
     <h2>Administration</h2>
     <ul>
@@ -346,11 +366,10 @@
     <p>Compatible solutions include D5W, D10W, and Normal Saline (NS).</p>
     <p>Terminal injection site compatibility: Amikacin, ampicillin, calcium gluconate, insulin, and many more. Incompatible with: cefazolin, cefepime, piperacillin, and others.</p>
 
-        <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+    <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
-
+        const params   = new URLSearchParams(window.location.search);
         const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
         const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
         const calc     = parseFloat(params.get('calc')    || '0');
@@ -365,16 +384,8 @@
         const doseSpan     = document.getElementById('doseSpan');
         const intervalSpan = document.getElementById('intervalSpan');
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
-
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
+        if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+          console.error('Missing DOM elements on Vancomycin page');
           return;
         }
 
@@ -395,26 +406,69 @@
           ? `${bw.toFixed(2)} kg`
           : '- kg';
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
-          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
-        } else {
-          doseSpan.textContent = '- mg / dose';
+        // ---------- เลือก interval จากตาราง ----------
+        const GA = pmaWeeks || calc || 0;   // ใช้ pmaWeeks เป็นหลัก ถ้าไม่มีค่อยใช้ calc
+        const table = document.getElementById('vancoTable');
+        let matchedRow = null;
+        let intervalHours = null;
+
+        if (table && GA > 0 && pnaDays >= 0) {
+          const rows = table.tBodies[0] && table.tBodies[0].rows.length
+            ? table.tBodies[0].rows
+            : table.rows;
+
+          // ล้าง highlight เดิม
+          Array.from(rows).forEach(row => {
+            if (row.querySelector('th')) return; // ข้าม header
+            row.classList.remove('highlight');
+          });
+
+          Array.from(rows).forEach(row => {
+            if (row.querySelector('th')) return;
+
+            const pmaMin = Number(row.dataset.pmaMin);
+            const pmaMax = Number(row.dataset.pmaMax);
+            const pnaMin = Number(row.dataset.pnaMin);
+            const pnaMax = Number(row.dataset.pnaMax);
+
+            if (
+              !Number.isNaN(pmaMin) && !Number.isNaN(pmaMax) &&
+              !Number.isNaN(pnaMin) && !Number.isNaN(pnaMax) &&
+              GA      >= pmaMin && GA      <= pmaMax &&
+              pnaDays >= pnaMin && pnaDays <= pnaMax
+            ) {
+              matchedRow = row;
+            }
+          });
+
+          if (matchedRow) {
+            matchedRow.classList.add('highlight');
+            const intv = Number(matchedRow.dataset.interval);
+            if (!Number.isNaN(intv) && intv > 0) {
+              intervalHours = intv;
+            }
+          }
         }
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
-
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
+        // ---------- แสดง Interval ----------
+        if (intervalHours) {
+          intervalSpan.textContent = `q ${intervalHours} hr(s)`;
         } else {
           intervalSpan.textContent = '-';
+        }
+
+        // ---------- คำนวณ Recommended Dose (10–15 mg/kg/dose) ----------
+        const minPerKg = 10;
+        const maxPerKg = 15;
+
+        if (bw > 0) {
+          const minDose = minPerKg * bw;
+          const maxDose = maxPerKg * bw;
+          doseSpan.textContent =
+            `10–15 mg/kg/dose (≈ ${minDose.toFixed(2)}–${maxDose.toFixed(2)} mg/dose)`;
+        } else {
+          doseSpan.textContent =
+            '10–15 mg/kg/dose (≈ 0–0 mg/dose)';
         }
       });
     </script>
