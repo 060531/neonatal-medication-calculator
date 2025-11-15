@@ -449,6 +449,20 @@
     </section>
   </div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const search = window.location.search;   // ?pma_weeks=...&bw=...
+
+    if (!search) return;
+
+    document.querySelectorAll('.medication-dose-button[href]').forEach(function (a) {
+      const base = a.getAttribute('href').split('?')[0];
+      a.setAttribute('href', base + search);
+    });
+  });
+</script>
+
+
 
   <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
     <a href="./index.html" class="back-btn">⬅ Back to Home</a>
