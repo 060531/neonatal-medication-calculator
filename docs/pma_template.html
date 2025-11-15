@@ -323,9 +323,12 @@
         </div>
       </div>
 
-      <button type="button" class="pma-btn" onclick="calculatePMAStatic()">
-        Calculate PMA
-      </button>
+      <button type="button"
+        class="calc-btn"
+        onclick="calculatePMAStatic()">
+  Calculate PMA
+</button>
+
     </form>
 
     <div id="pmaResultBox" class="pma-result" style="display:none">
@@ -348,29 +351,32 @@
   </div>
 
   <script>
-    function calculatePMAStatic() {
-      const gaWeeks = parseInt(document.getElementById('ga_weeks').value) || 0;
-      const gaDays  = parseInt(document.getElementById('ga_days').value) || 0;
-      const pna     = parseInt(document.getElementById('postnatal_days').value) || 0;
-      const bwVal   = parseFloat(document.getElementById('bw').value) || 0;
+  function calculatePMAStatic() {
+    // 1) อ่านค่าจาก input
+    const gaWeeks = parseInt(document.getElementById('ga_weeks').value || '0', 10);
+    const gaDays  = parseInt(document.getElementById('ga_days').value  || '0', 10);
+    const pnaDays = parseInt(document.getElementById('pna_days').value || '0', 10);
+    const bw      = parseFloat(document.getElementById('bw').value     || '0');
 
-      const totalDays = gaWeeks * 7 + gaDays + pna;
-      const pmaWeeks  = Math.floor(totalDays / 7);
-      const pmaDays   = totalDays % 7;
-      const calc      = (pmaWeeks + pmaDays / 7).toFixed(1);
+    // 2) คำนวณ PMA
+    const totalDays = gaWeeks * 7 + gaDays + pnaDays;
+    const pmaWeeks  = Math.floor(totalDays / 7);
+    const pmaDays   = totalDays % 7;
+    const calcWeeks = totalDays / 7;
 
-      document.getElementById('pma_res_weeks').textContent = pmaWeeks;
-      document.getElementById('pma_res_days').textContent  = pmaDays;
-      document.getElementById('pma_res_calc').textContent  = calc;
-      document.getElementById('pma_res_pna').textContent   = pna;
-      document.getElementById('pma_res_bw').textContent    = bwVal ? bwVal.toFixed(2) : '-';
+    // 3) เตรียม query string ส่งไปหน้า drug_calculation.html
+    const params = new URLSearchParams({
+      pma_weeks:      pmaWeeks,
+      pma_days:       pmaDays,
+      calc:           calcWeeks.toFixed(1),
+      postnatal_days: pnaDays,
+      bw:             bw.toFixed(2)
+    });
 
-      document.getElementById('pma-result-static').style.display = 'block';
-    }
-  </script>
-
-
-
+    // 4) redirect ไปหน้าเลือกยา
+    window.location.href = 'drug_calculation.html?' + params.toString();
+  }
+</script>
 
 
   </div>
