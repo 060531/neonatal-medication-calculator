@@ -26,7 +26,7 @@
     font-size: clamp(20px, 4.4vw, 28px);
     box-shadow: 0 10px 22px rgba(4,47,46,0.35);
     margin-top: 0;
-    margin-bottom: 30px;  /* ปรับตามใจ 18–24px ก็ได้ */
+    margin-bottom: 30px;
   }
   .pma-card .form-group{
     margin-bottom: 10px;
@@ -121,39 +121,28 @@
     border-radius: 10px;
     text-decoration: none;
     box-shadow: 0 4px #999;
-}
-
-  .back-button:hover {
-      background-color: #d32f2f;
   }
-
+  .back-button:hover { background-color: #d32f2f; }
   .back-button:active {
-      background-color: #d32f2f;
-      box-shadow: 0 4px #666;
-      transform: translateY(4px);
+    background-color: #d32f2f;
+    box-shadow: 0 4px #666;
+    transform: translateY(4px);
   }
 
   .back-button-secondary {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      text-align: center;
-      color: #fff;
-      background-color: #f44336;
-      border: none;
-      border-radius: 10px;
-      text-decoration: none;
-      box-shadow: 0 4px #999;
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    color: #fff;
+    background-color: #008CBA;
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    box-shadow: 0 4px #999;
   }
-
-  .back-button-secondary {
-      background-color: #008CBA;
-  }
-
-  .back-button-secondary:hover {
-      background-color: #007B9A;
-  }
+  .back-button-secondary:hover { background-color: #007B9A; }
 
   @media (max-width:480px){
     .pma-card{
@@ -168,91 +157,191 @@
   }
 </style>
 
-<div class="pma-card">
-  <h2 class="pma-title">Calculate Postmenstrual Age (PMA)</h2>
+{# =========================
+   โหมด STATIC (GitHub Pages)
+   ========================= #}
+{% if static_build %}
+  <div class="pma-card">
+    <h2 class="pma-title">Calculate Postmenstrual Age (PMA)</h2>
 
-  <form method="post" action="{{ u('calculate_pma_route') }}">
-    <div class="form-group">
-      <label>Gestational Age:</label>
-      <div class="pma-inline">
-        <input type="number" name="gestational_age_weeks" placeholder="Weeks" required
-               value="{{ ga_w_val|default('', true) }}">
-        <span>wks</span>
-        <input type="number" name="gestational_age_days" placeholder="Days" required
-               value="{{ ga_d_val|default('', true) }}">
-        <span>day</span>
+    <form id="pma-form" onsubmit="return false;">
+      <div class="form-group">
+        <label>Gestational Age:</label>
+        <div class="pma-inline">
+          <input type="number" id="ga_weeks" placeholder="Weeks">
+          <span>wks</span>
+          <input type="number" id="ga_days" placeholder="Days">
+          <span>day</span>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label>Postnatal Age (Days):</label>
-      <div class="pma-inline">
-        <input type="number" name="postnatal_age_days" placeholder="Days" required
-               value="{{ pna_d_val|default('', true) }}">
-        <span>day</span>
+      <div class="form-group">
+        <label>Postnatal Age (Days):</label>
+        <div class="pma-inline">
+          <input type="number" id="postnatal_days" placeholder="Days">
+          <span>day</span>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label>Birth Weight (kg):</label>
-      <div class="pma-inline">
-        <input type="number" name="bw" placeholder="kg" step="0.001" required
-               value="{{ bw|default('', true) }}">
-        <span>kg</span>
+      <div class="form-group">
+        <label>Birth Weight (kg):</label>
+        <div class="pma-inline">
+          <input type="number" id="bw" placeholder="kg" step="0.001">
+          <span>kg</span>
+        </div>
       </div>
-    </div>
 
-    <button type="button" class="btn btn-primary" onclick="calculatePMA()">Calculate PMA</button>
+      <button type="button" class="pma-btn" onclick="calculatePMAStatic()">
+        Calculate PMA
+      </button>
+    </form>
 
-  </form>
-
-  {% if error %}
-    <div class="pma-result" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c;margin-top:10px">
-      {{ error }}
-    </div>
-  {% endif %}
-
-  {% if pma_weeks is not none and pma_days is not none %}
-    <div class="pma-result">
+    <div id="pma-result-static" class="pma-result" style="display:none">
       <p>PMA:
         <span class="pma-pill">
-          {{ pma_weeks }} weeks {{ pma_days }} days
+          <span id="pma_res_weeks"></span> weeks
+          <span id="pma_res_days"></span> days
         </span>
       </p>
-      <p>Calc.: <b style="color:#0f766e">{{ calc_unit or 'weeks' }}</b></p>
+      <p>Calc.:
+        <b style="color:#0f766e">
+          <span id="pma_res_calc"></span> weeks
+        </b>
+      </p>
       <p>Postnatal Age:
         <b style="color:#0f766e">
-          {{ postnatal_days if postnatal_days is not none else '-' }} days
+          <span id="pma_res_pna"></span> days
         </b>
       </p>
       <p>Birth Weight (BW):
-      <b style="color:#0f766e">
-        {% if bw is defined and bw is not none %}
-          {{ bw|fmt(3) }} kg
-        {% else %}
-          -
-        {% endif %}
-      </b>
-    </p>
-
-
-
-      <form method="post" action="{{ u('drug_calculation') }}">
-        <input type="hidden" name="pma_weeks" value="{{ pma_weeks }}">
-        <input type="hidden" name="pma_days"  value="{{ pma_days }}">
-        <input type="hidden" name="postnatal_days" value="{{ postnatal_days }}">
-        <input type="hidden" name="bw" value="{{ bw }}">
-        <input type="hidden" name="calc" value="{{ calc_unit }}">
-        <button class="drug-button" type="submit">คำนวณยา</button>
-      </form>
+        <b style="color:#0f766e">
+          <span id="pma_res_bw"></span> kg
+        </b>
+      </p>
     </div>
-  {% endif %}
-</div>
+  </div>
 
-<div class="button-group">
-  <a href="javascript:history.back()" class="back-button-secondary">Back</a>
-  <a href="{{ u('index') }}" class="back-button">Back to Home</a>
-</div>
+  <div class="button-group">
+    <a href="javascript:history.back()" class="back-button-secondary">Back</a>
+    <a href="{{ u('index') }}" class="back-button">Back to Home</a>
+  </div>
 
+  <script>
+    function calculatePMAStatic() {
+      const gaWeeks = parseInt(document.getElementById('ga_weeks').value) || 0;
+      const gaDays  = parseInt(document.getElementById('ga_days').value) || 0;
+      const pna     = parseInt(document.getElementById('postnatal_days').value) || 0;
+      const bwVal   = parseFloat(document.getElementById('bw').value) || 0;
+
+      const totalDays = gaWeeks * 7 + gaDays + pna;
+      const pmaWeeks  = Math.floor(totalDays / 7);
+      const pmaDays   = totalDays % 7;
+      const calc      = (pmaWeeks + pmaDays / 7).toFixed(1);
+
+      document.getElementById('pma_res_weeks').textContent = pmaWeeks;
+      document.getElementById('pma_res_days').textContent  = pmaDays;
+      document.getElementById('pma_res_calc').textContent  = calc;
+      document.getElementById('pma_res_pna').textContent   = pna;
+      document.getElementById('pma_res_bw').textContent    = bwVal ? bwVal.toFixed(2) : '-';
+
+      document.getElementById('pma-result-static').style.display = 'block';
+    }
+  </script>
+
+{# =========================
+   โหมด FLASK (server side)
+   ========================= #}
+{% else %}
+  <div class="pma-card">
+    <h2 class="pma-title">Calculate Postmenstrual Age (PMA)</h2>
+
+    <form method="post" action="{{ u('calculate_pma_route') }}">
+      <div class="form-group">
+        <label>Gestational Age:</label>
+        <div class="pma-inline">
+          <input type="number" name="gestational_age_weeks"
+                 placeholder="Weeks" required
+                 value="{{ ga_w_val|default('', true) }}">
+          <span>wks</span>
+          <input type="number" name="gestational_age_days"
+                 placeholder="Days" required
+                 value="{{ ga_d_val|default('', true) }}">
+          <span>day</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Postnatal Age (Days):</label>
+        <div class="pma-inline">
+          <input type="number" name="postnatal_age_days"
+                 placeholder="Days" required
+                 value="{{ pna_d_val|default('', true) }}">
+          <span>day</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Birth Weight (kg):</label>
+        <div class="pma-inline">
+          <input type="number" name="bw"
+                 placeholder="kg" step="0.001" required
+                 value="{{ bw|default('', true) }}">
+          <span>kg</span>
+        </div>
+      </div>
+
+      <button type="submit" class="pma-btn">Calculate PMA</button>
+    </form>
+
+    {% if error %}
+      <div class="pma-result" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c;margin-top:10px">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    {% if pma_weeks is not none and pma_days is not none %}
+      <div class="pma-result">
+        <p>PMA:
+          <span class="pma-pill">
+            {{ pma_weeks }} weeks {{ pma_days }} days
+          </span>
+        </p>
+        <p>Calc.:
+          <b style="color:#0f766e">
+            {{ calc_unit or 'weeks' }}
+          </b>
+        </p>
+        <p>Postnatal Age:
+          <b style="color:#0f766e">
+            {{ postnatal_days if postnatal_days is not none else '-' }} days
+          </b>
+        </p>
+        <p>Birth Weight (BW):
+          <b style="color:#0f766e">
+          {% if bw is defined and bw is not none %}
+            {{ bw|fmt(3) }} kg
+          {% else %}
+            -
+          {% endif %}
+          </b>
+        </p>
+
+        <form method="post" action="{{ u('drug_calculation') }}">
+          <input type="hidden" name="pma_weeks" value="{{ pma_weeks }}">
+          <input type="hidden" name="pma_days"  value="{{ pma_days }}">
+          <input type="hidden" name="postnatal_days" value="{{ postnatal_days }}">
+          <input type="hidden" name="bw" value="{{ bw }}">
+          <input type="hidden" name="calc" value="{{ calc_unit }}">
+          <button class="drug-button" type="submit">คำนวณยา</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="button-group">
+    <a href="javascript:history.back()" class="back-button-secondary">Back</a>
+    <a href="{{ u('index') }}" class="back-button">Back to Home</a>
+  </div>
+{% endif %}
 
 {% endblock %}
