@@ -199,7 +199,7 @@
   <span id="bwSpan" class="highlight-dose">- kg</span>
 </p>
 
-<p>Recommended Dose:
+<p>Recommended Dose :
   <span id="doseSpan" class="highlight-dose">- mg / dose</span>
 </p>
 
@@ -230,12 +230,26 @@
       orally in 2 divided doses in neonates less than 2 kg have been used in infants 0 to 59 days
       with possible serious infections.</p>
 
-    <div class="section-title">Anthrax</div>
+        <div class="section-title">Anthrax</div>
     <p><strong>32 to 37 weeks gestational age</strong></p>
-    <p><strong>0 to 1 week of age:</strong> 50 mg/kg/day orally divided every 12 hours</p>
-    <p><strong>1 to 4 weeks of age:</strong> 75 mg/kg/day orally divided every 8 hours</p>
+
+    <!-- Preterm 32–37 wk -->
+    <p id="anthrax_preterm_0_1">
+      <strong>0 to 1 week of age:</strong>
+      50 mg/kg/day orally divided every 12 hours
+    </p>
+    <p id="anthrax_preterm_1_4">
+      <strong>1 to 4 weeks of age:</strong>
+      75 mg/kg/day orally divided every 8 hours
+    </p>
+
+    <!-- Term newborn -->
     <p><strong>Term newborn</strong></p>
-    <p><strong>0 to 4 week of age:</strong> 75 mg/kg/day orally divided every 8 hours</p>
+    <p id="anthrax_term_0_4">
+      <strong>0 to 4 week of age:</strong>
+      75 mg/kg/day orally divided every 8 hours
+    </p>
+
     <p><strong>Duration:</strong> For prophylaxis, continue for 60 days after exposure. For naturally acquired
       cutaneous infection, 7 to 10 days. As follow-up therapy for severe anthrax, complete course
       for 14 days or longer until clinical criteria for stability are met.</p>
@@ -245,6 +259,7 @@
     <p><strong>Dose Adjustments:</strong> There are no data available for dosing amoxicillin in pediatric patients
       with renal impairment. In adults, based on the severity of the infection, the lower end of the
       dose and/or frequency are recommended.</p>
+
 
     <br>
     <h3>Uses</h3>
@@ -427,17 +442,18 @@ after dose) volunteers.</p>
 <hr>
 
     <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
+        <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams(window.location.search);
 
         const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
         const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
-        const calc     = parseFloat(params.get('calc')    || '0');
+        const calc     = parseFloat(params.get('calc')    || '0');   // PMA รวมเป็นสัปดาห์ (ทศนิยม)
         const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
-        const bw       = parseFloat(params.get('bw')      || '0');
+        const bw       = parseFloat(params.get('bw')      || '0');   // kg
 
-        // element สำหรับแสดงผล
+        // element สำหรับแสดงผลหลัก ๆ
         const pmaSpan      = document.getElementById('pmaSpan');
         const calcSpan     = document.getElementById('calcSpan');
         const pnaSpan      = document.getElementById('pnaSpan');
@@ -445,23 +461,17 @@ after dose) volunteers.</p>
         const doseSpan     = document.getElementById('doseSpan');
         const intervalSpan = document.getElementById('intervalSpan');
 
-        // บรรทัด dose ที่จะไฮไลต์
-        const lt30Line     = document.getElementById('acy_lt30');
-        const ge30Line     = document.getElementById('acy_ge30');
-
-        if (
-          !pmaSpan || !calcSpan || !pnaSpan ||
-          !bwSpan  || !doseSpan || !intervalSpan ||
-          !lt30Line || !ge30Line
-        ) {
-          console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
+        if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
+          console.error('ตรวจสอบ id ของ element แสดงผลให้ครบ');
           return;
         }
 
         // ----- แสดงค่า PMA / Calc / Postnatal age / BW -----
-        pmaSpan.textContent = (pmaWeeks || pmaDays)
-          ? `${pmaWeeks} weeks ${pmaDays} days`
-          : '-';
+        if (pmaWeeks || pmaDays) {
+          pmaSpan.textContent = `${pmaWeeks} weeks ${pmaDays} days`;
+        } else {
+          pmaSpan.textContent = '-';
+        }
 
         calcSpan.textContent = calc
           ? `${calc.toFixed(1)} weeks`
@@ -475,29 +485,89 @@ after dose) volunteers.</p>
           ? `${bw.toFixed(2)} kg`
           : '- kg';
 
-        // ----- คำนวณ dose = 20 mg/kg/dose -----
-        if (bw > 0) {
-          const doseMg = 20 * bw;
-          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
-        } else {
-          doseSpan.textContent = '- mg / dose';
-        }
+        // ====== เลือกสูตร Anthrax ตาม GA (ประมาณ) + PNA แล้วคำนวณ dose ======
 
-        // ----- Interval + highlight สีเขียวตาม PMA -----
-        lt30Line.classList.remove('highlight-green');
-        ge30Line.classList.remove('highlight-green');
+        // element สำหรับ highlight บรรทัด Anthrax
+        const anthraxPreterm01 = document.getElementById('anthrax_preterm_0_1');
+        const anthraxPreterm14 = document.getElementById('anthrax_preterm_1_4');
+        const anthraxTerm04    = document.getElementById('anthrax_term_0_4');
 
-        if (calc && calc < 30) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 to 12 hours';
-          lt30Line.classList.add('highlight-green');
-        } else if (calc) {
-          intervalSpan.textContent = '20 mg/kg IV every 8 hours';
-          ge30Line.classList.add('highlight-green');
+        // ล้าง highlight เดิมออกก่อน
+        [anthraxPreterm01, anthraxPreterm14, anthraxTerm04].forEach(el => {
+          if (el) el.classList.remove('highlight-green');
+        });
+
+        // สรุปสั้น ๆ ในกล่องสีเขียวด้านบน (บรรทัด <p class="highlight-green"><em>...</em>)
+        const summaryEm = document.querySelector('.highlight-green em');
+
+        let mgPerKgPerDay = null;   // mg/kg/day
+        let dosesPerDay   = null;   // 1, 2, 3 ตาม q24, q12, q8
+        let regimenText   = '';
+
+        if (bw > 0 && calc) {
+          // ประมาณ GA จาก PMA - อายุหลังคลอด (อายุหลังคลอดเป็นสัปดาห์)
+          const gaApprox = calc - (pnaDays / 7.0);
+
+          // ค่า default ถ้าไม่เข้าเงื่อนไข Anthrax ชัด ๆ
+          mgPerKgPerDay = 30;
+          dosesPerDay   = 2;
+          regimenText   = 'ตัวอย่าง: 30 mg/kg/day PO divided every 12 hours';
+
+          if (!Number.isNaN(gaApprox)) {
+            // 32–37 wk preterm group
+            if (gaApprox >= 32 && gaApprox < 37) {
+              if (pnaDays <= 7 && anthraxPreterm01) {
+                mgPerKgPerDay = 50;
+                dosesPerDay   = 2;
+                regimenText   = 'Anthrax: 50 mg/kg/day PO divided every 12 hours (0–1 week of age, GA 32–37 wk)';
+                anthraxPreterm01.classList.add('highlight-green');
+
+              } else if (pnaDays > 7 && pnaDays <= 28 && anthraxPreterm14) {
+                mgPerKgPerDay = 75;
+                dosesPerDay   = 3;
+                regimenText   = 'Anthrax: 75 mg/kg/day PO divided every 8 hours (1–4 weeks of age, GA 32–37 wk)';
+                anthraxPreterm14.classList.add('highlight-green');
+              }
+
+            // term newborn (GA ≥ 37 wk)
+            } else if (gaApprox >= 37 && anthraxTerm04) {
+              mgPerKgPerDay = 75;
+              dosesPerDay   = 3;
+              regimenText   = 'Anthrax: 75 mg/kg/day PO divided every 8 hours (term newborn, 0–4 weeks of age)';
+              anthraxTerm04.classList.add('highlight-green');
+            }
+          }
+
+          // คำนวณ mg/day และ mg ต่อ 1 dose
+          const dailyMg  = mgPerKgPerDay * bw;         // mg/day
+          const doseMg   = dailyMg / dosesPerDay;      // mg/dose
+
+          doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose (~${dailyMg.toFixed(2)} mg/day)`;
+
+          let intervalText = '';
+          if (dosesPerDay === 1) {
+            intervalText = `${mgPerKgPerDay} mg/kg/day PO once daily`;
+          } else if (dosesPerDay === 2) {
+            intervalText = `${mgPerKgPerDay} mg/kg/day PO divided every 12 hours`;
+          } else if (dosesPerDay === 3) {
+            intervalText = `${mgPerKgPerDay} mg/kg/day PO divided every 8 hours`;
+          }
+          intervalSpan.textContent = intervalText;
+
+          if (summaryEm && regimenText) {
+            summaryEm.textContent = regimenText;
+          }
         } else {
+          // ไม่มี BW หรือไม่มี PMA → โชว์เป็น default
+          doseSpan.textContent     = '- mg / dose';
           intervalSpan.textContent = '-';
+          if (summaryEm) {
+            summaryEm.textContent = '';
+          }
         }
       });
     </script>
+
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
