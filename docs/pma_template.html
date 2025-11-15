@@ -355,7 +355,7 @@
     // 1) อ่านค่าจาก input
     const gaWeeks = parseInt(document.getElementById('ga_weeks').value || '0', 10);
     const gaDays  = parseInt(document.getElementById('ga_days').value  || '0', 10);
-    const pnaDays = parseInt(document.getElementById('pna_days').value || '0', 10);
+    const pnaDays = parseInt(document.getElementById('postnatal_days').value || '0', 10);
     const bw      = parseFloat(document.getElementById('bw').value     || '0');
 
     // 2) คำนวณ PMA
@@ -377,6 +377,7 @@
     window.location.href = 'drug_calculation.html?' + params.toString();
   }
 </script>
+
 
 
   </div>
