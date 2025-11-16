@@ -159,5 +159,82 @@
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 
+    <script>
+(function () {
+  var host = window.location.hostname || "";
+  if (!host.endsWith("github.io")) return;
+
+  var form = document.querySelector("form");
+  if (!form) return;
+
+  var doseInput = form.querySelector("[name='dose']");
+  if (!doseInput) return;
+
+  // อ่าน scheme จาก radio หรือ select
+  function getSchemeValue() {
+    var radios = form.querySelectorAll("input[name='scheme']");
+    if (radios.length > 0) {
+      for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked) return radios[i].value;
+      }
+      return radios[0].value || "150k";
+    }
+    var sel = form.querySelector("select[name='scheme']");
+    if (sel) {
+      return sel.value || "150k";
+    }
+    return "150k";
+  }
+
+  var SCHEMES = {
+    "300k": { vol: 4.0, strength: 300000 },
+    "150k": { vol: 8.0, strength: 150000 }
+  };
+
+  function round2(x) {
+    return Math.round((x + Number.EPSILON) * 100) / 100;
+  }
+
+  function createOrGetBox() {
+    var box = document.getElementById("gh-benzathine-result");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "gh-benzathine-result";
+      box.className = "result";
+      form.parentNode.insertBefore(box, form.nextSibling);
+    }
+    return box;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var raw = (doseInput.value || "").trim();
+    var d = parseFloat(raw);
+    if (!raw || isNaN(d) || d < 0) {
+      alert("กรุณากรอก dose เป็นตัวเลข ≥ 0");
+      return;
+    }
+
+    var scheme = getSchemeValue();
+    if (!SCHEMES[scheme]) scheme = "150k";
+
+    var vol = SCHEMES[scheme].vol;
+    var strength = SCHEMES[scheme].strength;
+
+    var calculated_ml = round2((d * vol) / strength);
+
+    var box = createOrGetBox();
+    var labelScheme = scheme === "300k" ? "300,000 units/4 mL" : "150,000 units/8 mL";
+
+    box.innerHTML =
+      "<p><b>Dose:</b> " + d.toFixed(2) + " units</p>" +
+      "<p><b>Scheme:</b> " + labelScheme + "</p>" +
+      "<p>ปริมาณที่ต้องเตรียม = " +
+      "<span class='pill-red'>" + calculated_ml.toFixed(2) + "</span> mL</p>";
+  });
+})();
+</script>
+
 </body>
 </html>

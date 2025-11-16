@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -107,6 +107,8 @@
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+  .left-align{ text-align:left; }
+  .order-line{ text-align:center; margin:6px 0; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -129,8 +131,7 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ ========== */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
@@ -144,31 +145,26 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
+    .title-badge{ font-size:22px; padding:8px 14px; }
+    .container{ padding:14px; }
+    .calc-row{ gap:8px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
+  /* ========== จอแคบมาก (≤360px) ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
     .dose-row > input[type="number"],
     .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
-  }
-
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
-  @media (max-width:640px){
-    .title-badge{ font-size:22px; padding:8px 14px; }
-    .container{ padding:14px; }
-    .calc-row{ gap:8px; }
   }
 </style>
 
@@ -180,41 +176,63 @@
 
   <div class="container">
     <!-- กล่องคำนวณ -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <div class="calc-box">
+      <form id="furosemide-form"
+            class="calc-row"
+            action="{{ u('furosemide') }}"
+            method="post">
+        <input type="hidden" name="action" value="dose" />
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
-
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
 
     {% if error %}
       <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
     {% endif %}
 
-    {% if dose is not none %}
-      <div class="result">
+    <!-- ผลลัพธ์ -->
+    <div id="result"
+         class="result"
+         style="{% if dose is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none %}
         <p class="order-line"><b>Order:</b> Furosemide {{ dose|fmt(3) }} mg</p>
         <div class="left-align muted">
           <p><b>ความเข้มข้นอ้างอิง:</b> 20 mg / 2 ml ⇒ <b>10 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 10</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(3) }} ÷ 10 = <span class="pill">{{ (dose / 10) | round(3) }}</span> ml</span></p>
-          <p><b>ดังนั้น:</b> ขนาดยา {{ dose|fmt(3) }} mg = <span class="pill">{{ (dose / 10) | round(3) }} ml</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              {{ dose|fmt(3) }} ÷ 10 =
+              <span class="pill">{{ result_ml|fmt(3) if result_ml is not none else (dose / 10)|round(3) }}</span> ml
+            </span>
+          </p>
+          <p>
+            <b>ดังนั้น:</b>
+            ขนาดยา {{ dose|fmt(3) }} mg =
+            <span class="pill">{{ result_ml|fmt(3) if result_ml is not none else (dose / 10)|round(3) }} ml</span>
+          </p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
       <p class="section-head">ข้อมูลเพิ่มเติม</p>
       <ul class="muted">
         <li><b>ความเข้มข้น:</b> 2 ml = 20 mg ⇒ 1 ml = 10 mg</li>
-        <li><b>ข้อควรระวัง:</b> ควบคุมปริมาณการให้ยาอย่างเคร่งครัด</li>
+        <li><b>ข้อควรระวัง:</b> ควบคุมปริมาณการให้ยาอย่างเคร่งครัด, ติดตาม I/O, BP, e-lyte</li>
       </ul>
     </div>
   </div><!-- /container -->
@@ -227,6 +245,55 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <!-- JS: ใช้เฉพาะตอนรันบน GitHub Pages (hostname ลงท้าย github.io) -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    if (!host.endsWith("github.io")) {
+      // รันบน Flask → ให้ backend เป็นคนคำนวณ
+      return;
+    }
+
+    const form = document.getElementById('furosemide-form');
+    const resultEl = document.getElementById('result');
+    if (!form || !resultEl) return;
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const doseInput = document.getElementById('dose');
+      const doseVal = parseFloat(doseInput.value || '0');
+
+      if (isNaN(doseVal) || doseVal <= 0){
+        alert('กรุณากรอกขนาดยา (mg) ให้ถูกต้อง');
+        return;
+      }
+
+      const ml = doseVal / 10.0;
+
+      resultEl.innerHTML = `
+        <p class="order-line"><b>Order:</b> Furosemide ${doseVal.toFixed(3)} mg</p>
+        <div class="left-align muted">
+          <p><b>ความเข้มข้นอ้างอิง:</b> 20 mg / 2 ml ⇒ <b>10 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 10</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              ${doseVal.toFixed(3)} ÷ 10 =
+              <span class="pill">${ml.toFixed(3)}</span> ml
+            </span>
+          </p>
+          <p>
+            <b>ดังนั้น:</b>
+            ขนาดยา ${doseVal.toFixed(3)} mg =
+            <span class="pill">${ml.toFixed(3)} ml</span>
+          </p>
+        </div>
+      `;
+      resultEl.style.display = 'block';
+    });
+  })();
+  </script>
 
 </body>
 </html>

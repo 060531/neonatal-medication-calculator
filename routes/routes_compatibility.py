@@ -18,7 +18,7 @@ from flask.cli import with_appcontext
 import click
 
 from extensions import db
-from models.compatibility import Drug, Compatibility, AccessLog
+from models import Drug, Compatibility, AccessLog
 
 compat_bp = Blueprint("compat", __name__)
 
@@ -208,41 +208,45 @@ def log_request():
 @compat_bp.route("/compatibility", methods=["GET", "POST"], endpoint="compat_index")
 def compat_index():
     """
-    หน้าเลือกยาสองตัว
+    หน้าเลือกยาสองตัว (ใช้ UI ใหม่จาก compatibility.html)
     """
     drugs = get_all_drugs_for_select()
     groups = group_meds_by_letter(drugs, key_preference=("generic_name",))
     error = None
 
-    if request.method == "POST":
-        drug_a_id = request.form.get("drug_a")
-        drug_b_id = request.form.get("drug_b")
+    selected_drug_id = None
+    selected_co_drug_id = None
 
-        if not drug_a_id or not drug_b_id:
+    if request.method == "POST":
+        selected_drug_id = request.form.get("drug_a")
+        selected_co_drug_id = request.form.get("drug_b")
+
+        if not selected_drug_id or not selected_co_drug_id:
             error = "กรุณาเลือกยาทั้งสองตัว"
-        elif drug_a_id == drug_b_id:
+        elif selected_drug_id == selected_co_drug_id:
             error = "กรุณาเลือกยาคนละชนิดกัน"
         else:
             return redirect(
                 url_for(
                     "compat.compat_result",
-                    drug_a_id=drug_a_id,
-                    drug_b_id=drug_b_id,
+                    drug_a_id=selected_drug_id,
+                    drug_b_id=selected_co_drug_id,
                 )
             )
 
     return render_template(
-        "compat_index.html",
+        "compatibility.html",      # ใช้หน้าใหม่
         drugs=drugs,
         groups=groups,
         error=error,
+        selected_drug_id=selected_drug_id,
+        selected_co_drug_id=selected_co_drug_id,
     )
-
 
 @compat_bp.route("/compatibility/result", methods=["GET"], endpoint="compat_result")
 def compat_result():
     """
-    แสดงผล compatibility ของคู่ยา
+    แสดงผล compatibility ของคู่ยา ด้วย UI ใหม่ (compatibility_result.html)
     """
     drug_a_id = request.args.get("drug_a_id", type=int)
     drug_b_id = request.args.get("drug_b_id", type=int)
@@ -258,28 +262,21 @@ def compat_result():
 
     meta = get_pair_meta(drug_a_name, drug_b_name)
 
-    status_code = compat.status if compat else "ND"
-    status_map = {
-        "C": ("Compatible", "เข้ากันได้"),
-        "I": ("Incompatible", "ห้ามผสม / ไม่เข้ากัน"),
-        "U": ("Uncertain", "ข้อมูลไม่ชัดเจน"),
-        "ND": ("No data", "ไม่มีข้อมูล"),
-    }
-    en_label, th_label = status_map.get(status_code, status_map["ND"])
+    raw_status = compat.status if compat else "ND"
+    code = status_to_code(raw_status)  # ใช้ helper ด้านบนไฟล์
+
+    note = compat.note if compat and compat.note else ""
 
     return render_template(
-        "compat_result.html",
-        drug_a_id=drug_a_id,
-        drug_b_id=drug_b_id,
-        drug_a_name=drug_a_name,
-        drug_b_name=drug_b_name,
-        compat=compat,
+        "compatibility_result.html",
+        code=code,
+        status=raw_status,
+        status_code=code,
+        drug1_name=drug_a_name,
+        drug2_name=drug_b_name,
         meta=meta,
-        status_code=status_code,
-        status_en=en_label,
-        status_th=th_label,
+        note=note,
     )
-
 
 # ===== JSON API =====
 @compat_bp.get("/api/compatibility")
@@ -336,9 +333,8 @@ def api_drugs():
         ]
     )
 
-
 # ===== CLI command: import-compat =====
-@compat_bp.cli.command("import-compat")
+@compat_bp.cli.command("import-compat-json")
 @click.argument("json_file")
 @click.option(
     "--truncate",
@@ -347,70 +343,97 @@ def api_drugs():
     help="ลบข้อมูล Compatibility เดิมทั้งหมดก่อน import",
 )
 @with_appcontext
-def import_compat(json_file: str, truncate: bool):
+def import_compat_json(json_file: str, truncate: bool):
     """
-    ใช้งาน: flask --app app:create_app compat import-compat data/seed_compatibility.json --truncate
+    ใช้งาน: flask --app app compat import-compat-json data/seed_compatibility.json --truncate
+
+    นำเข้าข้อมูลจากไฟล์ JSON ที่เป็น list:
+      [
+        {"drug": "...", "co_drug": "...", "status": "...", "source": "...", "note": "..."},
+        ...
+      ]
     """
     path = Path(json_file)
     if not path.exists():
         click.echo(f"[ERROR] ไม่พบไฟล์: {path}")
         return
 
+    click.echo(f"อ่านไฟล์: {path}")
     data = json.loads(path.read_text(encoding="utf-8"))
+
+    if not isinstance(data, list):
+        click.echo("[ERROR] ไฟล์ JSON ต้องเป็น list ของ objects (rows)")
+        return
+
     if truncate:
+        click.echo("ลบ Compatibility เดิมทั้งหมด...")
         Compatibility.query.delete()
         db.session.commit()
 
-    created = 0
-    updated = 0
+    created_drugs = 0
+    updated_drugs = 0
+    created_pairs = 0
+    updated_pairs = 0
+    skipped_rows = 0
+
+    def _status_to_code(s: str) -> str:
+        return status_to_code(s)
 
     for row in data:
         name_a = canonicalize_name(row.get("drug"))
         name_b = canonicalize_name(row.get("co_drug"))
         if not name_a or not name_b or name_a == name_b:
+            skipped_rows += 1
             continue
 
-        # หา / สร้าง Drug
+        # หา / สร้าง Drug A
         drug_a = Drug.query.filter(
             db.func.lower(Drug.generic_name) == name_a
         ).first()
         if not drug_a:
             drug_a = Drug(generic_name=name_a)
             db.session.add(drug_a)
+            created_drugs += 1
 
+        # หา / สร้าง Drug B
         drug_b = Drug.query.filter(
             db.func.lower(Drug.generic_name) == name_b
         ).first()
         if not drug_b:
             drug_b = Drug(generic_name=name_b)
             db.session.add(drug_b)
+            created_drugs += 1
 
-        db.session.flush()  # ให้ได้ id ก่อนใช้
-
+        # ให้ได้ id ก่อน
+        db.session.flush()
         a_id, b_id = sorted([drug_a.id, drug_b.id])
 
-        status_code = status_to_code(row.get("status"))
+        code = _status_to_code(row.get("status"))
         source = row.get("source")
         note = row.get("note")
 
-        compat = Compatibility.query.filter_by(
-            drug_id=a_id, co_drug_id=b_id
-        ).first()
+        compat = Compatibility.query.filter_by(drug_id=a_id, co_drug_id=b_id).first()
         if compat:
-            compat.status = status_code
+            old_state = (compat.status, compat.source, compat.note)
+            compat.status = code
             compat.source = source
             compat.note = note
-            updated += 1
+            if old_state != (compat.status, compat.source, compat.note):
+                updated_pairs += 1
         else:
             compat = Compatibility(
                 drug_id=a_id,
                 co_drug_id=b_id,
-                status=status_code,
+                status=code,
                 source=source,
                 note=note,
             )
             db.session.add(compat)
-            created += 1
+            created_pairs += 1
 
     db.session.commit()
-    click.echo(f"สร้างใหม่ {created} แถว, อัปเดต {updated} แถว จากไฟล์ {json_file}")
+    click.echo("✅ Import summary:")
+    click.echo(f"  Drugs created : {created_drugs}")
+    click.echo(f"  Pairs created : {created_pairs}")
+    click.echo(f"  Pairs updated : {updated_pairs}")
+    click.echo(f"  Rows skipped  : {skipped_rows}")

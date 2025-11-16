@@ -12,37 +12,25 @@ class Compatibility(db.Model):
     __tablename__ = "compatibility"
 
     id = db.Column(db.Integer, primary_key=True)
+    drug_id = db.Column(db.Integer, db.ForeignKey("drug.id"), nullable=False)
+    co_drug_id = db.Column(db.Integer, db.ForeignKey("drug.id"), nullable=False)
 
-    # ใช้ชื่อคอลัมน์หลักเป็น drug_id / co_drug_id
-    drug_id = db.Column(
-        db.Integer,
-        db.ForeignKey("drug.id"),
-        nullable=False
-    )
-    co_drug_id = db.Column(
-        db.Integer,
-        db.ForeignKey("drug.id"),
-        nullable=False
-    )
+    status = db.Column(db.String(4), nullable=False, default="ND")
 
-    status = db.Column(db.String(32), nullable=False)
+    # 👇 อันนี้ต้องมี
+    source = db.Column(db.String(255), nullable=True)
+    note = db.Column(db.Text, nullable=True)
+
+    drug = db.relationship("Drug", foreign_keys=[drug_id])
+    co_drug = db.relationship("Drug", foreign_keys=[co_drug_id])
 
     __table_args__ = (
-        db.UniqueConstraint(
-            "drug_id",
-            "co_drug_id",
-            name="uq_compat_pair",
-        ),
+        db.UniqueConstraint("drug_id", "co_drug_id", name="uq_compat_pair"),
     )
 
-    # ----- รองรับ keyword a / b จาก unit test เก่า -----
     def __init__(self, **kwargs):
-        # map a,b -> drug_id, co_drug_id ถ้ามี
-        if "a" in kwargs and "drug_id" not in kwargs:
-            kwargs["drug_id"] = kwargs.pop("a")
-        if "b" in kwargs and "co_drug_id" not in kwargs:
-            kwargs["co_drug_id"] = kwargs.pop("b")
         super().__init__(**kwargs)
+
 
     @property
     def a(self):

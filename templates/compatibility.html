@@ -13,8 +13,8 @@
     max-width:1040px;
     margin:24px auto 16px;
     padding-inline:clamp(12px,4vw,24px);
-    padding-left:max(clamp(12px,4vw,24px),env(safe-area-inset-left));
-    padding-right:max(clamp(12px,4vw,24px),env(safe-area-inset-right));
+    padding-left:max(clamp(10px,4vw,20px),env(safe-area-inset-left));
+    padding-right:max(clamp(10px,4vw,20px),env(safe-area-inset-right));
   }
   .compat-shell, .compat-shell *{ font-size:clamp(13px,2.6vw,16px); line-height:1.35; }
 
@@ -28,7 +28,7 @@
     margin-inline:auto; margin-bottom:16px; max-width:92vw;
   }
 
-  .card-wrap{ width:100%; max-width:760px; margin-inline:auto; }
+  .card-wrap{ width:100%; max-width:1000px; margin-inline:auto; }
   .glass-card{
     background:rgba(255,255,255,0.95);
     border:1px solid rgba(15,23,42,.08);
@@ -75,7 +75,7 @@
   .btn-secondary{ background:#e2e8f0; color:#0f172a; }
   .btn:hover{ filter:brightness(.95); }
 
-  /* --- Legend: เล็กลงบนจอใหญ่ และพยายามให้ขึ้นบรรทัดเดียว --- */
+  /* --- Legend --- */
   .legend{
     display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
     gap:10px 14px; margin-top:12px; color:#334155;
@@ -85,6 +85,50 @@
   .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
   .dot.C{background:#16a34a;} .dot.I{background:#dc2626;}
   .dot.U{background:#f59e0b;} .dot.ND{background:#2563eb;}
+
+    .glass-card{
+    background:rgba(255,255,255,0.95);
+    border:1px solid rgba(15,23,42,.08);
+    border-radius:16px;
+    box-shadow:0 10px 28px rgba(2,8,23,.15);
+    padding:clamp(14px,3vw,22px);
+    color:#0f172a;
+    margin-bottom:8px; /* ให้มีพื้นที่เผื่อข้อความด้านล่าง */
+  }
+
+  /* กล่องผลลัพธ์หลัก */
+  .compat-result{
+    margin-top:16px;
+    padding:14px 18px;
+    border-radius:12px;
+    text-align:center;
+    border:1px solid #e2e8f0;
+    background:rgba(255,255,255,0.9);
+    font-weight:500;
+  }
+
+  /* เปลี่ยนสีทั้งกรอบตาม status (ใช้สีเดียวกับ legend) */
+  .compat-result.compat-C{
+    background:rgba(22,163,74,0.10);
+    border-color:#16a34a;
+    color:#064e3b;
+  }
+  .compat-result.compat-I{
+    background:rgba(220,38,38,0.10);
+    border-color:#dc2626;
+    color:#7f1d1d;
+  }
+  .compat-result.compat-U{
+    background:rgba(245,158,11,0.12);
+    border-color:#f59e0b;
+    color:#78350f;
+  }
+  .compat-result.compat-ND{
+    background:rgba(37,99,235,0.10);
+    border-color:#2563eb;
+    color:#1e3a8a;
+  }
+
   @media (min-width:1200px){
     .legend{ flex-wrap:nowrap; gap:18px; font-size:10px; }
     .dot{ width:9px; height:9px; }
@@ -103,16 +147,17 @@
 
     <div class="card-wrap">
       <div class="glass-card">
-        <form method="get" action="{{ u('compatibility_check') }}">
+        {# เปลี่ยน endpoint ให้ตรงกับ blueprint core #}
+        <form method="post" action="{{ url_for('core.compatibility_page') }}">
           <div class="form-grid">
             <!-- ยา A -->
             <div class="field-a">
-              <label for="drug">ยา A</label>
-              <select id="drug" name="drug" required>
+              <label for="drug_a">ยา A</label>
+              <select id="drug_a" name="drug_a" required>
                 <option value="">-- เลือกยา --</option>
                 {% for d in drugs %}
                   <option value="{{ d.id }}"
-                    {% if (selected_drug_id|string) == (d.id|string) %}selected{% endif %}>
+                    {% if selected_drug_id and (selected_drug_id|string) == (d.id|string) %}selected{% endif %}>
                     {{ d.generic_name }}
                   </option>
                 {% endfor %}
@@ -121,37 +166,57 @@
 
             <!-- ยา B -->
             <div class="field-b">
-              <label for="co_drug">ยา B</label>
-              <select id="co_drug" name="co_drug" required>
+              <label for="drug_b">ยา B</label>
+              <select id="drug_b" name="drug_b" required>
                 <option value="">-- เลือกยา --</option>
                 {% for d in drugs %}
                   <option value="{{ d.id }}"
-                    {% if (selected_co_drug_id|string) == (d.id|string) %}selected{% endif %}>
+                    {% if selected_co_drug_id and (selected_co_drug_id|string) == (d.id|string) %}selected{% endif %}>
                     {{ d.generic_name }}
                   </option>
                 {% endfor %}
               </select>
             </div>
 
-            <!-- ปุ่ม: อยู่กึ่งกลางเสมอ -->
+            <!-- ปุ่ม -->
             <div class="actions">
               <button type="submit" class="btn btn-primary">ตรวจสอบ</button>
-              <a href="{{ u('index') }}" class="btn btn-secondary">กลับหน้า Home</a>
+              <a href="{{ url_for('core.index') }}" class="btn btn-secondary">กลับหน้า Home</a>
             </div>
           </div>
         </form>
 
-        <!-- Legend -->
+                {% if status_code %}
+        <div class="compat-result compat-{{ status_code }}">
+            ผลการตรวจสอบ:
+            <strong>{{ drug_a_name or 'ยา A' }}</strong>
+            +
+            <strong>{{ drug_b_name or 'ยา B' }}</strong>
+            →
+            <strong>{{ status_code }}</strong>
+          </p>
+          <p style="margin:0 0 4px 0;">{{ status_text }}</p>
+
+          {% if compat and compat.source %}
+            <p style="margin:0;font-size:12px;">อ้างอิง: {{ compat.source }}</p>
+          {% endif %}
+          {% if compat and compat.note %}
+            <p style="margin:0;font-size:12px;">หมายเหตุ: {{ compat.note }}</p>
+          {% endif %}
+        </div>
+        {% endif %}
+                  <!-- Legend -->
         <div class="legend">
           <div class="item"><span class="dot C"></span> C = Compatible / ผสมร่วมได้</div>
           <div class="item"><span class="dot I"></span> I = Incompatible / ห้ามผสม</div>
           <div class="item"><span class="dot U"></span> U = Uncertain / ไม่ชัดเจน</div>
           <div class="item"><span class="dot ND"></span> ND = No data / ไม่มีข้อมูล</div>
         </div>
+
+        </div>
       </div>
     </div>
   </div>
 </div>
-
 
 {% endblock %}

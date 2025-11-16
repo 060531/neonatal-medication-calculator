@@ -164,5 +164,53 @@
     <a href="{{ u('index') }}" class="btn back-button">Back to Home</a>
   </div>
 
+    <!-- JS calculator สำหรับ GitHub Pages (static) -->
+  <script>
+  (function() {
+    var host = window.location.hostname || "";
+    // ให้ JS ทำงานเฉพาะตอนอยู่บน *.github.io
+    if (!host.endsWith("github.io")) return;
+
+    var form = document.querySelector("form");
+    var doseInput = document.getElementById("dose");
+    if (!form || !doseInput) return;
+
+    function createOrGetResultBox() {
+      var box = document.getElementById("gh-aminophylline-result");
+      if (!box) {
+        box = document.createElement("div");
+        box.id = "gh-aminophylline-result";
+        box.className = "result";   // ใช้คลาสเดียวกับที่หน้าอื่นใช้
+        form.parentNode.insertBefore(box, form.nextSibling);
+      }
+      return box;
+    }
+
+    form.addEventListener("submit", function(ev) {
+      ev.preventDefault(); // ไม่ส่งฟอร์มไปไหน (เพราะบน GitHub ไม่มี backend)
+
+      var raw = (doseInput.value || "").trim();
+      if (!raw) {
+        alert("กรุณากรอกขนาดยา (mg)");
+        return;
+      }
+
+      var d = parseFloat(raw);
+      if (isNaN(d) || d < 0) {
+        alert("กรุณากรอกขนาดยาที่ถูกต้อง (ตัวเลข ≥ 0)");
+        return;
+      }
+
+      // ให้เหมือนฝั่ง Flask: result_ml = int(round(dose * 10))
+      var result = Math.round(d * 10);
+
+      var box = createOrGetResultBox();
+      box.innerHTML =
+        "<p><b>ขนาดยา:</b> " + d.toFixed(2) + " mg</p>" +
+        "<p>ผลลัพธ์ (u = mg × 10) = " +
+        "<span class='pill-red'>" + result + "</span> หน่วย</p>";
+    });
+  })();
+  </script>
 </body>
 </html>

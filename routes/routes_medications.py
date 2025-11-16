@@ -12,6 +12,7 @@ from flask import Blueprint, render_template, request
 from datetime import date
 import math 
 
+
 meds_bp = Blueprint("meds", __name__)
 
 meds_bp = Blueprint("meds_bp", __name__)
@@ -55,24 +56,28 @@ def _content_extra_by_mult(mult):
             "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
             "details": [
                 "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
-                "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8–9 mL",
-                "(ความจุของ Extension Tube ประมาณ 5 mL + ปริมาณที่บริหารเข้าผู้ป่วย 3 mL)",
+                "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
                 "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
                 "การเตรียมยา:",
-                "1) คำนวณ mL, 2) ดูดยา, 3) เติมสารละลายเจือจางใน Syringe",
-                "4) ผสมให้เข้ากัน, 5) ต่อกับ Extension Tube ตั้งอัตรา ~6 mL/hr",
-                "6) Purge สาย ~3 mL ก่อนเริ่มบริหารผู้ป่วย",
+                "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                "3) ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                "4) ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                "5) ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตรา ~6 mL/hr.",
+                "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
             ],
         }
     if mult == 6:
         return {
             "message": "การบริหารยาโดย Intermittent intravenous infusion",
             "details": [
-                "เหมาะกับทารกน้ำหนัก < 1,500 กรัม",
-                "1) ปริมาณที่บริหารเข้าผู้ป่วย = 1 mL",
+                "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                "1) กำหนดให้สารละลายยาซึ่งบริหารเข้าสู้ผู้ป่วยปริมาณเท่ากับ = 1 mL",
+                "2) ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
                 "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
-                "รวมสารละลาย ~6 mL (Tube ~5 mL + ให้ผู้ป่วย 1 mL)",
-                "ใช้ Syringe pump ตั้งอัตรา ~2 mL/hr",
+                "3) จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                "4) บริหารโดยใช้ Syringe pump ตั้งอัตราเร็ว ~2 mL/hr",
             ],
         }
     return None
@@ -203,12 +208,12 @@ def amikin_route():
                             "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
                             "<div style='text-align:center'>(3X + สารละลายเจือจาง Up to 9 ml.)</div>",
                             "การเตรียมยา:",
-                        "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
-                        "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
-                        "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
-                        "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
-                        "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
-                        "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                            "4. ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 6 ml/hr.",
+                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
                         ],
                     }
                 else:  # multiplication == 6
@@ -226,7 +231,7 @@ def amikin_route():
                         ],
                     }
 
-                # ปริมาณ diluent ที่ต้องเติม: ถ้า final_result มากกว่า target ก็ไม่ต้องเติม (0)
+                # ปริมาณ diluent ที่ต้องเติม
                 if target_total is not None and final_result is not None:
                     need = target_total - final_result
                     diluent_to_add = round(need, 2) if need > 0 else 0.0
@@ -245,12 +250,8 @@ def amikin_route():
         msg_block=msg_block,
         content_extra=content_extra,
         error=error,
-        UPDATE_DATE=UPDATE_DATE,   # ใช้ตัวแปรเดียวกับหน้าอื่น
+        UPDATE_DATE=UPDATE_DATE,
     )
-
-
-
-
 
 @meds_bp.route('/aminophylline', methods=['GET', 'POST'])
 def aminophylline_route():
@@ -345,8 +346,6 @@ def amoxicillin_clavimoxy_route():
                            error=error,
                            UPDATE_DATE=UPDATE_DATE)
 
-
-
 @meds_bp.route('/amphotericinB', methods=['GET', 'POST'])
 def amphotericinB_route():
     dose = result_ml_1 = result_ml_2 = final_result_1 = final_result_2 = multiplication = None
@@ -429,208 +428,520 @@ def cefazolin_route():
 
 @meds_bp.route('/cefotaxime', methods=['GET', 'POST'])
 def cefotaxime_route():
-    dose = result_ml = multiplication = None
-    content_extra = error = None
-    action = (request.form.get('action') or '').strip()
+    dose = None
+    result_ml = None
+    multiplication = None
+    content_extra = None
+    error = None
+
     if request.method == 'POST':
         try:
-            if action == 'dose':
-                dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml = _ml_from_stock(dose, 1000, 10)  # 1000 mg/10 mL
-            elif action == 'condition':
-                dose = _as_float(request.form.get('dose_hidden') or request.form.get('dose'), 'dose_hidden')
-                rmh = request.form.get('result_ml_hidden')
-                result_ml = float(rmh) if (rmh not in (None, '')) else _ml_from_stock(dose, 1000, 10)
-                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                _ = _round2(result_ml * multiplication)  # total (ไม่ใช้แสดงก็ได้)
-                content_extra = _content_extra_by_mult(multiplication)
-            else:
-                if request.form.get('dose'):
-                    dose = _as_float(request.form.get('dose'), 'dose')
-                    result_ml = _ml_from_stock(dose, 1000, 10)
-                if request.form.get('multiplication'):
-                    multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-        except Exception:
-            error = "กรุณากรอกข้อมูลให้ถูกต้อง"
-    return render_template('cefotaxime.html',
-                           dose=dose, result_ml=result_ml, multiplication=multiplication,
-                           content_extra=content_extra, error=error, update_date=UPDATE_DATE)
+            # ใช้ชื่อ field ตาม template: step = 'dose' หรือ 'condition'
+            step = (request.form.get('step') or '').strip().lower()
 
+            # -------------------------
+            # รอบที่ 1: รับ dose (mg)
+            # -------------------------
+            if step == 'dose':
+                raw = (request.form.get('dose') or '').strip()
+                if not raw:
+                    raise ValueError("กรุณากรอกขนาดยา (mg)")
+
+                dose = float(raw)
+                if dose < 0:
+                    raise ValueError("ขนาดยาต้องมากกว่าหรือเท่ากับ 0")
+
+                # stock 1000 mg / 10 mL → (dose * 10) / 1000
+                result_ml = round((dose * 10.0) / 1000.0, 2)
+
+            # -------------------------
+            # รอบที่ 2: ใช้ค่าที่คำนวณแล้ว + เงื่อนไขคูณ
+            # -------------------------
+            elif step == 'condition':
+                # hidden dose / result_ml จากฟอร์มรอบที่ 2
+                dose_raw = (request.form.get('dose') or '').strip()
+                if not dose_raw:
+                    raise ValueError("ไม่พบข้อมูล dose เดิม โปรดคำนวณรอบแรกก่อน")
+
+                dose = float(dose_raw)
+
+                result_raw = (request.form.get('result_ml') or '').strip()
+                if result_raw:
+                    result_ml = float(result_raw)
+                else:
+                    # เผื่อกรณีไม่มี hidden result_ml
+                    result_ml = round((dose * 10.0) / 1000.0, 2)
+
+                mult_raw = (request.form.get('multiplication') or '').strip()
+                if not mult_raw:
+                    raise ValueError("กรุณาเลือกเงื่อนไขการคูณ")
+
+                multiplication = int(mult_raw)
+
+                # -------------------------
+                # กล่องคำอธิบายเพิ่มเติม
+                # -------------------------
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+                            "การเตรียมยา:",
+                            "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3) ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                            "4) ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5) ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตรา ~6 mL/hr.",
+                            "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ],
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1) กำหนดให้สารละลายยาซึ่งบริหารเข้าสู้ผู้ป่วยปริมาณเท่ากับ = 1 mL",
+                            "2) ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+                            "3) จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4) บริหารโดยใช้ Syringe pump ตั้งอัตราเร็ว ~2 mL/hr",
+                        ],
+                    }
+
+            # เผื่อกรณี POST แบบไม่ส่ง step (ฟอร์มเก่า)
+            else:
+                if 'dose' in request.form:
+                    dose = float(request.form['dose'])
+                    result_ml = round((dose * 10.0) / 1000.0, 2)
+                if 'multiplication' in request.form:
+                    multiplication = int(request.form['multiplication'])
+
+        except (ValueError, TypeError) as e:
+            error = f"กรุณากรอกข้อมูลให้ถูกต้อง: {e}"
+
+    return render_template(
+        'cefotaxime.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        UPDATE_DATE=UPDATE_DATE,
+    )
 
 @meds_bp.route('/ceftazidime', methods=['GET', 'POST'])
 def ceftazidime_route():
-    dose = result_ml = multiplication = None
-    content_extra = error = None
-    action = (request.form.get('action') or '').strip()
+    dose = None
+    result_ml = None
+    multiplication = None
+    content_extra = None
+    error = None
+
     if request.method == 'POST':
         try:
-            if action == 'dose':
-                dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml = _ml_from_stock(dose, 1000, 10)  # 1000 mg/10 mL
-            elif action == 'condition':
-                dose = _as_float(request.form.get('dose_hidden') or 0, 'dose_hidden')
-                rmh = request.form.get('result_ml_hidden')
-                result_ml = float(rmh) if rmh not in (None, '') else _ml_from_stock(dose, 1000, 10)
-                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                _ = _round2(result_ml * multiplication)
-                content_extra = _content_extra_by_mult(multiplication)
-        except Exception:
-            error = "กรุณากรอกข้อมูลให้ถูกต้อง"
-    return render_template('ceftazidime.html',
-                           dose=dose, result_ml=result_ml, multiplication=multiplication,
-                           content_extra=content_extra, error=error, update_date=UPDATE_DATE)
+            # ใช้ชื่อ field ที่ template ส่งมา: step = 'dose' หรือ 'condition'
+            step = (request.form.get('step') or '').strip().lower()
 
+            # ---------- รอบที่ 1: คำนวณ mg → mL ----------
+            if step == 'dose':
+                raw = (request.form.get('dose') or '').strip()
+                if not raw:
+                    raise ValueError("กรุณากรอกขนาดยา (mg)")
+
+                dose = float(raw)
+                if dose < 0:
+                    raise ValueError("ขนาดยาต้องมากกว่าหรือเท่ากับ 0")
+
+                # stock 1000 mg/10 mL → mL = (mg × 10) / 1000
+                result_ml = round((dose * 10.0) / 1000.0, 2)
+
+            # ---------- รอบที่ 2: ใช้ผลคำนวณ + เงื่อนไข ----------
+            elif step == 'condition':
+                dose_raw = (request.form.get('dose') or '').strip()
+                if not dose_raw:
+                    raise ValueError("ไม่พบข้อมูล dose เดิม โปรดคำนวณรอบแรกก่อน")
+
+                dose = float(dose_raw)
+
+                result_raw = (request.form.get('result_ml') or '').strip()
+                if result_raw:
+                    result_ml = float(result_raw)
+                else:
+                    result_ml = round((dose * 10.0) / 1000.0, 2)
+
+                mult_raw = (request.form.get('multiplication') or '').strip()
+                if not mult_raw:
+                    raise ValueError("กรุณาเลือกเงื่อนไขการคูณ")
+
+                multiplication = int(mult_raw)
+
+                # กล่องคำอธิบายเพิ่มเติม
+                if multiplication == 3:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+                            "การเตรียมยา:",
+                            "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3) ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+                            "4) ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5) ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตรา ~6 mL/hr.",
+                            "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ],
+                    }
+                elif multiplication == 6:
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1) กำหนดให้สารละลายยาซึ่งบริหารเข้าสู้ผู้ป่วยปริมาณเท่ากับ = 1 mL",
+                            "2) ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+                            "3) จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4) บริหารโดยใช้ Syringe pump ตั้งอัตราเร็ว ~2 mL/hr",
+                        ],
+                    }
+
+            # fallback เผื่อ form เก่า (ไม่ส่ง step)
+            else:
+                if 'dose' in request.form:
+                    dose = float(request.form['dose'])
+                    result_ml = round((dose * 10.0) / 1000.0, 2)
+                if 'multiplication' in request.form:
+                    multiplication = int(request.form['multiplication'])
+
+        except (ValueError, TypeError) as e:
+            error = f"กรุณากรอกข้อมูลให้ถูกต้อง: {e}"
+
+    return render_template(
+        'ceftazidime.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        UPDATE_DATE=UPDATE_DATE,   # ให้ key ตรงกับ {{ UPDATE_DATE }}
+    )
 
 @meds_bp.route('/ciprofloxacin', methods=['GET', 'POST'])
 def ciprofloxacin_route():
-    dose = calculated_ml = None
+    dose = None
+    result_ml = None
+    error = None
+
     if request.method == 'POST':
         try:
-            dose = _as_float(request.form.get('dose'), 'dose')
-            calculated_ml = _round2(dose / 2.0)  # 2 mg/mL
-        except Exception:
-            dose = None
-            calculated_ml = None
-    return render_template('ciprofloxacin.html', dose=dose, calculated_ml=calculated_ml, update_date=UPDATE_DATE)
+            raw = (request.form.get('dose') or '').strip()
+            if not raw:
+                raise ValueError("กรุณากรอกขนาดยา (mg)")
 
+            dose = float(raw)
+            if dose < 0:
+                raise ValueError("ขนาดยาต้องมากกว่าหรือเท่ากับ 0")
+
+            # ความแรง 2 mg/mL → mL = mg ÷ 2
+            result_ml = round(dose / 2.0, 2)
+
+        except (ValueError, TypeError) as e:
+            error = f"กรุณากรอกข้อมูลให้ถูกต้อง: {e}"
+            dose = None
+            result_ml = None
+
+    return render_template(
+        'ciprofloxacin.html',
+        dose=dose,
+        result_ml=result_ml,
+        error=error,
+        UPDATE_DATE=UPDATE_DATE,   # ชื่อ key ตรงกับใน template
+    )
 
 @meds_bp.route('/clindamycin', methods=['GET', 'POST'])
 def clindamycin_route():
-    dose = result_ml_1 = result_ml_2 = multiplication = final_result_1 = final_result_2 = None
+    dose = result_ml_1 = result_ml_2 = None
+    multiplication = final_result_1 = final_result_2 = None
     error = None
+
     if request.method == 'POST':
-        action = (request.form.get('action') or '').strip()
+        action = (request.form.get('action') or '').strip().lower()
+
         try:
             if action == 'dose':
+                # รอบที่ 1: คำนวณจาก dose
                 dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml_1 = _round2(dose * 4 / 600)  # 600 mg/4 mL
-                result_ml_2 = _round2(dose / 6)       # 6 mg/mL
+                # 600 mg / 4 ml
+                result_ml_1 = _round2(dose * 4.0 / 600.0)
+                # เป้าหมาย 6 mg/ml
+                result_ml_2 = _round2(dose / 6.0)
+
             elif action == 'condition':
+                # รอบที่ 2: ใช้ค่าที่ได้จากรอบแรก + ตัวคูณ
                 dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
                 result_ml_1 = _as_float(request.form.get('result_ml_1_hidden'), 'result_ml_1_hidden')
                 result_ml_2 = _as_float(request.form.get('result_ml_2_hidden'), 'result_ml_2_hidden')
                 multiplication = _as_float(request.form.get('multiplication'), 'multiplication')
+
                 final_result_1 = _round2(result_ml_1 * multiplication)
                 final_result_2 = _round2(result_ml_2 * multiplication)
+
             else:
                 error = 'ส่งข้อมูลไม่ครบ (action หาย)'
+
         except ValueError:
             error = 'กรุณากรอกตัวเลขให้ถูกต้อง'
         except Exception as e:
             error = f'เกิดข้อผิดพลาด: {e}'
-    return render_template('clindamycin.html',
-                           dose=dose, result_ml_1=result_ml_1, result_ml_2=result_ml_2,
-                           multiplication=multiplication, final_result_1=final_result_1,
-                           final_result_2=final_result_2, error=error, update_date=UPDATE_DATE)
 
+    return render_template(
+        'clindamycin.html',
+        dose=dose,
+        result_ml_1=result_ml_1,
+        result_ml_2=result_ml_2,
+        multiplication=multiplication,
+        final_result_1=final_result_1,
+        final_result_2=final_result_2,
+        error=error,
+        update_date=UPDATE_DATE,   # ตรงกับ {{ update_date }}
+    )
 
 @meds_bp.route('/cloxacillin', methods=['GET', 'POST'])
 def cloxacillin_route():
-    dose = result_ml = multiplication = None
-    error = None
+    dose = None
+    result_ml = None
+    multiplication = None
     content_extra = None
-    action = (request.form.get("action") or "").strip()
-    try:
-        if request.method == "POST":
+    error = None
+
+    if request.method == "POST":
+        action = (request.form.get("action") or "").strip().lower()
+        try:
             if action == "dose":
+                # รอบที่ 1: คำนวณจากสต็อก 1000 mg / 5 mL
                 dose = _as_float(request.form.get("dose"), "dose")
-                result_ml = _ml_from_stock(dose, 1000, 5)  # 1000 mg/5 mL → 200 mg/mL
+                # 1000 mg / 5 mL → 200 mg/mL
+                result_ml = _ml_from_stock(dose, 1000, 5)
+
             elif action == "condition":
+                # รอบที่ 2: ใช้ค่าจากรอบแรก + คูณ 3 หรือ 6 เท่า
                 dose = _as_float(request.form.get("dose_hidden"), "dose_hidden")
                 result_ml = _as_float(request.form.get("result_ml_hidden"), "result_ml_hidden")
                 multiplication = _as_int(request.form.get("multiplication"), "multiplication")
+
+                # กล่องคำอธิบาย (ข้อความวิธีเตรียม/ให้ยา)
                 content_extra = _content_extra_by_mult(multiplication)
+
             else:
                 error = "คำขอไม่ถูกต้อง"
-    except Exception as e:
-        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    return render_template("cloxacillin.html",
-                           dose=dose, result_ml=result_ml, multiplication=multiplication,
-                           content_extra=content_extra, error=error, update_date=UPDATE_DATE)
 
+        except ValueError as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+        except Exception as e:
+            error = f"เกิดข้อผิดพลาด: {e}"
+
+    return render_template(
+        "cloxacillin.html",
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/colistin', methods=['GET', 'POST'])
 def colistin_route():
-    dose = result_ml = multiplication = final_result = None
+    dose = None
+    result_ml = None
+    multiplication = None
     error = None
     content_extra = None
-    try:
-        if request.method == "POST":
-            action = (request.form.get("action") or "dose").strip()
+
+    if request.method == "POST":
+        action = (request.form.get("action") or "dose").strip().lower()
+        try:
             if action == "dose":
+                # รอบที่ 1: 150 mg / 2 mL → ml = (mg × 2) / 150
                 dose = _as_float(request.form.get("dose"), "dose")
-                result_ml = _round2((dose * 2) / 150)  # 150 mg/2 mL
+                result_ml = _round2((dose * 2) / 150.0)
+
             elif action == "condition":
+                # รอบที่ 2: ใช้ค่าเดิม + คูณ 3 หรือ 6 เท่า
                 dose = _as_float(request.form.get("dose_hidden"), "dose_hidden")
-                result_ml = _as_float(request.form.get("result_ml_hidden"), "result_ml_hidden")
-                multiplication = _as_int(request.form.get("multiplication"), "multiplication")
-                final_result = _round2(result_ml * multiplication)
+                result_ml = _as_float(
+                    request.form.get("result_ml_hidden"),
+                    "result_ml_hidden",
+                )
+                multiplication = _as_int(
+                    request.form.get("multiplication"),
+                    "multiplication",
+                )
+
+                # เอาไว้สร้างกล่องคำอธิบายเพิ่มเติม
                 content_extra = _content_extra_by_mult(multiplication)
+
             else:
                 error = "คำสั่งไม่ถูกต้อง"
-    except ValueError as e:
-        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    except Exception as e:
-        error = f"เกิดข้อผิดพลาด: {e}"
-    return render_template("colistin.html",
-                           dose=dose, result_ml=result_ml, multiplication=multiplication,
-                           final_result=final_result, content_extra=content_extra,
-                           error=error, update_date=UPDATE_DATE)
 
+        except ValueError as e:
+            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+        except Exception as e:
+            error = f"เกิดข้อผิดพลาด: {e}"
+
+    return render_template(
+        "colistin.html",
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/dexamethasone', methods=['GET', 'POST'])
 def dexamethasone_route():
-    dose = result_ml = None
+    dose = None
+    result_ml = None   # ที่จริงคือ "หน่วย u" = mg × 100
     error = None
+
     if request.method == 'POST':
         try:
+            # ใช้ helper เดิมในโปรเจกต์
             dose = _as_float(request.form.get('dose'), 'dose')
-            result_ml = _round2(dose * 100)  # placeholder
-        except Exception:
-            error = "กรุณากรอกขนาดยาที่ถูกต้อง"
-    return render_template('dexamethasone.html',
-                           dose=dose, result_ml=result_ml, error=error, update_date=UPDATE_DATE)
+            # 1 mg = 100 u (small dose: 0.2 ml drug + 0.8 ml D5W = 1 mg/1 ml = 100 u)
+            result_ml = _round2(dose * 100.0)
+        except Exception as e:
+            error = f"กรุณากรอกขนาดยาที่ถูกต้อง: {e}"
 
+    return render_template(
+        'dexamethasone.html',
+        dose=dose,
+        result_ml=result_ml,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/dobutamine', methods=['GET', 'POST'])
 def dobutamine_route():
-    dose = result_ml = DobutamineVolume = None
+    # รอบที่ 1
+    desired_dosage = None      # mg
+    original_volume = None     # ml (ปริมาตรรวมเป้าหมาย)
+    dose_ml = None             # ml ยาที่ต้องใช้
+    diluent_ml = None          # ml ตัวทำละลาย
+
+    # รอบที่ 2
+    multiplication = None
+    dose_ml_mult = None
+    totalVol_mult = None
+    diluent_mult = None
+
     error = None
+
     if request.method == 'POST':
         try:
-            original_dosage = _as_float(request.form.get('original_dosage'), 'original_dosage')
-            original_volume = _as_float(request.form.get('original_volume'), 'original_volume')
-            desired_dosage = _as_float(request.form.get('desired_dosage'), 'desired_dosage')
-            result_ml = (desired_dosage / original_dosage) * original_volume
-            DobutamineVolume = desired_dosage / 50
-            result_ml = _round2(result_ml)
-            DobutamineVolume = _round2(DobutamineVolume)
-        except Exception:
-            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
-    return render_template('dobutamine.html',
-                           dose=dose, result_ml=result_ml, DobutamineVolume=DobutamineVolume,
-                           error=error, update_date=UPDATE_DATE)
+            action = (request.form.get('action') or 'dose').strip()
 
+            if action == 'dose':
+                # รอบแรก: คำนวณจาก stock 50 mg/ml
+                desired_dosage = _as_float(request.form.get('desired_dosage'), 'desired_dosage')
+                original_volume = _as_float(request.form.get('original_volume'), 'original_volume')
+
+                dose_ml = _round2(desired_dosage / 50.0)             # 250 mg/5 ml → 50 mg/ml
+                diluent_ml = _round2(original_volume - dose_ml)
+
+            elif action == 'condition':
+                # รอบสอง: ดึงค่ารอบแรกจาก hidden field
+                desired_dosage = _as_float(request.form.get('desired_dosage_hidden'), 'desired_dosage_hidden')
+                original_volume = _as_float(request.form.get('original_volume_hidden'), 'original_volume_hidden')
+                dose_ml = _as_float(request.form.get('dose_ml_hidden'), 'dose_ml_hidden')
+
+                multiplication = _as_float(request.form.get('multiplication'), 'multiplication')
+
+                totalVol_mult = _round2(original_volume * multiplication)
+                dose_ml_mult = _round2(dose_ml * multiplication)
+                diluent_mult = _round2(totalVol_mult - dose_ml_mult)
+            else:
+                error = "คำสั่งไม่ถูกต้อง"
+
+        except Exception as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'dobutamine.html',
+        desired_dosage=desired_dosage,
+        original_volume=original_volume,
+        dose_ml=dose_ml,
+        diluent_ml=diluent_ml,
+        multiplication=multiplication,
+        dose_ml_mult=dose_ml_mult,
+        totalVol_mult=totalVol_mult,
+        diluent_mult=diluent_mult,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/dopamine', methods=['GET', 'POST'])
 def dopamine_route():
-    dose = result_ml = DopamineVolume = None
+    # รอบที่ 1
+    desired_dosage = None    # mg
+    original_volume = None   # ml (ปริมาตรรวมเป้าหมาย)
+    dose_ml = None           # ml ยาที่ต้องใช้จาก stock
+    diluent_ml = None        # ml ตัวทำละลาย
+
+    # รอบที่ 2
+    multiplication = None
+    dose_ml_mult = None
+    totalVol_mult = None
+    diluent_mult = None
+
     error = None
+
     if request.method == 'POST':
         try:
-            original_dosage = _as_float(request.form.get('original_dosage'), 'original_dosage')
-            original_volume = _as_float(request.form.get('original_volume'), 'original_volume')
-            desired_dosage = _as_float(request.form.get('desired_dosage'), 'desired_dosage')
-            result_ml = (desired_dosage / original_dosage) * original_volume
-            DopamineVolume = desired_dosage / 25
-            result_ml = _round2(result_ml)
-            DopamineVolume = _round2(DopamineVolume)
-        except Exception:
-            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
-    return render_template('dopamine.html',
-                           dose=dose, result_ml=result_ml, DopamineVolume=DopamineVolume,
-                           error=error, update_date=UPDATE_DATE)
+            action = (request.form.get('action') or 'dose').strip()
 
+            if action == 'dose':
+                # stock Dopamine: 250 mg/10 ml = 25 mg/ml
+                desired_dosage = _as_float(request.form.get('desired_dosage'), 'desired_dosage')
+                original_volume = _as_float(request.form.get('original_volume'), 'original_volume')
+
+                dose_ml = _round2(desired_dosage / 25.0)     # ml ยา
+                diluent_ml = _round2(original_volume - dose_ml)
+
+            elif action == 'condition':
+                # รอบที่ 2: ใช้ค่าที่คำนวณจากรอบแรก + ตัวคูณ
+                desired_dosage = _as_float(request.form.get('desired_dosage_hidden'), 'desired_dosage_hidden')
+                original_volume = _as_float(request.form.get('original_volume_hidden'), 'original_volume_hidden')
+                dose_ml = _as_float(request.form.get('dose_ml_hidden'), 'dose_ml_hidden')
+
+                multiplication = _as_float(request.form.get('multiplication'), 'multiplication')
+
+                totalVol_mult = _round2(original_volume * multiplication)
+                dose_ml_mult = _round2(dose_ml * multiplication)
+                diluent_mult = _round2(totalVol_mult - dose_ml_mult)
+            else:
+                error = "คำสั่งไม่ถูกต้อง"
+        except Exception as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'dopamine.html',
+        desired_dosage=desired_dosage,
+        original_volume=original_volume,
+        dose_ml=dose_ml,
+        diluent_ml=diluent_ml,
+        multiplication=multiplication,
+        dose_ml_mult=dose_ml_mult,
+        totalVol_mult=totalVol_mult,
+        diluent_mult=diluent_mult,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/fentanyl', methods=['GET'])
 def fentanyl_route():
@@ -662,17 +973,27 @@ def fentanyl_small_dose_route():
     return render_template('fentanyl_small_dose.html',
                            dose=dose, result=result, error=error, update_date=UPDATE_DATE)
 
-
 @meds_bp.route('/furosemide', methods=['GET', 'POST'])
 def furosemide_route():
-    dose = None
+    dose = result_ml = None
+    error = None
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
-        except Exception:
+            # stock: 20 mg / 2 ml → 10 mg/ml  ⇒ ml = mg / 10
+            result_ml = _round2(dose / 10.0)
+        except Exception as e:
+            error = f"กรุณากรอกขนาดยาที่ถูกต้อง: {e}"
             dose = None
-    return render_template('furosemide.html', dose=dose, update_date=UPDATE_DATE)
+            result_ml = None
 
+    return render_template(
+        'furosemide.html',
+        dose=dose,
+        result_ml=result_ml,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/gentamicin', methods=['GET', 'POST'])
 def gentamicin_route():
@@ -680,48 +1001,92 @@ def gentamicin_route():
     error = None
     content_extra = None
     formula_display = "ml = mg ÷ 40  (เพราะ 80 mg / 2 ml ⇒ 40 mg/ml)"
+
     if request.method == 'POST':
         try:
             action = (request.form.get('action') or '').strip()
+
+            # รอบที่ 1: คำนวณ mg → ml
             if action in ('dose', ''):
                 dose = _as_float(request.form.get('dose'), "ขนาดยา (mg)")
-                if dose <= 0: raise ValueError("ขนาดยาต้องมากกว่า 0")
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0")
                 result_ml = _round2(dose / 40.0)
+
+            # รอบที่ 2: เลือกเงื่อนไขตัวคูณ 3× หรือ 6×
             elif action == 'condition':
-                dose = _as_float(request.form.get('dose_hidden') or request.form.get('dose'), "ขนาดยา (mg)")
-                if dose <= 0: raise ValueError("ขนาดยาต้องมากกว่า 0")
+                dose = _as_float(
+                    request.form.get('dose_hidden') or request.form.get('dose'),
+                    "ขนาดยา (mg)",
+                )
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0")
+
+                # ถ้ามี result_ml_hidden ก็ใช้เลย ไม่งั้นคำนวณใหม่
                 result_ml_hidden = request.form.get('result_ml_hidden')
-                result_ml = float(result_ml_hidden) if result_ml_hidden not in (None, "") else _round2(dose / 40.0)
-                multiplication = _as_int(request.form.get('multiplication'), "เงื่อนไขตัวคูณ (3×/6×)")
-                if multiplication not in (3, 6): raise ValueError("เงื่อนไขตัวคูณต้องเป็น 3 หรือ 6")
+                if result_ml_hidden not in (None, ""):
+                    result_ml = float(result_ml_hidden)
+                else:
+                    result_ml = _round2(dose / 40.0)
+
+                multiplication = _as_int(
+                    request.form.get('multiplication'),
+                    "เงื่อนไขตัวคูณ (3×/6×)",
+                )
+                if multiplication not in (3, 6):
+                    raise ValueError("เงื่อนไขตัวคูณต้องเป็น 3 หรือ 6")
+
                 final_result = _round2(float(result_ml) * multiplication)
                 content_extra = _content_extra_by_mult(multiplication)
+
             else:
                 error = "รูปแบบคำขอไม่ถูกต้อง (action ไม่รองรับ)"
+
         except Exception as e:
             error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    return render_template('gentamicin.html',
-                           dose=dose, result_ml=result_ml, final_result=final_result,
-                           multiplication=multiplication, content_extra=content_extra,
-                           formula_display=formula_display, error=error, update_date=UPDATE_DATE)
 
+    return render_template(
+        'gentamicin.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=formula_display,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/hydrocortisone', methods=['GET', 'POST'])
 def hydrocortisone_route():
-    dose = result_ml = units = error = None
-    MG_PER_ML = 50.0
-    U_PER_MG = 4.0
+    dose = result_ml = units = None
+    error = None
+
+    MG_PER_ML = 50.0   # 100 mg / 2 ml → 50 mg/ml
+    U_PER_MG = 4.0     # 25 mg = 100 u → 1 mg = 4 u
+
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
+            if dose <= 0:
+                raise ValueError("ขนาดยาต้องมากกว่า 0")
+
+            # คำนวณไว้ให้ template ใช้ (แต่ template ก็มี fallback เผื่อ None)
             result_ml = _round2(dose / MG_PER_ML)
             units = _round2(dose * U_PER_MG)
-        except Exception:
-            error = "กรุณากรอกตัวเลขที่ถูกต้อง"
-    return render_template('hydrocortisone.html',
-                           dose=dose, result_ml=result_ml, units=units,
-                           error=error, update_date=UPDATE_DATE)
 
+        except Exception as e:
+            error = f"กรุณากรอกตัวเลขที่ถูกต้อง: {e}"
+            dose = result_ml = units = None
+
+    return render_template(
+        'hydrocortisone.html',
+        dose=dose,
+        result_ml=result_ml,
+        units=units,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/insulin', methods=['GET', 'POST'])
 def insulin_route():

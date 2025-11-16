@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -107,6 +107,8 @@
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+  .left-align{ text-align:left; }
+  .order-line{ text-align:center; margin:6px 0; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -130,11 +132,10 @@
   }
 
   /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
-      grid-template-columns:auto 1fr;  /* label | field */
+      grid-template-columns:auto 1fr;
       align-items:center;
       column-gap:8px;
       width:100%;
@@ -144,16 +145,18 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
+    .title-badge{ font-size:22px; padding:8px 14px; }
+    .container{ padding:14px; }
+    .calc-row{ gap:8px; }
   }
 
   /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
@@ -162,13 +165,6 @@
     .conc-row > label{ font-size:13px; max-width:42vw; }
     .dose-row > input[type="number"],
     .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
-  }
-
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
-  @media (max-width:640px){
-    .title-badge{ font-size:22px; padding:8px 14px; }
-    .container{ padding:14px; }
-    .calc-row{ gap:8px; }
   }
 </style>
 
@@ -180,44 +176,85 @@
 
   <div class="container">
     <!-- รอบที่ 1: คำนวณ mg → ml -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <div class="calc-box">
+      <form id="gentamicin-dose-form"
+            class="calc-row"
+            action="{{ u('gentamicin') }}"
+            method="post">
+        <input type="hidden" name="action" value="dose" />
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
-
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
 
     {% if error %}
       <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
     {% endif %}
 
-    {% if dose is not none %}
-      {% set result_ml = (dose / 40.0) %}
-      <div class="result">
+    <!-- ผลลัพธ์รอบแรก -->
+    <div id="dose-result"
+         class="result"
+         style="{% if dose is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none %}
         <p class="order-line"><b>Order:</b> Gentamicin {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง:</b> 80 mg / 2 ml ⇒ <b>40 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 40</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 40 = <span class="pill">{{ result_ml|round(2) }} ml</span></span></p>
-          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              {{ dose|fmt(2) }} ÷ 40 =
+              <span class="pill">
+                {% if result_ml is not none %}
+                  {{ result_ml|fmt(2) }}
+                {% else %}
+                  {{ (dose / 40.0)|round(2) }}
+                {% endif %}
+                ml
+              </span>
+            </span>
+          </p>
+          <p>
+            <b>ดังนั้น:</b>
+            {{ dose|fmt(2) }} mg =
+            <span class="pill">
+              {% if result_ml is not none %}
+                {{ result_ml|fmt(2) }}
+              {% else %}
+                {{ (dose / 40.0)|round(2) }}
+              {% endif %}
+              ml
+            </span>
+          </p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
-    <!-- รอบที่ 2: เลือกเงื่อนไข (ใช้งานเมื่อมี result_ml) -->
-    <div class="calc-box" {% if dose is none %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form id="__will_handle_by_js__" class="calc-row">
+    <!-- รอบที่ 2: เลือกเงื่อนไข -->
+    <div id="gentamicin-cond-box"
+         class="calc-box"
+         {% if dose is none %}style="opacity:.55; pointer-events:none"{% endif %}>
+      <form id="gentamicin-mult-form"
+            class="calc-row"
+            action="{{ u('gentamicin') }}"
+            method="post">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
-        <input type="hidden" name="result_ml_hidden" value="{{ result_ml if dose is not none else '' }}">
+        <input type="hidden" id="dose_hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" id="result_ml_hidden" name="result_ml_hidden" value="{{ result_ml if result_ml is not none else (dose / 40.0) if dose is not none else '' }}">
+
         <label for="multiplication">เลือกเงื่อนไข:</label>
-        <select name="multiplication" required>
+        <select name="multiplication" id="multiplication" required>
           <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
           <option value="3" {% if multiplication == 3 %}selected{% endif %}>3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" {% if multiplication == 6 %}selected{% endif %}>6 เท่า (รวมเป้าหมาย 6 ml)</option>
@@ -226,15 +263,20 @@
       </form>
     </div>
 
-    {% if multiplication is not none and dose is not none %}
-      {% set base_ml = result_ml %}
-      {% set total = (base_ml * multiplication) %}
-      <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) }} ml</b></p>
+    <!-- ผลลัพธ์รอบที่ 2 -->
+    <div id="mult-result"
+         class="result"
+         style="{% if multiplication is not none %}display:block{% else %}display:none{% endif %}">
+      {% if multiplication is not none and result_ml is not none %}
+        {% set base_ml = result_ml %}
+        {% set total = (base_ml * multiplication) %}
+        <p class="order-line">
+          <b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) }} ml</b>
+        </p>
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) = <b>{{ 9 - total|fmt(2) }} ml</b></p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) = <b>{{ (9 - total)|fmt(2) }} ml</b></p>
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -245,7 +287,7 @@
 
           {% if multiplication == 6 %}
             {% if total < 6 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) = <b>{{ 6 - total|fmt(2) }} ml</b></p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) = <b>{{ (6 - total)|fmt(2) }} ml</b></p>
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -254,8 +296,8 @@
             </p>
           {% endif %}
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     {% if content_extra %}
       <div class="result" style="background:#ffffff; border:1px solid #e5efff; border-radius:12px;">
@@ -327,6 +369,129 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <!-- JS: ใช้เฉพาะเมื่อรันบน GitHub Pages (hostname ลงท้าย github.io) -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    if (!host.endsWith("github.io")) {
+      // รันบน Flask → ให้ backend เป็นคนคำนวณ
+      return;
+    }
+
+    const doseForm = document.getElementById('gentamicin-dose-form');
+    const multForm = document.getElementById('gentamicin-mult-form');
+    const doseResultEl = document.getElementById('dose-result');
+    const multResultEl = document.getElementById('mult-result');
+    const condBox = document.getElementById('gentamicin-cond-box');
+    const doseInput = document.getElementById('dose');
+    const doseHidden = document.getElementById('dose_hidden');
+    const resultHidden = document.getElementById('result_ml_hidden');
+    const multSelect = document.getElementById('multiplication');
+
+    if (!doseForm || !doseResultEl || !condBox) return;
+
+    const CONC = 40.0;
+
+    // รอบที่ 1: คำนวณ mg → ml
+    doseForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (mg) ให้ถูกต้อง');
+        return;
+      }
+
+      const resultMl = doseVal / CONC;
+
+      doseHidden.value = doseVal.toString();
+      resultHidden.value = resultMl.toString();
+
+      doseResultEl.innerHTML = `
+        <p class="order-line"><b>Order:</b> Gentamicin ${doseVal.toFixed(2)} mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิง:</b> 80 mg / 2 ml ⇒ <b>40 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 40</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              ${doseVal.toFixed(2)} ÷ 40 =
+              <span class="pill">${resultMl.toFixed(2)} ml</span>
+            </span>
+          </p>
+          <p>
+            <b>ดังนั้น:</b>
+            ${doseVal.toFixed(2)} mg =
+            <span class="pill">${resultMl.toFixed(2)} ml</span>
+          </p>
+        </div>
+      `;
+      doseResultEl.style.display = 'block';
+
+      condBox.style.opacity = '1';
+      condBox.style.pointerEvents = 'auto';
+      multResultEl.style.display = 'none';
+    });
+
+    // รอบที่ 2: เลือกตัวคูณ 3× / 6×
+    if (multForm && multResultEl && multSelect) {
+      multForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const doseVal = parseFloat(doseHidden.value || doseInput.value || '0');
+        const baseMl = parseFloat(resultHidden.value || '0');
+        const mult = parseFloat(multSelect.value || '0');
+
+        if (isNaN(doseVal) || doseVal <= 0 || isNaN(baseMl) || baseMl <= 0 || isNaN(mult) || mult <= 0) {
+          alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+          return;
+        }
+
+        const total = baseMl * mult;
+        let detailHtml = '';
+
+        if (mult === 3) {
+          if (total < 9) {
+            const need = 9 - total;
+            detailHtml = `
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − ${total.toFixed(2)}) = <b>${need.toFixed(2)} ml</b></p>
+            `;
+          } else {
+            detailHtml = `<p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>`;
+          }
+          detailHtml += `
+            <p style="background:#fde047; padding:6px; border-radius:6px;">
+              <b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 3 - 6 ml/hr</b>
+            </p>
+          `;
+        } else if (mult === 6) {
+          if (total < 6) {
+            const need = 6 - total;
+            detailHtml = `
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − ${total.toFixed(2)}) = <b>${need.toFixed(2)} ml</b></p>
+            `;
+          } else {
+            detailHtml = `<p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>`;
+          }
+          detailHtml += `
+            <p style="background:#fde047; padding:6px; border-radius:6px;">
+              <b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 1 - 2 ml/hr</b>
+            </p>
+          `;
+        }
+
+        multResultEl.innerHTML = `
+          <p class="order-line">
+            <b>ผลลัพธ์หลังจากคูณ ${mult} เท่า = ${total.toFixed(2)} ml</b>
+          </p>
+          <div class="left-align">
+            ${detailHtml}
+          </div>
+        `;
+        multResultEl.style.display = 'block';
+      });
+    }
+  })();
+  </script>
 
 </body>
 </html>

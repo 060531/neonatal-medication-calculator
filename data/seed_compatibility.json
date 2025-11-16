@@ -1,24 +1,65 @@
 [
-  {
-    "drug": "Acyclovir",
-    "co_drug": "Ampicillin",
-    "status": "Compatible",
-    "source": "Trissel's Handbook 2024",
-    "note": "สามารถ Y-site ได้ใน D5W",
-    "en": "Acyclovir is generally compatible with ampicillin when diluted appropriately.",
-    "th": "Acyclovir โดยทั่วไปเข้ากันได้กับ ampicillin เมื่อเจือจางในสารละลายที่เหมาะสม",
-    "detail": "ศึกษาจาก in vitro study และ guideline",
-    "note_meta": "ปรับปรุงข้อมูลตาม evidence ใหม่เป็นระยะ"
+    {
+    "drug_a": "Acyclovir",
+    "drug_b": "Amikacin",
+    "status": "ND",
+    "source": "Trissel's 2022",
+    "note": "No data found; avoid mixing."
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Calcium gluconate",
-    "status": "Incompatible",
+    "drug_a": "Acyclovir",
+    "drug_b": "Aminophylline",
+    "status": "ND",
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล; หลีกเลี่ยงการผสมใน line เดียวกัน"
+  },
+  {
+    "drug_a": "Acyclovir",
+    "drug_b": "Ampicillin",
+    "status": "C",
+    "source": "Trissel's Handbook 2024",
+    "note": "สามารถ Y-site ได้ใน D5W ตามเงื่อนไขความเข้มข้นที่แนะนำ"
+  },
+  {
+    "drug_a": "Acyclovir",
+    "drug_b": "Calcium gluconate",
+    "status": "I",
     "source": "Pediatric Injectable Drugs",
-    "note": "ห้ามผสมใน line เดียวกัน",
-    "en": "Incompatible – precipitation risk.",
-    "th": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน",
-    "detail": "",
-    "note": ""
+    "note": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน"
+  },
+  {
+    "drug_a": "Acyclovir",
+    "drug_b": "Colistin",
+    "status": "ND",
+    "source": "Trissel's 2022",
+    "note": "No data found; avoid mixing."
+  },
+  {
+    "drug_a": "Acyclovir",
+    "drug_b": "Amphotericin b",
+    "status": "I",
+    "source": "Trissel's 2022",
+    "note": "Incompatible / ไม่ควรใช้ร่วมกันใน line เดียวกัน"
+  },
+  {
+    "drug_a": "Acyclovir",
+    "drug_b": "Cefotaxime",
+    "status": "C",
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
+  },
+  {
+    "drug_a": "Acyclovir",
+    "drug_b": "Cloxacillin",
+    "status": "C",
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
+  },
+  {
+    "drug_a": "Cefotaxime",
+    "drug_b": "Cloxacillin",
+    "status": "C",
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
   }
 ]

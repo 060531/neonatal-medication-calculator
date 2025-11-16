@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template
+# routes/core.py
+from flask import Blueprint, render_template, request, flash   # ⬅ เพิ่ม request, flash
+from extensions import db                                      # ⬅ เพิ่ม
+from models import Drug, Compatibility                         # ⬅ เพิ่ม
 
 bp = Blueprint("core", __name__)
 
@@ -6,7 +9,6 @@ bp = Blueprint("core", __name__)
 def index():
     return render_template("index.html", home_page=True)
 
-# ใน routes/core.py
 @bp.route("/calculate-pma")
 def calculate_pma_page():
     return render_template(
@@ -23,10 +25,69 @@ def calculate_pma_page():
     )
 
 
-
-@bp.route("/compatibility", endpoint="compatibility_page")
+# 🔹 แก้ฟังก์ชัน compatibility_page เดิมให้ดึงยา + รองรับ POST
+@bp.route("/compatibility", methods=["GET", "POST"], endpoint="compatibility_page")
 def compatibility_page():
-    return render_template("compatibility.html")
+    # ดึงรายชื่อยาเรียงตามชื่อ
+    drugs = Drug.query.order_by(Drug.generic_name).all()
+
+    selected_drug_id = None
+    selected_co_drug_id = None
+    compat = None
+    status_code = None
+    status_text = None
+    drug_a_name = None
+    drug_b_name = None
+
+    if request.method == "POST":
+        selected_drug_id = request.form.get("drug_a")
+        selected_co_drug_id = request.form.get("drug_b")
+
+        if selected_drug_id and selected_co_drug_id:
+            a_id = int(selected_drug_id)
+            b_id = int(selected_co_drug_id)
+
+            # ชื่อยาไว้ไปแสดงผล
+            drug_a = Drug.query.get(a_id)
+            drug_b = Drug.query.get(b_id)
+            drug_a_name = drug_a.generic_name if drug_a else None
+            drug_b_name = drug_b.generic_name if drug_b else None
+
+            # ทำให้ pair เรียงจาก id น้อย → มาก (ให้ตรงกับใน table)
+            if a_id > b_id:
+                a_id, b_id = b_id, a_id
+
+            compat = Compatibility.query.filter_by(
+                drug_id=a_id,
+                co_drug_id=b_id,
+            ).first()
+
+            code_to_text = {
+                "C": "Compatible / ผสมร่วมได้",
+                "I": "Incompatible / ห้ามผสม",
+                "U": "Uncertain / ไม่ชัดเจน",
+                "ND": "No data / ไม่มีข้อมูล",
+            }
+
+            if compat:
+                status_code = compat.status or "ND"
+            else:
+                status_code = "ND"
+
+            status_text = code_to_text.get(status_code, "No data / ไม่มีข้อมูล")
+
+    return render_template(
+        "compatibility.html",
+        drugs=drugs,
+        selected_drug_id=selected_drug_id,
+        selected_co_drug_id=selected_co_drug_id,
+        compat=compat,
+        status_code=status_code,
+        status_text=status_text,
+        drug_a_name=drug_a_name,
+        drug_b_name=drug_b_name,
+    )
+
 
 @bp.route("/medication", endpoint="medication_administration")
 def medication_administration():

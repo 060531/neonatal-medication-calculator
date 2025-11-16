@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Colistin Calculation</title>
 <style>
-  /* ========== Theme tokens ========== */
   :root{
     --blue-900:#0b2b7a;
     --blue-700:#1e57d2;
@@ -13,12 +12,10 @@
     --sky-100:#d7ecff;
     --panel:#e6f3ffb8;
     --text:#0f172a;
-
-    --floatbar-gap: clamp(80px, 16vw, 110px); /* กันปุ่มลอยทับ footer */
-    --page-gutter: 12px;                      /* ระยะขอบซ้าย-ขวา */
+    --floatbar-gap: clamp(80px, 16vw, 110px);
+    --page-gutter: 12px;
   }
 
-  /* ========== Global guard + BG เต็มจอ ========== */
   html, body { overflow-x: hidden; height: 100%; }
   *, *::before, *::after { box-sizing: border-box; }
   img, video, canvas, svg { max-width: 100%; height: auto; }
@@ -38,7 +35,6 @@
     background-size:cover; background-position:center; background-repeat:no-repeat;
   }
 
-  /* ========== Header ========== */
   .title-badge{
     display:inline-block; margin:28px auto 12px; padding:10px 18px;
     background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
@@ -47,7 +43,6 @@
     max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
   }
 
-  /* ========== Wrapper / panel ========== */
   .container{
     width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
     margin:0 auto 12px; padding:20px;
@@ -58,7 +53,6 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%);
   }
 
-  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
   .calc-box{
     margin:14px auto 20px; max-width:740px; padding:16px;
     background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
@@ -72,17 +66,15 @@
     gap:10px; align-items:center; justify-content:center;
   }
 
-  /* ฟิลด์มาตรฐาน */
   input[type="number"], select{
     width: clamp(160px, 50vw, 220px);
     max-width:60vw; padding:10px 12px; border-radius:10px;
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
 
-  /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
     appearance:none; border:none; border-radius:10px; cursor:pointer;
     padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
@@ -95,7 +87,6 @@
   .btn-red{ background:#e71f1f; }
   .btn-cyan{ background:#049bb5; }
 
-  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
   .result{
     text-align:left; margin:14px auto; max-width:740px; padding:14px;
     background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
@@ -107,8 +98,8 @@
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+  .left-align{ text-align:left; }
 
-  /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
     position:fixed; left:50%; transform:translateX(-50%);
     bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
@@ -121,7 +112,6 @@
     max-width: calc(100vw - calc(var(--page-gutter)*2));
   }
 
-  /* ========== Footer ========== */
   footer.page-footer{
     text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
     margin: 6px 0 var(--floatbar-gap);
@@ -129,12 +119,10 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
-      grid-template-columns:auto 1fr;  /* label | field */
+      grid-template-columns:auto 1fr;
       align-items:center;
       column-gap:8px;
       width:100%;
@@ -144,19 +132,17 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
@@ -164,7 +150,6 @@
     .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -175,44 +160,61 @@
 </head>
 <body>
 
-  <!-- หัวข้อบนสุด -->
   <div class="title-badge">Colistin : 150 mg / 2 ml</div>
 
   <div class="container">
-    <!-- รอบที่ 1: คำนวณ mg → ml -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <!-- รอบที่ 1 -->
+    <div class="calc-box">
+      <form id="colistin-dose-form"
+            action="{{ u('colistin') }}"
+            method="post"
+            class="calc-row">
+        <input type="hidden" name="action" value="dose" />
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
-
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
 
     {% if error %}
       <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
     {% endif %}
 
-    {% if dose is not none %}
+    {% if dose is not none and result_ml is not none %}
       <div class="result">
         <p class="order-line"><b>Order:</b> Colistin {{ dose|fmt(2) }} mg</p>
         <p><b>สูตรจากสต็อก 150 mg / 2 ml</b> → <span class="mono">ml = (mg × 2) / 150</span></p>
-        <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 2 / 150 = </span><span class="pill">{{ ((dose * 2) / 150) | round(2) }} ml</span></p>
+        <p>
+          แทนค่า:
+          <span class="mono">{{ dose|fmt(2) }} × 2 / 150 = </span>
+          <span class="pill">{{ result_ml|fmt(2) }} ml</span>
+        </p>
       </div>
     {% endif %}
 
-    <!-- รอบที่ 2: เลือกเงื่อนไข -->
-    <div class="calc-box" {% if result_ml is none %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form id="__will_handle_by_js__" class="calc-row">
+    <!-- รอบที่ 2 -->
+    <div class="calc-box"
+         {% if result_ml is none %}style="opacity:.55; pointer-events:none"{% endif %}>
+      <form id="colistin-cond-form"
+            action="{{ u('colistin') }}"
+            method="post"
+            class="calc-row">
         <input type="hidden" name="action" value="condition" />
         <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
         <input type="hidden" name="result_ml_hidden" value="{{ result_ml if result_ml is not none else '' }}">
+
         <label for="multiplication">เลือกเงื่อนไข:</label>
-        <select name="multiplication" required>
+        <select id="multiplication" name="multiplication" required>
           <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
           <option value="3" {% if multiplication == 3 %}selected{% endif %}>3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" {% if multiplication == 6 %}selected{% endif %}>6 เท่า (รวมเป้าหมาย 6 ml)</option>
@@ -228,7 +230,8 @@
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) = {{ 9 - total|fmt(2) }} ml</p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b>
+                 (9 − {{ total|fmt(2) }}) = {{ (9 - total)|fmt(2) }} ml</p>
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -239,7 +242,8 @@
 
           {% if multiplication == 6 %}
             {% if total < 6 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) = {{ 6 - total|fmt(2) }} ml</p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b>
+                 (6 − {{ total|fmt(2) }}) = {{ (6 - total)|fmt(2) }} ml</p>
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -311,6 +315,129 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <!-- JS สำหรับ GitHub Pages -->
+  <script>
+  (function () {
+    var host = window.location.hostname || "";
+    if (!host.endsWith("github.io")) return;
+
+    var formDose = document.getElementById("colistin-dose-form");
+    var formCond = document.getElementById("colistin-cond-form");
+    if (!formDose || !formCond) return;
+
+    var doseInput  = document.getElementById("dose");
+    var multSelect = document.getElementById("multiplication");
+    if (!doseInput || !multSelect) return;
+
+    var hiddenDose = formCond.querySelector('input[name="dose_hidden"]');
+    var hiddenRml  = formCond.querySelector('input[name="result_ml_hidden"]');
+
+    var doseVal = null;
+    var resultMlVal = null;
+
+    function round2(x) {
+      return Math.round((x + Number.EPSILON) * 100) / 100;
+    }
+
+    function createOrGetBox(id, refNode) {
+      var box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement("div");
+        box.id = id;
+        box.className = "result";
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+      }
+      return box;
+    }
+
+    // STEP 1: mg → mL
+    formDose.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var raw = (doseInput.value || "").trim();
+      var d = parseFloat(raw);
+      if (!raw || isNaN(d) || d < 0) {
+        alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข ≥ 0");
+        return;
+      }
+
+      doseVal = round2(d);
+      // 150 mg / 2 mL → ml = (mg × 2) / 150
+      resultMlVal = round2(doseVal * 2.0 / 150.0);
+
+      if (hiddenDose) hiddenDose.value = doseVal.toFixed(2);
+      if (hiddenRml)  hiddenRml.value  = resultMlVal.toFixed(2);
+
+      var box = createOrGetBox("gh-colistin-step1", formDose.closest(".calc-box"));
+      box.innerHTML =
+        "<p class='order-line'><b>Order:</b> Colistin " + doseVal.toFixed(2) + " mg</p>" +
+        "<p><b>สูตรจากสต็อก 150 mg / 2 ml</b> → " +
+        "<span class='mono'>ml = (mg × 2) / 150</span></p>" +
+        "<p>แทนค่า: <span class='mono'>" +
+          doseVal.toFixed(2) + " × 2 / 150 = </span>" +
+        "<span class='pill'>" + resultMlVal.toFixed(2) + " ml</span></p>";
+
+      var box2 = formCond.closest(".calc-box");
+      if (box2) {
+        box2.style.opacity = "1";
+        box2.style.pointerEvents = "auto";
+      }
+    });
+
+    // STEP 2: คูณ 3 หรือ 6 เท่า + แสดงผล
+    formCond.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      if (doseVal === null || resultMlVal === null) {
+        alert("โปรดคำนวณรอบแรกก่อน");
+        return;
+      }
+
+      var mRaw = (multSelect.value || "").trim();
+      var m = parseInt(mRaw, 10);
+      if (!m || (m !== 3 && m !== 6)) {
+        alert("กรุณาเลือกเงื่อนไข 3 หรือ 6 เท่า");
+        return;
+      }
+
+      var total  = round2(resultMlVal * m);
+      var target = (m === 3) ? 9.0 : 6.0;
+      var dil    = round2(Math.max(target - total, 0));
+
+      var boxMain = createOrGetBox("gh-colistin-step2", formCond.closest(".calc-box"));
+      var html =
+        "<p><b>ผลลัพธ์หลังจากคูณ " + m + " เท่า = " + total.toFixed(2) + " ml</b></p>" +
+        "<div class='left-align'>";
+
+      if (m === 3) {
+        if (total < 9) {
+          html += "<p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − " +
+                  total.toFixed(2) + ") = " + dil.toFixed(2) + " ml</p>";
+        } else {
+          html += "<p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>";
+        }
+        html += "<p style='background:#f1b81b; padding:5px; border-radius:5px;'>" +
+                "<b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา ~6 ml/hr</b></p>";
+      } else {
+        if (total < 6) {
+          html += "<p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − " +
+                  total.toFixed(2) + ") = " + dil.toFixed(2) + " ml</p>";
+        } else {
+          html += "<p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>";
+        }
+        html += "<p style='background:#f1b81b; padding:5px; border-radius:5px;'>" +
+                "<b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา ~2 ml/hr</b></p>";
+      }
+
+      html += "</div>";
+      boxMain.innerHTML = html;
+
+      // ถ้าต้องการกล่อง content_extra ฝั่ง GitHub เพิ่มตรงนี้แบบเดียวกับ cloxa/cefta
+      // (ตอนนี้ผมยังไม่ generate เพื่อให้ไม่ซ้ำกับของ Flask ที่คุณคุมจาก _content_extra_by_mult)
+    });
+  })();
+  </script>
 
 </body>
 </html>

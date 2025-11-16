@@ -174,5 +174,52 @@
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 
+  <script>
+(function () {
+  var host = window.location.hostname || "";
+  if (!host.endsWith("github.io")) return;
+
+  var form = document.querySelector("form");
+  if (!form) return;
+
+  var doseInput = form.querySelector("[name='dose']");
+  if (!doseInput) return;
+
+  function round2(x) {
+    return Math.round((x + Number.EPSILON) * 100) / 100;
+  }
+
+  function createOrGetBox() {
+    var box = document.getElementById("gh-ampicillin-result");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "gh-ampicillin-result";
+      box.className = "result";
+      form.parentNode.insertBefore(box, form.nextSibling);
+    }
+    return box;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var raw = (doseInput.value || "").trim();
+    var d = parseFloat(raw);
+    if (!raw || isNaN(d) || d < 0) {
+      alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข ≥ 0");
+      return;
+    }
+
+    var result_ml = round2((d * 5.0) / 1000.0);
+
+    var box = createOrGetBox();
+    box.innerHTML =
+      "<p><b>Dose:</b> " + d.toFixed(2) + " mg</p>" +
+      "<p>ผลลัพธ์ (ตัวอย่างสูตร: (dose × 5) / 1000) = " +
+      "<span class='pill-red'>" + result_ml.toFixed(2) + "</span> mL</p>";
+  });
+})();
+</script>
+
 </body>
 </html>

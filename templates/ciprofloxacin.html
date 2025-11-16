@@ -157,36 +157,54 @@
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Ciprofloxacin : 200 mg/100 mL หรือ 400 mg/200 mL → (2 mg/mL)</div>
+  <div class="title-badge">
+    Ciprofloxacin : 200 mg/100 mL หรือ 400 mg/200 mL → (2 mg/mL)
+  </div>
 
   <div class="container">
     <!-- กล่องคำนวณ (รอบเดียว: mg → mL ที่ 2 mg/mL) -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
-
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+    <div class="calc-box">
+      <form id="cipro-form" method="post" class="calc-row">
+        <input type="hidden" name="action" value="dose" />
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input
+            type="number"
+            id="dose"
+            name="dose"
+            placeholder="ขนาดยา (mg)"
+            required
+            step="0.01"
+            value="{{ dose if dose is not none else '' }}"
+          >
+        </div>
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
 
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
-
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
+      </div>
     {% endif %}
 
     {% if dose is not none %}
-      {% set result_ml = (dose / 2.0) %}
+      {# ถ้า Flask ส่ง result_ml มาให้ ใช้เลย; ถ้าไม่มีก็คิดจาก dose #}
+      {% set _result_ml = result_ml if result_ml is not none else (dose / 2.0) %}
       <div class="result">
         <p class="order-line"><b>Order:</b> Ciprofloxacin {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง (premix):</b> 200 mg/100 mL หรือ 400 mg/200 mL ⇒ <b>2 mg/mL</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">mL = mg ÷ 2</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 2</span> = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
-          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg = <span class="pill">{{ result_ml|round(2) }} mL</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">{{ dose|fmt(2) }} ÷ 2</span>
+            = <span class="pill">{{ _result_ml|fmt(2) }} mL</span>
+          </p>
+          <p>
+            <b>ดังนั้น:</b>
+            {{ dose|fmt(2) }} mg = <span class="pill">{{ _result_ml|fmt(2) }} mL</span>
+          </p>
         </div>
       </div>
     {% endif %}
@@ -237,6 +255,65 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+<!-- ---------- JS สำหรับ GitHub Pages เท่านั้น ---------- -->
+  <script>
+  (function () {
+    var host = window.location.hostname || "";
+    // ให้ JS handle เฉพาะตอนรันบน GitHub Pages
+    if (!host.endsWith("github.io")) return;
+
+    var form = document.getElementById("cipro-form");
+    if (!form) return;
+
+    var doseInput = document.getElementById("dose");
+    if (!doseInput) return;
+
+    function round2(x) {
+      return Math.round((x + Number.EPSILON) * 100) / 100;
+    }
+
+    function createOrGetBox(id, refNode) {
+      var box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement("div");
+        box.id = id;
+        box.className = "result";
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+      }
+      return box;
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var raw = (doseInput.value || "").trim();
+      var d = parseFloat(raw);
+      if (!raw || isNaN(d) || d < 0) {
+        alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข ≥ 0");
+        return;
+      }
+
+      var doseVal = round2(d);
+      var mlVal   = round2(doseVal / 2.0);  // 2 mg/mL → mL = mg ÷ 2
+
+      var box = createOrGetBox("gh-ciprofloxacin-result", form.closest(".calc-box"));
+      box.innerHTML =
+        "<p class='order-line'><b>Order:</b> Ciprofloxacin " +
+          doseVal.toFixed(2) + " mg</p>" +
+        "<div class='left-align muted'>" +
+          "<p><b>ความแรงอ้างอิง (premix):</b> 200 mg/100 mL หรือ 400 mg/200 mL ⇒ <b>2 mg/mL</b></p>" +
+          "<p><b>สูตรคำนวณ:</b> <span class='mono'>mL = mg ÷ 2</span></p>" +
+          "<p>แทนค่า: <span class='mono'>" + doseVal.toFixed(2) +
+          " ÷ 2</span> = <span class='pill'>" + mlVal.toFixed(2) +
+          " mL</span></p>" +
+          "<p><b>ดังนั้น:</b> " + doseVal.toFixed(2) +
+          " mg = <span class='pill'>" + mlVal.toFixed(2) +
+          " mL</span></p>" +
+        "</div>";
+    });
+  })();
+  </script>
 
 </body>
 </html>
