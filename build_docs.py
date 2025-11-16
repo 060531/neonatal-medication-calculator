@@ -1,42 +1,51 @@
-from app import create_app        # หรือ from app import app ถ้าไม่ได้ใช้ factory
-from flask import url_for
-from werkzeug.routing import BuildError
+import os
+
+# ถ้าโปรเจกต์คุณใช้ factory pattern (มี create_app() ใน app.py)
+from app import create_app
+app = create_app()
+
+# ถ้าโปรเจกต์คุณเป็นแบบ app = Flask(__name__) ใน app.py:
+# from app import app
+
+# ========== เลือกเฉพาะหน้า ที่ต้องการ sync ==========
 
 PAGES = [
-    # ("compat_index", "compat_index.html"),  # ← ตอนนี้ยังไม่รู้ endpoint จริง ตัดทิ้งไปก่อน
-    ("ampicillin_route", "ampicillin.html"),
-    ("amikin_route", "amikin.html"),
-    ("aminophylline_route", "aminophylline.html"),
-    ("amphotericinB_route", "amphotericinB.html"),
-    ("benzathine_penicillin_g_route", "benzathine_penicillin_g.html"),
-    ("cefotaxime_route", "cefotaxime.html"),
-    ("ceftazidime_route", "ceftazidime.html"),
-    ("ciprofloxacin_route", "ciprofloxacin.html"),
-    ("clindamycin_route", "clindamycin.html"),
-    ("cloxacillin_route", "cloxacillin.html"),
-    ("colistin_route", "colistin.html"),
-    ("compatibility_route", "compatibility.html"),
-    ("compatibility_result_route", "compatibility_result.html"),
-    ("dexamethasone_route", "dexamethasone.html"),
-    ("furosemide_route", "furosemide.html"),
-    ("gentamicin_route", "gentamicin.html"),
-    ("hydrocortisone_route", "hydrocortisone.html"),
+    # (path บน Flask,           ชื่อไฟล์ใน docs)
+    ("/ampicillin",             "ampicillin.html"),
+    ("/aminophylline",          "aminophylline.html"),
+    ("/amikin",                 "amikin.html"),
+    ("/amphotericinB",          "amphotericinB.html"),
+    ("/benzathine_penicillin_g","benzathine_penicillin_g.html"),
+    ("/cefotaxime",             "cefotaxime.html"),
+    ("/ceftazidime",            "ceftazidime.html"),
+    ("/ciprofloxacin",          "ciprofloxacin.html"),
+    ("/clindamycin",            "clindamycin.html"),
+    ("/cloxacillin",            "cloxacillin.html"),
+    ("/colistin",               "colistin.html"),
+    ("/dexamethasone",          "dexamethasone.html"),
+    ("/furosemide",             "furosemide.html"),
+    ("/gentamicin",             "gentamicin.html"),
+    ("/hydrocortisone",         "hydrocortisone.html"),
+    # เพิ่ม/ลดได้ตามต้องการ
 ]
 
-app = create_app()   # ถ้าใช้ factory; ถ้าไม่ใช้ → เปลี่ยนเป็น: app = app
+def main():
+    with app.app_context():
+        client = app.test_client()
 
-with app.app_context():
-    client = app.test_client()
-    with app.test_request_context():
-        for endpoint, filename in PAGES:
-            try:
-                url = url_for(endpoint)
-            except BuildError as e:
-                print(f"⚠️ ข้าม {endpoint}: {e}")
+        os.makedirs("docs", exist_ok=True)
+
+        for path, filename in PAGES:
+            resp = client.get(path)
+            if resp.status_code != 200:
+                print(f"⚠️ ข้าม {path}: status {resp.status_code}")
                 continue
 
-            resp = client.get(url)
-            out_path = f"docs/{filename}"
+            out_path = os.path.join("docs", filename)
             with open(out_path, "wb") as f:
                 f.write(resp.data)
-            print(f"✓ {endpoint} → {out_path}")
+
+            print(f"✓ {path} → {out_path}")
+
+if __name__ == "__main__":
+    main()

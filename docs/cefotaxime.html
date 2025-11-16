@@ -78,7 +78,7 @@
   <div class="container">
     <!-- ฟอร์มรอบที่ 1: คำนวณ mg → mL -->
     <div class="calc-box">
-      <form action="./cefotaxime.html" method="post" class="calc-row">
+      <form action="#" method="post" class="calc-row">
         <input type="hidden" name="step" value="dose">
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
@@ -134,13 +134,191 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-17</p>
   </footer>
 
   <div class="float-actions">
-    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
-    <a href="./index.html" class="btn btn-red">Back to Home</a>
+    <a href="/medication_administration" class="btn btn-cyan">Back</a>
+    <a href="/" class="btn btn-red">Back to Home</a>
   </div>
+
+    <script>
+(function () {
+  var host = window.location.hostname || "";
+  // ให้ JS ทำงานเฉพาะตอนรันบน GitHub Pages
+  if (!host.endsWith("github.io")) return;
+
+  // ใช้ name="step" ให้ตรงกับฟอร์ม
+  var doseActionInput = document.querySelector('input[name="step"][value="dose"]');
+  var condActionInput = document.querySelector('input[name="step"][value="condition"]');
+  if (!doseActionInput || !condActionInput) return;
+
+  var formDose = doseActionInput.form;
+  var formCond = condActionInput.form;
+  if (!formDose || !formCond) return;
+
+  var doseInput  = document.getElementById("dose");
+  var multSelect = document.getElementById("multiplication");
+  if (!doseInput || !multSelect) return;
+
+  // hidden ในฟอร์มรอบที่ 2 ชื่อ dose / result_ml
+  var hiddenDose   = formCond.querySelector('input[name="dose"]');
+  var hiddenResult = formCond.querySelector('input[name="result_ml"]');
+  if (!hiddenDose || !hiddenResult) return;
+
+  var doseVal = null;
+  var resultMlVal = null;
+
+  function round2(x) {
+    return Math.round((x + Number.EPSILON) * 100) / 100;
+  }
+
+  function createOrGetBox(id, refNode) {
+    var box = document.getElementById(id);
+    if (!box) {
+      box = document.createElement("div");
+      box.id = id;
+      box.className = "result";
+      refNode.parentNode.insertBefore(box, refNode.nextSibling);
+    }
+    return box;
+  }
+
+  // ---------- STEP 1: dose (mg) → mL ----------
+  formDose.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var raw = (doseInput.value || "").trim();
+    var d = parseFloat(raw);
+    if (!raw || isNaN(d) || d < 0) {
+      alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข ≥ 0");
+      return;
+    }
+
+    doseVal     = round2(d);
+    resultMlVal = round2((doseVal * 10.0) / 1000.0);  // stock 1000 mg / 10 mL
+
+    hiddenDose.value   = doseVal.toFixed(2);
+    hiddenResult.value = resultMlVal.toFixed(2);
+
+    var box = createOrGetBox("gh-cefotaxime-step1", formDose.closest(".calc-box"));
+    box.innerHTML =
+      "<p><b>Order:</b> Cefotaxime " + doseVal.toFixed(2) + " mg</p>" +
+      "<p><b>สูตรจากสต็อก 1000 mg / 10 mL</b> → " +
+      "<span class='mono'>mL = (mg × 10) / 1000</span></p>" +
+      "<p>แทนค่า: <span class='mono'>" +
+      doseVal.toFixed(2) + " × 10 / 1000 = " +
+      "<span class='pill'>" + resultMlVal.toFixed(2) +
+      "</span> mL</span></p>";
+
+    // เปิดให้ step 2 กดได้ (เผื่อใน GitHub อยากล็อกไว้ตอนแรก)
+    var box2 = formCond.closest(".calc-box");
+    if (box2) {
+      box2.style.opacity = "1";
+      box2.style.pointerEvents = "auto";
+    }
+  });
+
+  // ---------- STEP 2: เงื่อนไข 3X / 6X + config ----------
+  formCond.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    if (doseVal === null || resultMlVal === null) {
+      alert("โปรดคำนวณรอบแรกก่อน");
+      return;
+    }
+
+    var mRaw = (multSelect.value || "").trim();
+    var m = parseInt(mRaw, 10);
+    if (!m || (m !== 3 && m !== 6)) {
+      alert("กรุณาเลือกเงื่อนไข 3 หรือ 6 เท่า");
+      return;
+    }
+
+    var total   = round2(resultMlVal * m);
+    var target  = (m === 3) ? 9.0 : 6.0;
+    var diluent = round2(Math.max(target - total, 0));
+
+    // กล่องผลลัพธ์หลัก (เหมือน Jinja block)
+    var boxMain = createOrGetBox("gh-cefotaxime-step2", formCond.closest(".calc-box"));
+    var htmlMain =
+      "<p><b>ผลลัพธ์หลังจากคูณ " + m + " เท่า = " + total.toFixed(2) + " mL</b></p>" +
+      "<div class='left-align'>";
+
+    if (m === 3) {
+      if (total < 9) {
+        htmlMain += "<p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − " +
+                    total.toFixed(2) + ") = " + diluent.toFixed(2) + " mL</p>";
+      } else {
+        htmlMain += "<p><b>**ดูดยา : 9 mL ไม่ต้องผสมสารละลาย**</b></p>";
+      }
+      htmlMain += "<p style='background:#f1b81b;padding:5px;border-radius:5px;'>" +
+                  "<b>ปริมาณยาที่บริหารเข้าทารก = 3 mL → ตั้งอัตรา ~6 mL/hr</b></p>";
+    } else {
+      if (total < 6) {
+        htmlMain += "<p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − " +
+                    total.toFixed(2) + ") = " + diluent.toFixed(2) + " mL</p>";
+      } else {
+        htmlMain += "<p><b>**ดูดยา : 6 mL ไม่ต้องผสมสารละลาย**</b></p>";
+      }
+      htmlMain += "<p style='background:#f1b81b;padding:5px;border-radius:5px;'>" +
+                  "<b>ปริมาณยาที่บริหารเข้าทารก = 1 mL → ตั้งอัตรา ~2 mL/hr</b></p>";
+    }
+
+    htmlMain += "</div>";
+    boxMain.innerHTML = htmlMain;
+
+    // กล่องคำอธิบายแบบ config
+    var config;
+    if (m === 3) {
+      config = {
+        message: "การบริหารยาโดย Intermittent intravenous infusion pump",
+        details: [
+          "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+          "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+          "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+          "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+          "การเตรียมยา:",
+          "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+          "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+          "3) ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+          "4) ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+          "5) ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตรา ~6 mL/hr.",
+          "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+        ],
+      };
+    } else {
+      config = {
+        message: "การบริหารยาโดย Intermittent intravenous infusion",
+        details: [
+          "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+          "1) กำหนดให้สารละลายยาซึ่งบริหารเข้าสู้ผู้ป่วยปริมาณเท่ากับ = 1 mL",
+          "2) ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+          "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+          "3) จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+          "4) บริหารโดยใช้ Syringe pump ตั้งอัตราเร็ว ~2 mL/hr",
+        ],
+      };
+    }
+
+    var boxExtra = createOrGetBox("gh-cefotaxime-extra", boxMain);
+    var html =
+      "<p style='font-weight:800;text-align:center;margin:6px 0'>" +
+      config.message + "</p><div class='muted'>";
+
+    config.details.forEach(function (d) {
+      if (d.indexOf("Up to") !== -1) {
+        html += "<div style='background:#ffeb3b;font-weight:700;padding:8px;text-align:center;border-radius:6px;margin:10px 0'>" +
+                d + "</div>";
+      } else {
+        html += "<p style='margin:6px 0'>" + d + "</p>";
+      }
+    });
+    html += "</div>";
+    boxExtra.innerHTML = html;
+  });
+})();
+</script>
 
 </body>
 </html>
