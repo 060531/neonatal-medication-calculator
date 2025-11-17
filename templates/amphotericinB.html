@@ -267,7 +267,7 @@
 
           <p>
             <b>ปริมาณยาที่บริหารเข้าทารก:</b>
-            {{ result_ml_2|fmt(2) }} mL → drip 4–6 hr.
+            <span class="highlight">{{ result_ml_2|fmt(2) }} mL → drip 4–6 hr.</span>
           </p>
 
           <p class="highlight">ผสมด้วย 5% D/W เท่านั้น</p>
@@ -315,149 +315,117 @@
     <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
   </footer>
 
-  <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <div class="float-actions">
+    <a href="{{ u('medication_administration') }}"
+       class="btn btn-cyan"
+       data-nav="med">
+      Back
+    </a>
+    <a href="{{ u('index') }}"
+       class="btn btn-red"
+       data-nav="home">
+      Back to Home
+    </a>
   </div>
 
   <script>
-  (function () {
-    var host = window.location.hostname || "";
-    // ทำงานเฉพาะตอนอยู่บน GitHub Pages
-    if (!host.endsWith("github.io")) return;
+(function () {
+  var host = window.location.hostname || "";
+  var isGithub = host.endsWith("github.io");
 
-    // ---------- หา form ทั้ง 2 ชุด ----------
-    var doseAction = document.querySelector('input[name="action"][value="dose"]');
-    var condAction = document.querySelector('input[name="action"][value="condition"]');
-    if (!doseAction || !doseAction.form) return;
+  // ---------- แก้ปุ่ม Back / Home เฉพาะตอนอยู่บน GitHub Pages ----------
+  if (isGithub) {
+    var backMed = document.querySelector('.float-actions a[data-nav="med"]');
+    var backHome = document.querySelector('.float-actions a[data-nav="home"]');
 
-    var formDose = doseAction.form;
-    var formCond = condAction ? condAction.form : null;
+    // ชี้ไปไฟล์ใน docs (root ของ GitHub Pages)
+    if (backMed)  backMed.href  = "./medication_administration.html";
+    if (backHome) backHome.href = "./index.html";
+  }
 
-    var doseInput = document.getElementById("dose");
-    var multSelect = formCond ? formCond.querySelector('select[name="multiplication"]') : null;
-    if (!doseInput) return;
+  // ---------- ถ้าไม่ได้รันบน GitHub (รันผ่าน Flask) ไม่ต้องใช้ JS calculator ----------
+  if (!isGithub) return;
 
-    var step2Box = document.getElementById("ampho-step2-box");
+  // ---------- JS calculator สำหรับ GitHub Pages ----------
+  var form = document.querySelector("form");
+  if (!form) return;
 
-    var doseVal   = null;
-    var result1   = null;  // จากสต็อก 5 mg/mL
-    var result2   = null;  // ปริมาตรตามเป้าหมาย 0.1 mg/mL
+  var doseInput = form.querySelector("[name='dose']");
+  var multInput = form.querySelector("[name='multiplication']"); // ใน GitHub อาจไม่มี ก็ไม่เป็นไร
+  if (!doseInput) return;
 
-    function round2(x) {
-      return Math.round((x + Number.EPSILON) * 100) / 100;
+  function round2(x) {
+    return Math.round((x + Number.EPSILON) * 100) / 100;
+  }
+
+  function createOrGetBox(id) {
+    var box = document.getElementById(id);
+    if (!box) {
+      box = document.createElement("div");
+      box.id = id;
+      box.className = "result";
+      form.parentNode.insertBefore(box, form.nextSibling);
+    }
+    return box;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var raw = (doseInput.value || "").trim();
+    var d = parseFloat(raw);
+    if (!raw || isNaN(d) || d < 0) {
+      alert("กรุณาใส่ dose (mg) เป็นตัวเลข ≥ 0");
+      return;
     }
 
-    function createBox(id, refNode) {
-      var box = document.getElementById(id);
-      if (!box) {
-        box = document.createElement("div");
-        box.id = id;
-        box.className = "result";
-        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+    // ขั้นที่ 1: stock 50 mg ละลายใน Sterile water 10 mL → 5 mg/mL
+    var result_ml_1 = round2((d * 10.0) / 50.0);
+
+    // ขั้นที่ 2: target ≤ 0.1 mg/mL → ต้องมี total volume = dose / 0.1
+    var result_ml_2 = round2(d / 0.1);
+
+    var multiplication = null;
+    if (multInput && multInput.value.trim() !== "") {
+      var m = parseFloat(multInput.value.trim());
+      if (!isNaN(m)) {
+        multiplication = m;
       }
-      return box;
     }
 
-    // ---------- STEP 1+2: dose → result1, result2 ----------
-    formDose.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      var raw = (doseInput.value || "").trim();
-      var d = parseFloat(raw);
-      if (!raw || isNaN(d) || d < 0) {
-        alert("กรุณาใส่ dose (mg) เป็นตัวเลข ≥ 0");
-        return;
-      }
-
-      doseVal = round2(d);
-      // 50 mg ละลาย Sterile water 10 mL → 5 mg/mL
-      result1 = round2((doseVal * 10.0) / 50.0);
-      // ต้องการ ≤ 0.1 mg/mL → ปริมาตรเป้าหมาย
-      result2 = round2(doseVal / 0.1);
-
-      var box = createBox("gh-ampho-step1", formDose.closest(".calc-box"));
-      box.innerHTML =
-        "<p class='order-line'><b>Order:</b> Amphotericin-B " + doseVal.toFixed(2) + " mg</p>" +
-        "<p><b>ขั้นตอนที่ 1: จากสต็อก 50 mg → Sterile water 10 mL (5 mg/mL)</b></p>" +
-        "<p>สูตร <span class='mono'>mL = (mg × 10) / 50</span> ⇒ " +
-        "<span class='mono'>" + doseVal.toFixed(2) + " × 10 / 50 = " +
-        result1.toFixed(2) + " mL</span></p>" +
-        "<p class='muted'>ใช้ <b>Sterile water 10 mL</b> → ความแรง <b>5 mg/mL</b></p>" +
-        "<hr style='border:none;border-top:1px dashed #cfe3ff;margin:10px 0'>" +
-        "<p><b>ขั้นตอนที่ 2: ปริมาตรสารละลายเป้าหมาย (≤ 0.1 mg/mL)</b></p>" +
-        "<p>สูตร <span class='mono'>mL = mg / 0.1</span> ⇒ " +
-        "<span class='mono'>" + doseVal.toFixed(2) + " / 0.1 = " +
-        result2.toFixed(2) + " mL</span></p>" +
-        "<p class='muted'><b>ให้ผสมด้วย 5% D/W เท่านั้น (ห้าม NSS)</b></p>";
-
-      // ปลดล็อก step 2
-      if (step2Box) {
-        step2Box.style.opacity = "1";
-        step2Box.style.pointerEvents = "auto";
-      }
-    });
-
-    // ---------- STEP 3: ตัวคูณ ----------
-    if (formCond && multSelect) {
-      formCond.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        if (doseVal === null || result1 === null || result2 === null) {
-          alert("โปรดคำนวณรอบแรกก่อน");
-          return;
-        }
-
-        var mRaw = (multSelect.value || "").trim();
-        if (!mRaw) {
-          alert("กรุณาเลือกตัวคูณ");
-          return;
-        }
-        var m = parseFloat(mRaw);
-        if (isNaN(m)) {
-          alert("ตัวคูณไม่ถูกต้อง");
-          return;
-        }
-
-        var final1 = round2(result1 * m);
-        var final2 = round2(result2 * m);
-        var diluent = round2(final2 - final1);
-
-        var box = createBox("gh-ampho-step2", formCond.closest(".calc-box"));
-        box.innerHTML =
-          "<p><b>ผลลัพธ์หลังคูณ " + m.toFixed(2) + " เท่า</b></p>" +
-          "<div style='background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;'>" +
-          "<p>" + m.toFixed(2) + " × " + result1.toFixed(2) +
-          " mL = <b>" + final1.toFixed(2) + "</b> mL " +
-          "<span class='muted'>(ปริมาณยาเข้มข้น 5 mg/mL)</span></p>" +
-          "<p>" + m.toFixed(2) + " × " + result2.toFixed(2) +
-          " mL = <b>" + final2.toFixed(2) + "</b> mL " +
-          "<span class='muted'>(ปริมาตรสารละลายเป้าหมาย 0.1 mg/mL)</span></p>" +
-          "<hr style='border:none;border-top:1px dashed #cfe3ff;margin:10px 0'>" +
-          "<p><b>ปริมาณ “ยา” จากสต็อก:</b> <span class='pill'>" +
-          final1.toFixed(2) + "</span> mL</p>" +
-          "<p><b>ตัวทำละลายเพิ่ม (ให้ ≤ 0.1 mg/mL):</b> <span class='pill'>" +
-          diluent.toFixed(2) + "</span> mL " +
-          "<span class='muted'>(" + final2.toFixed(2) + " − " +
-          final1.toFixed(2) + ")</span></p>" +
-          "<p><b>ปริมาณยาที่บริหารเข้าทารกต่อครั้ง:</b> " +
-          result2.toFixed(2) + " mL → drip 4–6 hr.</p>" +
-          "<p class='highlight'>ผสมด้วย 5% D/W เท่านั้น</p>" +
-          "</div>";
-      });
+    var final_result_1 = null;
+    var final_result_2 = null;
+    if (multiplication !== null) {
+      final_result_1 = round2(result_ml_1 * multiplication);
+      final_result_2 = round2(result_ml_2 * multiplication);
     }
 
-    // ---------- แก้ลิงก์ Back / Home ให้ใช้ไฟล์ .html ----------
-    var backMed = document.querySelector('.float-actions a[href^="/medication_administration"]');
-    if (backMed) {
-      backMed.setAttribute("href", "./medication_administration.html");
+    var box = createOrGetBox("gh-amphotericin-result");
+
+    var html = "";
+    html += "<p><b>Dose:</b> " + d.toFixed(2) + " mg</p>";
+    html += "<p>จาก stock 50 mg / 10 mL ⇒ " +
+            "<b>ปริมาณยาที่ได้</b> = <span class='pill'>" +
+            result_ml_1.toFixed(2) + "</span> mL</p>";
+    html += "<p>เป้าหมายความเข้มข้น 0.1 mg/mL ⇒ " +
+            "<b>ต้องการสารละลายทั้งหมด</b> = <span class='pill'>" +
+            result_ml_2.toFixed(2) + "</span> mL</p>";
+
+    if (multiplication !== null &&
+        final_result_1 !== null &&
+        final_result_2 !== null) {
+      html += "<hr>";
+      html += "<p><b>คูณ " + multiplication + " เท่า</b></p>";
+      html += "<p>ปริมาณยาหลังคูณจาก stock = <span class='pill'>" +
+              final_result_1.toFixed(2) + "</span> mL</p>";
+      html += "<p>ปริมาณสารละลายหลังคูณ (ตามเป้าหมาย 0.1 mg/mL) = <span class='pill'>" +
+              final_result_2.toFixed(2) + "</span> mL</p>";
     }
-    var backHome = document.querySelector('.float-actions a[href="/"]');
-    if (backHome) {
-      backHome.setAttribute("href", "./index.html");
-    }
-  })();
-  </script>
+
+    box.innerHTML = html;
+  });
+})();
+</script>
 
 </body>
 </html>
