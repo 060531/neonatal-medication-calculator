@@ -100,7 +100,7 @@
 
   <div class="container">
 
-    <!-- ฟอร์มคำนวณ: โพสต์เข้า route ฝั่งเซิร์ฟเวอร์ -->
+    <!-- ฟอร์มคำนวณ: ฝั่ง Flask ใช้ u('ampicillin_route') -->
     <div class="calc-box">
       <form action="/ampicillin" method="post" class="calc-row">
         <input type="hidden" name="action" value="dose" />
@@ -167,9 +167,10 @@
   <script>
   (function () {
     var host = window.location.hostname || "";
-    // ให้ใช้ JS เฉพาะบน GitHub Pages เท่านั้น
+    // ทำงานเฉพาะบน GitHub Pages (เช่น 060531.github.io)
     if (!host.endsWith("github.io")) return;
 
+    // ---------- 1) ดัก submit ฟอร์ม ให้คำนวณบน client ----------
     var form = document.querySelector("form");
     if (!form) return;
 
@@ -192,7 +193,7 @@
     }
 
     form.addEventListener("submit", function (e) {
-      e.preventDefault();
+      e.preventDefault();   // ไม่ยิง POST /ampicillin บน GitHub
 
       var raw = (doseInput.value || "").trim();
       var d = parseFloat(raw);
@@ -212,6 +213,18 @@
         d.toFixed(2) + " × 5 / 1000 = " +
         "<span class='pill'>" + result_ml.toFixed(2) + "</span> mL</span></p>";
     });
+
+    // ---------- 2) แก้ลิงก์ Back / Home ให้ชี้ไปไฟล์ .html ใน docs ----------
+    var backMed = document.querySelector('.float-actions a[href^="/medication_administration"]');
+    if (backMed) {
+      backMed.setAttribute("href", "./medication_administration.html");
+    }
+
+    // ลิงก์ Home ปกติของ Flask คือ "/" → แก้ให้เป็น index.html
+    var backHome = document.querySelector('.float-actions a[href="/"]');
+    if (backHome) {
+      backHome.setAttribute("href", "./index.html");
+    }
   })();
   </script>
 
