@@ -204,28 +204,44 @@
 
     <!-- ผลลัพธ์ -->
     <div id="result"
-         class="result"
-         style="{% if dose is not none %}display:block{% else %}display:none{% endif %}">
-      {% if dose is not none %}
-        <p class="order-line"><b>Order:</b> Furosemide {{ dose|fmt(3) }} mg</p>
-        <div class="left-align muted">
-          <p><b>ความเข้มข้นอ้างอิง:</b> 20 mg / 2 ml ⇒ <b>10 mg/ml</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 10</span></p>
-          <p>
-            แทนค่า:
-            <span class="mono">
-              {{ dose|fmt(3) }} ÷ 10 =
-              <span class="pill">{{ result_ml|fmt(3) if result_ml is not none else (dose / 10)|round(3) }}</span> ml
-            </span>
-          </p>
-          <p>
-            <b>ดังนั้น:</b>
-            ขนาดยา {{ dose|fmt(3) }} mg =
-            <span class="pill">{{ result_ml|fmt(3) if result_ml is not none else (dose / 10)|round(3) }} ml</span>
-          </p>
-        </div>
-      {% endif %}
+     class="result"
+     style="{{ 'display:block' if dose is not none else 'display:none' }}">
+
+  {% if dose is not none %}
+    <p class="order-line"><b>Order:</b> Furosemide {{ dose|fmt(3) }} mg</p>
+    <div class="left-align muted">
+      <p><b>ความเข้มข้นอ้างอิง:</b> 20 mg / 2 ml ⇒ <b>10 mg/ml</b></p>
+      <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 10</span></p>
+
+      <p>
+        แทนค่า:
+        <span class="mono">
+          {{ dose|fmt(3) }} ÷ 10 =
+          <span class="pill">
+            {% if result_ml is not none %}
+              {{ result_ml|fmt(3) }}
+            {% else %}
+              {{ (dose / 10)|round(3) }}
+            {% endif %}
+          </span> ml
+        </span>
+      </p>
+
+      <p>
+        <b>ดังนั้น:</b>
+        ขนาดยา {{ dose|fmt(3) }} mg =
+        <span class="pill">
+          {% if result_ml is not none %}
+            {{ result_ml|fmt(3) }}
+          {% else %}
+            {{ (dose / 10)|round(3) }}
+          {% endif %}
+        </span> ml
+      </p>
     </div>
+  {% endif %}
+</div>
+
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
