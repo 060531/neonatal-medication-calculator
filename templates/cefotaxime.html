@@ -78,27 +78,43 @@
   <div class="container">
     <!-- ฟอร์มรอบที่ 1: คำนวณ mg → mL -->
     <div class="calc-box">
-      <form action="{{ u('cefotaxime') }}" method="post" class="calc-row">
-        <input type="hidden" name="step" value="dose">
-        <div class="dose-row">
-          <label for="dose">กรอกขนาดยา (mg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
-                 value="{{ dose if dose is not none else '' }}">
-        </div>
-        <button type="submit" class="btn btn-blue">คำนวณ</button>
-      </form>
+  <form id="cefotaxime-form"
+        class="calc-row"
+        action="{{ u('cefotaxime_route') }}"
+        method="post">
+    <input type="hidden" name="action" value="dose" />
+    <div class="dose-row">
+      <label for="dose">กรอกขนาดยา (mg):</label>
+      <input type="number"
+             id="dose"
+             name="dose"
+             placeholder="ขนาดยา (mg)"
+             required
+             step="0.01"
+             value="{{ dose if dose is not none else '' }}">
     </div>
+    <button type="submit" class="btn btn-blue">คำนวณ</button>
+  </form>
+</div>
 
-    {% if error %}
-      <div class="result" style="background:#fff0f0;border-color:#f2b6b6;color:#9b1c1c">{{ error }}</div>
-    {% endif %}
-
-    {% if result_ml is not none and dose is not none %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Cefotaxime {{ dose|fmt(2) }} mg</p>
-        <p><b>สูตรจากสต็อก 1000 mg / 10 mL</b> → <span class="mono">mL = (mg × 10) / 1000</span></p>
-        <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 10 / 1000 = <span class="pill">{{ result_ml|fmt(2) }}</span> mL</span></p>
-      </div>
+<!-- กล่องแสดงผล -->
+<div id="result"
+     class="result"
+     style="{% if dose is not none %}display:block{% else %}display:none{% endif %}">
+  {% if dose is not none %}
+    <p class="order-line"><b>Order:</b> Cefotaxime {{ dose|fmt(2) }} mg</p>
+    <p><b>สูตร:</b>
+      <span class="mono">mL = mg / 100</span>
+    </p>
+    <p>
+      แทนค่า:
+      <span class="mono">
+        {{ dose|fmt(2) }} / 100 =
+        <span class="pill">{{ result_ml|fmt(2) if result_ml is not none else (dose / 100)|round(2) }}</span> mL
+      </span>
+    </p>
+  {% endif %}
+</div>
 
       <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ -->
 <div class="calc-box">
