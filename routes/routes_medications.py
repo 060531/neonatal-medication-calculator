@@ -436,40 +436,30 @@ def cefotaxime_route():
 
     if request.method == 'POST':
         try:
-            # ใช้ชื่อ field ตาม template: step = 'dose' หรือ 'condition'
-            step = (request.form.get('step') or '').strip().lower()
+            # รองรับทั้งชื่อ field step (ใหม่) และ action (เก่า)
+            step = (request.form.get('step') or request.form.get('action') or '').strip().lower()
 
-            # -------------------------
-            # รอบที่ 1: รับ dose (mg)
-            # -------------------------
             if step == 'dose':
                 raw = (request.form.get('dose') or '').strip()
                 if not raw:
                     raise ValueError("กรุณากรอกขนาดยา (mg)")
-
                 dose = float(raw)
                 if dose < 0:
                     raise ValueError("ขนาดยาต้องมากกว่าหรือเท่ากับ 0")
 
-                # stock 1000 mg / 10 mL → (dose * 10) / 1000
+                # stock 1000 mg / 10 mL → mg/100
                 result_ml = round((dose * 10.0) / 1000.0, 2)
 
-            # -------------------------
-            # รอบที่ 2: ใช้ค่าที่คำนวณแล้ว + เงื่อนไขคูณ
-            # -------------------------
             elif step == 'condition':
-                # hidden dose / result_ml จากฟอร์มรอบที่ 2
                 dose_raw = (request.form.get('dose') or '').strip()
                 if not dose_raw:
                     raise ValueError("ไม่พบข้อมูล dose เดิม โปรดคำนวณรอบแรกก่อน")
-
                 dose = float(dose_raw)
 
                 result_raw = (request.form.get('result_ml') or '').strip()
                 if result_raw:
                     result_ml = float(result_raw)
                 else:
-                    # เผื่อกรณีไม่มี hidden result_ml
                     result_ml = round((dose * 10.0) / 1000.0, 2)
 
                 mult_raw = (request.form.get('multiplication') or '').strip()
@@ -478,9 +468,6 @@ def cefotaxime_route():
 
                 multiplication = int(mult_raw)
 
-                # -------------------------
-                # กล่องคำอธิบายเพิ่มเติม
-                # -------------------------
                 if multiplication == 3:
                     content_extra = {
                         "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
@@ -511,8 +498,8 @@ def cefotaxime_route():
                         ],
                     }
 
-            # เผื่อกรณี POST แบบไม่ส่ง step (ฟอร์มเก่า)
             else:
+                # fallback ฟอร์มเก่า
                 if 'dose' in request.form:
                     dose = float(request.form['dose'])
                     result_ml = round((dose * 10.0) / 1000.0, 2)
