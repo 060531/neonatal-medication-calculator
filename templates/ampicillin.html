@@ -56,6 +56,7 @@
     padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
   }
   .result b{ color:#0b2b7a; }
+  .order-line{ margin-top:0; margin-bottom:10px; }
   .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
   .muted{ color:#334155; }
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
@@ -120,11 +121,21 @@
 
     <!-- แสดงผลลัพธ์เมื่อคำนวณได้ (รองรับค่า 0 ด้วย is not none) -->
     {% if result_ml is not none %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Ampicillin {{ dose|default(0.0)|fmt(2) }} mg</p>
-        <p><b>สูตรจากสต็อก 1000 mg / 5 mL</b> → <span class="mono">mL = (mg × 5) / 1000</span></p>
-        <p>แทนค่า: <span class="mono">{{ dose|default(0.0)|fmt(2) }} × 5 / 1000 =
-          <span class="pill">{{ result_ml|fmt(2) }}</span> mL</span></p>
+      <div class="result" id="server-ampicillin-result">
+        <p class="order-line">
+          <b>Order:</b> Ampicillin {{ dose|default(0.0)|fmt(2) }} mg
+        </p>
+        <p>
+          <b>สูตรจากสต็อก 1000 mg / 5 mL</b>
+          → <span class="mono">mL = (mg × 5) / 1000</span>
+        </p>
+        <p>
+          แทนค่า:
+          <span class="mono">
+            {{ dose|default(0.0)|fmt(2) }} × 5 / 1000 =
+            <span class="pill">{{ result_ml|fmt(2) }}</span> mL
+          </span>
+        </p>
       </div>
     {% endif %}
 
@@ -175,52 +186,55 @@
   </div>
 
   <script>
-(function () {
-  var host = window.location.hostname || "";
-  if (!host.endsWith("github.io")) return;
+  (function () {
+    var host = window.location.hostname || "";
+    // ให้ใช้ JS เฉพาะบน GitHub Pages เท่านั้น
+    if (!host.endsWith("github.io")) return;
 
-  var form = document.querySelector("form");
-  if (!form) return;
+    var form = document.querySelector("form");
+    if (!form) return;
 
-  var doseInput = form.querySelector("[name='dose']");
-  if (!doseInput) return;
+    var doseInput = form.querySelector("[name='dose']");
+    if (!doseInput) return;
 
-  function round2(x) {
-    return Math.round((x + Number.EPSILON) * 100) / 100;
-  }
-
-  function createOrGetBox() {
-    var box = document.getElementById("gh-ampicillin-result");
-    if (!box) {
-      box = document.createElement("div");
-      box.id = "gh-ampicillin-result";
-      box.className = "result";
-      form.parentNode.insertBefore(box, form.nextSibling);
-    }
-    return box;
-  }
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    var raw = (doseInput.value || "").trim();
-    var d = parseFloat(raw);
-    if (!raw || isNaN(d) || d < 0) {
-      alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข ≥ 0");
-      return;
+    function round2(x) {
+      return Math.round((x + Number.EPSILON) * 100) / 100;
     }
 
-    var result_ml = round2((d * 5.0) / 1000.0);
+    function createOrGetBox() {
+      var box = document.getElementById("gh-ampicillin-result");
+      if (!box) {
+        box = document.createElement("div");
+        box.id = "gh-ampicillin-result";
+        box.className = "result";
+        form.parentNode.insertBefore(box, form.nextSibling);
+      }
+      return box;
+    }
 
-    var box = createOrGetBox();
-    box.innerHTML =
-      "<p><b>Dose:</b> " + d.toFixed(2) + " mg</p>" +
-      "<p>ผลลัพธ์ (ตัวอย่างสูตร: (dose × 5) / 1000) = " +
-      "<span class='pill-red'>" + result_ml.toFixed(2) + "</span> mL</p>";
-  });
-})();
-</script>
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var raw = (doseInput.value || "").trim();
+      var d = parseFloat(raw);
+      if (!raw || isNaN(d) || d < 0) {
+        alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข ≥ 0");
+        return;
+      }
+
+      var result_ml = round2((d * 5.0) / 1000.0);
+
+      var box = createOrGetBox();
+      box.innerHTML =
+        "<p class='order-line'><b>Order:</b> Ampicillin " + d.toFixed(2) + " mg</p>" +
+        "<p><b>สูตรจากสต็อก 1000 mg / 5 mL</b> " +
+        "→ <span class='mono'>mL = (mg × 5) / 1000</span></p>" +
+        "<p>แทนค่า: <span class='mono'>" +
+        d.toFixed(2) + " × 5 / 1000 = " +
+        "<span class='pill'>" + result_ml.toFixed(2) + "</span> mL</span></p>";
+    });
+  })();
+  </script>
 
 </body>
 </html>
-
