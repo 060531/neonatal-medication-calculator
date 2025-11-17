@@ -87,44 +87,23 @@
 
   <div class="container">
     <!-- ฟอร์มคำนวณ -->
-    <form action="{{ u('aminophylline_route') }}" method="post" class="calc-box form-card">
+    <form action="/aminophylline" method="post" class="calc-box form-card">
       <input type="hidden" name="action" value="dose" />
       <div class="dose-row">
         <label for="dose">กรอกขนาดยา (mg):</label>
         <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
                required step="0.01"
-               value="{{ dose if dose is not none else '' }}">
+               value="">
       </div>
       <div class="btn-wrap">
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </div>
     </form>
 
-    {% if error %}
-      <div class="result" style="background:#fff0f0;border-color:#f2b6b6;color:#9b1c1c">
-        {{ error }}
-      </div>
-    {% endif %}
+    
 
-    {# แสดงผลเมื่อมีการคำนวณ #}
-    {% if dose is not none and result_ml is not none %}
-      <div class="result">
-        <p style="text-align:center;margin:6px 0;">
-          <b>Order :</b>
-          Aminophylline {{ '%.2f'|format(dose) }} mg
-        </p>
-        <div class="left-align">
-          <p><b>วิธีเตรียมตัวอย่าง:</b> 5% Dextrose in water 60 u + ยา 40 u (10 mg)</p>
-          <p>
-            <b>สูตร:</b> <code>u = mg × 10</code>
-            &nbsp;⇒&nbsp; <b>ขนาดยาที่ใช้:</b>
-            <span style="background:#ffea00;padding:3px 6px;border-radius:6px;font-weight:800;">
-              {{ result_ml|int }} u
-            </span>
-          </p>
-        </div>
-      </div>
-    {% endif %}
+    
+    
 
     <!-- ข้อมูลทางคลินิก -->
     <div class="left-align" style="margin-top:10px">
@@ -156,12 +135,12 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn back-button-secondary">Back</a>
-    <a href="{{ u('index') }}" class="btn back-button">Back to Home</a>
+    <a href="/medication_administration" class="btn back-button-secondary">Back</a>
+    <a href="/" class="btn back-button">Back to Home</a>
   </div>
 
     <!-- JS calculator สำหรับ GitHub Pages (static) -->

@@ -55,62 +55,21 @@
 
   <div class="container">
     <!-- รอบที่ 1: กรอกขนาดยา (mg) → คำนวณเป็น mL จากสารละลายรวม 110 mL -->
-    <form action="{{ u('amoxicillin_clavimoxy_route') }}" method="post">
+    <form action="./amoxicillin_clavimoxy.html" method="post">
       <input type="hidden" name="action" value="dose">
       <div class="form-group">
         <label for="dose"><b>กรอกขนาดยา (mg):</b></label>
         <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
-               value="{{ dose if dose is not none else '' }}">
+               value="">
       </div>
       <button type="submit" class="calculate-button">Calculate</button>
     </form>
 
-    {% if result_ml_1 is not none %}
-      <div class="result">
-        <p><b>Order: Amoxicillin/Clavimoxy {{ dose|float|round(2) }} mg</b></p>
-        <div class="left-align">
-          <p><b>วิธีคิด:</b></p>
-          <p>
-            ปริมาตร (mL) = mg × 110 / 1200
-            ⇒ {{ dose|float|round(2) }} × 110 / 1200 = <b>{{ result_ml_1|fmt(2) }} mL</b>
-          </p>
-          <p><b>ดังนั้น ขนาดยา {{ dose|float|round(2) }} mg = {{ result_ml_1|fmt(2) }} mL</b></p>
-        </div>
-      </div>
-    {% endif %}
+    
 
-    {% if result_ml_1 is not none %}
-      <!-- รอบที่ 2: คูณเงื่อนไข -->
-      <form action="{{ u('amoxicillin_clavimoxy_route') }}" method="post" style="margin-top:10px;">
-        <input type="hidden" name="action" value="condition">
-        <input type="hidden" name="dose_hidden" value="{{ dose }}">
-        <input type="hidden" name="result_ml_1_hidden" value="{{ result_ml_1 }}">
-        <div class="form-group">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select id="multiplication" name="multiplication" required>
-            <option value="1.5">1.5 เท่า</option>
-            <option value="2">2 เท่า</option>
-            <option value="2.5">2.5 เท่า</option>
-            <option value="3">3 เท่า</option>
-            <option value="3.5">3.5 เท่า</option>
-            <option value="4">4 เท่า</option>
-            <option value="4.5">4.5 เท่า</option>
-            <option value="5">5 เท่า</option>
-          </select>
-        </div>
-        <button type="submit" class="calculate-button" name="calculate_multiplication">คำนวณการคูณ</button>
-      </form>
-    {% endif %}
+    
 
-    {% if final_result_1 is not none %}
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า:</b></p>
-        <div class="left-align">
-          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) }} mL = <b>{{ final_result_1|fmt(2) }}} mL</b></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b> {{ result_ml_1|fmt(2) }} mL → <b>drip within 30 min.</b></p>
-        </div>
-      </div>
-    {% endif %}
+    
 
     <!-- ข้อมูลเตรียมยา -->
     <div class="left-align">
@@ -120,18 +79,16 @@
       <p><b>ปริมาณยารวม:</b> 110 mL = 1,200 mg (≈ 10.91 mg/mL)</p>
     </div>
 
-    {% if error %}
-      <p style="color:red;">{{ error }}</p>
-    {% endif %}
+    
   </div>
 
   <div class="button-group">
-    <a href="{{ u('medication_administration') }}" class="back-button-secondary">Back</a>
-    <a href="{{ u('index') }}" class="back-button">Back to Home</a>
+    <a href="./Medication_administration.html" class="back-button-secondary">Back</a>
+    <a href="./index.html" class="back-button">Back to Home</a>
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 </body>
 </html>

@@ -38,108 +38,27 @@
 
     <!-- รอบที่ 1: คำนวณจาก mg → mL -->
     <div class="calc-box">
-      <form action="{{ u('amphotericinB_route') }}" method="post" class="calc-row">
+      <form action="/amphotericinB" method="post" class="calc-row">
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
-    {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
-        {{ error }}
-      </div>
-    {% endif %}
+    
 
     <!-- ใช้ is not none เพื่อไม่ drop ค่า 0 โดยไม่ตั้งใจ -->
-    {% if result_ml_1 is not none %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Amphotericin-B {{ dose|default(0.0)|fmt(2) }} mg</p>
-        <p><b>ขั้นตอนที่ 1: ปริมาตรจากสต็อก (50 mg → ละลาย Sterile water 10 mL = 5 mg/mL)</b></p>
-        <p>สูตร <span class="mono">ml = (mg × 10) / 50</span> ⇒
-           <span class="mono">{{ dose|default(0.0)|fmt(2) }} × 10 / 50 = {{ result_ml_1|fmt(2) }} mL</span></p>
-        <p class="muted">หมายเหตุ: ใช้ <b>Sterile water 10 mL</b> → ความแรง <b>5 mg/mL</b></p>
-      </div>
-    {% endif %}
+    
 
-    {% if result_ml_2 is not none %}
-      <div class="result">
-        <p><b>ขั้นตอนที่ 2: ปริมาตรสารละลายเป้าหมาย (≤ 0.1 mg/mL)</b></p>
-        <p>สูตร <span class="mono">ml = mg / 0.1</span> ⇒
-           <span class="mono">{{ dose|default(0.0)|fmt(2) }} / 0.1 = {{ result_ml_2|fmt(2) }} mL</span></p>
-        <p class="muted"><b>เจือจาง/ให้ยา:</b> ใช้เฉพาะ <b>5% Dextrose in Water</b> (ห้าม NSS เพราะตกตะกอน)</p>
-      </div>
-    {% endif %}
+    
 
     <!-- รอบที่ 2: เลือกตัวคูณ -->
-    {% if result_ml_1 is not none or result_ml_2 is not none %}
-      <div class="calc-box" style="margin-top:10px">
-        <form action="{{ u('amphotericinB_route') }}" method="post" class="calc-row" style="gap:12px">
-          <input type="hidden" name="action" value="condition" />
-          <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
-          <input type="hidden" name="result_ml_1" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
-          <input type="hidden" name="result_ml_2" value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select name="multiplication" required
-                  style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
-            <option value="1.5">1.5 เท่า</option>
-            <option value="2">2 เท่า</option>
-            <option value="2.5">2.5 เท่า</option>
-            <option value="3">3 เท่า</option>
-            <option value="3.5">3.5 เท่า</option>
-            <option value="4">4 เท่า</option>
-            <option value="4.5">4.5 เท่า</option>
-            <option value="5">5 เท่า</option>
-          </select>
-          <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณการคูณ</button>
-        </form>
-      </div>
-    {% endif %}
+    
 
-    {% if final_result_1 is not none and final_result_2 is not none %}
-  <div class="result">
-    <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication|fmt(2) }} เท่า</b></p>
-
-    <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-      <p>
-        {{ multiplication|fmt(2) }} × {{ result_ml_1|fmt(2) }} mL =
-        <b>{{ final_result_1|fmt(2) }}</b> mL
-        <span class="muted">(สูตร: ({{ dose|default(0.0)|fmt(2) }} × 10) / 50)</span>
-      </p>
-
-      <p>
-        {{ multiplication|fmt(2) }} × {{ result_ml_2|fmt(2) }} mL =
-        <b>{{ final_result_2|fmt(2) }}</b> mL
-        <span class="muted">(สูตร: {{ dose|default(0.0)|fmt(2) }} / 0.1)</span>
-      </p>
-
-      <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-
-      <p>
-        <b>ปริมาณ “ยา” (จากสต็อก 5 mg/mL):</b>
-        <span class="pill">{{ final_result_1|fmt(2) }}</span> mL
-      </p>
-
-      <p>
-        <b>ตัวทำละลายเพื่อให้ ≤ 0.1 mg/mL:</b>
-        <span class="pill">{{ (final_result_2 - final_result_1)|fmt(2) }}</span> mL
-        <span class="muted">
-          ({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }})
-        </span>
-      </p>
-
-      <p>
-        <b>ปริมาณยาที่บริหารเข้าทารก:</b>
-        {{ result_ml_2|fmt(2) }} mL → drip 4–6 hr.
-      </p>
-
-      <p class="highlight">ผสมด้วย 5% D/W เท่านั้น</p>
-    </div>
-  </div>
-{% endif %}
+    
 
     <!-- สรุป/วิชาการ -->
     <div class="bullet">
@@ -174,12 +93,12 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="/medication_administration" class="btn btn-cyan">Back</a>
+    <a href="/" class="btn btn-red">Back to Home</a>
   </div>
   <script>
 (function () {
