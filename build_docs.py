@@ -15,7 +15,7 @@ PAGES = [
     ("/aminophylline",          "aminophylline.html"),
     ("/amikin",                 "amikin.html"),
     ("/amphotericinB",          "amphotericinB.html"),
-    ("/benzathine_penicillin_g","benzathine_penicillin_g.html"),
+    ("/benzathine-penicillin-g", "benzathine_penicillin_g.html"),
     ("/cefotaxime",             "cefotaxime.html"),
     ("/ceftazidime",            "ceftazidime.html"),
     ("/ciprofloxacin",          "ciprofloxacin.html"),
