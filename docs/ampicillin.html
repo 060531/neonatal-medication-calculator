@@ -102,21 +102,42 @@
 
     <!-- ฟอร์มคำนวณ: โพสต์เข้า route ฝั่งเซิร์ฟเวอร์ -->
     <div class="calc-box">
-      <form action="/ampicillin" method="post" class="calc-row">
+      <form action="{{ u('ampicillin_route') }}" method="post" class="calc-row">
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
           <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
-                 value="">
+                 value="{{ dose if dose is not none else '' }}">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
-    
+    {% if error %}
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
+      </div>
+    {% endif %}
 
     <!-- แสดงผลลัพธ์เมื่อคำนวณได้ (รองรับค่า 0 ด้วย is not none) -->
-    
+    {% if result_ml is not none %}
+      <div class="result" id="server-ampicillin-result">
+        <p class="order-line">
+          <b>Order:</b> Ampicillin {{ dose|default(0.0)|fmt(2) }} mg
+        </p>
+        <p>
+          <b>สูตรจากสต็อก 1000 mg / 5 mL</b>
+          → <span class="mono">mL = (mg × 5) / 1000</span>
+        </p>
+        <p>
+          แทนค่า:
+          <span class="mono">
+            {{ dose|default(0.0)|fmt(2) }} × 5 / 1000 =
+            <span class="pill">{{ result_ml|fmt(2) }}</span> mL
+          </span>
+        </p>
+      </div>
+    {% endif %}
 
     <!-- วิชาการ/แนวปฏิบัติ -->
     <div class="bullet">
@@ -156,12 +177,12 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
+    <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
   </footer>
 
   <div class="float-actions">
-    <a href="/medication_administration" class="btn btn-cyan">Back</a>
-    <a href="/" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 
   <script>
