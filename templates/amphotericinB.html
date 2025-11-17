@@ -5,29 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Amphotericin-B Calculation</title>
   <style>
-    :root{ --blue-900:#0b2b7a; --blue-700:#1e57d2; --sky-50:#eef7ff; --sky-100:#d7ecff; --panel:#e6f3ffb8; --text:#0f172a; --floatbar-gap:clamp(80px,16vw,110px); --page-gutter:12px; }
-    html,body{overflow-x:hidden;height:100%}*,*:before,*:after{box-sizing:border-box}img,video,canvas,svg{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}
-    body{margin:0;min-height:100svh;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,"Helvetica Neue",Helvetica,sans-serif;color:var(--text);text-align:center;background:none;padding-left:max(0px,env(safe-area-inset-left));padding-right:max(0px,env(safe-area-inset-right))}
-    body::before{content:"";position:fixed;inset:0;z-index:-1;background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');background-size:cover;background-position:center;background-repeat:no-repeat}
-    .title-badge{display:inline-block;margin:28px auto 12px;padding:10px 18px;background:var(--blue-900);color:#fff;font-weight:900;font-size:28px;border-radius:12px;box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.14);max-width:min(100%,calc(100vw - calc(var(--page-gutter)*2)))}
-    .container{width:min(820px,calc(100vw - calc(var(--page-gutter)*2)));margin:0 auto 12px;padding:20px;background:var(--panel);border:1px solid #b9d9ff;border-radius:16px;box-shadow:0 8px 24px rgba(15,23,42,.18);backdrop-filter:blur(6px) saturate(120%);-webkit-backdrop-filter:blur(6px) saturate(120%)}
-    .calc-box{margin:14px auto 20px;max-width:740px;padding:16px;background:linear-gradient(180deg,var(--sky-100),var(--sky-50));border:1px solid #b7d6ff;border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 18px rgba(0,0,0,.06);padding-left:max(12px,var(--page-gutter));padding-right:max(12px,var(--page-gutter))}
-    .calc-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
-    input[type="number"],select{width:clamp(160px,50vw,220px);max-width:60vw;padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;font-size:16px;text-align:center}
-    .btn{appearance:none;border:none;border-radius:10px;cursor:pointer;padding:10px 16px;font-weight:800;color:#fff;text-decoration:none;box-shadow:0 6px 0 rgba(10,30,85,.25);transition:transform .06s ease,filter .2s ease}
-    .btn:hover{filter:brightness(1.05);transform:translateY(-1px)} .btn:active{transform:translateY(1px)}
-    .btn-blue{background:var(--blue-700)} .btn-red{background:#e71f1f} .btn-cyan{background:#049bb5}
-    .result{text-align:left;margin:14px auto;max-width:740px;padding:14px;background:#f7fbff;border:1px dashed #cfe3ff;border-radius:12px;padding-left:max(12px,var(--page-gutter));padding-right:max(12px,var(--page-gutter))}
-    .result b{color:#0b2b7a} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800}
-    .muted{color:#334155} .section-head{text-align:left;font-weight:900;color:#0b2b7a;margin:18px 0 6px;text-decoration:underline}
-    .bullet{text-align:left;margin:0 0 10px 0} .bullet ul{margin:6px 0 0 22px}
-    .highlight{background:#fde047;padding:6px;border-radius:6px;font-weight:800}
-    .pill{display:inline-block;padding:2px 6px;border-radius:6px;background:#e01b1b;color:#fff;font-weight:800}
-    .float-actions{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:1000;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:8px 10px;border-radius:14px;background:rgba(15,23,42,.35);border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 18px rgba(2,8,23,.28);backdrop-filter:blur(8px) saturate(120%);-webkit-backdrop-filter:blur(8px) saturate(120%);width:min(540px,calc(100vw - calc(var(--page-gutter)*2)));max-width:calc(100vw - calc(var(--page-gutter)*2))}
-    footer.page-footer{text-align:center;color:#ffffff;text-shadow:0 2px 6px rgba(0,0,0,.5);margin:6px 0 var(--floatbar-gap);padding-left:var(--page-gutter);padding-right:var(--page-gutter);font-size:clamp(12px,3.2vw,16px);line-height:1.4}
-    @media (max-width:640px){.dose-row,.conc-row{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:8px;width:100%;max-width:520px;margin-left:auto;margin-right:auto}.dose-row>label,.conc-row>label{white-space:nowrap;max-width:44vw;font-size:14px;line-height:1.2}.dose-row>input[type="number"],.conc-row>select{min-width:0;width:100%;font-size:14px;padding:8px 10px;height:38px;box-sizing:border-box}.calc-row>.btn{min-width:120px}}
-    @media (max-width:360px){.dose-row>label,.conc-row>label{font-size:13px;max-width:42vw}.dose-row>input[type="number"],.conc-row>select{font-size:13px;padding:7px 9px;height:36px}}
-    @media (max-width:640px){.title-badge{font-size:22px;padding:8px 14px}.container{padding:14px}.calc-row{gap:8px}}
+    :root{
+      --blue-900:#0b2b7a; --blue-700:#1e57d2;
+      --sky-50:#eef7ff; --sky-100:#d7ecff;
+      --panel:#e6f3ffb8; --text:#0f172a;
+      --floatbar-gap:clamp(80px,16vw,110px);
+      --page-gutter:12px;
+    }
+    html,body{overflow-x:hidden;height:100%}
+    *,*:before,*:after{box-sizing:border-box}
+    img,video,canvas,svg{max-width:100%;height:auto}
+    pre,code{white-space:pre-wrap;word-break:break-word}
+    body{
+      margin:0;min-height:100svh;
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,"Helvetica Neue",Helvetica,sans-serif;
+      color:var(--text);text-align:center;background:none;
+      padding-left:max(0px,env(safe-area-inset-left));
+      padding-right:max(0px,env(safe-area-inset-right));
+    }
+    body::before{
+      content:"";position:fixed;inset:0;z-index:-1;
+      background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+      background-size:cover;background-position:center;background-repeat:no-repeat;
+    }
+    .title-badge{
+      display:inline-block;margin:28px auto 12px;padding:10px 18px;
+      background:var(--blue-900);color:#fff;font-weight:900;font-size:28px;
+      border-radius:12px;
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.14);
+      max-width:min(100%,calc(100vw - calc(var(--page-gutter)*2)));
+    }
+    .container{
+      width:min(820px,calc(100vw - calc(var(--page-gutter)*2)));
+      margin:0 auto 12px;padding:20px;
+      background:var(--panel);border:1px solid #b9d9ff;border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.18);
+      backdrop-filter:blur(6px) saturate(120%);
+      -webkit-backdrop-filter:blur(6px) saturate(120%);
+    }
+    .calc-box{
+      margin:14px auto 20px;max-width:740px;padding:16px;
+      background:linear-gradient(180deg,var(--sky-100),var(--sky-50));
+      border:1px solid #b7d6ff;border-radius:14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 18px rgba(0,0,0,.06);
+      padding-left:max(12px,var(--page-gutter));
+      padding-right:max(12px,var(--page-gutter));
+    }
+    .calc-row{
+      display:flex;flex-wrap:wrap;gap:10px;
+      align-items:center;justify-content:center;
+    }
+    input[type="number"],select{
+      width:clamp(160px,50vw,220px);max-width:60vw;
+      padding:10px 12px;border-radius:10px;
+      border:1px solid #c7d9f9;background:#fff;
+      font-size:16px;text-align:center;
+    }
+    .btn{
+      appearance:none;border:none;border-radius:10px;
+      cursor:pointer;padding:10px 16px;
+      font-weight:800;color:#fff;text-decoration:none;
+      box-shadow:0 6px 0 rgba(10,30,85,.25);
+      transition:transform .06s ease,filter .2s ease;
+    }
+    .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn:active{transform:translateY(1px)}
+    .btn-blue{background:var(--blue-700)}
+    .btn-red{background:#e71f1f}
+    .btn-cyan{background:#049bb5}
+    .result{
+      text-align:left;margin:14px auto;max-width:740px;padding:14px;
+      background:#f7fbff;border:1px dashed #cfe3ff;border-radius:12px;
+      padding-left:max(12px,var(--page-gutter));
+      padding-right:max(12px,var(--page-gutter));
+    }
+    .result b{color:#0b2b7a}
+    .order-line{margin-top:0;margin-bottom:10px}
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#0f172a;color:#fff;padding:2px 6px;
+      border-radius:6px;font-weight:800;
+    }
+    .muted{color:#334155}
+    .section-head{
+      text-align:left;font-weight:900;color:#0b2b7a;
+      margin:18px 0 6px;text-decoration:underline;
+    }
+    .bullet{text-align:left;margin:0 0 10px 0}
+    .bullet ul{margin:6px 0 0 22px}
+    .highlight{
+      background:#fde047;padding:6px;border-radius:6px;font-weight:800;
+    }
+    .pill{
+      display:inline-block;padding:2px 6px;border-radius:6px;
+      background:#e01b1b;color:#fff;font-weight:800;
+    }
+    .float-actions{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:1000;
+      display:flex;gap:12px;align-items:center;justify-content:center;
+      flex-wrap:wrap;padding:8px 10px;border-radius:14px;
+      background:rgba(15,23,42,.35);border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter:blur(8px) saturate(120%);
+      -webkit-backdrop-filter:blur(8px) saturate(120%);
+      width:min(540px,calc(100vw - calc(var(--page-gutter)*2)));
+      max-width:calc(100vw - calc(var(--page-gutter)*2));
+    }
+    footer.page-footer{
+      text-align:center;color:#ffffff;
+      text-shadow:0 2px 6px rgba(0,0,0,.5);
+      margin:6px 0 var(--floatbar-gap);
+      padding-left:var(--page-gutter);padding-right:var(--page-gutter);
+      font-size:clamp(12px,3.2vw,16px);line-height:1.4;
+    }
+    @media (max-width:640px){
+      .dose-row,.conc-row{
+        display:grid;grid-template-columns:auto 1fr;
+        align-items:center;column-gap:8px;
+        width:100%;max-width:520px;
+        margin-left:auto;margin-right:auto;
+      }
+      .dose-row>label,.conc-row>label{
+        white-space:nowrap;max-width:44vw;
+        font-size:14px;line-height:1.2;
+      }
+      .dose-row>input[type="number"],.conc-row>select{
+        min-width:0;width:100%;font-size:14px;
+        padding:8px 10px;height:38px;box-sizing:border-box;
+      }
+      .calc-row>.btn{min-width:120px}
+    }
+    @media (max-width:360px){
+      .dose-row>label,.conc-row>label{
+        font-size:13px;max-width:42vw;
+      }
+      .dose-row>input[type="number"],.conc-row>select{
+        font-size:13px;padding:7px 9px;height:36px;
+      }
+    }
+    @media (max-width:640px){
+      .title-badge{font-size:22px;padding:8px 14px}
+      .container{padding:14px}
+      .calc-row{gap:8px}
+    }
   </style>
 </head>
 <body>
@@ -42,25 +164,30 @@
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+          <input type="number" id="dose" name="dose"
+                 placeholder="ขนาดยา (mg)" required step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+      <div class="result" style="background:#fff0f0;border-color:#f2b6b6;color:#9b1c1c">
         {{ error }}
       </div>
     {% endif %}
 
-    <!-- ใช้ is not none เพื่อไม่ drop ค่า 0 โดยไม่ตั้งใจ -->
     {% if result_ml_1 is not none %}
       <div class="result">
         <p class="order-line"><b>Order:</b> Amphotericin-B {{ dose|default(0.0)|fmt(2) }} mg</p>
         <p><b>ขั้นตอนที่ 1: ปริมาตรจากสต็อก (50 mg → ละลาย Sterile water 10 mL = 5 mg/mL)</b></p>
-        <p>สูตร <span class="mono">ml = (mg × 10) / 50</span> ⇒
-           <span class="mono">{{ dose|default(0.0)|fmt(2) }} × 10 / 50 = {{ result_ml_1|fmt(2) }} mL</span></p>
+        <p>
+          สูตร <span class="mono">mL = (mg × 10) / 50</span> ⇒
+          <span class="mono">
+            {{ dose|default(0.0)|fmt(2) }} × 10 / 50 = {{ result_ml_1|fmt(2) }} mL
+          </span>
+        </p>
         <p class="muted">หมายเหตุ: ใช้ <b>Sterile water 10 mL</b> → ความแรง <b>5 mg/mL</b></p>
       </div>
     {% endif %}
@@ -68,85 +195,94 @@
     {% if result_ml_2 is not none %}
       <div class="result">
         <p><b>ขั้นตอนที่ 2: ปริมาตรสารละลายเป้าหมาย (≤ 0.1 mg/mL)</b></p>
-        <p>สูตร <span class="mono">ml = mg / 0.1</span> ⇒
-           <span class="mono">{{ dose|default(0.0)|fmt(2) }} / 0.1 = {{ result_ml_2|fmt(2) }} mL</span></p>
-        <p class="muted"><b>เจือจาง/ให้ยา:</b> ใช้เฉพาะ <b>5% Dextrose in Water</b> (ห้าม NSS เพราะตกตะกอน)</p>
+        <p>
+          สูตร <span class="mono">mL = mg / 0.1</span> ⇒
+          <span class="mono">
+            {{ dose|default(0.0)|fmt(2) }} / 0.1 = {{ result_ml_2|fmt(2) }} mL
+          </span>
+        </p>
+        <p class="muted">
+          <b>เจือจาง/ให้ยา:</b> ใช้เฉพาะ <b>5% Dextrose in Water</b> (ห้าม NSS เพราะตกตะกอน)
+        </p>
       </div>
     {% endif %}
 
-    <!-- รอบที่ 2: เลือกตัวคูณ -->
-    {% if result_ml_1 is not none or result_ml_2 is not none %}
-      <div class="calc-box" style="margin-top:10px">
-        <form action="{{ u('amphotericinB_route') }}" method="post" class="calc-row" style="gap:12px">
-          <input type="hidden" name="action" value="condition" />
-          <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
-          <input type="hidden" name="result_ml_1" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
-          <input type="hidden" name="result_ml_2" value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select name="multiplication" required
-                  style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
-            <option value="1.5">1.5 เท่า</option>
-            <option value="2">2 เท่า</option>
-            <option value="2.5">2.5 เท่า</option>
-            <option value="3">3 เท่า</option>
-            <option value="3.5">3.5 เท่า</option>
-            <option value="4">4 เท่า</option>
-            <option value="4.5">4.5 เท่า</option>
-            <option value="5">5 เท่า</option>
-          </select>
-          <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณการคูณ</button>
-        </form>
-      </div>
-    {% endif %}
+    <!-- รอบที่ 2: เลือกตัวคูณ (ให้แสดงตลอด แต่เริ่มต้นล็อกไว้) -->
+    <div class="calc-box" style="margin-top:10px;opacity:.55;pointer-events:none" id="ampho-step2-box">
+      <form action="{{ u('amphotericinB_route') }}" method="post" class="calc-row" style="gap:12px">
+        <input type="hidden" name="action" value="condition" />
+        <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" name="result_ml_1" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
+        <input type="hidden" name="result_ml_2" value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
+        <label for="multiplication">เลือกเงื่อนไข:</label>
+        <select name="multiplication" id="multiplication" required
+                style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
+          <option value="" disabled selected>— เลือก —</option>
+          <option value="1.5">1.5 เท่า</option>
+          <option value="2">2 เท่า</option>
+          <option value="2.5">2.5 เท่า</option>
+          <option value="3">3 เท่า</option>
+          <option value="3.5">3.5 เท่า</option>
+          <option value="4">4 เท่า</option>
+          <option value="4.5">4.5 เท่า</option>
+          <option value="5">5 เท่า</option>
+        </select>
+        <button type="submit" class="btn btn-blue" name="calculate_multiplication">
+          คำนวณการคูณ
+        </button>
+      </form>
+    </div>
 
     {% if final_result_1 is not none and final_result_2 is not none %}
-  <div class="result">
-    <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication|fmt(2) }} เท่า</b></p>
+      <div class="result">
+        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication|fmt(2) }} เท่า</b></p>
 
-    <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-      <p>
-        {{ multiplication|fmt(2) }} × {{ result_ml_1|fmt(2) }} mL =
-        <b>{{ final_result_1|fmt(2) }}</b> mL
-        <span class="muted">(สูตร: ({{ dose|default(0.0)|fmt(2) }} × 10) / 50)</span>
-      </p>
+        <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
+          <p>
+            {{ multiplication|fmt(2) }} × {{ result_ml_1|fmt(2) }} mL =
+            <b>{{ final_result_1|fmt(2) }}</b> mL
+            <span class="muted">(สูตร: ({{ dose|default(0.0)|fmt(2) }} × 10) / 50)</span>
+          </p>
 
-      <p>
-        {{ multiplication|fmt(2) }} × {{ result_ml_2|fmt(2) }} mL =
-        <b>{{ final_result_2|fmt(2) }}</b> mL
-        <span class="muted">(สูตร: {{ dose|default(0.0)|fmt(2) }} / 0.1)</span>
-      </p>
+          <p>
+            {{ multiplication|fmt(2) }} × {{ result_ml_2|fmt(2) }} mL =
+            <b>{{ final_result_2|fmt(2) }}</b> mL
+            <span class="muted">(สูตร: {{ dose|default(0.0)|fmt(2) }} / 0.1)</span>
+          </p>
 
-      <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
 
-      <p>
-        <b>ปริมาณ “ยา” (จากสต็อก 5 mg/mL):</b>
-        <span class="pill">{{ final_result_1|fmt(2) }}</span> mL
-      </p>
+          <p>
+            <b>ปริมาณ “ยา” (จากสต็อก 5 mg/mL):</b>
+            <span class="pill">{{ final_result_1|fmt(2) }}</span> mL
+          </p>
 
-      <p>
-        <b>ตัวทำละลายเพื่อให้ ≤ 0.1 mg/mL:</b>
-        <span class="pill">{{ (final_result_2 - final_result_1)|fmt(2) }}</span> mL
-        <span class="muted">
-          ({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }})
-        </span>
-      </p>
+          <p>
+            <b>ตัวทำละลายเพื่อให้ ≤ 0.1 mg/mL:</b>
+            <span class="pill">{{ (final_result_2 - final_result_1)|fmt(2) }}</span> mL
+            <span class="muted">
+              ({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }})
+            </span>
+          </p>
 
-      <p>
-        <b>ปริมาณยาที่บริหารเข้าทารก:</b>
-        {{ result_ml_2|fmt(2) }} mL → drip 4–6 hr.
-      </p>
+          <p>
+            <b>ปริมาณยาที่บริหารเข้าทารก:</b>
+            {{ result_ml_2|fmt(2) }} mL → drip 4–6 hr.
+          </p>
 
-      <p class="highlight">ผสมด้วย 5% D/W เท่านั้น</p>
-    </div>
-  </div>
-{% endif %}
+          <p class="highlight">ผสมด้วย 5% D/W เท่านั้น</p>
+        </div>
+      </div>
+    {% endif %}
 
     <!-- สรุป/วิชาการ -->
     <div class="bullet">
       <p class="muted">☞ <b>ขนาดยา:</b> 0.5 – 1 mg/kg</p>
 
       <p class="section-head">Solvent (สำหรับละลายผงยา)</p>
-      <ul class="muted"><li><b>Sterile water 10 mL</b> → สารละลายใส สีเหลือง (ความแรง <b>5 mg/mL</b>)</li></ul>
+      <ul class="muted">
+        <li><b>Sterile water 10 mL</b> → สารละลายใส สีเหลือง (ความแรง <b>5 mg/mL</b>)</li>
+      </ul>
 
       <p class="section-head">Solution (สำหรับเจือจาง/ให้ยา)</p>
       <ul class="muted">
@@ -165,7 +301,9 @@
 
       <p class="section-head">ข้อควรระวัง / การติดตาม</p>
       <ul class="muted">
-        <li>Renal function</li><li>LFTs, CBC</li><li>Electrolytes: K, Mg</li>
+        <li>Renal function</li>
+        <li>LFTs, CBC</li>
+        <li>Electrolytes: K, Mg</li>
       </ul>
 
       <p class="muted"><b>Half-life โดยประมาณ:</b> ~15 วัน</p>
@@ -181,85 +319,145 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
   <script>
-(function () {
-  var host = window.location.hostname || "";
-  if (!host.endsWith("github.io")) return;
+  (function () {
+    var host = window.location.hostname || "";
+    // ทำงานเฉพาะตอนอยู่บน GitHub Pages
+    if (!host.endsWith("github.io")) return;
 
-  var form = document.querySelector("form");
-  if (!form) return;
+    // ---------- หา form ทั้ง 2 ชุด ----------
+    var doseAction = document.querySelector('input[name="action"][value="dose"]');
+    var condAction = document.querySelector('input[name="action"][value="condition"]');
+    if (!doseAction || !doseAction.form) return;
 
-  var doseInput = form.querySelector("[name='dose']");
-  var multInput = form.querySelector("[name='multiplication']");
-  if (!doseInput) return;
+    var formDose = doseAction.form;
+    var formCond = condAction ? condAction.form : null;
 
-  function round2(x) {
-    return Math.round((x + Number.EPSILON) * 100) / 100;
-  }
+    var doseInput = document.getElementById("dose");
+    var multSelect = formCond ? formCond.querySelector('select[name="multiplication"]') : null;
+    if (!doseInput) return;
 
-  function createOrGetBox(id) {
-    var box = document.getElementById(id);
-    if (!box) {
-      box = document.createElement("div");
-      box.id = id;
-      box.className = "result";
-      form.parentNode.insertBefore(box, form.nextSibling);
-    }
-    return box;
-  }
+    var step2Box = document.getElementById("ampho-step2-box");
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+    var doseVal   = null;
+    var result1   = null;  // จากสต็อก 5 mg/mL
+    var result2   = null;  // ปริมาตรตามเป้าหมาย 0.1 mg/mL
 
-    var raw = (doseInput.value || "").trim();
-    var d = parseFloat(raw);
-    if (!raw || isNaN(d) || d < 0) {
-      alert("กรุณาใส่ dose (mg) เป็นตัวเลข ≥ 0");
-      return;
+    function round2(x) {
+      return Math.round((x + Number.EPSILON) * 100) / 100;
     }
 
-    var result_ml_1 = round2((d * 10.0) / 50.0);
-    var result_ml_2 = round2(d / 0.1);
-
-    var multiplication = null;
-    if (multInput && multInput.value.trim() !== "") {
-      var m = parseFloat(multInput.value.trim());
-      if (!isNaN(m)) {
-        multiplication = m;
+    function createBox(id, refNode) {
+      var box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement("div");
+        box.id = id;
+        box.className = "result";
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
       }
+      return box;
     }
 
-    var final_result_1 = null;
-    var final_result_2 = null;
-    if (multiplication !== null) {
-      final_result_1 = round2(result_ml_1 * multiplication);
-      final_result_2 = round2(result_ml_2 * multiplication);
+    // ---------- STEP 1+2: dose → result1, result2 ----------
+    formDose.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var raw = (doseInput.value || "").trim();
+      var d = parseFloat(raw);
+      if (!raw || isNaN(d) || d < 0) {
+        alert("กรุณาใส่ dose (mg) เป็นตัวเลข ≥ 0");
+        return;
+      }
+
+      doseVal = round2(d);
+      // 50 mg ละลาย Sterile water 10 mL → 5 mg/mL
+      result1 = round2((doseVal * 10.0) / 50.0);
+      // ต้องการ ≤ 0.1 mg/mL → ปริมาตรเป้าหมาย
+      result2 = round2(doseVal / 0.1);
+
+      var box = createBox("gh-ampho-step1", formDose.closest(".calc-box"));
+      box.innerHTML =
+        "<p class='order-line'><b>Order:</b> Amphotericin-B " + doseVal.toFixed(2) + " mg</p>" +
+        "<p><b>ขั้นตอนที่ 1: จากสต็อก 50 mg → Sterile water 10 mL (5 mg/mL)</b></p>" +
+        "<p>สูตร <span class='mono'>mL = (mg × 10) / 50</span> ⇒ " +
+        "<span class='mono'>" + doseVal.toFixed(2) + " × 10 / 50 = " +
+        result1.toFixed(2) + " mL</span></p>" +
+        "<p class='muted'>ใช้ <b>Sterile water 10 mL</b> → ความแรง <b>5 mg/mL</b></p>" +
+        "<hr style='border:none;border-top:1px dashed #cfe3ff;margin:10px 0'>" +
+        "<p><b>ขั้นตอนที่ 2: ปริมาตรสารละลายเป้าหมาย (≤ 0.1 mg/mL)</b></p>" +
+        "<p>สูตร <span class='mono'>mL = mg / 0.1</span> ⇒ " +
+        "<span class='mono'>" + doseVal.toFixed(2) + " / 0.1 = " +
+        result2.toFixed(2) + " mL</span></p>" +
+        "<p class='muted'><b>ให้ผสมด้วย 5% D/W เท่านั้น (ห้าม NSS)</b></p>";
+
+      // ปลดล็อก step 2
+      if (step2Box) {
+        step2Box.style.opacity = "1";
+        step2Box.style.pointerEvents = "auto";
+      }
+    });
+
+    // ---------- STEP 3: ตัวคูณ ----------
+    if (formCond && multSelect) {
+      formCond.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        if (doseVal === null || result1 === null || result2 === null) {
+          alert("โปรดคำนวณรอบแรกก่อน");
+          return;
+        }
+
+        var mRaw = (multSelect.value || "").trim();
+        if (!mRaw) {
+          alert("กรุณาเลือกตัวคูณ");
+          return;
+        }
+        var m = parseFloat(mRaw);
+        if (isNaN(m)) {
+          alert("ตัวคูณไม่ถูกต้อง");
+          return;
+        }
+
+        var final1 = round2(result1 * m);
+        var final2 = round2(result2 * m);
+        var diluent = round2(final2 - final1);
+
+        var box = createBox("gh-ampho-step2", formCond.closest(".calc-box"));
+        box.innerHTML =
+          "<p><b>ผลลัพธ์หลังคูณ " + m.toFixed(2) + " เท่า</b></p>" +
+          "<div style='background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;'>" +
+          "<p>" + m.toFixed(2) + " × " + result1.toFixed(2) +
+          " mL = <b>" + final1.toFixed(2) + "</b> mL " +
+          "<span class='muted'>(ปริมาณยาเข้มข้น 5 mg/mL)</span></p>" +
+          "<p>" + m.toFixed(2) + " × " + result2.toFixed(2) +
+          " mL = <b>" + final2.toFixed(2) + "</b> mL " +
+          "<span class='muted'>(ปริมาตรสารละลายเป้าหมาย 0.1 mg/mL)</span></p>" +
+          "<hr style='border:none;border-top:1px dashed #cfe3ff;margin:10px 0'>" +
+          "<p><b>ปริมาณ “ยา” จากสต็อก:</b> <span class='pill'>" +
+          final1.toFixed(2) + "</span> mL</p>" +
+          "<p><b>ตัวทำละลายเพิ่ม (ให้ ≤ 0.1 mg/mL):</b> <span class='pill'>" +
+          diluent.toFixed(2) + "</span> mL " +
+          "<span class='muted'>(" + final2.toFixed(2) + " − " +
+          final1.toFixed(2) + ")</span></p>" +
+          "<p><b>ปริมาณยาที่บริหารเข้าทารกต่อครั้ง:</b> " +
+          result2.toFixed(2) + " mL → drip 4–6 hr.</p>" +
+          "<p class='highlight'>ผสมด้วย 5% D/W เท่านั้น</p>" +
+          "</div>";
+      });
     }
 
-    var box = createOrGetBox("gh-amphotericin-result");
-
-    var html = "";
-    html += "<p><b>Dose:</b> " + d.toFixed(2) + " mg</p>";
-    html += "<p>จาก stock 50 mg / 10 mL ⇒ " +
-            "<b>ปริมาณยาที่ได้</b> = <span class='pill-red'>" +
-            result_ml_1.toFixed(2) + "</span> mL</p>";
-    html += "<p>เป้าหมายความเข้มข้น 0.1 mg/mL ⇒ " +
-            "<b>ต้องการสารละลายทั้งหมด</b> = <span class='pill-red'>" +
-            result_ml_2.toFixed(2) + "</span> mL</p>";
-
-    if (multiplication !== null) {
-      html += "<hr>";
-      html += "<p><b>คูณ " + multiplication + " เท่า</b></p>";
-      html += "<p>ปริมาณยาหลังคูณจาก stock = <span class='pill-red'>" +
-              final_result_1.toFixed(2) + "</span> mL</p>";
-      html += "<p>ปริมาณสารละลายหลังคูณ (ตามเป้าหมาย 0.1 mg/mL) = <span class='pill-red'>" +
-              final_result_2.toFixed(2) + "</span> mL</p>";
+    // ---------- แก้ลิงก์ Back / Home ให้ใช้ไฟล์ .html ----------
+    var backMed = document.querySelector('.float-actions a[href^="/medication_administration"]');
+    if (backMed) {
+      backMed.setAttribute("href", "./medication_administration.html");
     }
-
-    box.innerHTML = html;
-  });
-})();
-</script>
+    var backHome = document.querySelector('.float-actions a[href="/"]');
+    if (backHome) {
+      backHome.setAttribute("href", "./index.html");
+    }
+  })();
+  </script>
 
 </body>
 </html>
