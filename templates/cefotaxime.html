@@ -65,6 +65,7 @@
       text-align:center;color:#ffffff;text-shadow:0 2px 6px rgba(0,0,0,.5);margin:6px 0 var(--floatbar-gap);
       padding-left:var(--page-gutter);padding-right:var(--page-gutter);font-size:clamp(12px,3.2vw,16px);line-height:1.4;
     }
+    .hidden{display:none !important;}
     @media (max-width:640px){
       .dose-row,.conc-row{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:8px;width:100%;max-width:520px;margin-left:auto;margin-right:auto}
       .dose-row>label,.conc-row>label{white-space:nowrap;max-width:44vw;font-size:14px;line-height:1.2}
@@ -107,8 +108,7 @@
 
     <!-- กล่องแสดงผลรอบที่ 1 -->
     <div id="result"
-         class="result"
-         style="{% if dose is not none %}display:block{% else %}display:none{% endif %}">
+         class="result {% if dose is none %}hidden{% endif %}">
       {% if dose is not none %}
         <p class="order-line"><b>Order:</b> Cefotaxime {{ dose|fmt(2) }} mg</p>
         <p><b>สูตร:</b>
@@ -124,10 +124,10 @@
       {% endif %}
     </div>
 
-    <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ (ให้มีตลอด แต่ล็อกไว้ถ้ายังไม่คำนวณรอบแรก) -->
-    <div class="calc-box"
-         id="step2-box"
-         style="{% if result_ml is not none %}opacity:1;pointer-events:auto{% else %}opacity:.55;pointer-events:none{% endif %}">
+    <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ -->
+    <div class="calc-box
+                {% if result_ml is none %}hidden{% endif %}"
+         id="step2-box">
       <form action="{{ u('cefotaxime_route') }}" method="post" class="calc-row">
         <input type="hidden" name="step" value="condition">
         <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
@@ -301,7 +301,7 @@
       }
 
       doseVal     = round2(d);
-      // stock 1000 mg / 10 mL → mg/100
+      // stock 1000 mg / 10 mL → mg / 100
       resultMlVal = round2(doseVal / 100.0);
 
       hiddenDose.value   = doseVal.toFixed(2);
@@ -318,8 +318,7 @@
         "</span> mL</span></p>";
 
       if (step2Box) {
-        step2Box.style.opacity = "1";
-        step2Box.style.pointerEvents = "auto";
+        step2Box.classList.remove("hidden");   // แสดงบล็อกเงื่อนไขหลังคำนวณรอบแรก
       }
     });
 

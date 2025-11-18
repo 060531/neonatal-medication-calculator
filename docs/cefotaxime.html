@@ -65,6 +65,7 @@
       text-align:center;color:#ffffff;text-shadow:0 2px 6px rgba(0,0,0,.5);margin:6px 0 var(--floatbar-gap);
       padding-left:var(--page-gutter);padding-right:var(--page-gutter);font-size:clamp(12px,3.2vw,16px);line-height:1.4;
     }
+    .hidden{display:none !important;}
     @media (max-width:640px){
       .dose-row,.conc-row{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:8px;width:100%;max-width:520px;margin-left:auto;margin-right:auto}
       .dose-row>label,.conc-row>label{white-space:nowrap;max-width:44vw;font-size:14px;line-height:1.2}
@@ -103,22 +104,21 @@
 
     <!-- กล่องแสดงผลรอบที่ 1 -->
     <div id="result"
-         class="result"
-         style="display:none">
+         class="result hidden">
       
     </div>
 
-    <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ (ให้มีตลอด แต่ล็อกไว้ถ้ายังไม่คำนวณรอบแรก) -->
-    <div class="calc-box"
-         id="step2-box"
-         style="opacity:1;pointer-events:auto">
+    <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ -->
+    <div class="calc-box
+                hidden"
+         id="step2-box">
       <form action="/cefotaxime" method="post" class="calc-row">
         <input type="hidden" name="step" value="condition">
         <input type="hidden" name="dose" value="">
-        <input type="hidden" name="result_ml" value="0.0">
+        <input type="hidden" name="result_ml" value="">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 mL)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 mL)</option>
         </select>
@@ -126,16 +126,6 @@
       </form>
     </div>
 
-    
-      
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ 1.0 เท่า = 0.00 mL</b></p>
-        <div class="left-align">
-          
-
-          
-        </div>
-      </div>
     
 
     
@@ -254,7 +244,7 @@
       }
 
       doseVal     = round2(d);
-      // stock 1000 mg / 10 mL → mg/100
+      // stock 1000 mg / 10 mL → mg / 100
       resultMlVal = round2(doseVal / 100.0);
 
       hiddenDose.value   = doseVal.toFixed(2);
@@ -271,8 +261,7 @@
         "</span> mL</span></p>";
 
       if (step2Box) {
-        step2Box.style.opacity = "1";
-        step2Box.style.pointerEvents = "auto";
+        step2Box.classList.remove("hidden");   // แสดงบล็อกเงื่อนไขหลังคำนวณรอบแรก
       }
     });
 

@@ -26,25 +26,23 @@ PAGES = [
 
 # context เพิ่มเติมรายหน้า (กัน undefined variable)
 TEMPLATE_EXTRA_CONTEXT = {
-    # cefotaxime ใช้ result_ml, multiplication ใน {% set %}
     "cefotaxime.html": {
-        "result_ml": 0.0,
-        "multiplication": 1.0,
+        # ให้เหมือนตอน GET แรกของ Flask → ยังไม่มีผลลัพธ์
+        "result_ml": None,
+        "multiplication": None,
     },
-    # drug อื่น ๆ ที่ใช้ pattern คล้าย ๆ กัน ใส่ default ไว้ก่อน
     "ceftazidime.html": {
-        "result_ml": 0.0,
-        "multiplication": 1.0,
+        "result_ml": None,
+        "multiplication": None,
     },
     "colistin.html": {
-        "result_ml": 0.0,
-        "multiplication": 1.0,
+        "result_ml": None,
+        "multiplication": None,
     },
     "gentamicin.html": {
-        "result_ml": 0.0,
-        "multiplication": 1.0,
+        "result_ml": None,
+        "multiplication": None,
     },
-    # ถ้ารู้ทีหลังว่ามีตัวแปรอื่น (เช่น mg_per_ml ฯลฯ) ค่อยมาเติมได้
 }
 
 def export_pages():
@@ -59,13 +57,17 @@ def export_pages():
                 # context พื้นฐานที่ทุกหน้าใช้ร่วมกัน
                 ctx = {
                     "dose": None,
+                    "result_ml": None,
+                    "error": None,
                     "scheme": None,
                     "scheme_label": None,
                     "volume_ml": None,
                     "total_vol": None,
                     "strength": None,
                     "update_date": update_date,
+                    "UPDATE_DATE": update_date,
                 }
+
 
                 # ถ้ามี context เพิ่มเฉพาะหน้า ให้ merge เข้ามา
                 extra = TEMPLATE_EXTRA_CONTEXT.get(template_name, {})
