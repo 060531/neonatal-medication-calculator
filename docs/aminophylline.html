@@ -2,7 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Aminophylline Calculation</title>
   <style>
     :root{ --floatbar-gap:90px; }
@@ -72,6 +73,17 @@
     .item{ margin-left:20px; }
     .item::before{ content:"☞ "; margin-right:5px; }
 
+    .error-msg{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:8px;
+      background:#fee2e2;
+      border:1px solid #fecaca;
+      color:#b91c1c;
+      font-size:14px;
+      text-align:left;
+    }
+
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:2px 2px 5px rgba(0,0,0,.7);
       margin:6px 0 var(--floatbar-gap); font-size:14px;
@@ -88,6 +100,8 @@
     .back-button{ background:#f44336; }
     .back-button-secondary:hover,.back-button:hover{ filter:brightness(1.06); }
 
+    .hidden{ display:none !important; }
+
     @media (max-width:768px){
       .container{ padding:15px; }
       .float-actions .btn{ min-width:120px; }
@@ -99,24 +113,35 @@
   <h2>Aminophylline (250mg/10ml)</h2>
 
   <div class="container">
-    <!-- ฟอร์มคำนวณ (Flask) -->
-    <form action="/aminophylline" method="post" class="calc-box form-card">
+    <!-- ฟอร์มคำนวณ (Flask + GitHub) -->
+    <form action="/aminophylline"
+      method="post"
+      class="calc-box form-card">
       <input type="hidden" name="action" value="dose" />
       <div class="dose-row">
         <label for="dose">กรอกขนาดยา (mg):</label>
-        <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
-               required step="0.01"
-               value="">
+        <input
+          type="number"
+          id="dose"
+          name="dose"
+          placeholder="ขนาดยา (mg)"
+          required
+          step="0.01"
+          value="">
       </div>
       <div class="btn-wrap">
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </div>
     </form>
 
+    <!-- แสดง error จาก Flask -->
     
 
-    
-    
+    <!-- กล่องผลลัพธ์ฝั่ง Flask -->
+    <div id="result"
+         class="result hidden">
+      
+    </div>
 
     <!-- ข้อมูลทางคลินิก -->
     <div class="left-align" style="margin-top:10px">
@@ -148,7 +173,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-19</p>
   </footer>
 
   <div class="float-actions">
@@ -175,7 +200,6 @@
       var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
       var backHome = document.querySelector('.float-actions a[data-nav="home"]');
 
-      // ให้ชี้ไปไฟล์ภายใน docs (root ของ GitHub Pages ของโปรเจกต์นี้)
       if (backMed)  backMed.href  = "./medication_administration.html";
       if (backHome) backHome.href = "./index.html";
     }
@@ -193,6 +217,9 @@
         box = document.createElement("div");
         box.id = "gh-aminophylline-result";
         box.className = "result";
+        // ซ่อนกล่อง result ของ Flask (ถ้ามีอยู่ใน HTML ที่ export มา)
+        var flaskBox = document.getElementById("result");
+        if (flaskBox) flaskBox.classList.add("hidden");
         form.parentNode.insertBefore(box, form.nextSibling);
       }
       return box;
@@ -213,14 +240,15 @@
         return;
       }
 
-      // logic ให้เหมือนฝั่ง Flask: result_ml = int(round(dose * 10))
+      // สูตรเดียวกับฝั่ง Flask: u = mg × 10
       var result = Math.round(d * 10);
 
       var box = createOrGetResultBox();
       box.innerHTML =
         "<p><b>ขนาดยา:</b> " + d.toFixed(2) + " mg</p>" +
-        "<p>ผลลัพธ์ (u = mg × 10) = " +
-        "<span class='pill-red'>" + result + "</span> หน่วย</p>";
+        "<p><b>สูตรที่ใช้:</b> u = mg × 10</p>" +
+        "<p>แทนค่า: " + d.toFixed(2) + " × 10 = " +
+        "<span class='pill-red'>" + result + "</span> หน่วย (u)</p>";
     });
   })();
   </script>
