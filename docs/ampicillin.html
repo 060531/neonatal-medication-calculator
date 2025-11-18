@@ -215,17 +215,6 @@
         "<span class='pill'>" + result_ml.toFixed(2) + "</span> mL</span></p>";
     });
 
-    // ---------- 2) แก้ลิงก์ Back / Home ให้ชี้ไปไฟล์ .html ใน docs ----------
-    var backMed = document.querySelector('.float-actions a[href^="/medication_administration"]');
-    if (backMed) {
-      backMed.setAttribute("href", "./medication_administration.html");
-    }
-
-    // ลิงก์ Home ปกติของ Flask คือ "/" → แก้ให้เป็น index.html
-    var backHome = document.querySelector('.float-actions a[href="/"]');
-    if (backHome) {
-      backHome.setAttribute("href", "./index.html");
-    }
   })();
   </script>
 
