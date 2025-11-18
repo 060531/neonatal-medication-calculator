@@ -22,6 +22,7 @@
   .bullet{text-align:left;margin:0 0 10px 0}.bullet ul{margin:6px 0 0 22px}.pill{display:inline-block;padding:2px 6px;border-radius:6px;background:#e01b1b;color:#fff;font-weight:800}
   .left-align{text-align:left}
   .order-line{text-align:center;margin:6px 0}
+  .hidden{display:none !important;}
   .float-actions{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:1000;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:8px 10px;border-radius:14px;background:rgba(15,23,42,.35);border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 18px rgba(2,8,23,.28);backdrop-filter:blur(8px) saturate(120%);-webkit-backdrop-filter:blur(8px) saturate(120%);width:min(540px,calc(100vw - calc(var(--page-gutter)*2)));max-width:calc(100vw - calc(var(--page-gutter)*2))}
   footer.page-footer{text-align:center;color:#ffffff;text-shadow:0 2px 6px rgba(0,0,0,.5);margin:6px 0 var(--floatbar-gap);padding-left:var(--page-gutter);padding-right:var(--page-gutter);font-size:clamp(12px,3.2vw,16px);line-height:1.4}
   @media (max-width:640px){.dose-row,.conc-row{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:8px;width:100%;max-width:520px;margin-left:auto;margin-right:auto}
@@ -59,10 +60,9 @@
       </div>
     {% endif %}
 
-    <!-- รอบที่ 2: เลือกเงื่อนไข (มีอยู่ตลอด แต่ล็อกไว้ถ้ายังไม่คำนวณรอบแรก) -->
-    <div class="calc-box"
-         id="step2-box"
-         style="{% if result_ml is not none %}opacity:1;pointer-events:auto{% else %}opacity:.55;pointer-events:none{% endif %}">
+    <!-- รอบที่ 2: เลือกเงื่อนไข (ซ่อนตอนเริ่ม) -->
+    <div class="calc-box {% if result_ml is none %}hidden{% endif %}"
+         id="step2-box">
       <form action="{{ u('ceftazidime') }}" method="post" class="calc-row">
         <input type="hidden" name="step" value="condition" />
         <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
@@ -245,10 +245,9 @@
       doseVal.toFixed(2) + " × 10 / 1000 = " +
       "<span class='pill'>" + resultMlVal.toFixed(2) + "</span> mL</span></p>";
 
-    // เปิดให้ step 2 ใช้งานได้
+    // เปิดให้ step 2 ใช้งานได้ (แสดงกล่อง)
     if (step2Box) {
-      step2Box.style.opacity = "1";
-      step2Box.style.pointerEvents = "auto";
+      step2Box.classList.remove("hidden");
     }
   });
 
@@ -301,7 +300,7 @@
     htmlMain += "</div>";
     boxMain.innerHTML = htmlMain;
 
-    // กล่องคำอธิบายแบบ content_extra
+    // กล่องคำอธิบาย content_extra
     var config;
     if (m === 3) {
       config = {

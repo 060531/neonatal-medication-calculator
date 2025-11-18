@@ -27,7 +27,6 @@ PAGES = [
 # context เพิ่มเติมรายหน้า (กัน undefined variable)
 TEMPLATE_EXTRA_CONTEXT = {
     "cefotaxime.html": {
-        # ให้เหมือนตอน GET แรกของ Flask → ยังไม่มีผลลัพธ์
         "result_ml": None,
         "multiplication": None,
     },
