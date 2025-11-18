@@ -48,6 +48,7 @@
     .btn-blue{ background:linear-gradient(135deg,#ff6b6b,#ff3b3b); border:1px solid rgba(255,255,255,.35); }
     .btn:hover{ filter:brightness(1.06); transform:translateY(-1px); }
     .btn:active{ transform:translateY(1px); }
+
     .result{
       margin-top:10px; padding:15px; background:#f0f0f0; border-radius:8px;
       font-size:16px; border:1px dashed #cbd5e1; text-align:left;
@@ -55,11 +56,22 @@
     .result p{ margin:5px 0; line-height:1.25; }
     .left-align{ text-align:left; line-height:1.2; }
     .left-align p{ margin:5px 0; }
+
+    .pill-red{
+      display:inline-block;
+      padding:3px 6px;
+      border-radius:6px;
+      background:#e01b1b;
+      color:#fff;
+      font-weight:800;
+    }
+
     .list{ list-style:none; margin:5px 0; padding-left:20px; }
     .list li{ margin:3px 0; }
     .list li::before{ content:"➢ "; font-size:18px; margin-right:5px; }
     .item{ margin-left:20px; }
     .item::before{ content:"☞ "; margin-right:5px; }
+
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:2px 2px 5px rgba(0,0,0,.7);
       margin:6px 0 var(--floatbar-gap); font-size:14px;
@@ -75,6 +87,7 @@
     .back-button-secondary{ background:#008CBA; }
     .back-button{ background:#f44336; }
     .back-button-secondary:hover,.back-button:hover{ filter:brightness(1.06); }
+
     @media (max-width:768px){
       .container{ padding:15px; }
       .float-actions .btn{ min-width:120px; }
@@ -86,7 +99,7 @@
   <h2>Aminophylline (250mg/10ml)</h2>
 
   <div class="container">
-    <!-- ฟอร์มคำนวณ -->
+    <!-- ฟอร์มคำนวณ (Flask) -->
     <form action="{{ u('aminophylline_route') }}" method="post" class="calc-box form-card">
       <input type="hidden" name="action" value="dose" />
       <div class="dose-row">
@@ -106,7 +119,7 @@
       </div>
     {% endif %}
 
-    {# แสดงผลเมื่อมีการคำนวณ #}
+    {# แสดงผลเมื่อมีการคำนวณผ่าน Flask #}
     {% if dose is not none and result_ml is not none %}
       <div class="result">
         <p style="text-align:center;margin:6px 0;">
@@ -118,7 +131,7 @@
           <p>
             <b>สูตร:</b> <code>u = mg × 10</code>
             &nbsp;⇒&nbsp; <b>ขนาดยาที่ใช้:</b>
-            <span style="background:#ffea00;padding:3px 6px;border-radius:6px;font-weight:800;">
+            <span style="background:#ff3c00;padding:3px 6px;border-radius:6px;font-weight:800;">
               {{ result_ml|int }} u
             </span>
           </p>
@@ -160,18 +173,38 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn back-button-secondary">Back</a>
-    <a href="{{ u('index') }}" class="btn back-button">Back to Home</a>
+    <a href="{{ u('medication_administration') }}"
+       class="btn back-button-secondary"
+       data-nav="med">
+      Back
+    </a>
+    <a href="{{ u('index') }}"
+       class="btn back-button"
+       data-nav="home">
+      Back to Home
+    </a>
   </div>
 
-    <!-- JS calculator สำหรับ GitHub Pages (static) -->
+  <!-- JS สำหรับ GitHub Pages -->
   <script>
   (function() {
     var host = window.location.hostname || "";
-    // ให้ JS ทำงานเฉพาะตอนอยู่บน *.github.io
-    if (!host.endsWith("github.io")) return;
+    var isGithub = host.endsWith("github.io");
 
-    var form = document.querySelector("form");
+    // ---------- แก้ href ปุ่ม Back / Home เมื่ออยู่บน GitHub Pages ----------
+    if (isGithub) {
+      var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      var backHome = document.querySelector('.float-actions a[data-nav="home"]');
+
+      // ให้ชี้ไปไฟล์ภายใน docs (root ของ GitHub Pages ของโปรเจกต์นี้)
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ---------- calculator แบบ static เฉพาะ GitHub Pages ----------
+    if (!isGithub) return;    // ถ้าไม่ใช่ github.io → ให้ Flask จัดการตามปกติ
+
+    var form      = document.querySelector("form");
     var doseInput = document.getElementById("dose");
     if (!form || !doseInput) return;
 
@@ -180,14 +213,14 @@
       if (!box) {
         box = document.createElement("div");
         box.id = "gh-aminophylline-result";
-        box.className = "result";   // ใช้คลาสเดียวกับที่หน้าอื่นใช้
+        box.className = "result";
         form.parentNode.insertBefore(box, form.nextSibling);
       }
       return box;
     }
 
     form.addEventListener("submit", function(ev) {
-      ev.preventDefault(); // ไม่ส่งฟอร์มไปไหน (เพราะบน GitHub ไม่มี backend)
+      ev.preventDefault(); // ไม่ส่งฟอร์มไป backend (เพราะบน GitHub ไม่มี Flask)
 
       var raw = (doseInput.value || "").trim();
       if (!raw) {
@@ -201,7 +234,7 @@
         return;
       }
 
-      // ให้เหมือนฝั่ง Flask: result_ml = int(round(dose * 10))
+      // logic ให้เหมือนฝั่ง Flask: result_ml = int(round(dose * 10))
       var result = Math.round(d * 10);
 
       var box = createOrGetResultBox();

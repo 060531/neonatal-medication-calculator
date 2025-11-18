@@ -124,23 +124,23 @@
       {% endif %}
     </div>
 
-    <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ (แสดงเฉพาะเมื่อมี result_ml แล้ว) -->
-    {% if result_ml is not none %}
-      <div class="calc-box">
-        <form action="{{ u('cefotaxime_route') }}" method="post" class="calc-row">
-          <input type="hidden" name="step" value="condition">
-          <input type="hidden" name="dose" value="{{ dose }}">
-          <input type="hidden" name="result_ml" value="{{ result_ml }}">
-          <label for="multiplication">เลือกเงื่อนไข:</label>
-          <select name="multiplication" id="multiplication" required>
-            <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
-            <option value="3" {% if multiplication == 3 %}selected{% endif %}>3 เท่า (รวมเป้าหมาย 9 mL)</option>
-            <option value="6" {% if multiplication == 6 %}selected{% endif %}>6 เท่า (รวมเป้าหมาย 6 mL)</option>
-          </select>
-          <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
-        </form>
-      </div>
-    {% endif %}
+    <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ (ให้มีตลอด แต่ล็อกไว้ถ้ายังไม่คำนวณรอบแรก) -->
+    <div class="calc-box"
+         id="step2-box"
+         style="{% if result_ml is not none %}opacity:1;pointer-events:auto{% else %}opacity:.55;pointer-events:none{% endif %}">
+      <form action="{{ u('cefotaxime_route') }}" method="post" class="calc-row">
+        <input type="hidden" name="step" value="condition">
+        <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" name="result_ml" value="{{ result_ml if result_ml is not none else '' }}">
+        <label for="multiplication">เลือกเงื่อนไข:</label>
+        <select name="multiplication" id="multiplication" required>
+          <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
+          <option value="3" {% if multiplication == 3 %}selected{% endif %}>3 เท่า (รวมเป้าหมาย 9 mL)</option>
+          <option value="6" {% if multiplication == 6 %}selected{% endif %}>6 เท่า (รวมเป้าหมาย 6 mL)</option>
+        </select>
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+      </form>
+    </div>
 
     {% if multiplication is not none and result_ml is not none %}
       {% set total = result_ml * multiplication %}
@@ -228,16 +228,30 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}"
+       class="btn btn-cyan"
+       data-nav="med">Back</a>
+    <a href="{{ u('index') }}"
+       class="btn btn-red"
+       data-nav="home">Back to Home</a>
   </div>
 
   <!-- JS: ใช้เฉพาะตอนรันบน GitHub Pages -->
   <script>
   (function () {
     var host = window.location.hostname || "";
-    // ให้ JS ทำงานเฉพาะตอนรันบน GitHub Pages
-    if (!host.endsWith("github.io")) return;
+    var isGithub = host.endsWith("github.io");
+
+    // แก้ลิงก์ Back เฉพาะตอนอยู่บน GitHub Pages
+    if (isGithub) {
+      var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      var backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ถ้าไม่ใช่ GitHub → ให้ Flask จัดการทั้งหมด
+    if (!isGithub) return;
 
     var doseActionInput = document.querySelector('input[name="step"][value="dose"]');
     var condActionInput = document.querySelector('input[name="step"][value="condition"]');
@@ -254,6 +268,8 @@
     var hiddenDose   = formCond.querySelector('input[name="dose"]');
     var hiddenResult = formCond.querySelector('input[name="result_ml"]');
     if (!hiddenDose || !hiddenResult) return;
+
+    var step2Box = document.getElementById("step2-box");
 
     var doseVal = null;
     var resultMlVal = null;
@@ -301,10 +317,9 @@
         "<span class='pill'>" + resultMlVal.toFixed(2) +
         "</span> mL</span></p>";
 
-      var box2 = formCond.closest(".calc-box");
-      if (box2) {
-        box2.style.opacity = "1";
-        box2.style.pointerEvents = "auto";
+      if (step2Box) {
+        step2Box.style.opacity = "1";
+        step2Box.style.pointerEvents = "auto";
       }
     });
 

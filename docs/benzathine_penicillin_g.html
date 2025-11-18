@@ -133,87 +133,99 @@
   </footer>
 
   <div class="float-actions">
-    <a href="/medication_administration" class="btn btn-cyan">Back</a>
-    <a href="/" class="btn btn-red">Back to Home</a>
+    <a href="/medication_administration" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="/" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
 
-  
-    <script>
-(function () {
-  var host = window.location.hostname || "";
-  if (!host.endsWith("github.io")) return;
+  <!-- JS: ทำให้ใช้ได้ทั้ง Flask + GitHub Pages -->
+  <script>
+  (function () {
+    var host = window.location.hostname || "";
+    var isGithub = host.endsWith("github.io");
 
-  var form = document.querySelector("form");
-  if (!form) return;
+    // ----- ปรับลิงก์ Back เฉพาะตอนอยู่บน GitHub Pages -----
+    if (isGithub) {
+      var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      var backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
 
-  var doseInput = form.querySelector("[name='dose']");
-  if (!doseInput) return;
+    // ถ้าไม่ใช่ GitHub → ให้ Flask จัดการคำนวณตามเดิม
+    if (!isGithub) return;
 
-  // อ่าน scheme จาก radio หรือ select
-  function getSchemeValue() {
-    var radios = form.querySelectorAll("input[name='scheme']");
-    if (radios.length > 0) {
-      for (var i = 0; i < radios.length; i++) {
-        if (radios[i].checked) return radios[i].value;
+    // ----- Static calculator สำหรับ GitHub Pages -----
+    var form = document.querySelector("form");
+    if (!form) return;
+
+    var doseInput = form.querySelector("[name='dose']");
+    if (!doseInput) return;
+
+    function getSchemeValue() {
+      var radios = form.querySelectorAll("input[name='scheme']");
+      if (radios.length > 0) {
+        for (var i = 0; i < radios.length; i++) {
+          if (radios[i].checked) return radios[i].value;
+        }
+        return radios[0].value || "150k";
       }
-      return radios[0].value || "150k";
-    }
-    var sel = form.querySelector("select[name='scheme']");
-    if (sel) {
-      return sel.value || "150k";
-    }
-    return "150k";
-  }
-
-  var SCHEMES = {
-    "300k": { vol: 4.0, strength: 300000 },
-    "150k": { vol: 8.0, strength: 150000 }
-  };
-
-  function round2(x) {
-    return Math.round((x + Number.EPSILON) * 100) / 100;
-  }
-
-  function createOrGetBox() {
-    var box = document.getElementById("gh-benzathine-result");
-    if (!box) {
-      box = document.createElement("div");
-      box.id = "gh-benzathine-result";
-      box.className = "result";
-      form.parentNode.insertBefore(box, form.nextSibling);
-    }
-    return box;
-  }
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    var raw = (doseInput.value || "").trim();
-    var d = parseFloat(raw);
-    if (!raw || isNaN(d) || d < 0) {
-      alert("กรุณากรอก dose เป็นตัวเลข ≥ 0");
-      return;
+      return "150k";
     }
 
-    var scheme = getSchemeValue();
-    if (!SCHEMES[scheme]) scheme = "150k";
+    var STRENGTH = {
+      "300k": 300000,
+      "150k": 150000
+    };
 
-    var vol = SCHEMES[scheme].vol;
-    var strength = SCHEMES[scheme].strength;
+    function round2(x) {
+      return Math.round((x + Number.EPSILON) * 100) / 100;
+    }
 
-    var calculated_ml = round2((d * vol) / strength);
+    function createOrGetBox() {
+      var box = document.getElementById("gh-benzathine-result");
+      if (!box) {
+        box = document.createElement("div");
+        box.id = "gh-benzathine-result";
+        box.className = "result";
+        form.parentNode.insertBefore(box, form.nextSibling);
+      }
+      return box;
+    }
 
-    var box = createOrGetBox();
-    var labelScheme = scheme === "300k" ? "300,000 units/4 mL" : "150,000 units/8 mL";
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    box.innerHTML =
-      "<p><b>Dose:</b> " + d.toFixed(2) + " units</p>" +
-      "<p><b>Scheme:</b> " + labelScheme + "</p>" +
-      "<p>ปริมาณที่ต้องเตรียม = " +
-      "<span class='pill-red'>" + calculated_ml.toFixed(2) + "</span> mL</p>";
-  });
-})();
-</script>
+      var raw = (doseInput.value || "").trim();
+      var d = parseFloat(raw);
+      if (!raw || isNaN(d) || d < 0) {
+        alert("กรุณากรอก dose เป็นตัวเลข ≥ 0");
+        return;
+      }
+
+      var scheme = getSchemeValue();
+      if (!STRENGTH[scheme]) scheme = "150k";
+
+      var strength = STRENGTH[scheme];           // units/mL
+      var ml = round2(d / strength);             // mL ที่ต้องเตรียม
+
+      var box = createOrGetBox();
+
+      var strengthText = (scheme === "300k")
+        ? "SW 3.6 → 4 mL (300,000 u/mL)"
+        : "SW 7.2 → 8 mL (150,000 u/mL)";
+
+      box.innerHTML =
+        "<p style='text-align:center'><b>Order:</b> Benzathine Penicillin G " +
+        d.toFixed(0) + " units</p>" +
+        "<p><b>สูตรจากความแรงที่เลือก:</b> " +
+        "<span class='mono'>mL = units / " + strength.toLocaleString() + "</span></p>" +
+        "<p>แทนค่า: <span class='mono'>" +
+        d.toFixed(0) + " / " + strength.toLocaleString() +
+        " = <span class='pill'>" + ml.toFixed(2) + "</span> mL</span></p>" +
+        "<p class='muted'><b>Scheme:</b> " + strengthText + "</p>";
+    });
+  })();
+  </script>
 
 </body>
 </html>

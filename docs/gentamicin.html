@@ -131,7 +131,7 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
+  /* ========== มือถือ ========== */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
@@ -159,7 +159,7 @@
     .calc-row{ gap:8px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
+  /* ========== จอแคบมาก (≤360px) ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
@@ -217,11 +217,11 @@
             method="post">
         <input type="hidden" name="action" value="condition" />
         <input type="hidden" id="dose_hidden" name="dose_hidden" value="">
-        <input type="hidden" id="result_ml_hidden" name="result_ml_hidden" value="">
+        <input type="hidden" id="result_ml_hidden" name="result_ml_hidden" value="0.0">
 
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required>
-          <option value="" disabled selected>— เลือก —</option>
+          <option value="" disabled >— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
         </select>
@@ -229,10 +229,21 @@
       </form>
     </div>
 
-    <!-- ผลลัพธ์รอบที่ 2 -->
+    <!-- ผลลัพธ์รอบที่ 2 (Flask) -->
     <div id="mult-result"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        
+        
+        <p class="order-line">
+          <b>ผลลัพธ์หลังจากคูณ 1.0 เท่า = 0.00 ml</b>
+        </p>
+        <div class="left-align">
+          
+
+          
+        </div>
       
     </div>
 
@@ -303,19 +314,30 @@
       return;
     }
 
-    const doseForm = document.getElementById('gentamicin-dose-form');
-    const multForm = document.getElementById('gentamicin-mult-form');
-    const doseResultEl = document.getElementById('dose-result');
-    const multResultEl = document.getElementById('mult-result');
-    const condBox = document.getElementById('gentamicin-cond-box');
-    const doseInput = document.getElementById('dose');
-    const doseHidden = document.getElementById('dose_hidden');
-    const resultHidden = document.getElementById('result_ml_hidden');
-    const multSelect = document.getElementById('multiplication');
+    const doseForm      = document.getElementById('gentamicin-dose-form');
+    const multForm      = document.getElementById('gentamicin-mult-form');
+    const doseResultEl  = document.getElementById('dose-result');
+    const multResultEl  = document.getElementById('mult-result');
+    const condBox       = document.getElementById('gentamicin-cond-box');
+    const doseInput     = document.getElementById('dose');
+    const doseHidden    = document.getElementById('dose_hidden');
+    const resultHidden  = document.getElementById('result_ml_hidden');
+    const multSelect    = document.getElementById('multiplication');
 
     if (!doseForm || !doseResultEl || !condBox) return;
 
     const CONC = 40.0;
+
+    function createOrGetBox(id, refNode) {
+      let box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement('div');
+        box.id = id;
+        box.className = 'result';
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+      }
+      return box;
+    }
 
     // รอบที่ 1: คำนวณ mg → ml
     doseForm.addEventListener('submit', function (e) {
@@ -328,7 +350,7 @@
 
       const resultMl = doseVal / CONC;
 
-      doseHidden.value = doseVal.toString();
+      doseHidden.value   = doseVal.toString();
       resultHidden.value = resultMl.toString();
 
       doseResultEl.innerHTML = `
@@ -355,18 +377,21 @@
       condBox.style.opacity = '1';
       condBox.style.pointerEvents = 'auto';
       multResultEl.style.display = 'none';
+
+      const extra = document.getElementById('gh-gentamicin-extra');
+      if (extra) extra.remove(); // ล้างกล่องคำอธิบายเดิมถ้ามี
     });
 
-    // รอบที่ 2: เลือกตัวคูณ 3× / 6×
+    // รอบที่ 2: เลือกตัวคูณ 3× / 6× + สร้าง content_extra ฝั่ง GitHub
     if (multForm && multResultEl && multSelect) {
       multForm.addEventListener('submit', function (e) {
         e.preventDefault();
         const doseVal = parseFloat(doseHidden.value || doseInput.value || '0');
-        const baseMl = parseFloat(resultHidden.value || '0');
-        const mult = parseFloat(multSelect.value || '0');
+        const baseMl  = parseFloat(resultHidden.value || '0');
+        const mult    = parseFloat(multSelect.value || '0');
 
-        if (isNaN(doseVal) || doseVal <= 0 || isNaN(baseMl) || baseMl <= 0 || isNaN(mult) || mult <= 0) {
-          alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        if (isNaN(doseVal) || doseVal <= 0 || isNaN(baseMl) || baseMl <= 0 || isNaN(mult) || (mult !== 3 && mult !== 6)) {
+          alert('กรุณากรอกข้อมูลให้ครบถ้วน และเลือกตัวคูณให้ถูกต้อง');
           return;
         }
 
@@ -412,6 +437,58 @@
           </div>
         `;
         multResultEl.style.display = 'block';
+
+        // -------- กล่องคำอธิบายแบบ content_extra ฝั่ง GitHub --------
+        let config;
+        if (mult === 3) {
+          config = {
+            message: "การบริหารยาโดย Intermittent intravenous infusion pump",
+            details: [
+              "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+              "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเชื้อจางยา) = 8 ml.",
+              "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+              "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+              "การเตรียมยา:",
+              "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+              "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+              "3) ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเชื้อจางยาเตรียมไว้",
+              "4) ผสมยาใน Syringe ที่มีสารละลายเชื้อจางยาอยู่ Mixed ให้เข้ากัน",
+              "5) ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตรา ~6 ml/hr.",
+              "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+            ]
+          };
+        } else {
+          config = {
+            message: "การบริหารยาโดย Intermittent intravenous infusion",
+            details: [
+              "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+              "1) กำหนดให้สารละลายยาซึ่งบริหารเข้าสู้ผู้ป่วยปริมาณเท่ากับ = 1 ml",
+              "2) ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+              "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+              "3) จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+              "4) บริหารโดยใช้ Syringe pump ตั้งอัตราเร็ว ~2 ml/hr",
+            ]
+          };
+        }
+
+        const extraBox = createOrGetBox('gh-gentamicin-extra', multResultEl);
+        let extraHtml =
+          "<p style='font-weight:900; text-align:center; margin:6px 0'>" +
+          config.message + "</p><div class='muted'>";
+
+        config.details.forEach(function (d) {
+          if (d.indexOf("Up to") !== -1) {
+            extraHtml +=
+              "<div style='background:#ffeb3b; font-weight:700; padding:8px; " +
+              "text-align:center; border-radius:6px; margin:10px 0'>" +
+              d + "</div>";
+          } else {
+            extraHtml += "<p style='margin:6px 0'>" + d + "</p>";
+          }
+        });
+
+        extraHtml += "</div>";
+        extraBox.innerHTML = extraHtml;
       });
     }
   })();

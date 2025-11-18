@@ -61,5 +61,13 @@
     "status": "C",
     "source": "Trissel's 2022",
     "note": "No data / ไม่มีข้อมูล"
+  },
+  {
+    "drug_a": "Cefotaxime",
+    "drug_b": "Levofloxacin",
+    "status": "U",
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
   }
 ]
+
