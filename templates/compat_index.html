@@ -19,7 +19,10 @@
           {% for letter, items in groups.items() %}
             <optgroup label="{{ letter }}">
               {% for d in items %}
-                <option value="{{ d.id }}">{{ d.generic_name }}</option>
+                <option value="{{ d.id }}"
+                        {% if selected_drug_id and selected_drug_id|string == d.id|string %}selected{% endif %}>
+                  {{ d.generic_name }}
+                </option>
               {% endfor %}
             </optgroup>
           {% endfor %}
@@ -33,7 +36,10 @@
           {% for letter, items in groups.items() %}
             <optgroup label="{{ letter }}">
               {% for d in items %}
-                <option value="{{ d.id }}">{{ d.generic_name }}</option>
+                <option value="{{ d.id }}"
+                        {% if selected_co_drug_id and selected_co_drug_id|string == d.id|string %}selected{% endif %}>
+                  {{ d.generic_name }}
+                </option>
               {% endfor %}
             </optgroup>
           {% endfor %}
@@ -45,7 +51,16 @@
       <button type="submit" class="btn btn-primary">ตรวจสอบ Compatibility</button>
       <a href="{{ url_for('index') }}" class="btn btn-secondary">กลับหน้า Home</a>
     </div>
+
+    <div style="margin-top:1rem;text-align:center;font-size:0.9rem">
+      <span style="color:#16a34a;">● C = Compatible / ผสมร่วมได้</span>
+      &nbsp;&nbsp;
+      <span style="color:#dc2626;">● I = Incompatible / ห้ามผสม</span>
+      &nbsp;&nbsp;
+      <span style="color:#f59e0b;">● U = Uncertain / ไม่ชัดเจน</span>
+      &nbsp;&nbsp;
+      <span style="color:#2563eb;">● ND = No data / ไม่มีข้อมูล</span>
+    </div>
   </form>
 </div>
 {% endblock %}
-
