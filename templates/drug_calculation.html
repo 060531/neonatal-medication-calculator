@@ -462,7 +462,13 @@
     <section id="U" class="letter-group">
       <div class="letter-heading">U</div>
       <div class="med-grid">
-        <a href="#" class="medication-dose-button">Unasyun</a>
+        <a href="{{ u('unasyun_dose',
+                     pma_weeks=pma_weeks,
+                     pma_days=pma_days,
+                     calc=calc,
+                     postnatal_days=postnatal_days,
+                     bw=bw) }}" 
+          class="medication-dose-button">Unasyun</a>
       </div>
     </section>
 

@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -107,6 +107,10 @@
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+  .order-line{ font-weight:900; margin:0 0 6px; text-align:center; }
+  .left-align{ text-align:left; }
+
+  .hidden{ display:none !important; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -129,8 +133,7 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ: label + field ให้อยู่บรรทัดเดียว ========== */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
@@ -144,19 +147,17 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
@@ -164,7 +165,6 @@
     .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -179,84 +179,130 @@
   <div class="title-badge">Remdesivir : 100 mg / vial → reconst. to 5 mg/ml</div>
 
   <div class="container">
-    <!-- กล่องคำนวณรอบแรก -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <!-- รอบที่ 1: กล่องคำนวณขนาดยา -->
+    <div class="calc-box">
+      <form id="remde-dose-form"
+            class="calc-row"
+            action="{{ u('remdesivir') }}"
+            method="post">
+        <input type="hidden" name="action" value="dose" />
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
 
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
+    {% if error %}
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
+      </div>
+    {% endif %}
 
-    {% if result_ml_1 %}
-      <div class="result">
+    <!-- ผลลัพธ์รอบที่ 1: ปริมาณยา (5 mg/ml) -->
+    <div id="dose-result-1"
+         class="result"
+         style="{% if result_ml_1 is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none and result_ml_1 is not none %}
         <p class="order-line"><b>Order:</b> Remdesivir {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ขั้นตอนที่ 1 — คำนวณปริมาณยา (หลังละลาย 100 mg → 20 ml = 5 mg/ml):</b></p>
           <p>สูตร: <span class="mono">ml = (mg × 20) ÷ 100</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 20 ÷ 100</span> = <span class="pill">{{ result_ml_1|fmt(2) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 20 ÷ 100</span>
+             = <span class="pill">{{ result_ml_1|fmt(2) }} ml</span></p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
-    {% if result_ml_2 %}
-      <div class="result">
+    <!-- ผลลัพธ์รอบที่ 1: ปริมาณสารละลาย ≤ 1.25 mg/ml -->
+    <div id="dose-result-2"
+         class="result"
+         style="{% if result_ml_2 is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none and result_ml_2 is not none %}
         <div class="left-align muted">
           <p><b>ขั้นตอนที่ 2 — คำนวณปริมาณสารละลาย (ต้องไม่เกิน 1.25 mg/ml):</b></p>
-          <p>สูตร: <span class="mono">ml = (mg × 1) ÷ 1.25</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 1.25</span> = <span class="pill">{{ result_ml_2|fmt(2) }} ml</span></p>
+          <p>สูตร: <span class="mono">ml = mg ÷ 1.25</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 1.25</span>
+             = <span class="pill">{{ result_ml_2|fmt(2) }} ml</span></p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
-    <!-- เลือกเงื่อนไขคูณ -->
-    <div class="calc-box" {% if not (result_ml_1 or result_ml_2) %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form id="__will_handle_by_js__" class="calc-row">
-        <input type="hidden" name="dose" value="{{ dose if dose is not none else '' }}">
+    <!-- รอบที่ 2: เลือกเงื่อนไขคูณ (เปิดใช้เมื่อมีผลรอบแรก) -->
+    <div id="remde-cond-box"
+         class="calc-box {% if result_ml_1 is none and result_ml_2 is none %}hidden{% endif %}">
+      <form id="remde-mult-form"
+            class="calc-row"
+            action="{{ u('remdesivir') }}"
+            method="post">
+        <input type="hidden" name="action" value="condition" />
+
+        <input type="hidden" id="dose_hidden" name="dose_hidden"
+               value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" id="result_ml_1_hidden" name="result_ml_1_hidden"
+               value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
+        <input type="hidden" id="result_ml_2_hidden" name="result_ml_2_hidden"
+               value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
+
         <label for="multiplication">เลือกเงื่อนไข:</label>
-        <select name="multiplication" required>
-          <option value="" disabled {% if not multiplication %}selected{% endif %}>— เลือก —</option>
-          <option value="1.5" {% if multiplication==1.5 %}selected{% endif %}>1.5 เท่า</option>
-          <option value="2"   {% if multiplication==2 %}selected{% endif %}>2 เท่า</option>
-          <option value="2.5" {% if multiplication==2.5 %}selected{% endif %}>2.5 เท่า</option>
-          <option value="3"   {% if multiplication==3 %}selected{% endif %}>3 เท่า</option>
-          <option value="3.5" {% if multiplication==3.5 %}selected{% endif %}>3.5 เท่า</option>
-          <option value="4"   {% if multiplication==4 %}selected{% endif %}>4 เท่า</option>
-          <option value="4.5" {% if multiplication==4.5 %}selected{% endif %}>4.5 เท่า</option>
-          <option value="5"   {% if multiplication==5 %}selected{% endif %}>5 เท่า</option>
+        <select id="multiplication" name="multiplication" required>
+          <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
+          <option value="1.5" {% if multiplication == 1.5 %}selected{% endif %}>1.5 เท่า</option>
+          <option value="2"   {% if multiplication == 2 %}selected{% endif %}>2 เท่า</option>
+          <option value="2.5" {% if multiplication == 2.5 %}selected{% endif %}>2.5 เท่า</option>
+          <option value="3"   {% if multiplication == 3 %}selected{% endif %}>3 เท่า</option>
+          <option value="3.5" {% if multiplication == 3.5 %}selected{% endif %}>3.5 เท่า</option>
+          <option value="4"   {% if multiplication == 4 %}selected{% endif %}>4 เท่า</option>
+          <option value="4.5" {% if multiplication == 4.5 %}selected{% endif %}>4.5 เท่า</option>
+          <option value="5"   {% if multiplication == 5 %}selected{% endif %}>5 เท่า</option>
         </select>
-        <button type="submit" class="btn btn-blue" name="calculate_multiplication">คำนวณต่อ</button>
+
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
       </form>
     </div>
 
-    {% if final_result_1 is not none and final_result_2 is not none %}
-      <div class="result">
+    <!-- ผลลัพธ์รอบที่ 2 -->
+    <div id="mult-result"
+         class="result"
+         style="{% if final_result_1 is not none and final_result_2 is not none %}display:block{% else %}display:none{% endif %}">
+      {% if final_result_1 is not none and final_result_2 is not none and result_ml_2 is not none %}
+        {% set diluent_ml = (final_result_2 - final_result_1) %}
         <p class="order-line"><b>ผลลัพธ์หลังคูณ {{ multiplication }} เท่า</b></p>
         <div class="left-align">
-          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) }} ml = <b>{{ final_result_1|fmt(2) }}}</b> ml <span class="muted">(จากขั้นตอนที่ 1)</span></p>
-          <p>{{ multiplication }} × {{ result_ml_2|fmt(2) }} ml = <b>{{ final_result_2|fmt(2) }}</b> ml <span class="muted">(จากขั้นตอนที่ 2)</span></p>
+          <p>{{ multiplication }} × {{ result_ml_1|fmt(2) }} ml
+             = <b>{{ final_result_1|fmt(2) }}</b> ml
+             <span class="muted">(จากขั้นตอนที่ 1)</span></p>
+          <p>{{ multiplication }} × {{ result_ml_2|fmt(2) }} ml
+             = <b>{{ final_result_2|fmt(2) }}</b> ml
+             <span class="muted">(จากขั้นตอนที่ 2)</span></p>
           <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ปริมาณยา:</b> <span class="pill">{{ final_result_1|fmt(2) }}} ml</span></p>
-          <p><b>ปริมาณสารละลาย:</b> <span class="pill">{{ final_result_2 - final_result_1|fmt(2) }} ml</span>
-             <span class="muted">({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }}})</span></p>
+          <p><b>ปริมาณยา:</b>
+             <span class="pill">{{ final_result_1|fmt(2) }} ml</span></p>
+          <p><b>ปริมาณสารละลาย:</b>
+             <span class="pill">{{ diluent_ml|fmt(2) }} ml</span>
+             <span class="muted">( {{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }} )</span></p>
           <p style="background:#fde047; padding:6px; border-radius:6px;">
             <b>ปริมาณยาที่บริหารเข้าทารก = {{ result_ml_2|fmt(2) }} ml → drip in 2 hr.</b>
           </p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
       <p class="section-head">Solvent / การเตรียม</p>
       <ul class="muted">
         <li>Sterile water 19 ml → ได้สารละลาย 20 ml</li>
-        <li><u>ความแรงหลังเตรียม: 5 mg/ml</u></li>
+        <li><u>ความแรงหลังเตรียม:</u> 5 mg/ml</li>
       </ul>
 
       <p class="section-head">Solution</p>
@@ -292,9 +338,137 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
+
+  <!-- JS: โหมด docs (github.io) จะคำนวณบนหน้า, โหมด Flask ปล่อยให้ server ทำงาน -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
+
+    // ปรับ Back บน GitHub (ลิงก์เป็น .html)
+    if (isGithub) {
+      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ถ้าไม่ใช่ docs → ให้ Flask handle ตามปกติ ไม่ intercept form
+    if (!isGithub) return;
+
+    const doseForm    = document.getElementById('remde-dose-form');
+    const multForm    = document.getElementById('remde-mult-form');
+    const doseInput   = document.getElementById('dose');
+    const doseHidden  = document.getElementById('dose_hidden');
+    const res1Hidden  = document.getElementById('result_ml_1_hidden');
+    const res2Hidden  = document.getElementById('result_ml_2_hidden');
+    const resBox1     = document.getElementById('dose-result-1');
+    const resBox2     = document.getElementById('dose-result-2');
+    const condBox     = document.getElementById('remde-cond-box');
+    const multResult  = document.getElementById('mult-result');
+    const multSelect  = document.getElementById('multiplication');
+
+    if (!doseForm || !doseInput) return;
+
+    // รอบที่ 1: คำนวณจาก dose → result_ml_1, result_ml_2
+    doseForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (mg) ให้ถูกต้อง');
+        return;
+      }
+
+      const ml1 = (doseVal * 20.0) / 100.0;  // 5 mg/ml
+      const ml2 = doseVal / 1.25;            // ≤ 1.25 mg/ml
+
+      doseHidden.value = doseVal.toFixed(2);
+      res1Hidden.value = ml1.toFixed(2);
+      res2Hidden.value = ml2.toFixed(2);
+
+      // แสดงผลขั้นตอนที่ 1
+      if (resBox1) {
+        resBox1.innerHTML = `
+          <p class="order-line"><b>Order:</b> Remdesivir ${doseVal.toFixed(2)} mg</p>
+          <div class="left-align muted">
+            <p><b>ขั้นตอนที่ 1 — คำนวณปริมาณยา (หลังละลาย 100 mg → 20 ml = 5 mg/ml):</b></p>
+            <p>สูตร: <span class="mono">ml = (mg × 20) ÷ 100</span></p>
+            <p>แทนค่า: <span class="mono">${doseVal.toFixed(2)} × 20 ÷ 100</span>
+               = <span class="pill">${ml1.toFixed(2)} ml</span></p>
+          </div>
+        `;
+        resBox1.style.display = 'block';
+      }
+
+      // แสดงผลขั้นตอนที่ 2
+      if (resBox2) {
+        resBox2.innerHTML = `
+          <div class="left-align muted">
+            <p><b>ขั้นตอนที่ 2 — คำนวณปริมาณสารละลาย (ต้องไม่เกิน 1.25 mg/ml):</b></p>
+            <p>สูตร: <span class="mono">ml = mg ÷ 1.25</span></p>
+            <p>แทนค่า: <span class="mono">${doseVal.toFixed(2)} ÷ 1.25</span>
+               = <span class="pill">${ml2.toFixed(2)} ml</span></p>
+          </div>
+        `;
+        resBox2.style.display = 'block';
+      }
+
+      // เปิดกล่องรอบที่ 2
+      if (condBox) condBox.classList.remove('hidden');
+      if (multResult) multResult.style.display = 'none';
+    });
+
+    // รอบที่ 2: คูณตาม multiplication
+    if (multForm && multResult && multSelect) {
+      multForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const doseVal = parseFloat(doseHidden.value || doseInput.value || '0');
+        const ml1     = parseFloat(res1Hidden.value || '0');
+        const ml2     = parseFloat(res2Hidden.value || '0');
+        const mult    = parseFloat(multSelect.value || '0');
+
+        if (isNaN(doseVal) || doseVal <= 0 ||
+            isNaN(ml1)     || ml1 <= 0     ||
+            isNaN(ml2)     || ml2 <= 0     ||
+            isNaN(mult)    || mult <= 0) {
+          alert('กรุณากรอกข้อมูลให้ครบถ้วน และเลือกตัวคูณให้ถูกต้อง');
+          return;
+        }
+
+        const final1 = ml1 * mult;
+        const final2 = ml2 * mult;
+        const dil    = final2 - final1;
+
+        multResult.innerHTML = `
+          <p class="order-line"><b>ผลลัพธ์หลังคูณ ${mult.toFixed(2)} เท่า</b></p>
+          <div class="left-align">
+            <p>${mult.toFixed(2)} × ${ml1.toFixed(2)} ml
+               = <b>${final1.toFixed(2)}</b> ml
+               <span class="muted">(จากขั้นตอนที่ 1)</span></p>
+            <p>${mult.toFixed(2)} × ${ml2.toFixed(2)} ml
+               = <b>${final2.toFixed(2)}</b> ml
+               <span class="muted">(จากขั้นตอนที่ 2)</span></p>
+            <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+            <p><b>ปริมาณยา:</b>
+               <span class="pill">${final1.toFixed(2)} ml</span></p>
+            <p><b>ปริมาณสารละลาย:</b>
+               <span class="pill">${dil.toFixed(2)} ml</span>
+               <span class="muted">( ${final2.toFixed(2)} − ${final1.toFixed(2)} )</span></p>
+            <p style="background:#fde047; padding:6px; border-radius:6px;">
+              <b>ปริมาณยาที่บริหารเข้าทารก = ${ml2.toFixed(2)} ml → drip in 2 hr.</b>
+            </p>
+          </div>
+        `;
+        multResult.style.display = 'block';
+      });
+    }
+  })();
+  </script>
 
 </body>
 </html>

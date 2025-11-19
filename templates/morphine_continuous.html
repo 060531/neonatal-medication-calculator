@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Morphine Calculation</title>
+  <title>Morphine Continuous Calculation</title>
   <style>
     :root{
       --primary-900:#e70939;
@@ -16,10 +16,14 @@
 
     html,body{height:100%;overflow-x:hidden}
     *,*::before,*::after{box-sizing:border-box}
+    img,video,canvas,svg{max-width:100%;height:auto}
+
     body{
-      margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,"Helvetica Neue",Helvetica,sans-serif;
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,"Helvetica Neue",Helvetica,sans-serif;
       color:var(--text);text-align:center;background:none;
-      padding-left:max(0px,env(safe-area-inset-left));padding-right:max(0px,env(safe-area-inset-right));
+      padding-left:max(0px,env(safe-area-inset-left));
+      padding-right:max(0px,env(safe-area-inset-right));
     }
     body::before{
       content:"";position:fixed;inset:0;z-index:-1;
@@ -41,7 +45,8 @@
       margin:0 auto 12px;padding:20px;
       background:var(--panel);border:1px solid #ffc7c7;border-radius:16px;
       box-shadow:0 8px 24px rgba(15,23,42,.18);
-      backdrop-filter: blur(6px) saturate(120%);-webkit-backdrop-filter: blur(6px) saturate(120%);
+      backdrop-filter: blur(6px) saturate(120%);
+      -webkit-backdrop-filter: blur(6px) saturate(120%);
     }
 
     .calc-box{
@@ -77,9 +82,15 @@
       text-align:left;margin:12px auto;max-width:740px;padding:12px;
       background:#ffffff;border:1px dashed #e5efff;border-radius:12px;
     }
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800}
-    .pill{display:inline-block;padding:2px 6px;border-radius:6px;background:#e01b1b;color:#fff;font-weight:800}
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800
+    }
+    .pill{display:inline-block;padding:2px 6px;border-radius:6px;background:#fde047;color:#111;font-weight:800}
     .pill-red{display:inline-block;padding:2px 6px;border-radius:6px;background:#e01b1b;color:#fff;font-weight:800}
+    .muted{color:#334155}
+    .left-align{text-align:left}
+    .order-line{text-align:center;margin:6px 0}
 
     .float-actions{
       position:fixed;left:50%;transform:translateX(-50%);
@@ -105,25 +116,46 @@
 </head>
 <body>
 
-  <div class="title-badge">Morphine (10 mg/ml)</div>
+  <div class="title-badge">Morphine Continuous (10 mg/ml)</div>
 
   <div class="container">
     <div class="calc-box">
-      <!-- id นี้แหละที่ JS จะใช้งาน -->
-      <form id="fentanyl-form" class="calc-form">
+      <!-- Flask mode: action+method / GitHub mode: JS intercept -->
+      <form id="morphine-cont-form"
+            class="calc-form"
+            action="{{ u('morphine_continuous') }}"
+            method="post">
         <div class="field-row">
-          <label for="original_dosage">ขนาดยา (Order) mg:</label>
-          <input type="number" id="original_dosage" name="original_dosage" placeholder="เช่น 100" step="0.01" required>
+          <label for="original_dosage">ขนาดยา Order เดิม (mg):</label>
+          <input type="number"
+                 id="original_dosage"
+                 name="original_dosage"
+                 placeholder="เช่น 100"
+                 step="0.01"
+                 required
+                 value="{{ original_dosage if original_dosage is not none else '' }}">
         </div>
 
         <div class="field-row">
-          <label for="original_volume">ปริมาตร (Order) ml:</label>
-          <input type="number" id="original_volume" name="original_volume" placeholder="เช่น 2" step="0.01" required>
+          <label for="original_volume">ปริมาตร Order เดิม (ml):</label>
+          <input type="number"
+                 id="original_volume"
+                 name="original_volume"
+                 placeholder="เช่น 2"
+                 step="0.01"
+                 required
+                 value="{{ original_volume if original_volume is not none else '' }}">
         </div>
 
         <div class="field-row">
-          <label for="desired_dosage">ขนาดยาที่ต้องการ mg:</label>
-          <input type="number" id="desired_dosage" name="desired_dosage" placeholder="เช่น 25" step="0.01" required>
+          <label for="desired_dosage">ขนาดยาที่ต้องการ (mg):</label>
+          <input type="number"
+                 id="desired_dosage"
+                 name="desired_dosage"
+                 placeholder="เช่น 25"
+                 step="0.01"
+                 required
+                 value="{{ desired_dosage if desired_dosage is not none else '' }}">
         </div>
 
         <div class="actions">
@@ -132,14 +164,68 @@
       </form>
     </div>
 
-    <div id="result" class="result"></div>
+    {% if error %}
+      <div class="result" style="background:#fff0f0;border-color:#f2b6b6;color:#9b1c1c">
+        {{ error }}
+      </div>
+    {% endif %}
 
-    <div class="result" style="display:block;background:#ffffff;border-color:#e5efff">
-      <p class="order-line muted">☞ <b>สต็อก (อ้างอิง):</b> 10 mg/ml</p>
+    <!-- กล่องผลลัพธ์ (Flask mode) -->
+    <div id="result-box"
+         class="result"
+         style="{% if target_volume is not none and morphine_vol is not none and diluent is not none %}display:block{% else %}display:none{% endif %}">
+      {% if target_volume is not none and morphine_vol is not none and diluent is not none %}
+        <p class="order-line">
+          <b>Order เดิม:</b>
+          Morphine {{ original_dosage|fmt(2) }} mg ใน {{ original_volume|fmt(2) }} ml
+        </p>
+        <p class="order-line">
+          <b>Order เป้าหมาย:</b>
+          Morphine {{ desired_dosage|fmt(2) }} mg
+        </p>
+
+        <div class="left-align muted">
+          <p><b>1) ปริมาตรเป้าหมายจากสัดส่วนเดิม:</b></p>
+          <p>
+            <span class="mono">
+              {{ desired_dosage|fmt(2) }} ÷ {{ original_dosage|fmt(2) }} × {{ original_volume|fmt(2) }}
+            </span>
+            = <span class="pill">{{ target_volume|fmt(2) }} ml</span>
+          </p>
+
+          <p style="margin-top:10px;"><b>2) ปริมาตร Morphine ที่ต้องดูด (สต็อก 10 mg/ml):</b></p>
+          <p>
+            <span class="mono">
+              {{ desired_dosage|fmt(2) }} ÷ 10
+            </span>
+            = <span class="pill-red">{{ morphine_vol|fmt(2) }} ml</span>
+          </p>
+
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+
+          <p><b>3) ปริมาตรตัวทำละลาย:</b></p>
+          <p>
+            <span class="mono">
+              {{ target_volume|fmt(2) }} − {{ morphine_vol|fmt(2) }}
+            </span>
+            = <span class="pill">{{ diluent|fmt(2) }} ml</span>
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ข้อมูลประกอบแนวคิด -->
+    <div class="result" style="background:#ffffff;border-color:#e5efff">
+      <p class="order-line muted">
+        ☞ <b>สต็อก (อ้างอิง):</b> 10 mg/ml
+      </p>
       <div class="left-align muted">
-        <p><b>แนวคิด:</b> ปริมาตรยา (ml) = <span class="mono">mg ÷ 10</span></p>
-        <p>ปริมาตรเป้าหมายตามสัดส่วน order เดิม =
-           <span class="mono">desired ÷ original_dosage × original_volume</span></p>
+        <p><b>แนวคิด:</b></p>
+        <ul>
+          <li>ปริมาตรเป้าหมาย (ml) = <span class="mono">desired ÷ original_dosage × original_volume</span></li>
+          <li>ปริมาตร Morphine (ml) = <span class="mono">desired ÷ 10</span></li>
+          <li>ตัวทำละลาย (ml) = <span class="mono">target_volume − morphine_vol</span></li>
+        </ul>
       </div>
     </div>
   </div>
@@ -149,52 +235,91 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn" style="background:#049bb5">Back</a>
-    <a href="{{ u('index') }}" class="btn" style="background:#e71f1f">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn" style="background:#049bb5" data-nav="med">Back</a>
+    <a href="{{ u('index') }}" class="btn" style="background:#e71f1f" data-nav="home">Back to Home</a>
   </div>
 
   <script>
-    // ความเข้มข้น Morphine (mg/ml)
-    const CONC = 10;
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
 
-    // ✅ แก้ id ให้ตรงกับฟอร์มจริง: 'fentanyl-form'
-    document.getElementById('fentanyl-form').addEventListener('submit', function(event){
+    // ปรับลิงก์ Back ในโหมด GitHub
+    if (isGithub) {
+      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ถ้าไม่ใช่ github.io → ให้ Flask handle form ปกติ
+    if (!isGithub) return;
+
+    const form          = document.getElementById('morphine-cont-form');
+    const origDoseInput = document.getElementById('original_dosage');
+    const origVolInput  = document.getElementById('original_volume');
+    const desDoseInput  = document.getElementById('desired_dosage');
+    const resultBox     = document.getElementById('result-box');
+
+    if (!form || !origDoseInput || !origVolInput || !desDoseInput || !resultBox) return;
+
+    const CONC = 10; // mg/ml
+
+    form.addEventListener('submit', function (event) {
       event.preventDefault();
 
-      const originalDosage = parseFloat(document.getElementById('original_dosage').value || '0'); // mg
-      const originalVolume = parseFloat(document.getElementById('original_volume').value || '0'); // ml
-      const desiredDosage  = parseFloat(document.getElementById('desired_dosage').value  || '0'); // mg
+      const originalDosage = parseFloat(origDoseInput.value || '0');
+      const originalVolume = parseFloat(origVolInput.value  || '0');
+      const desiredDosage  = parseFloat(desDoseInput.value  || '0');
 
       if ([originalDosage, originalVolume, desiredDosage].some(v => isNaN(v) || v <= 0)) {
         alert('กรุณากรอกค่าที่ถูกต้อง (> 0)');
         return;
       }
 
-      const targetVolume = (desiredDosage / originalDosage) * originalVolume; // ml
-      const morphineVol  = desiredDosage / CONC; // ml
-      const diluent      = targetVolume - morphineVol; // ml
+      const targetVolume = (desiredDosage / originalDosage) * originalVolume;
+      const morphineVol  = desiredDosage / CONC;
+      const diluent      = targetVolume - morphineVol;
 
-      const resultEl = document.getElementById('result');
-      resultEl.innerHTML = `
-        <p class="order-line"><b>Order เป้าหมาย:</b> Morphine ${desiredDosage.toFixed(2)} mg</p>
-        <div class="left-align">
-          <p><b>คำนวณปริมาตรเป้าหมายจากสัดส่วนเดิม:</b>
-             ${desiredDosage.toFixed(2)} ÷ ${originalDosage.toFixed(2)} × ${originalVolume.toFixed(2)} =
-             <span class="pill">${targetVolume.toFixed(2)} ml</span>
+      const od = originalDosage.toFixed(2);
+      const ov = originalVolume.toFixed(2);
+      const dd = desiredDosage.toFixed(2);
+      const tv = targetVolume.toFixed(2);
+      const mv = morphineVol.toFixed(2);
+      const dl = diluent.toFixed(2);
+
+      resultBox.innerHTML = `
+        <p class="order-line">
+          <b>Order เดิม:</b> Morphine ${od} mg ใน ${ov} ml
+        </p>
+        <p class="order-line">
+          <b>Order เป้าหมาย:</b> Morphine ${dd} mg
+        </p>
+        <div class="left-align muted">
+          <p><b>1) ปริมาตรเป้าหมายจากสัดส่วนเดิม:</b></p>
+          <p>
+            <span class="mono">${dd} ÷ ${od} × ${ov}</span>
+            = <span class="pill">${tv} ml</span>
           </p>
-          <p><b>ปริมาตรยาที่ต้องดูด:</b> <span class="mono">ml = mg ÷ 10</span></p>
-          <p style="margin:.25rem 0 0;">
-            <span class="mono">แทนค่า: ${desiredDosage.toFixed(2)} ÷ 10</span>
-            = <span class="pill-red">${morphineVol.toFixed(2)} ml</span>
+
+          <p style="margin-top:10px;"><b>2) ปริมาตร Morphine ที่ต้องดูด (สต็อก 10 mg/ml):</b></p>
+          <p>
+            <span class="mono">${dd} ÷ 10</span>
+            = <span class="pill-red">${mv} ml</span>
           </p>
+
           <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ดังนั้น ตัวทำละลาย:</b> ${targetVolume.toFixed(2)} − ${morphineVol.toFixed(2)} =
-             <b><span class="pill">${diluent.toFixed(2)} ml</span></b>
+
+          <p><b>3) ปริมาตรตัวทำละลาย:</b></p>
+          <p>
+            <span class="mono">${tv} − ${mv}</span>
+            = <span class="pill">${dl} ml</span>
           </p>
         </div>
       `;
-      resultEl.style.display = 'block';
+      resultBox.style.display = 'block';
     });
+  })();
   </script>
 
 </body>

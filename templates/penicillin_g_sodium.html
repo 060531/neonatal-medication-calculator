@@ -14,8 +14,8 @@
     --panel:#e6f3ffb8;
     --text:#0f172a;
 
-    --floatbar-gap: clamp(80px, 16vw, 110px); /* กันปุ่มลอยทับ footer */
-    --page-gutter: 12px;                      /* ระยะขอบซ้าย-ขวา */
+    --floatbar-gap: clamp(80px, 16vw, 110px);
+    --page-gutter: 12px;
   }
 
   /* ========== Global guard + BG เต็มจอ ========== */
@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -102,11 +102,17 @@
     padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
   }
   .result b{ color:#0b2b7a; }
-  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .mono{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
+  }
   .muted{ color:#334155; }
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+
+  .order-line{ font-weight:900; margin:0 0 6px; text-align:center; }
+  .left-align{ text-align:left; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -129,42 +135,34 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ: label + field ให้อยู่บรรทัดเดียว ========== */
   @media (max-width: 640px){
-    .dose-row, .conc-row{
+    .dose-row{
       display:grid;
-      grid-template-columns:auto 1fr;  /* label | field */
+      grid-template-columns:auto 1fr;
       align-items:center;
       column-gap:8px;
       width:100%;
       max-width:520px;
       margin-left:auto; margin-right:auto;
     }
-    .dose-row > label,
-    .conc-row > label{
+    .dose-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
-    .dose-row > input[type="number"],
-    .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+    .dose-row > input[type="number"]{
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
-    .dose-row > label,
-    .conc-row > label{ font-size:13px; max-width:42vw; }
-    .dose-row > input[type="number"],
-    .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
+    .dose-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"]{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -176,35 +174,78 @@
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Penicillin G sodium (PGS) : 5 MU / vial → reconst. to 500,000 unit/ml</div>
+  <div class="title-badge">
+    Penicillin G sodium (PGS) : 5 MU / vial → reconst. to 500,000 unit/ml
+  </div>
 
   <div class="container">
     <!-- กล่องคำนวณ -->
     <div class="calc-box">
-      <form id="__will_handle_by_js__" class="calc-row">
-        <label for="dose">กรอกขนาดยา (unit):</label>
-        <input type="number" name="dose" placeholder="เช่น 250000" step="0.01" required
-               value="{{ dose if dose is not none else '' }}">
+      <form id="pgs-form"
+            class="calc-row"
+            action="{{ u('penicillin') }}"
+            method="post">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (unit):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="เช่น 250000"
+                 step="0.01"
+                 required
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
-    {% endif %}
-
-    {% if dose is not none %}
-      {% set calculated_ml = (dose / 500000.0) %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Penicillin G sodium {{ dose|fmt_int }} unit</p>
-        <div class="left-align muted">
-          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติมตัวทำละลายรวมเป็น 10 ml ⇒ <b>500,000 unit/ml</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = unit ÷ 500,000</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt_int }} ÷ 500,000 = <span class="pill">{{ (calculated_ml) | round(3) }}</span> ml</span></p>
-          <p><b>ดังนั้น:</b> {{ dose|fmt_int }} unit = <span class="pill">{{ (calculated_ml) | round(3) }} ml</span></p>
-        </div>
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
       </div>
     {% endif %}
+
+    <p class="muted" style="text-align:center; margin-top:4px;">
+      5 MU / vial = 5,000,000 unit → เติมตัวทำละลายให้ครบ 10 ml ⇒ ความแรง 500,000 unit/ml
+    </p>
+
+    <!-- กล่องผลลัพธ์: Flask จะใส่ค่าให้เมื่อมี POST -->
+    <div id="result-box"
+         class="result"
+         style="{% if dose is not none and calculated_ml is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none and calculated_ml is not none %}
+        <p class="order-line">
+          <b>Order:</b> Penicillin G sodium {{ dose|fmt_int }} unit
+        </p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติมตัวทำละลายรวมเป็น 10 ml ⇒ <b>500,000 unit/ml</b></p>
+
+          <p><b>สูตรคำนวณ (แบบละเอียด):</b></p>
+          <p>
+            ขั้นที่ 1: 5 MU = 5,000,000 unit และได้ปริมาตรรวม 10 ml<br>
+            ⇒ ความแรง = 500,000 unit/ml
+          </p>
+          <p>
+            ขั้นที่ 2: เขียนในรูปเศษส่วนตามปริมาตรรวม 10 ml<br>
+            <span class="mono">ml = (unit × 10) ÷ 5,000,000</span><br>
+            ซึ่งให้ผลเท่ากับ <span class="mono">unit ÷ 500,000</span>
+          </p>
+
+          <p>
+            แทนค่า:
+            <span class="mono">
+              {{ dose|fmt_int }} × 10 ÷ 5,000,000
+              = <span class="pill">{{ calculated_ml|round(3) }} ml</span>
+            </span>
+          </p>
+
+          <p><b>ดังนั้น:</b>
+            {{ dose|fmt_int }} unit
+            = <span class="pill">{{ calculated_ml|round(3) }} ml</span>
+          </p>
+        </div>
+      {% endif %}
+    </div>
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
@@ -250,9 +291,82 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
+
+  <!-- JS: โหมด docs / GitHub Pages -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
+
+    // ปรับลิงก์ Back ในโหมด GitHub ให้ชี้ไปไฟล์ .html
+    if (isGithub) {
+      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ถ้าไม่ใช่ GitHub → ให้ Flask handle ตามปกติ
+    if (!isGithub) return;
+
+    const form      = document.getElementById('pgs-form');
+    const doseInput = document.getElementById('dose');
+    const resultBox = document.getElementById('result-box');
+
+    if (!form || !doseInput || !resultBox) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (unit) ให้ถูกต้อง');
+        return;
+      }
+
+      // สูตรเดียวกับฝั่ง Flask:
+      // ml = (unit × 10) ÷ 5,000,000  ≡  unit ÷ 500,000
+      const ml = (doseVal * 10) / 5000000.0;
+
+      const doseStr = doseVal.toFixed(0);
+      const mlStr   = ml.toFixed(3);
+
+      resultBox.innerHTML = `
+        <p class="order-line">
+          <b>Order:</b> Penicillin G sodium ${doseStr} unit
+        </p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติมตัวทำละลายรวมเป็น 10 ml ⇒ <b>500,000 unit/ml</b></p>
+          <p><b>สูตรคำนวณ (แบบละเอียด):</b></p>
+          <p>
+            ขั้นที่ 1: 5 MU = 5,000,000 unit และได้ปริมาตรรวม 10 ml<br>
+            ⇒ ความแรง = 500,000 unit/ml
+          </p>
+          <p>
+            ขั้นที่ 2: เขียนในรูปเศษส่วนตามปริมาตรรวม 10 ml<br>
+            <span class="mono">ml = (unit × 10) ÷ 5,000,000</span><br>
+            ซึ่งให้ผลเท่ากับ <span class="mono">unit ÷ 500,000</span>
+          </p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              ${doseStr} × 10 ÷ 5,000,000
+              = <span class="pill">${mlStr} ml</span>
+            </span>
+          </p>
+          <p><b>ดังนั้น:</b>
+            ${doseStr} unit
+            = <span class="pill">${mlStr} ml</span>
+          </p>
+        </div>
+      `;
+      resultBox.style.display = 'block';
+    });
+  })();
+  </script>
 
 </body>
 </html>

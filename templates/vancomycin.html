@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -130,7 +130,6 @@
   }
 
   /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
@@ -144,19 +143,17 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
@@ -164,15 +161,12 @@
     .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
     .calc-row{ gap:8px; }
   }
 </style>
-
-
 </head>
 <body>
 
@@ -181,8 +175,11 @@
 
   <div class="container">
     <!-- รอบที่ 1: คำนวณจาก Dose + เลือกความเข้มข้น -->
-  <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
+    <div class="calc-box">
+  <form id="vanco-dose-form"
+        action="{{ u('vancomycin') }}"
+        method="post"
+        class="calc-row">
     <input type="hidden" name="action" value="dose" />
 
     <!-- คู่ที่ 1: ขนาดยา -->
@@ -220,47 +217,61 @@
         <p class="order-line"><b>Order:</b> Vancomycin {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>หลังละลาย:</b> เติม Sterile water 10 ml → ได้สารละลาย 10 ml ⇒ <b>50 mg/ml</b></p>
-          <p><b>ขั้นที่ 1 (จาก stock 50 mg/ml):</b> <span class="mono">ml = mg × 10 ÷ 500</span> ⇒
+          <p><b>ขั้นที่ 1 (คำนวณปริมาณยา : 50 mg/ml):</b> <span class="mono">ml = mg × 10 ÷ 500</span> ⇒
             <span class="pill">{{ result_ml_1|round(2) }}</span> ml</p>
-          <p><b>ขั้นที่ 2 (ความเข้มข้นเป้าหมาย {{ concentration }} mg/ml):</b> <span class="mono">ml = mg ÷ {{ concentration }}</span> ⇒
+          <p><b>ขั้นที่ 2 (คำนวณปริมาณสารละลาย {{ concentration }} mg/ml):</b> <span class="mono">ml = mg ÷ {{ concentration }}</span> ⇒
             <span class="pill">{{ result_ml_2|round(2) }}</span> ml</p>
         </div>
       </div>
     {% endif %}
 
     <!-- รอบที่ 2: เลือกตัวคูณ -->
-    <div class="calc-box" {% if dose is none %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form id="__will_handle_by_js__" class="calc-row">
-        <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
-        <input type="hidden" name="concentration_hidden" value="{{ concentration if concentration is not none else '' }}">
-        <input type="hidden" name="result_ml_1_hidden" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
-        <input type="hidden" name="result_ml_2_hidden" value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
-        <label for="multiplication">เลือกเงื่อนไข (คูณปริมาตร):</label>
-        <select name="multiplication" required>
-          <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
-          <option value="1.5" {% if multiplication==1.5 %}selected{% endif %}>1.5 เท่า</option>
-          <option value="2" {% if multiplication==2 %}selected{% endif %}>2 เท่า</option>
-          <option value="2.5" {% if multiplication==2.5 %}selected{% endif %}>2.5 เท่า</option>
-          <option value="3" {% if multiplication==3 %}selected{% endif %}>3 เท่า</option>
-          <option value="3.5" {% if multiplication==3.5 %}selected{% endif %}>3.5 เท่า</option>
-          <option value="4" {% if multiplication==4 %}selected{% endif %}>4 เท่า</option>
-          <option value="4.5" {% if multiplication==4.5 %}selected{% endif %}>4.5 เท่า</option>
-          <option value="5" {% if multiplication==5 %}selected{% endif %}>5 เท่า</option>
-        </select>
-        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
-      </form>
-    </div>
+    <!-- รอบที่ 2: เลือกตัวคูณ -->
+<div class="calc-box"
+     id="vanco-step2-box"
+     {% if result_ml_1 is none and result_ml_2 is none %}
+       style="display:none; opacity:.55; pointer-events:none"
+     {% endif %}>
+  <form id="vanco-cond-form"
+        action="{{ u('vancomycin') }}"
+        method="post"
+        class="calc-row">
+    <input type="hidden" name="action" value="condition" />
+    <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
+    <input type="hidden" name="concentration_hidden" value="{{ concentration if concentration is not none else '' }}">
+    <input type="hidden" name="result_ml_1_hidden" value="{{ result_ml_1 if result_ml_1 is not none else '' }}">
+    <input type="hidden" name="result_ml_2_hidden" value="{{ result_ml_2 if result_ml_2 is not none else '' }}">
+
+    <label for="multiplication">เลือกเงื่อนไข (คูณปริมาตร):</label>
+    <select name="multiplication" id="multiplication" required>
+      <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
+      <option value="1.5" {% if multiplication==1.5 %}selected{% endif %}>1.5 เท่า</option>
+      <option value="2"   {% if multiplication==2 %}selected{% endif %}>2 เท่า</option>
+      <option value="2.5" {% if multiplication==2.5 %}selected{% endif %}>2.5 เท่า</option>
+      <option value="3"   {% if multiplication==3 %}selected{% endif %}>3 เท่า</option>
+      <option value="3.5" {% if multiplication==3.5 %}selected{% endif %}>3.5 เท่า</option>
+      <option value="4"   {% if multiplication==4 %}selected{% endif %}>4 เท่า</option>
+      <option value="4.5" {% if multiplication==4.5 %}selected{% endif %}>4.5 เท่า</option>
+      <option value="5"   {% if multiplication==5 %}selected{% endif %}>5 เท่า</option>
+    </select>
+    <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+  </form>
+</div>
+
 
     {% if multiplication is not none and dose is not none %}
       <div class="result">
         <p class="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า</b></p>
         <div class="left-align muted">
-          <p>{{ multiplication }} × {{ result_ml_1|round(2) }} ml = <span class="pill">{{ final_result_1|round(2) }}</span> ml <span class="muted">(จาก stock 50 mg/ml)</span></p>
-          <p>{{ multiplication }} × {{ result_ml_2|round(2) }} ml = <span class="pill">{{ final_result_2|round(2) }}</span> ml <span class="muted">(รวมปริมาตรตามความเข้มข้นเป้าหมาย)</span></p>
-          <p class="highlight"><b>ปริมาณยา (จาก stock):</b> {{ final_result_1|round(2) }} ml</p>
-          <p class="highlight"><b>สารละลายที่ต้องเติมเพิ่ม:</b> {{ (final_result_2 - final_result_1)|round(2) }} ml</p>
-          <p><b>บริหารเข้าทารก:</b> {{ result_ml_2|round(2) }} ml → drip ~ 2 hr</p>
+          <p>{{ multiplication }} × {{ result_ml_1|round(2) }} ml =
+             <span class="pill">{{ final_result_1|round(2) }}</span> ml
+             <span class="muted">(จาก stock 50 mg/ml)</span></p>
+          <p>{{ multiplication }} × {{ result_ml_2|round(2) }} ml =
+             <span class="pill">{{ final_result_2|round(2) }}</span> ml
+             <span class="muted">(รวมปริมาตรตามความเข้มข้นเป้าหมาย)</span></p>
+          <p><b>ปริมาณยา (จาก stock):</b> {{ final_result_1|round(2) }} ml</p>
+          <p><b>สารละลายที่ต้องเติมเพิ่ม:</b> {{ (final_result_2 - final_result_1)|round(2) }} ml</p>
+          <p class="highlight"><b>บริหารเข้าทารก:</b> {{ result_ml_2|round(2) }} ml → drip ~ 2 hr</p>
         </div>
       </div>
     {% endif %}
@@ -312,6 +323,141 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <!-- ---------- JS สำหรับ GitHub Pages ---------- -->
+  <script>
+  (function () {
+    var host = window.location.hostname || "";
+    // ให้ JS ทำงานเฉพาะตอนรันบน GitHub Pages
+    if (!host.endsWith("github.io")) return;
+
+    var formDose = document.getElementById("vanco-dose-form");
+    var formCond = document.getElementById("vanco-cond-form");
+    if (!formDose || !formCond) return;
+
+    var step2Box   = document.getElementById("vanco-step2-box");
+    var doseInput  = document.getElementById("dose");
+    var concSelect = document.getElementById("concentration");
+    var multSelect = document.getElementById("multiplication");
+    if (!doseInput || !concSelect || !multSelect) return;
+
+    var hiddenDose = formCond.querySelector('input[name="dose_hidden"]');
+    var hiddenConc = formCond.querySelector('input[name="concentration_hidden"]');
+    var hiddenR1   = formCond.querySelector('input[name="result_ml_1_hidden"]');
+    var hiddenR2   = formCond.querySelector('input[name="result_ml_2_hidden"]');
+
+    var doseVal = null;
+    var concVal = null;
+    var r1 = null;
+    var r2 = null;
+
+    function round2(x) {
+      return Math.round((x + Number.EPSILON) * 100) / 100;
+    }
+
+    function createOrGetBox(id, refNode) {
+      var box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement("div");
+        box.id = id;
+        box.className = "result";
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+      }
+      return box;
+    }
+
+    // STEP 1: คำนวณจาก dose + concentration
+    formDose.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var rawDose = (doseInput.value || "").trim();
+      var rawConc = (concSelect.value || "").trim();
+
+      var d = parseFloat(rawDose);
+      var c = parseFloat(rawConc);
+
+      if (!rawDose || isNaN(d) || d <= 0) {
+        alert("กรุณากรอกขนาดยา (mg) เป็นตัวเลข > 0");
+        return;
+      }
+      if (!rawConc || isNaN(c) || c <= 0) {
+        alert("กรุณาเลือกความเข้มข้น (mg/ml)");
+        return;
+      }
+
+      doseVal = round2(d);
+      concVal = round2(c);
+
+      // ขั้นที่ 1: จาก stock 50 mg/ml → ml = mg × 10 ÷ 500
+      r1 = round2(doseVal * 10.0 / 500.0);
+      // ขั้นที่ 2: ความเข้มข้นเป้าหมาย → ml = mg ÷ conc
+      r2 = round2(doseVal / concVal);
+
+      if (hiddenDose) hiddenDose.value = doseVal.toFixed(2);
+      if (hiddenConc) hiddenConc.value = concVal.toFixed(2);
+      if (hiddenR1)   hiddenR1.value   = r1.toFixed(2);
+      if (hiddenR2)   hiddenR2.value   = r2.toFixed(2);
+
+      var box = createOrGetBox("gh-vanco-step1", formDose.closest(".calc-box"));
+      box.innerHTML =
+        "<p class='order-line'><b>Order:</b> Vancomycin " + doseVal.toFixed(2) + " mg</p>" +
+        "<div class='left-align muted'>" +
+          "<p><b>หลังละลาย:</b> เติม Sterile water 10 ml → ได้สารละลาย 10 ml ⇒ <b>50 mg/ml</b></p>" +
+          "<p><b>ขั้นที่ 1 (จาก stock 50 mg/ml):</b> " +
+            "<span class='mono'>ml = mg × 10 ÷ 500</span> ⇒ " +
+            "<span class='pill'>" + r1.toFixed(2) + "</span> ml</p>" +
+          "<p><b>ขั้นที่ 2 (ความเข้มข้นเป้าหมาย " + concVal.toFixed(0) + " mg/ml):</b> " +
+            "<span class='mono'>ml = mg ÷ " + concVal.toFixed(0) + "</span> ⇒ " +
+            "<span class='pill'>" + r2.toFixed(2) + "</span> ml</p>" +
+        "</div>";
+
+      // เปิดรอบที่ 2
+      if (step2Box) {
+        step2Box.style.display = "block";
+        step2Box.style.opacity = "1";
+        step2Box.style.pointerEvents = "auto";
+      }
+    });
+
+    // STEP 2: คูณปริมาตร
+    formCond.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      if (doseVal === null || r1 === null || r2 === null) {
+        alert("โปรดคำนวณรอบแรกก่อน");
+        return;
+      }
+
+      var mRaw = (multSelect.value || "").trim();
+      var m = parseFloat(mRaw);
+      if (!mRaw || isNaN(m)) {
+        alert("กรุณาเลือกตัวคูณ");
+        return;
+      }
+
+      var final1 = round2(r1 * m);
+      var final2 = round2(r2 * m);
+      var dil    = round2(final2 - final1);
+
+      var box = createOrGetBox("gh-vanco-step2", formCond.closest(".calc-box"));
+      box.innerHTML =
+        "<p class='order-line'><b>ผลลัพธ์หลังจากคูณ " + mRaw + " เท่า</b></p>" +
+        "<div class='left-align muted'>" +
+          "<p>" + mRaw + " × " + r1.toFixed(2) + " ml = " +
+            "<span class='pill'>" + final1.toFixed(2) + "</span> ml " +
+            "<span class='muted'>(จาก stock 50 mg/ml)</span></p>" +
+          "<p>" + mRaw + " × " + r2.toFixed(2) + " ml = " +
+            "<span class='pill'>" + final2.toFixed(2) + "</span> ml " +
+            "<span class='muted'>(รวมปริมาตรตามความเข้มข้นเป้าหมาย)</span></p>" +
+          "<p class='highlight'><b>ปริมาณยา (จาก stock):</b> " +
+            final1.toFixed(2) + " ml</p>" +
+          "<p class='highlight'><b>สารละลายที่ต้องเติมเพิ่ม:</b> " +
+            dil.toFixed(2) + " ml</p>" +
+          "<p><b>บริหารเข้าทารก:</b> " + r2.toFixed(2) + " ml → drip ~ 2 hr</p>" +
+        "</div>";
+    });
+  })();
+  </script>
 
 </body>
 </html>

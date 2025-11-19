@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -102,11 +102,17 @@
     padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
   }
   .result b{ color:#0b2b7a; }
-  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .mono{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
+  }
   .muted{ color:#334155; }
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+
+  .order-line{ font-weight:900; margin:0 0 6px; text-align:center; }
+  .left-align{ text-align:left; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -129,10 +135,9 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ: label + field ให้อยู่บรรทัดเดียว ========== */
   @media (max-width: 640px){
-    .dose-row, .conc-row{
+    .dose-row{
       display:grid;
       grid-template-columns:auto 1fr;  /* label | field */
       align-items:center;
@@ -141,30 +146,23 @@
       max-width:520px;
       margin-left:auto; margin-right:auto;
     }
-    .dose-row > label,
-    .conc-row > label{
+    .dose-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
-    .dose-row > input[type="number"],
-    .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+    .dose-row > input[type="number"]{
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
-    .dose-row > label,
-    .conc-row > label{ font-size:13px; max-width:42vw; }
-    .dose-row > input[type="number"],
-    .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
+    .dose-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"]{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -180,47 +178,76 @@
 
   <div class="container">
     <!-- ฟอร์มคำนวณ -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <div class="calc-box">
+      <form id="nimbex-form"
+            class="calc-row"
+            action="{{ u('nimbex') }}"
+            method="post">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
 
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
-
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
-    {% endif %}
-
-    {% if dose is not none %}
-      {% set ml_calc = (result_ml if result_ml is not none else (dose / 2.0)) %}
-      {% set diluent = (10 - ml_calc) %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Cisatracurium (Nimbex) {{ dose|fmt(2) }} mg</p>
-        <div class="left-align muted">
-          <p><b>ความแรงอ้างอิง:</b> 10 mg / 5 ml ⇒ <b>2 mg/ml</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 2</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 2</span> = <span class="pill">{{ ml_calc|round(2) }} ml</span></p>
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ทำแบบ Small dose (Up to 10 ml):</b> เติม D5W / 0.9% NSS จนได้ปริมาตรรวม 10 ml</p>
-          <p>ตัวทำละลายที่ต้องเติม = <span class="mono">10 − {{ ml_calc|round(2) }}</span>
-            = <span class="pill">{{ (diluent if diluent>0 else 0)|round(2) }} ml</span></p>
-        </div>
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
       </div>
     {% endif %}
 
+    <p class="muted" style="text-align:center; margin-top:4px;">
+      สต็อก: 10 mg / 5 ml ⇒ ความแรงประมาณ 2 mg/ml
+    </p>
+
+    <!-- กล่องผลลัพธ์ -->
+    <div id="result-box"
+         class="result"
+         style="{% if dose is not none and result_ml is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none and result_ml is not none %}
+        {% set ml_calc = result_ml %}
+        {% set diluent = (10 - ml_calc) %}
+        <p class="order-line">
+          <b>Order:</b> Cisatracurium (Nimbex) {{ dose|fmt(2) }} mg
+        </p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิง:</b> 10 mg / 5 ml ⇒ <b>2 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 2</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              {{ dose|fmt(2) }} ÷ 2
+              = <span class="pill">{{ ml_calc|round(2) }} ml</span>
+            </span>
+          </p>
+
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+
+          <p><b>ทำแบบ Small dose (Up to 10 ml):</b></p>
+          <p>
+            เติม D5W / 0.9% NSS ให้มีปริมาตรรวม 10 ml<br>
+            ตัวทำละลายที่ต้องเติม =
+            <span class="mono">10 − {{ ml_calc|round(2) }}</span>
+            = <span class="pill">{{ (diluent if diluent > 0 else 0)|round(2) }} ml</span>
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
-      <p class="section-head">Solvent (การเตรียม)</p>
+      <p class="section-head">Solvent / การเตรียม</p>
       <ul class="muted">
-        <li>รูปแบบยา: Solution</li>
-        <li><u>ความแรงสต็อก:</u> <b>2 mg/ml</b></li>
-        <li><u>Small dose:</u> ยา <b>1 ml</b> + D5W/NSS เติม <b>ถึง 10 ml</b> ⇒ ~0.2 mg/ml</li>
+        <li>รูปแบบยา: Solution (2 mg/ml)</li>
+        <li><u>Small dose:</u> ยา 1 ml + D5W/NSS เติมถึง 10 ml ⇒ ~0.2 mg/ml</li>
       </ul>
 
       <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
@@ -240,9 +267,8 @@
 
       <p class="section-head">ข้อควรระวัง / การติดตาม</p>
       <ul class="muted">
-        <li>BP, RR, HR, BT</li>
-        <li>Signs of infection</li>
-        <li>Pulmonary hypertension</li>
+        <li>BP, HR, SpO<sub>2</sub>, RR</li>
+        <li>Neuromuscular monitoring (TOF)</li>
       </ul>
     </div>
   </div><!-- /container -->
@@ -252,9 +278,81 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
+
+  <!-- JS: สำหรับโหมด docs / GitHub Pages -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
+
+    // ปรับลิงก์ Back ในโหมด GitHub
+    if (isGithub) {
+      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ถ้าไม่ได้รันบน github.io → ให้ Flask จัดการ form ปกติ
+    if (!isGithub) return;
+
+    const form      = document.getElementById('nimbex-form');
+    const doseInput = document.getElementById('dose');
+    const resultBox = document.getElementById('result-box');
+
+    if (!form || !doseInput || !resultBox) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (mg) ให้ถูกต้อง');
+        return;
+      }
+
+      // สต็อก 2 mg/ml → ml = mg ÷ 2
+      const ml = doseVal / 2.0;
+      let diluent = 10 - ml;
+      if (diluent < 0) diluent = 0;
+
+      const doseStr = doseVal.toFixed(2);
+      const mlStr   = ml.toFixed(2);
+      const dilStr  = diluent.toFixed(2);
+
+      resultBox.innerHTML = `
+        <p class="order-line">
+          <b>Order:</b> Cisatracurium (Nimbex) ${doseStr} mg
+        </p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิง:</b> 10 mg / 5 ml ⇒ <b>2 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 2</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              ${doseStr} ÷ 2
+              = <span class="pill">${mlStr} ml</span>
+            </span>
+          </p>
+
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+
+          <p><b>ทำแบบ Small dose (Up to 10 ml):</b></p>
+          <p>
+            เติม D5W / 0.9% NSS ให้มีปริมาตรรวม 10 ml<br>
+            ตัวทำละลายที่ต้องเติม =
+            <span class="mono">10 − ${mlStr}</span>
+            = <span class="pill">${dilStr} ml</span>
+          </p>
+        </div>
+      `;
+      resultBox.style.display = 'block';
+    });
+  })();
+  </script>
 
 </body>
 </html>

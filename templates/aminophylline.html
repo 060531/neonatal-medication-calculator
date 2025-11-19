@@ -2,7 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Aminophylline Calculation</title>
   <style>
     :root{ --floatbar-gap:90px; }
@@ -72,6 +73,17 @@
     .item{ margin-left:20px; }
     .item::before{ content:"☞ "; margin-right:5px; }
 
+    .error-msg{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:8px;
+      background:#fee2e2;
+      border:1px solid #fecaca;
+      color:#b91c1c;
+      font-size:14px;
+      text-align:left;
+    }
+
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:2px 2px 5px rgba(0,0,0,.7);
       margin:6px 0 var(--floatbar-gap); font-size:14px;
@@ -88,6 +100,8 @@
     .back-button{ background:#f44336; }
     .back-button-secondary:hover,.back-button:hover{ filter:brightness(1.06); }
 
+    .hidden{ display:none !important; }
+
     @media (max-width:768px){
       .container{ padding:15px; }
       .float-actions .btn{ min-width:120px; }
@@ -99,45 +113,47 @@
   <h2>Aminophylline (250mg/10ml)</h2>
 
   <div class="container">
-    <!-- ฟอร์มคำนวณ (Flask) -->
-    <form action="{{ u('aminophylline_route') }}" method="post" class="calc-box form-card">
+    <!-- ฟอร์มคำนวณ (Flask + GitHub) -->
+    <form action="{{ u('aminophylline_route') }}"
+      method="post"
+      class="calc-box form-card">
       <input type="hidden" name="action" value="dose" />
       <div class="dose-row">
         <label for="dose">กรอกขนาดยา (mg):</label>
-        <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
-               required step="0.01"
-               value="{{ dose if dose is not none else '' }}">
+        <input
+          type="number"
+          id="dose"
+          name="dose"
+          placeholder="ขนาดยา (mg)"
+          required
+          step="0.01"
+          value="{% if dose is not none %}{{ '%.2f'|format(dose) }}{% endif %}">
       </div>
       <div class="btn-wrap">
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </div>
     </form>
 
+    <!-- แสดง error จาก Flask -->
     {% if error %}
-      <div class="result" style="background:#fff0f0;border-color:#f2b6b6;color:#9b1c1c">
-        {{ error }}
-      </div>
+    <div class="error-msg">
+      {{ error }}
+    </div>
     {% endif %}
 
-    {# แสดงผลเมื่อมีการคำนวณผ่าน Flask #}
-    {% if dose is not none and result_ml is not none %}
-      <div class="result">
-        <p style="text-align:center;margin:6px 0;">
-          <b>Order :</b>
-          Aminophylline {{ '%.2f'|format(dose) }} mg
+    <!-- กล่องผลลัพธ์ฝั่ง Flask -->
+    <div id="result"
+         class="result {% if result_ml is none %}hidden{% endif %}">
+      {% if result_ml is not none and dose is not none %}
+        <p><b>ขนาดยา:</b> {{ '%.2f'|format(dose) }} mg</p>
+        <p><b>สูตรที่ใช้:</b> u = mg × 10</p>
+        <p>
+          แทนค่า:
+          {{ '%.2f'|format(dose) }} × 10
+          = <span class="pill-red">{{ result_ml }}</span> หน่วย (u)
         </p>
-        <div class="left-align">
-          <p><b>วิธีเตรียมตัวอย่าง:</b> 5% Dextrose in water 60 u + ยา 40 u (10 mg)</p>
-          <p>
-            <b>สูตร:</b> <code>u = mg × 10</code>
-            &nbsp;⇒&nbsp; <b>ขนาดยาที่ใช้:</b>
-            <span style="background:#ff3c00;padding:3px 6px;border-radius:6px;font-weight:800;">
-              {{ result_ml|int }} u
-            </span>
-          </p>
-        </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     <!-- ข้อมูลทางคลินิก -->
     <div class="left-align" style="margin-top:10px">
@@ -173,12 +189,12 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}"
+    <a href="/medication_administration"
        class="btn back-button-secondary"
        data-nav="med">
       Back
     </a>
-    <a href="{{ u('index') }}"
+    <a href="/"
        class="btn back-button"
        data-nav="home">
       Back to Home
@@ -196,7 +212,6 @@
       var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
       var backHome = document.querySelector('.float-actions a[data-nav="home"]');
 
-      // ให้ชี้ไปไฟล์ภายใน docs (root ของ GitHub Pages ของโปรเจกต์นี้)
       if (backMed)  backMed.href  = "./medication_administration.html";
       if (backHome) backHome.href = "./index.html";
     }
@@ -214,6 +229,9 @@
         box = document.createElement("div");
         box.id = "gh-aminophylline-result";
         box.className = "result";
+        // ซ่อนกล่อง result ของ Flask (ถ้ามีอยู่ใน HTML ที่ export มา)
+        var flaskBox = document.getElementById("result");
+        if (flaskBox) flaskBox.classList.add("hidden");
         form.parentNode.insertBefore(box, form.nextSibling);
       }
       return box;
@@ -234,14 +252,15 @@
         return;
       }
 
-      // logic ให้เหมือนฝั่ง Flask: result_ml = int(round(dose * 10))
+      // สูตรเดียวกับฝั่ง Flask: u = mg × 10
       var result = Math.round(d * 10);
 
       var box = createOrGetResultBox();
       box.innerHTML =
         "<p><b>ขนาดยา:</b> " + d.toFixed(2) + " mg</p>" +
-        "<p>ผลลัพธ์ (u = mg × 10) = " +
-        "<span class='pill-red'>" + result + "</span> หน่วย</p>";
+        "<p><b>สูตรที่ใช้:</b> u = mg × 10</p>" +
+        "<p>แทนค่า: " + d.toFixed(2) + " × 10 = " +
+        "<span class='pill-red'>" + result + "</span> หน่วย (u)</p>";
     });
   })();
   </script>

@@ -269,7 +269,7 @@ def create_app(testing: bool = False, update_date: str = None):
             {"label": "Phenytoin (Dilantin)", "endpoint": "phenytoin_route"},
 
             # R
-            {"label": "Remdesivir", "endpoint": "remdsivir_route"},
+            {"label": "Remdesivir", "endpoint": "remdesivir_route"},
 
             # S
             {"label": "Sul-am®", "endpoint": "sul_am_route"},
@@ -280,7 +280,7 @@ def create_app(testing: bool = False, update_date: str = None):
             {"label": "Tazocin", "endpoint": "tazocin_route"},
 
             # U
-            {"label": "Unasyn", "endpoint": "unasyun_route"},
+            {"label": "Unasyn", "endpoint": "unasyn_route"},
 
             # V
             {"label": "Vancomycin", "endpoint": "vancomycin_route"},

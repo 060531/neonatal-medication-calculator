@@ -1111,33 +1111,63 @@ def levofloxacin_route():
                            multiplication=multiplication, result_ml=result_ml,
                            final_result=final_result, update_date=UPDATE_DATE)
 
-
 @meds_bp.route('/meropenem', methods=['GET', 'POST'])
 def meropenem_route():
     dose = result_ml = final_result = multiplication = None
     error = formula_display = None
     content_extra = None
+
+    def ml_from_dose(d):  # 50 mg/mL
+        return _round2(float(d) / 50.0)
+
     try:
         if request.method == 'POST':
-            action = (request.form.get('action') or '').strip().lower()
+            action = (request.form.get('action') or 'dose').strip().lower()
+
+            # รอบที่ 1: คำนวณ mg → ml
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                if dose <= 0: raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
-                result_ml = _round2(dose / 50.0)  # target 50 mg/mL (รวม ~20 mL)
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                result_ml = ml_from_dose(dose)
+
+            # รอบที่ 2: ใช้ dose_hidden / result_ml_hidden + multiplication
             elif action == 'condition':
-                dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
-                result_ml = _as_float(request.form.get('result_ml_hidden'), 'result_ml_hidden')
-                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                if multiplication not in (3, 6): raise ValueError("ต้องเป็น 3 หรือ 6")
+                multiplication = _as_int(
+                    request.form.get('multiplication'), 'multiplication'
+                )
+
+                dose_hidden = (request.form.get('dose_hidden') or '').strip()
+                result_hidden = (request.form.get('result_ml_hidden') or '').strip()
+
+                if dose_hidden:
+                    dose = _as_float(dose_hidden, 'dose_hidden')
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml = ml_from_dose(dose)
+                elif result_hidden:
+                    result_ml = _round2(float(result_hidden))
+                    dose = _round2(result_ml * 50.0)
+                else:
+                    raise ValueError("ไม่พบค่าตั้งต้น (dose/result_ml)")
+
+                if multiplication not in (3, 6):
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6")
+
                 final_result = _round2(result_ml * multiplication)
                 content_extra = _content_extra_by_mult(multiplication)
+
+            # fallback: โพสต์ครั้งเดียวแล้วส่งทั้ง dose + multiplication
             else:
                 raw_dose = request.form.get('dose')
                 raw_mult = request.form.get('multiplication')
+
                 if raw_dose:
                     dose = _as_float(raw_dose, 'dose')
-                    if dose <= 0: raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
-                    result_ml = _round2(dose / 50.0)
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml = ml_from_dose(dose)
+
                 if raw_mult:
                     multiplication = _as_int(raw_mult, 'multiplication')
                     if multiplication not in (3, 6):
@@ -1146,12 +1176,21 @@ def meropenem_route():
                         raise ValueError("ไม่พบผลรอบแรก")
                     final_result = _round2(result_ml * multiplication)
                     content_extra = _content_extra_by_mult(multiplication)
+
     except Exception as e:
         error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    return render_template('meropenem.html',
-                           dose=dose, result_ml=result_ml, final_result=final_result,
-                           multiplication=multiplication, content_extra=content_extra,
-                           formula_display=formula_display, error=error, update_date=UPDATE_DATE)
+
+    return render_template(
+        'meropenem.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=formula_display,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 
 @meds_bp.route('/metronidazole', methods=['GET', 'POST'])
@@ -1230,43 +1269,102 @@ def morphine_route():
 
 @meds_bp.route('/morphine_continuous', methods=['GET', 'POST'])
 def morphine_continuous_route():
-    dose = result = error = None
-    if request.method == 'POST':
-        try:
-            dose = _as_float(request.form.get('dose'), 'dose')
-            result = _round2(dose * 0.1)
-        except Exception as e:
-            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
-    return render_template('morphine_continuous.html',
-                           dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+    original_dosage = original_volume = desired_dosage = None
+    target_volume = morphine_vol = diluent = None
+    error = None
+
+    try:
+        if request.method == 'POST':
+            raw_od = request.form.get('original_dosage')
+            raw_ov = request.form.get('original_volume')
+            raw_dd = request.form.get('desired_dosage')
+
+            if raw_od and raw_ov and raw_dd:
+                original_dosage = _as_float(raw_od, 'original_dosage')   # mg
+                original_volume = _as_float(raw_ov, 'original_volume')   # ml
+                desired_dosage  = _as_float(raw_dd, 'desired_dosage')    # mg
+
+                if original_dosage <= 0 or original_volume <= 0 or desired_dosage <= 0:
+                    raise ValueError("ค่าทุกตัวต้องมากกว่า 0")
+
+                # ปริมาตรเป้าหมายตามสัดส่วน order เดิม
+                target_volume = _round2(desired_dosage / original_dosage * original_volume)
+
+                # สต็อก morphine 10 mg/ml → ปริมาตรยาที่ต้องดูด
+                morphine_vol = _round2(desired_dosage / 10.0)
+
+                # ตัวทำละลาย
+                diluent = _round2(target_volume - morphine_vol)
+    except Exception as e:
+        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'morphine_continuous.html',
+        original_dosage=original_dosage,
+        original_volume=original_volume,
+        desired_dosage=desired_dosage,
+        target_volume=target_volume,
+        morphine_vol=morphine_vol,
+        diluent=diluent,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 
 @meds_bp.route('/morphine_small_dose', methods=['GET', 'POST'])
 def morphine_small_dose_route():
-    dose = result = error = None
-    if request.method == 'POST':
-        try:
-            dose = _as_float(request.form.get('dose'), 'dose')
-            result = _round2(dose * 0.1)
-        except Exception:
-            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
-    return render_template('morphine_small_dose.html',
-                           dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+    dose = units = error = None
+    try:
+        if request.method == 'POST':
+            raw_dose = request.form.get('dose')
+            if raw_dose:
+                dose = _as_float(raw_dose, 'dose')
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+
+                # Small dose: 1 mg ใน 100 u → 0.01 mg/u ⇒ u = mg × 100
+                units = int(round(dose * 100))
+    except Exception as e:
+        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'morphine_small_dose.html',
+        dose=dose,
+        units=units,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 
 @meds_bp.route('/nimbex', methods=['GET', 'POST'])
 def nimbex_route():
-    dose = result_ml = final_ml = error = None
-    if request.method == 'POST':
-        try:
-            dose = _as_float(request.form.get('dose'), 'dose')
-            result_ml = _round2(dose * 5 / 10)
-            final_ml = _round2(10 - result_ml)
-        except Exception as e:
-            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    return render_template('nimbex.html',
-                           dose=dose, result_ml=result_ml, final_ml=final_ml,
-                           error=error, update_date=UPDATE_DATE)
+    dose = result_ml = final_ml = None
+    error = None
+    try:
+        if request.method == 'POST':
+            raw_dose = request.form.get('dose')
+            if raw_dose:
+                dose = _as_float(raw_dose, 'dose')
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+
+                # ความแรงสต็อก: 10 mg / 5 ml = 2 mg/ml
+                # สูตร: ml = mg ÷ 2
+                result_ml = _round2(dose / 2.0)
+
+                # Small dose: เติมสารละลายให้ครบ 10 ml
+                final_ml = _round2(10 - result_ml)
+    except Exception as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'nimbex.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_ml=final_ml,   # เผื่ออยากใช้ใน template ภายหลัง
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 
 @meds_bp.route('/omeprazole', methods=['GET', 'POST'])
@@ -1279,56 +1377,81 @@ def omeprazole_route():
 
     try:
         if request.method == 'POST':
-            action = request.form.get('action')
+            action = (request.form.get('action') or 'dose').strip()
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                if dose <= 0: raise ValueError("dose ต้องมากกว่า 0")
+                if dose <= 0:
+                    raise ValueError("dose ต้องมากกว่า 0")
                 result_ml = ml_from_dose(dose)
+
             elif action == 'condition':
                 multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                dose_hidden = request.form.get('dose_hidden')
-                result_ml_hidden = request.form.get('result_ml_hidden')
+                dose_hidden = request.form.get('dose_hidden') or ''
+                result_ml_hidden = request.form.get('result_ml_hidden') or ''
+
                 if dose_hidden:
                     dose = _as_float(dose_hidden, 'dose_hidden')
-                    if dose <= 0: raise ValueError("dose ต้องมากกว่า 0")
+                    if dose <= 0:
+                        raise ValueError("dose ต้องมากกว่า 0")
                     result_ml = ml_from_dose(dose)
                 elif result_ml_hidden:
                     result_ml = _round2(float(result_ml_hidden))
                     dose = _round2(result_ml * 4.0)
                 else:
                     raise ValueError("ไม่พบค่าตั้งต้น (dose/result_ml)")
+
                 final_result = _round2(result_ml * multiplication)
                 content_extra = _content_extra_by_mult(multiplication)
+
             else:
-                # โหมดโพสต์เดียว
+                # โหมดโพสต์เดียว (ถ้าเผลอส่ง action อื่นมา)
                 dose = _as_float(request.form.get('dose'), 'dose')
                 multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                if dose <= 0: raise ValueError("dose ต้องมากกว่า 0")
+                if dose <= 0:
+                    raise ValueError("dose ต้องมากกว่า 0")
                 result_ml = ml_from_dose(dose)
                 final_result = _round2(result_ml * multiplication)
                 content_extra = _content_extra_by_mult(multiplication)
+
     except Exception as e:
         error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
 
-    return render_template('omeprazole.html',
-                           dose=dose, result_ml=result_ml, final_result=final_result,
-                           multiplication=multiplication, content_extra=content_extra,
-                           formula_display=None, error=error, update_date=UPDATE_DATE)
-
+    return render_template(
+        'omeprazole.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        formula_display=None,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/penicillin', methods=['GET', 'POST'])
 def penicillin_g_sodium_route():
-    dose = calculated_ml = error = None
-    if request.method == 'POST':
-        try:
-            dose = _as_float(request.form.get('dose'), 'dose')
-            calculated_ml = _round2((dose * 10) / 5_000_000)
-        except Exception:
-            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
-    return render_template('penicillin_g_sodium.html',
-                           dose=dose, calculated_ml=calculated_ml,
-                           error=error, update_date=UPDATE_DATE)
+    dose = calculated_ml = None
+    error = None
+    try:
+        if request.method == 'POST':
+            raw_dose = request.form.get('dose')
+            if raw_dose:
+                dose = _as_float(raw_dose, 'dose')
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 unit")
+                # 5 MU / vial = 5,000,000 unit → เติมตัวทำละลายให้ครบ 10 ml
+                # สูตรโชว์หน้าเว็บ: ml = (unit × 10) ÷ 5,000,000
+                calculated_ml = _round2((dose * 10.0) / 5_000_000.0)
+    except Exception as e:
+        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
 
+    return render_template(
+        'penicillin_g_sodium.html',
+        dose=dose,
+        calculated_ml=calculated_ml,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/phenobarbital', methods=['GET', 'POST'])
 def phenobarbital_route():
@@ -1361,175 +1484,421 @@ def phenytoin_route():
 
 @meds_bp.route('/remdesivir', methods=['GET', 'POST'])
 def remdesivir_route():
-    dose = result_ml_1 = result_ml_2 = final_result_1 = final_result_2 = multiplication = error = None
-    if request.method == 'POST':
-        try:
-            dose = _as_float(request.form.get('dose'), 'dose')
-            result_ml_1 = _round2((dose * 20) / 100)  # ตามสูตรเดิม
-            result_ml_2 = _round2(dose / 1.25)
-            if request.form.get('multiplication'):
-                multiplication = _as_float(request.form.get('multiplication'), 'multiplication')
+    dose = result_ml_1 = result_ml_2 = None
+    final_result_1 = final_result_2 = None
+    multiplication = None
+    error = None
+
+    def ml1_from_dose(d):
+        # หลังละลาย 100 mg → 20 ml = 5 mg/ml
+        return _round2(float(d) * 20.0 / 100.0)
+
+    def ml2_from_dose(d):
+        # จำกัดความเข้ม ≤ 1.25 mg/ml
+        return _round2(float(d) / 1.25)
+
+    try:
+        if request.method == 'POST':
+            action = (request.form.get('action') or 'dose').strip().lower()
+
+            # รอบที่ 1: คำนวณจาก dose ครั้งแรก
+            if action == 'dose':
+                dose = _as_float(request.form.get('dose'), 'dose')
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                result_ml_1 = ml1_from_dose(dose)
+                result_ml_2 = ml2_from_dose(dose)
+
+            # รอบที่ 2: ใช้ค่าที่ซ่อนอยู่ + multiplication
+            elif action == 'condition':
+                dose_hidden = (request.form.get('dose_hidden') or '').strip()
+                res1_hidden = (request.form.get('result_ml_1_hidden') or '').strip()
+                res2_hidden = (request.form.get('result_ml_2_hidden') or '').strip()
+
+                if dose_hidden:
+                    dose = _as_float(dose_hidden, 'dose_hidden')
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml_1 = ml1_from_dose(dose)
+                    result_ml_2 = ml2_from_dose(dose)
+                elif res1_hidden and res2_hidden:
+                    result_ml_1 = _round2(float(res1_hidden))
+                    result_ml_2 = _round2(float(res2_hidden))
+                    # ถ้าต้องการย้อนกลับหาขนาดยา สามารถคำนวณได้จากสูตร แต่ไม่จำเป็นต่อการแสดงผล
+                else:
+                    raise ValueError("ไม่พบค่าตั้งต้น (dose/result_ml)")
+
+                multiplication = _as_float(
+                    request.form.get('multiplication'), 'multiplication'
+                )
+                if multiplication <= 0:
+                    raise ValueError("multiplication ต้องมากกว่า 0")
+
                 final_result_1 = _round2(result_ml_1 * multiplication)
                 final_result_2 = _round2(result_ml_2 * multiplication)
-        except Exception as e:
-            error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    return render_template('remdesivir.html',
-                           dose=dose, result_ml_1=result_ml_1, result_ml_2=result_ml_2,
-                           final_result_1=final_result_1, final_result_2=final_result_2,
-                           multiplication=multiplication, error=error, update_date=UPDATE_DATE)
+
+            # fallback: เผื่อส่ง dose + multiplication มาทีเดียว
+            else:
+                raw_dose = request.form.get('dose')
+                raw_mult = request.form.get('multiplication')
+
+                if raw_dose:
+                    dose = _as_float(raw_dose, 'dose')
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml_1 = ml1_from_dose(dose)
+                    result_ml_2 = ml2_from_dose(dose)
+
+                if raw_mult:
+                    multiplication = _as_float(raw_mult, 'multiplication')
+                    if multiplication <= 0:
+                        raise ValueError("multiplication ต้องมากกว่า 0")
+                    if result_ml_1 is None or result_ml_2 is None:
+                        raise ValueError("ไม่พบผลรอบแรก")
+                    final_result_1 = _round2(result_ml_1 * multiplication)
+                    final_result_2 = _round2(result_ml_2 * multiplication)
+
+    except Exception as e:
+        error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'remdesivir.html',
+        dose=dose,
+        result_ml_1=result_ml_1,
+        result_ml_2=result_ml_2,
+        final_result_1=final_result_1,
+        final_result_2=final_result_2,
+        multiplication=multiplication,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 
 @meds_bp.route('/sul-am', methods=['GET', 'POST'])
 def sul_am_route():
     dose = result_ml = multiplication = final_result = None
     content_extra = error = None
-    if request.method == 'POST':
-        action = (request.form.get('action') or 'dose').strip()
-        try:
+
+    try:
+        if request.method == 'POST':
+            action = (request.form.get('action') or 'dose').strip()
+
+            # รอบที่ 1: คำนวณ mg → ml
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                if dose <= 0: raise ValueError('dose must be > 0')
-                # 3 g → เติมรวม 8 mL ⇒ 375 mg/mL  => ml = (dose*8)/3000
+                if dose <= 0:
+                    raise ValueError('dose must be > 0')
+
+                # 3 g / vial → เติมรวม 8 mL  ⇒ 375 mg/mL
+                # สูตร: ml = (dose * 8) / 3000
                 result_ml = _round2((dose * 8.0) / 3000.0)
+
+            # รอบที่ 2: เลือกตัวคูณ 3X หรือ 6X
             elif action == 'condition':
                 dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
                 result_ml = _as_float(request.form.get('result_ml_hidden'), 'result_ml_hidden')
                 multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                final_result = _round2(result_ml * multiplication)
-                # กฎพิเศษ: ถ้า final_result ถึง 9 หรือ 6 mL ให้ “ไม่ต้องผสม”
-                if multiplication == 3:
-                    content_extra = (_content_extra_by_mult(3) if final_result < 9
-                                     else {"message": "ดูดยา 9 mL ไม่ต้องผสมสารละลาย",
-                                           "details": ["ให้เข้า ~3 mL ตั้งอัตรา ~6 mL/hr"]})
-                elif multiplication == 6:
-                    content_extra = (_content_extra_by_mult(6) if final_result < 6
-                                     else {"message": "ดูดยา 6 mL ไม่ต้องผสมสารละลาย",
-                                           "details": ["ให้เข้า ~1 mL ตั้งอัตรา ~2 mL/hr"]})
-            else:
-                raise ValueError('unknown action')
-        except Exception:
-            error = "กรุณากรอกข้อมูลที่ถูกต้อง"
-    return render_template('sul_am.html',
-                           dose=dose, result_ml=result_ml, multiplication=multiplication,
-                           final_result=final_result, content_extra=content_extra,
-                           error=error, update_date=UPDATE_DATE)
 
+                if multiplication not in (3, 6):
+                    raise ValueError("multiplication must be 3 or 6")
+
+                final_result = _round2(result_ml * multiplication)
+                # ใช้ข้อความอธิบายจาก helper เดิม
+                content_extra = _content_extra_by_mult(multiplication)
+
+            else:
+                raise ValueError("unknown action")
+
+    except Exception as e:
+        # ถ้าอยาก debug รายละเอียด เพิ่ม f" ({e})" ชั่วคราวได้
+        error = "กรุณากรอกข้อมูลที่ถูกต้อง"
+
+    return render_template(
+        'sul_am.html',
+        dose=dose,
+        result_ml=result_ml,
+        multiplication=multiplication,
+        final_result=final_result,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
 
 @meds_bp.route('/sulbactam', methods=['GET', 'POST'])
 def sulbactam_route():
-    dose = result_ml = final_result = multiplication = error = None
+    dose = result_ml = final_result = None
+    multiplication = None
     content_extra = None
+    error = None
+
     try:
         if request.method == 'POST':
             action = (request.form.get('action') or 'dose').strip()
+
+            # รอบที่ 1: คำนวณ mg → mL (2 g/vial, reconst. 8 mL → 250 mg/mL)
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                if dose < 0: raise ValueError('dose ต้องเป็นค่าบวก')
-                # 2 g/vial เติม 8 mL → 250 mg/mL => (dose*8)/2000
-                result_ml = _round2((dose * 8.0) / 2000.0)
-            elif action == 'condition':
-                dose = _as_float(request.form.get('dose_hidden') or request.form.get('dose'), 'dose_hidden')
-                res_h = request.form.get('result_ml_hidden')
-                result_ml = float(res_h) if res_h else _round2((dose * 8.0) / 2000.0)
-                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                if multiplication not in (3, 6): raise ValueError('multiplication ต้องเป็น 3 หรือ 6')
-                final_result = _round2(result_ml * multiplication)
-                if multiplication == 3:
-                    content_extra = (_content_extra_by_mult(3) if final_result < 9 else
-                                     {"message": "Intermittent infusion pump",
-                                      "details": ["(3X + diluent Up to 9 mL)", "ดูดยา 9 mL (ไม่ต้องผสม)", "ตั้ง ~6 mL/hr"]})
-                else:  # 6X
-                    content_extra = (_content_extra_by_mult(6) if final_result < 6 else
-                                     {"message": "Intermittent infusion",
-                                      "details": ["(6X + diluent Up to 6 mL)", "ดูดยา 6 mL (ไม่ต้องผสม)", "ตั้ง ~2 mL/hr"]})
-    except Exception as e:
-        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
-    return render_template('sulbactam.html',
-                           dose=dose, result_ml=result_ml, final_result=final_result,
-                           multiplication=multiplication, content_extra=content_extra,
-                           error=error, update_date=UPDATE_DATE)
+                if dose <= 0:
+                    raise ValueError('dose ต้องเป็นค่ามากกว่า 0')
 
+                # 2 g / vial → เติม 8 mL ⇒ 250 mg/mL
+                # สูตร: ml = (dose * 8) / 2000
+                result_ml = _round2((dose * 8.0) / 2000.0)
+
+            # รอบที่ 2: เลือกตัวคูณ (3 เท่า / 6 เท่า)
+            elif action == 'condition':
+                # ดึง dose จาก hidden (ถ้าไม่มี ให้ fallback ไปที่ dose ปกติ)
+                dose = _as_float(
+                    request.form.get('dose_hidden') or request.form.get('dose'),
+                    'dose_hidden'
+                )
+
+                res_h = request.form.get('result_ml_hidden')
+                if res_h:
+                    result_ml = _as_float(res_h, 'result_ml_hidden')
+                else:
+                    # กันกรณีไม่มี hidden result_ml ก็คิดใหม่
+                    result_ml = _round2((dose * 8.0) / 2000.0)
+
+                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
+                if multiplication not in (3, 6):
+                    raise ValueError('multiplication ต้องเป็น 3 หรือ 6')
+
+                final_result = _round2(result_ml * multiplication)
+
+                # เพิ่มข้อความประกอบ (จะใช้/ไม่ใช้ใน template ก็ได้)
+                if multiplication == 3:
+                    content_extra = (
+                        _content_extra_by_mult(3)
+                        if final_result < 9
+                        else {
+                            "message": "Intermittent infusion pump",
+                            "details": [
+                                "(3X + diluent Up to 9 mL)",
+                                "ดูดยา 9 mL (ไม่ต้องผสม)",
+                                "ตั้ง ~3 mL/hr (> 1 hr)"
+                            ]
+                        }
+                    )
+                else:  # 6 เท่า
+                    content_extra = (
+                        _content_extra_by_mult(6)
+                        if final_result < 6
+                        else {
+                            "message": "Intermittent infusion",
+                            "details": [
+                                "(6X + diluent Up to 6 mL)",
+                                "ดูดยา 6 mL (ไม่ต้องผสม)",
+                                "ตั้ง ~1 mL/hr (> 1 hr)"
+                            ]
+                        }
+                    )
+            else:
+                raise ValueError('unknown action')
+
+    except Exception as e:
+        # ถ้าไม่อยากโชว์รายละเอียด error จริง ๆ จะตัด {e} ทิ้งก็ได้
+        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'sulbactam.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
 
 @meds_bp.route('/sulperazone', methods=['GET', 'POST'])
 def sulperazone_route():
-    dose = result_ml = final_result = multiplication = error = None
+    dose = result_ml = final_result = None
+    multiplication = None
     content_extra = None
-    if request.method == 'POST':
-        try:
+    error = None
+
+    try:
+        if request.method == 'POST':
             action = (request.form.get('action') or 'dose').strip()
+
+            # รอบที่ 1: mg → ml
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml = _round2((dose * 10) / 500)
-            elif action == 'condition':
-                dose_hidden = request.form.get('dose_hidden', '')
-                result_ml_hidden = request.form.get('result_ml_hidden', '')
-                dose = float(dose_hidden) if dose_hidden != '' else None
-                if result_ml_hidden != '':
-                    result_ml = float(result_ml_hidden)
-                elif dose is not None:
-                    result_ml = _round2((dose * 10) / 500)
-                multiplication = _as_int(request.form.get('multiplication') or '0', 'multiplication')
-                if result_ml is not None and multiplication:
-                    final_result = _round2(result_ml * multiplication)
-                    content_extra = _content_extra_by_mult(multiplication)
-            else:
-                error = "คำสั่งไม่ถูกต้อง"
-        except Exception as e:
-            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
-    return render_template('sulperazone.html',
-                           dose=dose, result_ml=result_ml, final_result=final_result,
-                           multiplication=multiplication, content_extra=content_extra,
-                           error=error, update_date=UPDATE_DATE)
+                if dose <= 0:
+                    raise ValueError("dose ต้องเป็นค่ามากกว่า 0")
 
+                # จากที่คุณเขียนใช้สูตร: ml = mg × 10 ÷ 500
+                result_ml = _round2((dose * 10.0) / 500.0)
+
+            # รอบที่ 2: เลือกเงื่อนไข 3X หรือ 6X
+            elif action == 'condition':
+                # ถ้า hidden ไม่มี ให้ fallback ไปอ่านจาก dose ปกติ
+                dose = _as_float(
+                    request.form.get('dose_hidden') or request.form.get('dose'),
+                    'dose_hidden'
+                )
+
+                res_h = request.form.get('result_ml_hidden')
+                if res_h:
+                    result_ml = _as_float(res_h, 'result_ml_hidden')
+                else:
+                    # คิดใหม่กรณีไม่มี hidden
+                    result_ml = _round2((dose * 10.0) / 500.0)
+
+                multiplication = _as_int(
+                    request.form.get('multiplication') or '0',
+                    'multiplication'
+                )
+                if multiplication not in (3, 6):
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6")
+
+                final_result = _round2(result_ml * multiplication)
+
+                # ใช้ helper เดิมของคุณ (จะเป็น text อธิบายเพิ่ม)
+                content_extra = _content_extra_by_mult(multiplication)
+
+            else:
+                raise ValueError("unknown action")
+
+    except Exception as e:
+        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+
+    return render_template(
+        'sulperazone.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE
+    )
 
 @meds_bp.route('/tazocin', methods=['GET', 'POST'])
 def tazocin_route():
-    dose = result_ml = multiplication = error = None
+    dose = result_ml = final_result = multiplication = None
+    error = None
     content_extra = None
+
+    def ml_from_dose(d):  # Piperacillin 200 mg/mL
+        # dose (mg) * 20 mL / 4000 mg = dose / 200
+        return _round2(float(d) * 20.0 / 4000.0)
+
     try:
         if request.method == 'POST':
-            action = (request.form.get('action') or 'dose').strip()
+            action = (request.form.get('action') or 'dose').strip().lower()
+
+            # รอบที่ 1: คำนวณ mg → ml
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml = _round2((dose * 20.0) / 4000.0)  # = dose / 200
+                if dose <= 0:
+                    raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                result_ml = ml_from_dose(dose)
+
+            # รอบที่ 2: ใช้ dose_hidden / result_ml_hidden + multiplication
             elif action == 'condition':
-                dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
-                result_ml = _as_float(request.form.get('result_ml_hidden'), 'result_ml_hidden')
-                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                _ = _round2(result_ml * multiplication)
+                multiplication = _as_int(
+                    request.form.get('multiplication'), 'multiplication'
+                )
+
+                dose_hidden = (request.form.get('dose_hidden') or '').strip()
+                result_hidden = (request.form.get('result_ml_hidden') or '').strip()
+
+                if dose_hidden:
+                    dose = _as_float(dose_hidden, 'dose_hidden')
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml = ml_from_dose(dose)
+                elif result_hidden:
+                    result_ml = _round2(float(result_hidden))
+                    # ถ้าต้องการย้อนกลับไปหา dose:
+                    dose = _round2(result_ml * 200.0)
+                else:
+                    raise ValueError("ไม่พบค่าตั้งต้น (dose/result_ml)")
+
+                if multiplication not in (3, 6):
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6")
+
+                final_result = _round2(result_ml * multiplication)
                 content_extra = _content_extra_by_mult(multiplication)
+
+            # fallback: ส่ง dose + multiplication มารอบเดียว
+            else:
+                raw_dose = request.form.get('dose')
+                raw_mult = request.form.get('multiplication')
+
+                if raw_dose:
+                    dose = _as_float(raw_dose, 'dose')
+                    if dose <= 0:
+                        raise ValueError("ขนาดยาต้องมากกว่า 0 mg")
+                    result_ml = ml_from_dose(dose)
+
+                if raw_mult:
+                    multiplication = _as_int(raw_mult, 'multiplication')
+                    if multiplication not in (3, 6):
+                        raise ValueError("multiplication ต้องเป็น 3 หรือ 6")
+                    if result_ml is None:
+                        raise ValueError("ไม่พบผลรอบแรก")
+                    final_result = _round2(result_ml * multiplication)
+                    content_extra = _content_extra_by_mult(multiplication)
+
     except Exception as e:
         error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
-    return render_template('tazocin.html',
-                           dose=dose, result_ml=result_ml,
-                           multiplication=multiplication, content_extra=content_extra,
-                           error=error, update_date=UPDATE_DATE)
 
+    return render_template(
+        'tazocin.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/unasyn', methods=['GET', 'POST'])
 def unasyn_route():
-    dose = result_ml = final_result = multiplication = None
+    # ค่าเริ่มต้น
+    dose = result_ml = final_result = None
+    multiplication = None
     content_extra = error = None
+
     try:
         if request.method == 'POST':
             action = (request.form.get('action') or 'dose').strip()
+
+            # รอบที่ 1: คำนวณ mg → ml
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
-                result_ml = _round2((dose * 8.0) / 3000.0)  # (dose*8)/3000
+                # 375 mg/ml → ml = mg × 8 ÷ 3000
+                result_ml = _round2((dose * 8.0) / 3000.0)
+
+            # รอบที่ 2: ใช้ค่าที่ซ่อน + ตัวคูณ 3 หรือ 6
             elif action == 'condition':
                 dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
                 result_ml = _as_float(request.form.get('result_ml_hidden'), 'result_ml_hidden')
                 multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-                if multiplication not in (3, 6): raise ValueError("กรุณาเลือก 3 หรือ 6 เท่า")
+
+                if multiplication not in (3, 6):
+                    raise ValueError("กรุณาเลือก 3 หรือ 6 เท่า")
+
                 final_result = _round2(result_ml * multiplication)
                 content_extra = _content_extra_by_mult(multiplication)
+
     except Exception as e:
         error = f"กรุณาใส่ข้อมูลที่ถูกต้อง: {e}"
-    return render_template('unasyn.html',
-                           dose=dose, result_ml=result_ml, final_result=final_result,
-                           multiplication=multiplication, content_extra=content_extra,
-                           error=error, update_date=UPDATE_DATE)
 
+    return render_template(
+        'unasyn.html',
+        dose=dose,
+        result_ml=result_ml,
+        final_result=final_result,
+        multiplication=multiplication,
+        content_extra=content_extra,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/vancomycin', methods=['GET', 'POST'])
 def vancomycin_route():

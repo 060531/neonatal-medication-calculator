@@ -18,7 +18,6 @@
     --page-gutter: 12px;
   }
 
-  /* ========== Global guard + BG เต็มจอ ========== */
   html, body { overflow-x: hidden; height: 100%; }
   *, *::before, *::after { box-sizing: border-box; }
   img, video, canvas, svg { max-width: 100%; height: auto; }
@@ -38,7 +37,6 @@
     background-size:cover; background-position:center; background-repeat:no-repeat;
   }
 
-  /* ========== Header ========== */
   .title-badge{
     display:inline-block; margin:28px auto 12px; padding:10px 18px;
     background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
@@ -47,7 +45,6 @@
     max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
   }
 
-  /* ========== Wrapper / panel ========== */
   .container{
     width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
     margin:0 auto 12px; padding:20px;
@@ -58,7 +55,6 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%);
   }
 
-  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
   .calc-box{
     margin:14px auto 20px; max-width:740px; padding:16px;
     background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
@@ -71,10 +67,9 @@
     display:flex; flex-direction:column; align-items:center; gap:10px;
   }
 
-  /* ===== form-row: label + field บรรทัดเดียว (ทุกจอ) ===== */
   .form-row{
     display:grid;
-    grid-template-columns:auto 1fr;   /* label | field */
+    grid-template-columns:auto 1fr;
     align-items:center;
     column-gap:10px;
     width:100%;
@@ -95,12 +90,10 @@
     background:#fff; text-align:center; font-size:16px; box-sizing:border-box;
   }
 
-  /* ฟิลด์/ป้ายเสริม */
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
   .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
   .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
-  /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
     appearance:none; border:none; border-radius:10px; cursor:pointer;
     padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
@@ -113,7 +106,6 @@
   .btn-red{ background:#e71f1f; }
   .btn-cyan{ background:#049bb5; }
 
-  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
   .result{
     text-align:left; margin:14px auto; max-width:740px; padding:14px;
     background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
@@ -125,8 +117,10 @@
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+  .order-line{ font-weight:900; margin:0 0 6px; text-align:center; }
+  .left-align{ text-align:left; }
+  .hidden{ display:none !important; }
 
-  /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
     position:fixed; left:50%; transform:translateX(-50%);
     bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
@@ -139,7 +133,6 @@
     max-width: calc(100vw - calc(var(--page-gutter)*2));
   }
 
-  /* ========== Footer ========== */
   footer.page-footer{
     text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
     margin: 6px 0 var(--floatbar-gap);
@@ -147,7 +140,6 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== Responsive tweaks ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -163,17 +155,20 @@
 </head>
 <body>
 
-  <!-- หัวข้อบนสุด -->
   <div class="title-badge">Meropenem : 1000 mg / vial → reconst. to 50 mg/ml</div>
 
   <div class="container">
-    <!-- รอบที่ 1: คำนวณ mg → ml (อ้างอิง 50 mg/ml) -->
+    <!-- รอบที่ 1: คำนวณ mg → ml -->
     <div class="calc-box">
-      <form id="__will_handle_by_js__" class="calc-row">
+      <form id="meropenem-dose-form"
+            class="calc-row"
+            action="{{ u('meropenem') }}"
+            method="post">
         <input type="hidden" name="action" value="dose" />
         <div class="form-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
+          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
+                 required step="0.01"
                  value="{{ dose if dose is not none else '' }}">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -184,25 +179,36 @@
       <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
     {% endif %}
 
-    {% if dose is not none %}
-      {% set result_ml = (dose / 50.0) %}
-      <div class="result">
+    <!-- ผลลัพธ์รอบแรก -->
+    <div id="dose-result"
+         class="result"
+         style="{% if dose is not none %}display:block{% else %}display:none{% endif %}">
+      {% if dose is not none %}
+        {% set result_ml = result_ml if result_ml is not none else (dose / 50.0) %}
         <p class="order-line"><b>Order:</b> Meropenem {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิงหลังผสม:</b> เติม Sterile water 19 ml → ได้สารละลาย 20 ml ⇒ <b>50 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 50</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span> = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
-          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span> =
+            <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg =
+            <span class="pill">{{ result_ml|round(2) }} ml</span></p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
-    <!-- รอบที่ 2: เลือกเงื่อนไข (ใช้งานเมื่อมี result_ml) -->
-    <div class="calc-box" {% if dose is none %}style="opacity:.55; pointer-events:none"{% endif %}>
-      <form id="__will_handle_by_js__" class="calc-row">
+    <!-- รอบที่ 2: เลือกเงื่อนไข -->
+    <div id="meropenem-cond-box"
+         class="calc-box {% if dose is none %}hidden{% endif %}">
+      <form id="meropenem-mult-form"
+            class="calc-row"
+            action="{{ u('meropenem') }}"
+            method="post">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="{{ dose if dose is not none else '' }}">
-        <input type="hidden" name="result_ml_hidden" value="{{ result_ml if dose is not none else '' }}">
+        <input type="hidden" id="dose_hidden" name="dose_hidden"
+               value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" id="result_ml_hidden" name="result_ml_hidden"
+               value="{{ result_ml if result_ml is not none else (dose / 50.0) if dose is not none else '' }}">
 
         <div class="form-row">
           <label for="multiplication">เลือกเงื่อนไข:</label>
@@ -212,41 +218,44 @@
             <option value="6" {% if multiplication == 6 %}selected{% endif %}>6 เท่า (รวมเป้าหมาย 6 ml)</option>
           </select>
         </div>
-
         <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
       </form>
     </div>
 
-    {% if multiplication is not none and dose is not none %}
-      {% set base_ml = result_ml %}
-      {% set total = (base_ml * multiplication) %}
-      <div class="result">
+    <!-- ผลลัพธ์รอบที่ 2 -->
+    <div id="mult-result"
+         class="result"
+         style="{% if multiplication is not none %}display:block{% else %}display:none{% endif %}">
+      {% if multiplication is not none and result_ml is not none %}
+        {% set base_ml = result_ml %}
+        {% set total = (base_ml * multiplication) %}
         <p class="order-line"><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) }} ml</b></p>
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) = <b>{{ 9 - total|fmt(2) }} ml</b></p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − {{ total|fmt(2) }}) =
+                <b>{{ (9 - total)|fmt(2) }} ml</b></p>
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
-            <p style="background:#fde047; padding:6px; border-radius:6px;">
+            <p class="highlight">
               <b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 6 ml/hr</b>
             </p>
           {% endif %}
-
           {% if multiplication == 6 %}
             {% if total < 6 %}
-              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) = <b>{{ 6 - total|fmt(2) }} ml</b></p>
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − {{ total|fmt(2) }}) =
+                <b>{{ (6 - total)|fmt(2) }} ml</b></p>
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
-            <p style="background:#fde047; padding:6px; border-radius:6px;">
+            <p class="highlight">
               <b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 2 ml/hr</b>
             </p>
           {% endif %}
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     {% if content_extra %}
       <div class="result" style="background:#ffffff; border:1px solid #e5efff; border-radius:12px;">
@@ -310,9 +319,200 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
+
+  <!-- JS: โหมด docs (github.io) เหมือน gentamicin -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
+
+    // ปรับ Back บน GitHub
+    if (isGithub) {
+      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
+
+    // ถ้าไม่ใช่ docs → ให้ Flask ทำเอง
+    if (!isGithub) return;
+
+    const doseForm      = document.getElementById('meropenem-dose-form');
+    const multForm      = document.getElementById('meropenem-mult-form');
+    const doseResultEl  = document.getElementById('dose-result');
+    const multResultEl  = document.getElementById('mult-result');
+    const condBox       = document.getElementById('meropenem-cond-box');
+    const doseInput     = document.getElementById('dose');
+    const doseHidden    = document.getElementById('dose_hidden');
+    const resultHidden  = document.getElementById('result_ml_hidden');
+    const multSelect    = document.getElementById('multiplication');
+
+    if (!doseForm || !doseResultEl || !condBox) return;
+
+    const CONC = 50.0;
+
+    function createOrGetBox(id, refNode) {
+      let box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement('div');
+        box.id = id;
+        box.className = 'result';
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+      }
+      return box;
+    }
+
+    // รอบ 1: mg → ml
+    doseForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (mg) ให้ถูกต้อง');
+        return;
+      }
+
+      const resultMl = doseVal / CONC;
+
+      doseHidden.value   = doseVal.toFixed(2);
+      resultHidden.value = resultMl.toFixed(2);
+
+      doseResultEl.innerHTML = `
+        <p class="order-line"><b>Order:</b> Meropenem ${doseVal.toFixed(2)} mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังผสม:</b> เติม Sterile water 19 ml → ได้สารละลาย 20 ml ⇒ <b>50 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 50</span></p>
+          <p>แทนค่า: <span class="mono">${doseVal.toFixed(2)} ÷ 50</span> =
+            <span class="pill">${resultMl.toFixed(2)} ml</span></p>
+          <p><b>ดังนั้น:</b> ${doseVal.toFixed(2)} mg =
+            <span class="pill">${resultMl.toFixed(2)} ml</span></p>
+        </div>
+      `;
+      doseResultEl.style.display = 'block';
+
+      condBox.classList.remove('hidden');
+      multResultEl.style.display = 'none';
+
+      const extra = document.getElementById('gh-meropenem-extra');
+      if (extra) extra.remove();
+    });
+
+    // รอบ 2: 3X / 6X
+    if (multForm && multResultEl && multSelect) {
+      multForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const doseVal = parseFloat(doseHidden.value || doseInput.value || '0');
+        const baseMl  = parseFloat(resultHidden.value || '0');
+        const mult    = parseInt(multSelect.value || '0', 10);
+
+        if (isNaN(doseVal) || doseVal <= 0 ||
+            isNaN(baseMl) || baseMl <= 0 ||
+            (mult !== 3 && mult !== 6)) {
+          alert('กรุณากรอกข้อมูลให้ครบถ้วน และเลือกตัวคูณให้ถูกต้อง');
+          return;
+        }
+
+        const total = baseMl * mult;
+        let detailHtml = '';
+
+        if (mult === 3) {
+          if (total < 9) {
+            const need = 9 - total;
+            detailHtml = `
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − ${total.toFixed(2)}) =
+                <b>${need.toFixed(2)} ml</b></p>
+            `;
+          } else {
+            detailHtml = `<p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>`;
+          }
+          detailHtml += `
+            <p class="highlight">
+              <b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 6 ml/hr</b>
+            </p>
+          `;
+        } else if (mult === 6) {
+          if (total < 6) {
+            const need = 6 - total;
+            detailHtml = `
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − ${total.toFixed(2)}) =
+                <b>${need.toFixed(2)} ml</b></p>
+            `;
+          } else {
+            detailHtml = `<p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>`;
+          }
+          detailHtml += `
+            <p class="highlight">
+              <b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 2 ml/hr</b>
+            </p>
+          `;
+        }
+
+        multResultEl.innerHTML = `
+          <p class="order-line"><b>ผลลัพธ์หลังจากคูณ ${mult} เท่า = ${total.toFixed(2)} ml</b></p>
+          <div class="left-align">
+            ${detailHtml}
+          </div>
+        `;
+        multResultEl.style.display = 'block';
+
+        // กล่องคำอธิบายแบบ content_extra
+        let config;
+        if (mult === 3) {
+          config = {
+            message: "การบริหารยาโดย Intermittent intravenous infusion pump",
+            details: [
+              "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+              "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+              "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+              "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+              "การเตรียมยา:",
+              "1) คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+              "2) ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+              "3) ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+              "4) ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+              "5) ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตรา ~6 ml/hr.",
+              "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+            ]
+          };
+        } else {
+          config = {
+            message: "การบริหารยาโดย Intermittent intravenous infusion",
+            details: [
+              "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+              "1) กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ = 1 ml",
+              "2) ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+              "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+              "3) จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+              "4) บริหารโดยใช้ Syringe pump ตั้งอัตราเร็ว ~2 ml/hr",
+            ]
+          };
+        }
+
+        const extraBox = createOrGetBox('gh-meropenem-extra', multResultEl);
+        let extraHtml =
+          "<p style='font-weight:900; text-align:center; margin:6px 0'>" +
+          config.message + "</p><div class='muted'>";
+
+        config.details.forEach(function (d) {
+          if (d.indexOf("Up to") !== -1) {
+            extraHtml +=
+              "<div style='background:#ffeb3b; font-weight:700; padding:8px; " +
+              "text-align:center; border-radius:6px; margin:10px 0'>" +
+              d + "</div>";
+          } else {
+            extraHtml += "<p style='margin:6px 0'>" + d + "</p>";
+          }
+        });
+
+        extraHtml += "</div>";
+        extraBox.innerHTML = extraHtml;
+      });
+    }
+  })();
+  </script>
 
 </body>
 </html>
