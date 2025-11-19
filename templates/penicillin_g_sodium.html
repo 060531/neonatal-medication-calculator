@@ -301,13 +301,6 @@
     const host = window.location.hostname || "";
     const isGithub = host.endsWith("github.io");
 
-    // ปรับลิงก์ Back ในโหมด GitHub ให้ชี้ไปไฟล์ .html
-    if (isGithub) {
-      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
-      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
-      if (backMed)  backMed.href  = "./medication_administration.html";
-      if (backHome) backHome.href = "./index.html";
-    }
 
     // ถ้าไม่ใช่ GitHub → ให้ Flask handle ตามปกติ
     if (!isGithub) return;

@@ -57,7 +57,7 @@
   }
   .result b{ color:#0b2b7a; }
   .order-line{ margin-top:0; margin-bottom:10px; }
-  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#1d3e8c; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
   .muted{ color:#334155; }
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
@@ -132,9 +132,8 @@
         <p>
           แทนค่า:
           <span class="mono">
-            {{ dose|default(0.0)|fmt(2) }} × 5 / 1000 =
+            {{ dose|default(0.0)|fmt(2) }} × 5 / 1000 </span> =
             <span class="pill">{{ result_ml|fmt(2) }}</span> mL
-          </span>
         </p>
       </div>
     {% endif %}
@@ -180,19 +179,10 @@
     <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
   </footer>
 
-    <div class="float-actions">
-    <a href="{{ u('medication_administration') }}"
-       class="btn btn-cyan"
-       data-nav="med">
-      Back
-    </a>
-    <a href="{{ u('index') }}"
-       class="btn btn-red"
-       data-nav="home">
-      Back to Home
-    </a>
+  <div class="float-actions">
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
-
 
   <script>
   (function () {

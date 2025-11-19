@@ -84,7 +84,7 @@
     .order-line{margin-top:0;margin-bottom:10px}
     .mono{
       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      background:#0f172a;color:#fff;padding:2px 6px;
+      background:#1d3e8c;color:#fff;padding:2px 6px;
       border-radius:6px;font-weight:800;
     }
     .muted{color:#334155}
@@ -315,35 +315,15 @@
     <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
   </footer>
 
-    <div class="float-actions">
-    <a href="{{ u('medication_administration') }}"
-       class="btn btn-cyan"
-       data-nav="med">
-      Back
-    </a>
-    <a href="{{ u('index') }}"
-       class="btn btn-red"
-       data-nav="home">
-      Back to Home
-    </a>
+  <div class="float-actions">
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 
   <script>
 (function () {
   var host = window.location.hostname || "";
   var isGithub = host.endsWith("github.io");
-
-  // ---------- แก้ปุ่ม Back / Home เฉพาะตอนอยู่บน GitHub Pages ----------
-  if (isGithub) {
-    var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
-    var backHome = document.querySelector('.float-actions a[data-nav="home"]');
-
-    // (1) ถ้าใช้ GitHub Pages แบบ "docs เป็น root"
-    //     amphotericinB.html จะอยู่ที่: /neonatal-medication-calculator/amphotericinB.html
-    //     ดังนั้น index.html / medication_administration.html ก็จะอยู่ directory เดียวกัน
-    if (backMed)  backMed.href  = "./medication_administration.html";
-    if (backHome) backHome.href = "./index.html";
-  }
 
   // ---------- ถ้าไม่ได้รันบน GitHub (คือรันผ่าน Flask) ⇒ ไม่ใช้ JS calculator ----------
   if (!isGithub) return;
