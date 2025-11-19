@@ -133,8 +133,8 @@
   </footer>
 
   <div class="float-actions">
-    <a href="/medication_administration" class="btn btn-cyan" data-nav="med">Back</a>
-    <a href="/" class="btn btn-red" data-nav="home">Back to Home</a>
+    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+    <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 
   <!-- JS: ทำให้ใช้ได้ทั้ง Flask + GitHub Pages -->
@@ -142,14 +142,6 @@
   (function () {
     var host = window.location.hostname || "";
     var isGithub = host.endsWith("github.io");
-
-    // ----- ปรับลิงก์ Back เฉพาะตอนอยู่บน GitHub Pages -----
-    if (isGithub) {
-      var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
-      var backHome = document.querySelector('.float-actions a[data-nav="home"]');
-      if (backMed)  backMed.href  = "./medication_administration.html";
-      if (backHome) backHome.href = "./index.html";
-    }
 
     // ถ้าไม่ใช่ GitHub → ให้ Flask จัดการคำนวณตามเดิม
     if (!isGithub) return;

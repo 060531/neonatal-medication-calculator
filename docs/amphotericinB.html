@@ -172,12 +172,6 @@
       </form>
     </div>
 
-    
-
-    
-
-    
-
     <!-- รอบที่ 2: เลือกตัวคูณ (ให้แสดงตลอด แต่เริ่มต้นล็อกไว้) -->
     <div class="calc-box" style="margin-top:10px;opacity:.55;pointer-events:none" id="ampho-step2-box">
       <form action="/amphotericinB" method="post" class="calc-row" style="gap:12px">
@@ -255,18 +249,6 @@
 (function () {
   var host = window.location.hostname || "";
   var isGithub = host.endsWith("github.io");
-
-  // ---------- แก้ปุ่ม Back / Home เฉพาะตอนอยู่บน GitHub Pages ----------
-  if (isGithub) {
-    var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
-    var backHome = document.querySelector('.float-actions a[data-nav="home"]');
-
-    // (1) ถ้าใช้ GitHub Pages แบบ "docs เป็น root"
-    //     amphotericinB.html จะอยู่ที่: /neonatal-medication-calculator/amphotericinB.html
-    //     ดังนั้น index.html / medication_administration.html ก็จะอยู่ directory เดียวกัน
-    if (backMed)  backMed.href  = "./medication_administration.html";
-    if (backHome) backHome.href = "./index.html";
-  }
 
   // ---------- ถ้าไม่ได้รันบน GitHub (คือรันผ่าน Flask) ⇒ ไม่ใช้ JS calculator ----------
   if (!isGithub) return;

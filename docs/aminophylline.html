@@ -7,56 +7,148 @@
   <title>Aminophylline Calculation</title>
   <style>
     :root{ --floatbar-gap:90px; }
+
     body{
-      font-family: Arial, sans-serif; text-align:center; margin:0;
+      font-family: Arial, sans-serif;
+      text-align:center;
+      margin:0;
       background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
-      background-size:cover; background-repeat:no-repeat; background-position:center; background-attachment:fixed;
+      background-size:cover;
+      background-repeat:no-repeat;
+      background-position:center;
+      background-attachment:fixed;
       color:#0f172a;
     }
+
     h2{
-      color:#f9f9f9; font-size:28px; font-weight:bold; padding:10px; margin:18px 0 12px;
-      border:2px solid #da7676; border-radius:10px; display:inline-block; background:#d82f2f;
+      color:#f9f9f9;
+      font-size:28px;
+      font-weight:bold;
+      padding:10px;
+      margin:18px 0 12px;
+      border:2px solid #da7676;
+      border-radius:10px;
+      display:inline-block;
+      background:#d82f2f;
       box-shadow:0 8px 18px rgba(0,0,0,.2);
     }
+
     .container{
-      max-width:600px; margin:0 auto 10px; padding:20px; border:2px solid #e8cabe; border-radius:10px;
-      background-color:rgba(245,146,146,.90); position:relative; z-index:0; box-shadow:0 8px 24px rgba(0,0,0,.18);
+      max-width:600px;
+      margin:0 auto 10px;
+      padding:20px;
+      border:2px solid #e8cabe;
+      border-radius:10px;
+      background-color:rgba(245,146,146,.90);
+      position:relative;
+      z-index:0;
+      box-shadow:0 8px 24px rgba(0,0,0,.18);
       padding-bottom:20px;
     }
+
     .calc-box.form-card{
-      background:linear-gradient(180deg,#ffd2d2,#f7b0b0); border:2px solid rgba(255,255,255,.5);
-      box-shadow:0 12px 26px rgba(102,21,21,.25), inset 0 1px 0 rgba(255,255,255,.35);
-      border-radius:14px; padding:18px 16px; margin:0 auto 10px; max-width:520px;
+      background:linear-gradient(180deg,#ffd2d2,#f7b0b0);
+      border:2px solid rgba(255,255,255,.5);
+      box-shadow:0 12px 26px rgba(102,21,21,.25),
+                 inset 0 1px 0 rgba(255,255,255,.35);
+      border-radius:14px;
+      padding:18px 16px;
+      margin:0 auto 10px;
+      max-width:520px;
     }
+
     .dose-row{
-      display:grid; grid-template-columns:auto 1fr; align-items:center;
-      column-gap:10px; row-gap:8px; max-width:460px; margin:0 auto;
+      display:grid;
+      grid-template-columns:auto 1fr;
+      align-items:center;
+      column-gap:10px;
+      row-gap:8px;
+      max-width:460px;
+      margin:0 auto;
     }
+
     .dose-row label{ font-weight:700; }
+
     .dose-row input[type="number"]{
-      width:90%; padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.15); background:#fff;
-      box-shadow:inset 0 1px 1px rgba(0,0,0,.06); text-align:center; transition: box-shadow .2s, border-color .2s, transform .06s;
+      width:90%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,.15);
+      background:#fff;
+      box-shadow:inset 0 1px 1px rgba(0,0,0,.06);
+      text-align:center;
+      transition: box-shadow .2s, border-color .2s, transform .06s;
     }
+
     .dose-row input[type="number"]:focus{
-      outline:none; border-color:#ff6b6b; box-shadow:0 0 0 3px rgba(255,107,107,.25);
+      outline:none;
+      border-color:#ff6b6b;
+      box-shadow:0 0 0 3px rgba(255,107,107,.25);
     }
-    .btn-wrap{ margin-top:14px; display:flex; justify-content:center; }
+
+    .btn-wrap{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+    }
+
     .btn{
-      display:inline-block; text-decoration:none; color:#fff; font-weight:800; border:none; border-radius:12px; padding:10px 18px;
-      min-width:130px; text-align:center; cursor:pointer; box-shadow:0 8px 18px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.35);
+      display:inline-block;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      border:none;
+      border-radius:12px;
+      padding:10px 18px;
+      min-width:130px;
+      text-align:center;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(0,0,0,.22),
+                 inset 0 1px 0 rgba(255,255,255,.35);
       transition: filter .2s ease, transform .06s ease;
     }
-    .btn-blue{ background:linear-gradient(135deg,#ff6b6b,#ff3b3b); border:1px solid rgba(255,255,255,.35); }
-    .btn:hover{ filter:brightness(1.06); transform:translateY(-1px); }
-    .btn:active{ transform:translateY(1px); }
+
+    .btn-blue{
+      background:linear-gradient(135deg,#ff6b6b,#ff3b3b);
+      border:1px solid rgba(255,255,255,.35);
+    }
+
+    /* ปุ่ม float bar ด้านล่าง */
+    .btn-cyan{ background:#008CBA; }
+    .btn-red{ background:#f44336; }
+
+    .btn:hover{
+      filter:brightness(1.06);
+      transform:translateY(-1px);
+    }
+
+    .btn:active{
+      transform:translateY(1px);
+    }
 
     .result{
-      margin-top:10px; padding:15px; background:#f0f0f0; border-radius:8px;
-      font-size:16px; border:1px dashed #cbd5e1; text-align:left;
+      margin-top:10px;
+      padding:15px;
+      background:#f0f0f0;
+      border-radius:8px;
+      font-size:16px;
+      border:1px dashed #cbd5e1;
+      text-align:left;
     }
-    .result p{ margin:5px 0; line-height:1.25; }
-    .left-align{ text-align:left; line-height:1.2; }
-    .left-align p{ margin:5px 0; }
+
+    .result p{
+      margin:5px 0;
+      line-height:1.25;
+    }
+
+    .left-align{
+      text-align:left;
+      line-height:1.2;
+    }
+
+    .left-align p{
+      margin:5px 0;
+    }
 
     .pill-red{
       display:inline-block;
@@ -67,11 +159,30 @@
       font-weight:800;
     }
 
-    .list{ list-style:none; margin:5px 0; padding-left:20px; }
-    .list li{ margin:3px 0; }
-    .list li::before{ content:"➢ "; font-size:18px; margin-right:5px; }
-    .item{ margin-left:20px; }
-    .item::before{ content:"☞ "; margin-right:5px; }
+    .list{
+      list-style:none;
+      margin:5px 0;
+      padding-left:20px;
+    }
+
+    .list li{
+      margin:3px 0;
+    }
+
+    .list li::before{
+      content:"➢ ";
+      font-size:18px;
+      margin-right:5px;
+    }
+
+    .item{
+      margin-left:20px;
+    }
+
+    .item::before{
+      content:"☞ ";
+      margin-right:5px;
+    }
 
     .error-msg{
       margin-top:8px;
@@ -85,20 +196,37 @@
     }
 
     footer.page-footer{
-      text-align:center; color:#ffffff; text-shadow:2px 2px 5px rgba(0,0,0,.7);
-      margin:6px 0 var(--floatbar-gap); font-size:14px;
+      text-align:center;
+      color:#ffffff;
+      text-shadow:2px 2px 5px rgba(0,0,0,.7);
+      margin:6px 0 var(--floatbar-gap);
+      font-size:14px;
     }
+
     .float-actions{
-      position:fixed!important; left:50%; bottom:calc(10px + env(safe-area-inset-bottom,0px));
-      transform:translateX(-50%); z-index:9999;
-      display:flex; gap:12px; align-items:center; justify-content:center; padding:8px 10px; border-radius:14px;
-      background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2); box-shadow:0 8px 18px rgba(2,8,23,.28);
-      backdrop-filter:blur(8px) saturate(120%); -webkit-backdrop-filter:blur(8px) saturate(120%);
+      position:fixed!important;
+      left:50%;
+      bottom:calc(10px + env(safe-area-inset-bottom,0px));
+      transform:translateX(-50%);
+      z-index:9999;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+      padding:8px 10px;
+      border-radius:14px;
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(255,255,255,.2);
+      box-shadow:0 8px 18px rgba(2,8,23,.28);
+      backdrop-filter:blur(8px) saturate(120%);
+      -webkit-backdrop-filter:blur(8px) saturate(120%);
     }
-    .float-actions .btn{ min-width:130px; font-weight:700; border-radius:12px; }
-    .back-button-secondary{ background:#008CBA; }
-    .back-button{ background:#f44336; }
-    .back-button-secondary:hover,.back-button:hover{ filter:brightness(1.06); }
+
+    .float-actions .btn{
+      min-width:130px;
+      font-weight:700;
+      border-radius:12px;
+    }
 
     .hidden{ display:none !important; }
 
@@ -115,8 +243,8 @@
   <div class="container">
     <!-- ฟอร์มคำนวณ (Flask + GitHub) -->
     <form action="/aminophylline"
-      method="post"
-      class="calc-box form-card">
+          method="post"
+          class="calc-box form-card">
       <input type="hidden" name="action" value="dose" />
       <div class="dose-row">
         <label for="dose">กรอกขนาดยา (mg):</label>
@@ -134,13 +262,11 @@
       </div>
     </form>
 
-    <!-- แสดง error จาก Flask -->
-    
+    <!-- แสดง error จาก Flask (เว้นที่ไว้ ถ้าต้องการใส่ Jinja ทีหลัง) -->
+    <!-- <div class="error-msg">...</div> -->
 
-    <!-- กล่องผลลัพธ์ฝั่ง Flask -->
-    <div id="result"
-         class="result hidden">
-      
+    <!-- กล่องผลลัพธ์ฝั่ง Flask (เวอร์ชัน docs ปล่อยว่างไว้ได้) -->
+    <div id="result" class="result hidden">
     </div>
 
     <!-- ข้อมูลทางคลินิก -->
@@ -157,9 +283,12 @@
 
       <p><b>Drug incompatibility</b></p>
       <ul class="list">
-        <li>PGS</li><li>Methylprednisolone</li>
-        <li>Adrenaline</li><li>Ceftriaxone</li>
-        <li>Dobutamine</li><li>Insulin</li>
+        <li>PGS</li>
+        <li>Methylprednisolone</li>
+        <li>Adrenaline</li>
+        <li>Ceftriaxone</li>
+        <li>Dobutamine</li>
+        <li>Insulin</li>
         <li>Ciprofloxacin</li>
       </ul>
 
@@ -177,16 +306,8 @@
   </footer>
 
   <div class="float-actions">
-    <a href="/medication_administration"
-       class="btn back-button-secondary"
-       data-nav="med">
-      Back
-    </a>
-    <a href="/"
-       class="btn back-button"
-       data-nav="home">
-      Back to Home
-    </a>
+    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+    <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 
   <!-- JS สำหรับ GitHub Pages -->
@@ -194,15 +315,6 @@
   (function() {
     var host = window.location.hostname || "";
     var isGithub = host.endsWith("github.io");
-
-    // ---------- แก้ href ปุ่ม Back / Home เมื่ออยู่บน GitHub Pages ----------
-    if (isGithub) {
-      var backMed  = document.querySelector('.float-actions a[data-nav="med"]');
-      var backHome = document.querySelector('.float-actions a[data-nav="home"]');
-
-      if (backMed)  backMed.href  = "./medication_administration.html";
-      if (backHome) backHome.href = "./index.html";
-    }
 
     // ---------- calculator แบบ static เฉพาะ GitHub Pages ----------
     if (!isGithub) return;    // ถ้าไม่ใช่ github.io → ให้ Flask จัดการตามปกติ
