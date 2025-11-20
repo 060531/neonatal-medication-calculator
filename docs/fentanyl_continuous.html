@@ -87,8 +87,14 @@
       text-align:left; margin:12px auto; max-width:740px; padding:12px;
       background:#ffffff; border:1px dashed #e5efff; border-radius:12px;
     }
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800}
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800
+    }
+    .pill{
+      display:inline-block; padding:2px 6px; border-radius:6px;
+      background:#e01b1b; color:#fff; font-weight:800;
+    }
 
     /* ปุ่มลอยล่าง */
     .float-actions{
@@ -152,12 +158,14 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-20</p>
   </footer>
 
+  <!-- ปุ่มลอย (ตั้งค่าเริ่มต้นสำหรับ Flask) -->
   <div class="float-actions">
-    <a href="./Medication_administration.html" class="btn" style="background:#049bb5">Back</a>
-    <a href="./index.html" class="btn" style="background:#e71f1f">Back to Home</a>
+    <!-- Flask: ใช้ path ของ route จริง -->
+    <a id="btn-back-med"  href="/medication_administration" class="btn" style="background:#049bb5">Back</a>
+    <a id="btn-back-home" href="/"                      class="btn" style="background:#e71f1f">Back to Home</a>
   </div>
 
   <script>
@@ -165,12 +173,13 @@
 
     document.getElementById('fentanyl-form').addEventListener('submit', function(e){
       e.preventDefault();
-      const originalDosage = parseFloat(document.getElementById('original_dosage').value||'0');
-      const originalVolume = parseFloat(document.getElementById('original_volume').value||'0');
-      const desiredDosage  = parseFloat(document.getElementById('desired_dosage').value||'0');
+      const originalDosage = parseFloat(document.getElementById('original_dosage').value || '0');
+      const originalVolume = parseFloat(document.getElementById('original_volume').value || '0');
+      const desiredDosage  = parseFloat(document.getElementById('desired_dosage').value || '0');
 
-      if ([originalDosage, originalVolume, desiredDosage].some(v => isNaN(v)||v<=0)){
-        alert('กรุณากรอกค่าที่ถูกต้อง'); return;
+      if ([originalDosage, originalVolume, desiredDosage].some(v => isNaN(v) || v <= 0)){
+        alert('กรุณากรอกค่าที่ถูกต้อง');
+        return;
       }
 
       const targetVolume = (desiredDosage / originalDosage) * originalVolume; // ml
@@ -184,10 +193,25 @@
         <p>สัดส่วนเดิม: ${desiredDosage.toFixed(2)} / ${originalDosage.toFixed(2)} × ${originalVolume.toFixed(2)} = <b>${targetVolume.toFixed(2)} ml</b></p>
         <p>ปริมาตรยาที่ต้องดูด: <span class="mono">${desiredDosage.toFixed(2)} ÷ 50</span> = <span class="pill"><b>${fentanylVol.toFixed(2)} ml</b></span></p>
         <p>ตัวทำละลาย: ${targetVolume.toFixed(2)} &minus; ${fentanylVol.toFixed(2)} = <span class="pill"><b>${diluent.toFixed(2)} ml</b></span></p>
-
-</p>
       `;
     });
+
+    // ===== ปรับลิงก์อัตโนมัติถ้าอยู่บน GitHub Pages =====
+    (function(){
+      const host = (window.location && window.location.hostname) || "";
+      if (!host.endsWith("github.io")) return;  // ถ้าไม่ใช่ GitHub Pages ไม่ต้องแก้
+
+      // base path = โฟลเดอร์ปัจจุบัน เช่น /neonatal-medication-calculator/
+      const path = window.location.pathname;
+      const lastSlash = path.lastIndexOf("/");
+      const base = lastSlash >= 0 ? path.slice(0, lastSlash + 1) : "/";
+
+      const backMed  = document.getElementById("btn-back-med");
+      const backHome = document.getElementById("btn-back-home");
+
+      if (backMed)  backMed.href  = base + "medication_administration.html";
+      if (backHome) backHome.href = base + "index.html";
+    })();
   </script>
 
 </body>
