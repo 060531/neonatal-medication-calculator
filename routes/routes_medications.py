@@ -1234,7 +1234,6 @@ def meropenem_route():
         update_date=UPDATE_DATE,
     )
 
-
 @meds_bp.route('/metronidazole', methods=['GET', 'POST'])
 def metronidazole():
     dose = calculated_ml = None
@@ -1242,7 +1241,6 @@ def metronidazole():
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
-            # 500 mg / 100 ml → 5 mg/ml  ⇒  ml = mg / 5
             calculated_ml = _round2((dose * 100) / 500)  # = dose / 5
         except Exception as e:
             error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"

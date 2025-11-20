@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Metronidazole Calculation</title>
 <style>
-  /* ========== Theme tokens ========== */
   :root{
     --blue-900:#0b2b7a;
     --blue-700:#1e57d2;
@@ -14,11 +13,10 @@
     --panel:#e6f3ffb8;
     --text:#0f172a;
 
-    --floatbar-gap: clamp(80px, 16vw, 110px); /* กันปุ่มลอยทับ footer */
-    --page-gutter: 12px;                      /* ระยะขอบซ้าย-ขวา */
+    --floatbar-gap: clamp(80px, 16vw, 110px);
+    --page-gutter: 12px;
   }
 
-  /* ========== Global guard + BG เต็มจอ ========== */
   html, body { overflow-x: hidden; height: 100%; }
   *, *::before, *::after { box-sizing: border-box; }
   img, video, canvas, svg { max-width: 100%; height: auto; }
@@ -38,7 +36,6 @@
     background-size:cover; background-position:center; background-repeat:no-repeat;
   }
 
-  /* ========== Header ========== */
   .title-badge{
     display:inline-block; margin:28px auto 12px; padding:10px 18px;
     background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
@@ -47,7 +44,6 @@
     max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
   }
 
-  /* ========== Wrapper / panel ========== */
   .container{
     width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
     margin:0 auto 12px; padding:20px;
@@ -58,7 +54,6 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%);
   }
 
-  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
   .calc-box{
     margin:14px auto 20px; max-width:740px; padding:16px;
     background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
@@ -72,7 +67,6 @@
     gap:10px; align-items:center; justify-content:center;
   }
 
-  /* ฟิลด์มาตรฐาน */
   input[type="number"], select{
     width: clamp(160px, 50vw, 220px);
     max-width:60vw; padding:10px 12px; border-radius:10px;
@@ -82,7 +76,6 @@
   .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
   .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
-  /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
     appearance:none; border:none; border-radius:10px; cursor:pointer;
     padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
@@ -95,7 +88,6 @@
   .btn-red{ background:#e71f1f; }
   .btn-cyan{ background:#049bb5; }
 
-  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
   .result{
     text-align:left; margin:14px auto; max-width:740px; padding:14px;
     background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
@@ -111,7 +103,6 @@
   .left-align{ text-align:left; }
   .order-line{ text-align:center; margin:6px 0; }
 
-  /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
     position:fixed; left:50%; transform:translateX(-50%);
     bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
@@ -124,7 +115,6 @@
     max-width: calc(100vw - calc(var(--page-gutter)*2));
   }
 
-  /* ========== Footer ========== */
   footer.page-footer{
     text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
     margin: 6px 0 var(--floatbar-gap);
@@ -132,7 +122,6 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: dose-row ให้ label+field อยู่บรรทัดเดียว ========== */
   @media (max-width: 640px){
     .dose-row{
       display:grid;
@@ -170,7 +159,6 @@
 </head>
 <body>
 
-  <!-- หัวข้อบนสุด -->
   <div class="title-badge">Metronidazole : 500 mg / 100 ml (5 mg/ml)</div>
 
   <div class="container">
@@ -203,10 +191,12 @@
       </div>
     {% endif %}
 
-    {% if dose is not none %}
-      {# ใช้ค่าจาก Python ถ้ามี ไม่งั้นคำนวณใน Jinja สำรอง #}
-      {% set result_ml = calculated_ml if calculated_ml is not none else (dose / 5.0) %}
-      <div class="result">
+    <!-- กล่องผลลัพธ์ (Flask ใช้ Jinja, GitHub ให้ JS เขียนทับ) -->
+    <div id="metronidazole-result"
+         class="result"
+         {% if dose is none %}style="display:none"{% endif %}>
+      {% if dose is not none %}
+        {% set result_ml = calculated_ml if calculated_ml is not none else (dose / 5.0) %}
         <p class="order-line"><b>Order:</b> Metronidazole {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง (premix):</b> 500 mg / 100 ml ⇒ <b>5 mg/ml</b></p>
@@ -216,8 +206,8 @@
           <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg
              = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
@@ -260,9 +250,59 @@
   </footer>
 
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a id="btn-back-med"  href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a id="btn-back-home" href="{{ u('index') }}"                  class="btn btn-red">Back to Home</a>
   </div>
+
+  <script>
+    (function () {
+      const host = (window.location && window.location.hostname) || "";
+
+      // ใช้ JS mode เฉพาะบน GitHub Pages เพื่อไม่ให้ส่ง POST → 405
+      if (!host.endsWith("github.io")) return;
+
+      const form = document.getElementById("metronidazole-form");
+      const resultBox = document.getElementById("metronidazole-result");
+
+      if (form && resultBox) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const raw = form.dose.value || "0";
+          const dose = parseFloat(raw);
+          if (!dose || dose <= 0) {
+            alert("กรุณากรอกขนาดยา (mg) ให้ถูกต้อง");
+            return;
+          }
+          const resultMl = dose / 5.0;
+
+          resultBox.style.display = "block";
+          resultBox.innerHTML = `
+            <p class="order-line"><b>Order:</b> Metronidazole ${dose.toFixed(2)} mg</p>
+            <div class="left-align muted">
+              <p><b>ความแรงอ้างอิง (premix):</b> 500 mg / 100 ml ⇒ <b>5 mg/ml</b></p>
+              <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 5</span></p>
+              <p>แทนค่า: <span class="mono">${dose.toFixed(2)} ÷ 5</span>
+                 = <span class="pill">${resultMl.toFixed(2)} ml</span></p>
+              <p><b>ดังนั้น:</b> ${dose.toFixed(2)} mg
+                 = <span class="pill">${resultMl.toFixed(2)} ml</span></p>
+            </div>
+          `;
+          resultBox.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
+      // ปรับลิงก์ Back ให้ชี้ไปไฟล์ .html เมื่ออยู่บน GitHub
+      const path = window.location.pathname || "/";
+      const lastSlash = path.lastIndexOf("/");
+      const base = lastSlash >= 0 ? path.slice(0, lastSlash + 1) : "/";
+
+      const backMed  = document.getElementById("btn-back-med");
+      const backHome = document.getElementById("btn-back-home");
+
+      if (backMed)  backMed.href  = base + "medication_administration.html";
+      if (backHome) backHome.href = base + "index.html";
+    })();
+  </script>
 
 </body>
 </html>

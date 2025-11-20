@@ -163,9 +163,8 @@
 
   <!-- ปุ่มลอย (ตั้งค่าเริ่มต้นสำหรับ Flask) -->
   <div class="float-actions">
-    <!-- Flask: ใช้ path ของ route จริง -->
-    <a id="btn-back-med"  href="/medication_administration" class="btn" style="background:#049bb5">Back</a>
-    <a id="btn-back-home" href="/"                      class="btn" style="background:#e71f1f">Back to Home</a>
+    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
+    <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 
   <script>
@@ -195,23 +194,6 @@
         <p>ตัวทำละลาย: ${targetVolume.toFixed(2)} &minus; ${fentanylVol.toFixed(2)} = <span class="pill"><b>${diluent.toFixed(2)} ml</b></span></p>
       `;
     });
-
-    // ===== ปรับลิงก์อัตโนมัติถ้าอยู่บน GitHub Pages =====
-    (function(){
-      const host = (window.location && window.location.hostname) || "";
-      if (!host.endsWith("github.io")) return;  // ถ้าไม่ใช่ GitHub Pages ไม่ต้องแก้
-
-      // base path = โฟลเดอร์ปัจจุบัน เช่น /neonatal-medication-calculator/
-      const path = window.location.pathname;
-      const lastSlash = path.lastIndexOf("/");
-      const base = lastSlash >= 0 ? path.slice(0, lastSlash + 1) : "/";
-
-      const backMed  = document.getElementById("btn-back-med");
-      const backHome = document.getElementById("btn-back-home");
-
-      if (backMed)  backMed.href  = base + "medication_administration.html";
-      if (backHome) backHome.href = base + "index.html";
-    })();
   </script>
 
 </body>
