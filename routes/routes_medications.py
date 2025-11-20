@@ -1093,23 +1093,38 @@ def insulin_route():
 def levofloxacin_route():
     dose = None
     concentration = 5.0
-    multiplication = 3
+    multiplication = None          # ให้เป็น optional
     result_ml = final_result = error = None
+
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
             concentration = _as_float(request.form.get('concentration'), 'concentration')
-            multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
-            if concentration <= 0: raise ValueError("ความเข้มข้นต้องมากกว่า 0")
-            result_ml = dose / concentration
-            final_result = result_ml * multiplication
-            result_ml = _round2(result_ml); final_result = _round2(final_result)
+
+            if concentration <= 0:
+                raise ValueError("ความเข้มข้นต้องมากกว่า 0")
+
+            # mL พื้นฐาน
+            result_ml = _round2(dose / concentration)
+
+            # ถ้ามีตัวคูณส่งมาก็คิดเพิ่ม (ตอนนี้ template ยังไม่ได้ส่ง)
+            mult_raw = request.form.get('multiplication')
+            if mult_raw:
+                multiplication = _as_float(mult_raw, 'multiplication')
+                final_result = _round2(result_ml * multiplication)
+
         except Exception as e:
             error = str(e)
-    return render_template('levofloxacin.html',
-                           dose=dose, concentration=concentration,
-                           multiplication=multiplication, result_ml=result_ml,
-                           final_result=final_result, update_date=UPDATE_DATE)
+
+    return render_template(
+        'levofloxacin.html',
+        dose=dose,
+        concentration=concentration,
+        multiplication=multiplication,
+        result_ml=result_ml,
+        final_result=final_result,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/meropenem', methods=['GET', 'POST'])
 def meropenem_route():
@@ -1626,95 +1641,93 @@ def sul_am_route():
 
 @meds_bp.route('/sulbactam', methods=['GET', 'POST'])
 def sulbactam_route():
-    dose = result_ml = final_result = None
+    dose = None
+    result_ml = None
     multiplication = None
+    msg_block = None
     content_extra = None
     error = None
 
-    try:
-        if request.method == 'POST':
-            action = (request.form.get('action') or 'dose').strip()
-
-            # รอบที่ 1: คำนวณ mg → mL (2 g/vial, reconst. 8 mL → 250 mg/mL)
+    if request.method == 'POST':
+        action = request.form.get('action', 'dose')
+        try:
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
                 if dose <= 0:
-                    raise ValueError('dose ต้องเป็นค่ามากกว่า 0')
+                    raise ValueError("ขนาดยาต้องมากกว่า 0")
+                # 2 g / 8 mL = 250 mg/mL → ml = mg × 8 / 2000
+                result_ml = _round2(dose * 8.0 / 2000.0)
 
-                # 2 g / vial → เติม 8 mL ⇒ 250 mg/mL
-                # สูตร: ml = (dose * 8) / 2000
-                result_ml = _round2((dose * 8.0) / 2000.0)
-
-            # รอบที่ 2: เลือกตัวคูณ (3 เท่า / 6 เท่า)
             elif action == 'condition':
-                # ดึง dose จาก hidden (ถ้าไม่มี ให้ fallback ไปที่ dose ปกติ)
-                dose = _as_float(
-                    request.form.get('dose_hidden') or request.form.get('dose'),
-                    'dose_hidden'
+                dose = _as_float(request.form.get('dose_hidden'), 'dose_hidden')
+                result_ml = _as_float(
+                    request.form.get('result_ml_hidden'),
+                    'result_ml_hidden'
                 )
-
-                res_h = request.form.get('result_ml_hidden')
-                if res_h:
-                    result_ml = _as_float(res_h, 'result_ml_hidden')
-                else:
-                    # กันกรณีไม่มี hidden result_ml ก็คิดใหม่
-                    result_ml = _round2((dose * 8.0) / 2000.0)
-
-                multiplication = _as_int(request.form.get('multiplication'), 'multiplication')
+                multiplication = _as_int(
+                    request.form.get('multiplication'),
+                    'multiplication'
+                )
                 if multiplication not in (3, 6):
-                    raise ValueError('multiplication ต้องเป็น 3 หรือ 6')
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6 เท่า")
 
-                final_result = _round2(result_ml * multiplication)
-
-                # เพิ่มข้อความประกอบ (จะใช้/ไม่ใช้ใน template ก็ได้)
+                # กำหนด message และ content_extra ตามที่ต้องการ
                 if multiplication == 3:
-                    content_extra = (
-                        _content_extra_by_mult(3)
-                        if final_result < 9
-                        else {
-                            "message": "Intermittent infusion pump",
-                            "details": [
-                                "(3X + diluent Up to 9 mL)",
-                                "ดูดยา 9 mL (ไม่ต้องผสม)",
-                                "ตั้ง ~3 mL/hr (> 1 hr)"
-                            ]
-                        }
-                    )
-                else:  # 6 เท่า
-                    content_extra = (
-                        _content_extra_by_mult(6)
-                        if final_result < 6
-                        else {
-                            "message": "Intermittent infusion",
-                            "details": [
-                                "(6X + diluent Up to 6 mL)",
-                                "ดูดยา 6 mL (ไม่ต้องผสม)",
-                                "ตั้ง ~1 mL/hr (> 1 hr)"
-                            ]
-                        }
-                    )
-            else:
-                raise ValueError('unknown action')
+                    target_total = 9.0
+                    msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 3 mL → ตั้งอัตรา 3 mL/hr (> 1 hr)"
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจาง Up to 9 ml.)</div>",
+                            "การเตรียมยา:",
+                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                            "4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 3 ml/hr.",
+                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ],
+                    }
+                else:  # multiplication == 6
+                    target_total = 6.0
+                    msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 1 mL → ตั้งอัตรา 1 mL/hr (> 1 hr)"
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                            "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align:center'>(6X + สารละลายเจือจาง Up to 6 ml.)</div>",
+                            "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 1 ml/hr.",
+                        ],
+                    }
 
-    except Exception as e:
-        # ถ้าไม่อยากโชว์รายละเอียด error จริง ๆ จะตัด {e} ทิ้งก็ได้
-        error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+        except Exception as e:
+            error = str(e)
 
     return render_template(
         'sulbactam.html',
         dose=dose,
         result_ml=result_ml,
-        final_result=final_result,
         multiplication=multiplication,
+        msg_block=msg_block,
         content_extra=content_extra,
         error=error,
-        update_date=UPDATE_DATE
+        update_date=UPDATE_DATE,
     )
+
 
 @meds_bp.route('/sulperazone', methods=['GET', 'POST'])
 def sulperazone_route():
-    dose = result_ml = final_result = None
+    dose = None
+    result_ml = None
+    final_result = None
     multiplication = None
+    msg_block = None
     content_extra = None
     error = None
 
@@ -1728,12 +1741,13 @@ def sulperazone_route():
                 if dose <= 0:
                     raise ValueError("dose ต้องเป็นค่ามากกว่า 0")
 
-                # จากที่คุณเขียนใช้สูตร: ml = mg × 10 ÷ 500
+                # Sulperazone: 1 g / 10 mL = 100 mg/mL
+                # คุณกำหนดสูตรไว้เป็น: ml = mg × 10 ÷ 500 (ตามส่วน Sulbactam 500 mg)
                 result_ml = _round2((dose * 10.0) / 500.0)
 
             # รอบที่ 2: เลือกเงื่อนไข 3X หรือ 6X
             elif action == 'condition':
-                # ถ้า hidden ไม่มี ให้ fallback ไปอ่านจาก dose ปกติ
+                # hidden ค่าที่คำนวณจากรอบแรก
                 dose = _as_float(
                     request.form.get('dose_hidden') or request.form.get('dose'),
                     'dose_hidden'
@@ -1751,12 +1765,44 @@ def sulperazone_route():
                     'multiplication'
                 )
                 if multiplication not in (3, 6):
-                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6")
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6 เท่า")
 
                 final_result = _round2(result_ml * multiplication)
 
-                # ใช้ helper เดิมของคุณ (จะเป็น text อธิบายเพิ่ม)
-                content_extra = _content_extra_by_mult(multiplication)
+                # กำหนด message และ content_extra ตามที่ต้องการ
+                if multiplication == 3:
+                    target_total = 9.0
+                    msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 3 mL → ตั้งอัตรา 3 mL/hr (> 1 hr)"
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+                            "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.",
+                            "(ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องบริหารเข้าผู้ป่วย 3 ml.)",
+                            "<div style='text-align:center'>(3X + สารละลายเจือจาง Up to 9 ml.)</div>",
+                            "การเตรียมยา:",
+                            "1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร",
+                            "2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+                            "3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้",
+                            "4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน",
+                            "5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 3 ml/hr.",
+                            "6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
+                        ],
+                    }
+                else:  # multiplication == 6
+                    target_total = 6.0
+                    msg_block = "ปริมาณที่บริหารเข้าทารก ≈ 1 mL → ตั้งอัตรา 1 mL/hr (> 1 hr)"
+                    content_extra = {
+                        "message": "การบริหารยาโดย Intermittent intravenous infusion",
+                        "details": [
+                            "สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม",
+                            "1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.",
+                            "2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:",
+                            "<div style='text-align:center'>(6X + สารละลายเจือจาง Up to 6 ml.)</div>",
+                            "3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.",
+                            "4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 1 ml/hr.",
+                        ],
+                    }
 
             else:
                 raise ValueError("unknown action")
@@ -1770,6 +1816,7 @@ def sulperazone_route():
         result_ml=result_ml,
         final_result=final_result,
         multiplication=multiplication,
+        msg_block=msg_block,
         content_extra=content_extra,
         error=error,
         update_date=UPDATE_DATE

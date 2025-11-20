@@ -100,6 +100,8 @@
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+  .left-align{ text-align:left; }
+  .order-line{ margin-top:0; margin-bottom:10px; }
 
   .float-actions{
     position:fixed; left:50%; transform:translateX(-50%);
@@ -245,7 +247,6 @@
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
-            <p class="highlight"><b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 3 ml/hr (&gt; 1 hr)</b></p>
           {% endif %}
 
           {% if multiplication == 6 %}
@@ -256,27 +257,32 @@
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
-            <p class="highlight"><b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 1 ml/hr (&gt; 1 hr)</b></p>
+          {% endif %}
+
+          {% if msg_block %}
+            <p class="highlight"><b>{{ msg_block }}</b></p>
           {% endif %}
         </div>
       </div>
     {% endif %}
 
-    {% if content_extra %}
-  <div class="result" style="background:#ffffff; border:1px solid #e5efff; border-radius:12px;">
-    <p style="font-weight:900; text-align:center; margin:6px 0">{{ content_extra.message }}</p>
-    <div class="muted">
-      {% for d in content_extra.details %}
-        {% if 'Up to' in d %}
-          <div class="highlight">{{ d|safe }}</div>
-        {% else %}
-          <p style="margin:6px 0">{{ d|safe }}</p>
-        {% endif %}
-      {% endfor %}
+    <!-- การ์ด extra: มี div อยู่เสมอ เพื่อให้ JS เขียนทับได้บน GitHub -->
+    <div id="sulbactam-extra-card"
+         class="result"
+         style="background:#ffffff; border:1px solid #e5efff; border-radius:12px;">
+      {% if content_extra %}
+        <p style="font-weight:900; text-align:center; margin:6px 0">{{ content_extra.message }}</p>
+        <div class="muted">
+          {% for d in content_extra.details %}
+            {% if 'Up to' in d %}
+              <div class="highlight">{{ d|safe }}</div>
+            {% else %}
+              <p style="margin:6px 0">{{ d|safe }}</p>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
-  </div>
-{% endif %}
-
 
     <!-- หมายเหตุ/วิชาการ -->
     <div class="bullet">
@@ -428,7 +434,7 @@
         } else {
           html += "<p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>";
         }
-        html += "<p class='highlight'><b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 3 ml/hr (&gt; 1 hr)</b></p>";
+        html += "<p class='highlight'><b>ปริมาณที่บริหารเข้าทารก ≈ 3 mL → ตั้งอัตรา 3 mL/hr (&gt; 1 hr)</b></p>";
       } else { // 6 เท่า
         if (total < 6) {
           var diff6 = round2(6 - total);
@@ -437,11 +443,45 @@
         } else {
           html += "<p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>";
         }
-        html += "<p class='highlight'><b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 1 ml/hr (&gt; 1 hr)</b></p>";
+        html += "<p class='highlight'><b>ปริมาณที่บริหารเข้าทารก ≈ 1 mL → ตั้งอัตรา 1 mL/hr (&gt; 1 hr)</b></p>";
       }
 
       html += "</div>";
       box.innerHTML = html;
+
+      // ----- เติม content_extra ฝั่ง GitHub -----
+      var extraCard = document.getElementById("sulbactam-extra-card");
+      if (extraCard) {
+        var extraHtml = "";
+        if (m === 3) {
+          extraHtml  = "<p style='font-weight:900; text-align:center; margin:6px 0'>";
+          extraHtml += "การบริหารยาโดย Intermittent intravenous infusion pump";
+          extraHtml += "</p><div class='muted'>";
+          extraHtml += "<p>สำหรับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม</p>";
+          extraHtml += "<p>กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8 ml.</p>";
+          extraHtml += "<div class='highlight' style='text-align:center'>(3X + สารละลายเจือจาง Up to 9 ml.)</div>";
+          extraHtml += "<p>การเตรียมยา:</p>";
+          extraHtml += "<p>1. คำนวณปริมาณยาที่ต้องการใช้เป็นมิลลิลิตร (ml.) แทนค่าในสูตร</p>";
+          extraHtml += "<p>2. ใช้ Syringe ขนาดที่เหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้</p>";
+          extraHtml += "<p>3. ใช้ Syringe ขนาด 10 ml. หรือ 20 ml. ดูดปริมาณสารละลายเจือจางยาเตรียมไว้</p>";
+          extraHtml += "<p>4. ผสมยาใน Syringe ที่มีสารละลายเจือจางยาอยู่ Mixed ให้เข้ากัน</p>";
+          extraHtml += "<p>5. ต่อ Syringe กับ Extension Tube นำไปวางบน Syringe pump กด Start ตั้งอัตราเร็ว 3 ml/hr.</p>";
+          extraHtml += "<p>6. Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย</p>";
+          extraHtml += "</div>";
+        } else {
+          extraHtml  = "<p style='font-weight:900; text-align:center; margin:6px 0'>";
+          extraHtml += "การบริหารยาโดย Intermittent intravenous infusion";
+          extraHtml += "</p><div class='muted'>";
+          extraHtml += "<p>สำหรับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม</p>";
+          extraHtml += "<p>1. กำหนดให้สารละลายยาซึ่งบริหารเข้าสู่ผู้ป่วยปริมาณเท่ากับ 1 ml.</p>";
+          extraHtml += "<p>2. ให้ X คือ ปริมาณยาที่ต้องการเตรียม กำหนดสูตรในการเตรียมสารละลายยา ดังนี้:</p>";
+          extraHtml += "<div class='highlight' style='text-align:center'>(6X + สารละลายเจือจาง Up to 6 ml.)</div>";
+          extraHtml += "<p>3. จากข้อ 2 จะได้สารละลายทั้งหมด 6 ml. ซึ่งหมายถึง ความจุของ Extension Tube ประมาณ 5 ml. + Volume ที่ต้องการบริหารเข้าสู่ผู้ป่วย 1 ml.</p>";
+          extraHtml += "<p>4. บริหารยาโดยใช้ Syringe pump ตั้งอัตราเร็ว 1 ml/hr.</p>";
+          extraHtml += "</div>";
+        }
+        extraCard.innerHTML = extraHtml;
+      }
     });
   })();
   </script>
