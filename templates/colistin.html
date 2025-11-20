@@ -230,12 +230,12 @@
     {% if multiplication is not none and result_ml is not none %}
       {% set total = (result_ml * multiplication) %}
       <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = {{ total|fmt(2) }} ml</b></p>
+        <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า = <span class="pill">{{ total|fmt(2) }}</span> ml</b></p>
         <div class="left-align">
           {% if multiplication == 3 %}
             {% if total < 9 %}
               <p><b>ดังนั้น สารละลายที่ต้องผสม :</b>
-                 (9 − {{ total|fmt(2) }}) = {{ (9 - total)|fmt(2) }} ml</p>
+                 (9 − {{ total|fmt(2) }}) = <span class="pill">{{ (9 - total)|fmt(2) }} </span> ml</p>
             {% else %}
               <p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}
@@ -247,7 +247,7 @@
           {% if multiplication == 6 %}
             {% if total < 6 %}
               <p><b>ดังนั้น สารละลายที่ต้องผสม :</b>
-                 (6 − {{ total|fmt(2) }}) = {{ (6 - total)|fmt(2) }} ml</p>
+                 (6 − {{ total|fmt(2) }}) = <span class="pill">{{ (6 - total)|fmt(2) }}</span> ml</p>
             {% else %}
               <p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>
             {% endif %}

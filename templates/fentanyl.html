@@ -137,29 +137,27 @@
   </footer>
 
   <div class="float-actions">
-    <a id="btn-back-med"  href="/medication_administration" class="btn btn-cyan">Back</a>
-    <a id="btn-back-home" href="/"                          class="btn btn-red">Back to Home</a>
+    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
+    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 
   <script>
-    // แก้ลิงก์อัตโนมัติเมื่อรันบน GitHub Pages ให้ไปยังไฟล์ .html
+    // แก้ลิงก์อัตโนมัติเมื่อรันบน GitHub Pages ให้ไปยังไฟล์ .html (relative)
     (function(){
       const host = (window.location && window.location.hostname) || "";
-      if (!host.endsWith("github.io")) return;   // ถ้าไม่ใช่ GitHub Pages ไม่ต้องแก้
+      // ใช้ includes เผื่อกรณีมี subdomain แปลก ๆ
+      if (!host.includes("github.io")) return;   // ถ้าไม่ใช่ GitHub Pages ไม่ต้องแก้
 
-      const path = window.location.pathname;
-      const lastSlash = path.lastIndexOf("/");
-      const base = lastSlash >= 0 ? path.slice(0, lastSlash + 1) : "/";
-
-      const cont  = document.getElementById("btn-fent-cont");
-      const small = document.getElementById("btn-fent-small");
+      const cont     = document.getElementById("btn-fent-cont");
+      const small    = document.getElementById("btn-fent-small");
       const backMed  = document.getElementById("btn-back-med");
       const backHome = document.getElementById("btn-back-home");
 
-      if (cont)     cont.href     = base + "fentanyl_continuous.html";
-      if (small)    small.href    = base + "fentanyl_small_dose.html";
-      if (backMed)  backMed.href  = base + "medication_administration.html";
-      if (backHome) backHome.href = base + "index.html";
+      // ใช้ path แบบ relative จากโฟลเดอร์เดียวกันกับ fentanyl.html
+      if (cont)     cont.href     = "fentanyl_continuous.html";
+      if (small)    small.href    = "fentanyl_small_dose.html";
+      if (backMed)  backMed.href  = "medication_administration.html";
+      if (backHome) backHome.href = "index.html";
     })();
   </script>
 

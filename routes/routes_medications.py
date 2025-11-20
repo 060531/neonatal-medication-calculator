@@ -439,6 +439,7 @@ def cefotaxime_route():
             # รองรับทั้งชื่อ field step (ใหม่) และ action (เก่า)
             step = (request.form.get('step') or request.form.get('action') or '').strip().lower()
 
+            # -------- STEP 1: dose (mg) → mL --------
             if step == 'dose':
                 raw = (request.form.get('dose') or '').strip()
                 if not raw:
@@ -447,9 +448,10 @@ def cefotaxime_route():
                 if dose < 0:
                     raise ValueError("ขนาดยาต้องมากกว่าหรือเท่ากับ 0")
 
-                # stock 1000 mg / 10 mL → mg/100
-                result_ml = round((dose * 10.0) / 1000.0, 2)
+                # stock 1000 mg / 10 mL → ความเข้มข้น 100 mg/mL → mL = mg / 100
+                result_ml = round(dose / 100.0, 2)
 
+            # -------- STEP 2: condition (3X / 6X) --------
             elif step == 'condition':
                 dose_raw = (request.form.get('dose') or '').strip()
                 if not dose_raw:
@@ -460,7 +462,7 @@ def cefotaxime_route():
                 if result_raw:
                     result_ml = float(result_raw)
                 else:
-                    result_ml = round((dose * 10.0) / 1000.0, 2)
+                    result_ml = round(dose / 100.0, 2)
 
                 mult_raw = (request.form.get('multiplication') or '').strip()
                 if not mult_raw:
@@ -468,6 +470,11 @@ def cefotaxime_route():
 
                 multiplication = int(mult_raw)
 
+                # ✅ เช็คให้ชัดเจน 3 หรือ 6 เท่านั้น
+                if multiplication not in (3, 6):
+                    raise ValueError("multiplication ต้องเป็น 3 หรือ 6 เท่า")
+
+                # กำหนด content_extra สำหรับแสดงวิธีบริหาร (ส่วนหลักจะ render ใน template)
                 if multiplication == 3:
                     content_extra = {
                         "message": "การบริหารยาโดย Intermittent intravenous infusion pump",
@@ -485,7 +492,7 @@ def cefotaxime_route():
                             "6) Purge ยาให้ทั่วท่อโดยการดัน Syringe 3 ml. แล้วจึงบริหารผู้ป่วย",
                         ],
                     }
-                elif multiplication == 6:
+                else:  # multiplication == 6
                     content_extra = {
                         "message": "การบริหารยาโดย Intermittent intravenous infusion",
                         "details": [
@@ -502,7 +509,7 @@ def cefotaxime_route():
                 # fallback ฟอร์มเก่า
                 if 'dose' in request.form:
                     dose = float(request.form['dose'])
-                    result_ml = round((dose * 10.0) / 1000.0, 2)
+                    result_ml = round(dose / 100.0, 2)
                 if 'multiplication' in request.form:
                     multiplication = int(request.form['multiplication'])
 
@@ -518,6 +525,7 @@ def cefotaxime_route():
         error=error,
         UPDATE_DATE=UPDATE_DATE,
     )
+
 
 @meds_bp.route('/ceftazidime', methods=['GET', 'POST'])
 def ceftazidime_route():
