@@ -190,22 +190,24 @@
       </div>
     {% endif %}
 
-    <!-- บล็อกผลลัพธ์ (Flask mode: ใช้ Jinja, GitHub: ใช้ JS เขียนทับ) -->
+    <!-- บล็อกผลลัพธ์ -->
     <div id="fentanyl-smalldose-result"
          class="result"
          {% if dose is none %}style="display:none"{% endif %}>
       {% if dose is not none %}
-        <p class="order-line"><b>Order:</b> Fentanyl {{ dose|fmt(2) }} mcg</p>
+        <p class="order-line">
+          <b>Order :</b> Fentanyl {{ dose|fmt(2) }} mcg
+        </p>
 
         <div class="left-align muted" style="margin-top:8px">
-          <p><b>Stock:</b> 100 mcg / 2 ml → 50 mcg/ml</p>
-          <p>สูตร: <span class="mono">ml = mcg ÷ 50</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span>
-            = <span class="pill">{{ (dose / 50) | round(2) }}</span> ml</p>
-          <p>คิดเป็นหน่วยยูนิต (u) ตามสูตรผสมใน ward (ตัวอย่าง):</p>
-          <p>ถ้าผสมให้ได้ 10 mcg = 20 u ⇒ 1 u ≈ 0.5 mcg</p>
-          <p>ดังนั้น {{ dose|fmt(2) }} mcg ≈
-            <span class="pill-red">{{ (dose * 10) | int }}</span> u</p>
+          <p>
+            <b>วิธีเตรียม :</b>
+            5% dextrose in water 80 u + ยา 10 mcg (20 u)
+          </p>
+          <p>
+            ขนาดยา : {{ dose|fmt(2) }} mcg =
+            <span class="pill-red">{{ (dose * 10) | int }}</span> u
+          </p>
         </div>
       {% endif %}
     </div>
@@ -249,21 +251,22 @@
           alert("กรุณากรอกขนาดยา (mcg) ให้ถูกต้อง");
           return;
         }
-        const ml = val / 50;       // 50 mcg/ml
-        const units = val * 10;    // ตามตัวอย่าง 10 mcg = 20 u → 1 mcg = 2 u
+        const units = val * 10;    // ให้สอดคล้องกับฝั่ง Jinja
 
         resultBox.style.display = "block";
         resultBox.innerHTML = `
-          <p class="order-line"><b>Order:</b> Fentanyl ${val.toFixed(2)} mcg</p>
+          <p class="order-line">
+            <b>Order :</b> Fentanyl ${val.toFixed(2)} mcg
+          </p>
           <div class="left-align muted" style="margin-top:8px">
-            <p><b>Stock:</b> 100 mcg / 2 ml → 50 mcg/ml</p>
-            <p>สูตร: <span class="mono">ml = mcg ÷ 50</span></p>
-            <p>แทนค่า: <span class="mono">${val.toFixed(2)} ÷ 50</span>
-              = <span class="pill">${ml.toFixed(2)}</span> ml</p>
-            <p>คิดเป็นหน่วยยูนิต (ตัวอย่างการผสมใน ward):</p>
-            <p>ถ้าผสมให้ได้ 10 mcg = 20 u ⇒ 1 u ≈ 0.5 mcg</p>
-            <p>ดังนั้น ${val.toFixed(2)} mcg ≈
-              <span class="pill-red">${Math.round(units)}</span> u</p>
+            <p>
+              <b>วิธีเตรียม :</b>
+              5% dextrose in water 80 u + ยา 10 mcg (20 u)
+            </p>
+            <p>
+              ขนาดยา : ${val.toFixed(2)} mcg =
+              <span class="pill-red">${Math.round(units)}</span> u
+            </p>
           </div>
         `;
       });

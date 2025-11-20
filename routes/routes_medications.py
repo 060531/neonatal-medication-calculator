@@ -1097,17 +1097,24 @@ def hydrocortisone_route():
 
 @meds_bp.route('/insulin', methods=['GET', 'POST'])
 def insulin_route():
-    dose = result = None
-    concentration = 1
+    dose = None
+    error = None
+
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
-            result = _round2(dose * 100 / concentration)
-        except Exception:
-            result = "ข้อมูลไม่ถูกต้อง"
-    return render_template('insulin.html',
-                           dose=dose, result=result, update_date=UPDATE_DATE)
+            if dose <= 0:
+                raise ValueError("dose ต้องมากกว่า 0")
+        except Exception as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+            dose = None
 
+    return render_template(
+        'insulin.html',
+        dose=dose,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/levofloxacin', methods=['GET', 'POST'])
 def levofloxacin_route():
@@ -1231,15 +1238,24 @@ def meropenem_route():
 @meds_bp.route('/metronidazole', methods=['GET', 'POST'])
 def metronidazole():
     dose = calculated_ml = None
+    error = None
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
-            calculated_ml = _round2((dose * 100) / 500)  # ตามสูตรที่ให้
-        except Exception:
-            dose = None; calculated_ml = None
-    return render_template('metronidazole.html',
-                           dose=dose, calculated_ml=calculated_ml, update_date=UPDATE_DATE)
+            # 500 mg / 100 ml → 5 mg/ml  ⇒  ml = mg / 5
+            calculated_ml = _round2((dose * 100) / 500)  # = dose / 5
+        except Exception as e:
+            error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
+            dose = None
+            calculated_ml = None
 
+    return render_template(
+        'metronidazole.html',
+        dose=dose,
+        calculated_ml=calculated_ml,
+        error=error,
+        update_date=UPDATE_DATE,
+    )
 
 @meds_bp.route('/midazolam_fentanyl', methods=['GET', 'POST'])
 def midazolam_fentanyl_route():
@@ -1290,7 +1306,7 @@ def midazolam_small_dose_route():
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
-            result = _round2(dose * 0.1)
+            result = _round2(dose * 0.1)   # จะใช้หรือไม่ใช้ก็ได้
         except Exception as e:
             error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
     return render_template('midazolam_small_dose.html',
@@ -1978,8 +1994,8 @@ def vancomycin_route():
             if action == 'dose':
                 dose = _as_float(request.form.get('dose'), 'dose')
                 concentration = _as_int(request.form.get('concentration'), 'concentration')
-                if concentration not in (5, 7):
-                    raise ValueError("เลือกระดับความเข้มข้นได้เฉพาะ 5 mg/mL หรือ 7 mg/mL")
+                if concentration not in (5, 10):
+                    raise ValueError("เลือกระดับความเข้มข้นได้เฉพาะ 5 mg/mL หรือ 10 mg/mL")
                 # รอบแรก:
                 result_ml_1 = _round2((dose * 10.0) / 500.0)  # 500 mg/10 mL → 50 mg/mL
                 result_ml_2 = _round2(dose / float(concentration))
@@ -1989,8 +2005,8 @@ def vancomycin_route():
                 result_ml_1 = _as_float(request.form.get('result_ml_1_hidden'), 'result_ml_1_hidden')
                 result_ml_2 = _as_float(request.form.get('result_ml_2_hidden'), 'result_ml_2_hidden')
                 multiplication = _as_float(request.form.get('multiplication'), 'multiplication')
-                if concentration not in (5, 7):
-                    raise ValueError("เลือกระดับความเข้มข้นได้เฉพาะ 5 mg/mL หรือ 7 mg/mL")
+                if concentration not in (5, 10):
+                    raise ValueError("เลือกระดับความเข้มข้นได้เฉพาะ 5 mg/mL หรือ 10 mg/mL")
                 final_result_1 = _round2(result_ml_1 * multiplication)
                 final_result_2 = _round2(result_ml_2 * multiplication)
             else:
@@ -1999,7 +2015,7 @@ def vancomycin_route():
                     dose = _as_float(request.form.get('dose'), 'dose')
                 if request.form.get('concentration'):
                     concentration = _as_int(request.form.get('concentration'), 'concentration')
-                if dose is not None and concentration in (5, 7):
+                if dose is not None and concentration in (5, 10):
                     result_ml_1 = _round2((dose * 10.0) / 500.0)
                     result_ml_2 = _round2(dose / float(concentration))
         except Exception as e:

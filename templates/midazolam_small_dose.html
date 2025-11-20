@@ -14,8 +14,8 @@
       --panel:#ffe6e6b8;
       --text:#0f172a;
 
-      --gutter: 12px;                           /* ระยะขอบซ้าย-ขวา */
-      --floatbar-gap: clamp(80px,16vw,110px);   /* กันปุ่มลอยไม่ทับ footer */
+      --gutter: 12px;
+      --floatbar-gap: clamp(80px,16vw,110px);
     }
 
     /* ===== Global guard + BG เต็มจอ ===== */
@@ -29,14 +29,13 @@
       padding-left:max(0px, env(safe-area-inset-left));
       padding-right:max(0px, env(safe-area-inset-right));
     }
-    /* พื้นหลังเต็มจอแบบไม่กระพริบบนมือถือ */
     body::before{
       content:""; position:fixed; inset:0; z-index:-1;
       background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
       background-size:cover; background-position:center; background-repeat:no-repeat;
     }
 
-    /* ===== Header (กันหล่นขอบด้วย clamp + max-width) ===== */
+    /* ===== Header ===== */
     .title-badge{
       display:inline-block;
       margin:28px auto 12px;
@@ -45,8 +44,8 @@
       font-size: clamp(18px, 4.6vw, 28px); line-height:1.2;
       border-radius:12px; border:1px solid rgba(255,255,255,.14);
       box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
-      max-width: calc(100vw - (var(--gutter)*2));   /* ไม่ให้เกินจอ */
-      white-space: normal; word-break: keep-all;    /* อนุญาตขึ้นบรรทัดใหม่แบบสวย */
+      max-width: calc(100vw - (var(--gutter)*2));
+      white-space: normal; word-break: keep-all;
     }
 
     /* ===== Wrapper / panel ===== */
@@ -59,7 +58,6 @@
       backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
     }
 
-    /* ===== Calc box ===== */
     .calc-box{
       margin:14px auto 16px; max-width:740px;
       padding:16px;
@@ -73,30 +71,25 @@
     .calc-row{
       display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
     }
-    .calc-row label{ font-weight:800; color:#0b255e; }
 
-    .calc-row input{
-      width: clamp(160px, 50vw, 220px);
-      max-width:60vw; padding:10px 12px; border-radius:10px;
-      border:1px solid #c7d9f9; text-align:center; background:#fff; font-size:16px;
-    }
-
-    /* ===== ทำให้ label + input ใน dose-row อยู่แถวเดียวเสมอ ===== */
     .dose-row{
       display:grid;
-      grid-template-columns: auto 1fr;  /* ซ้าย label | ขวา input ยืด */
+      grid-template-columns: auto 1fr;
       align-items:center;
       column-gap:10px;
       width:100%; max-width:520px;
       margin-inline:auto;
     }
     .dose-row > label{
-      white-space:nowrap;         /* กันตกลบ */
-      max-width:44vw;             /* กัน label ยาวเกิน */
+      white-space:nowrap;
+      max-width:44vw;
       text-align:right;
+      font-weight:800; color:#0b255e;
     }
     .dose-row > input[type="number"]{
       min-width:0; width:100%;
+      padding:10px 12px; border-radius:10px;
+      border:1px solid #c7d9f9; text-align:center; background:#fff; font-size:16px;
     }
     @media (max-width:360px){
       .dose-row > label{ font-size:14px; }
@@ -114,7 +107,8 @@
     .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
     .btn:active{ transform:translateY(1px); }
     .btn-blue{ background:var(--brand-700); }
-    .btn-red{  background:#e71f1f; } .btn-cyan{ background:#049bb5; }
+    .btn-red{  background:#e71f1f; }
+    .btn-cyan{ background:#049bb5; }
 
     /* ===== Results ===== */
     .result{
@@ -127,15 +121,10 @@
       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
       background:#1d3e8c; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
     }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#fde047; color:#111; font-weight:800; }
     .pill-red{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
     .muted{ color:#334155; }
     .left-align{ text-align:left; }
     .order-line{ text-align:center; margin:6px 0; }
-    .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:16px 0 6px; text-decoration: underline; }
-    .bullet{ text-align:left; margin:0 0 8px 0; }
-    .bullet ul{ margin:6px 0 0 22px; }
-    .item{ margin:6px 0; }
 
     /* ===== Floating actions ===== */
     .float-actions{
@@ -155,7 +144,7 @@
     }
     .float-actions .btn{ min-width:120px; }
 
-    /* ===== Footer (ย่อฟอนต์อัตโนมัติบนจอเล็ก) ===== */
+    /* ===== Footer ===== */
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
       margin:6px 0 var(--floatbar-gap);
@@ -164,7 +153,6 @@
       line-height:1.4;
     }
 
-    /* ===== Mobile tweaks ===== */
     @media (max-width:640px){
       .container{ padding:14px; }
       .calc-row{ gap:10px; }
@@ -179,38 +167,57 @@
   <div class="container">
     <!-- กล่องคำนวณ -->
     <div class="calc-box">
-      <form id="__will_handle_by_js__" class="calc-row">
+      <form id="midazolam-smalldose-form"
+            class="calc-row"
+            action="{{ u('midazolam_small_dose_route') }}"
+            method="post">
         <input type="hidden" name="action" value="dose" />
-
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+          <input type="number" id="dose" name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
         </div>
-
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
-    {% endif %}
-
-    {% if dose is not none %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Midazolam {{ dose|fmt(2) }} mg</p>
-
-        <div class="left-align" style="margin-top:8px">
-          <p class="item"><b>แนวทางเตรียมแบบ Small dose:</b></p>
-          <ul class="muted" style="margin-top:4px">
-            <li>วิธีเตรียม: <b>5% Dextrose in water 80 u + ยา 1 mg (20 u)</b></li>
-            <li><b>ความเข้มข้น:</b> 1 mg ใน 100 u ⇒ <span class="mono">0.01 mg/u (10 mcg/u)</span></li>
-            <li><b>สูตรคิดเป็นยูนิต:</b> <span class="mono">u = mg × 100</span></li>
-            <li>แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 100</span>
-              = <span class="pill-red">{{ (dose * 100) | int }} u</span></li>
-          </ul>
-        </div>
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
       </div>
     {% endif %}
+
+    <!-- บล็อกผลลัพธ์ -->
+    <div id="midazolam-smalldose-result"
+         class="result"
+         {% if dose is none %}style="display:none"{% endif %}>
+      {% if dose is not none %}
+        <p class="order-line">
+          <b>Order:</b> Midazolam {{ dose|fmt(2) }} mg
+        </p>
+
+        <div class="left-align muted" style="margin-top:8px">
+          <p class="item">
+            <b>วิธีเตรียม (small dose):</b>
+            5% Dextrose in water 80 u + ยา 1 mg (20 u)
+          </p>
+          <p class="item">
+            ความเข้มข้น: 1 mg ใน 100 u ⇒
+            <span class="mono">0.01 mg/u (10 mcg/u)</span>
+          </p>
+          <p class="item">
+            สูตรคิดเป็นยูนิต:
+            <span class="mono">u = mg × 100</span>
+          </p>
+          <p class="item">
+            แทนค่า: <span class="mono">{{ dose|fmt(2) }} × 100</span>
+            = <span class="pill-red">{{ (dose * 100) | int }} u</span>
+          </p>
+        </div>
+      {% endif %}
+    </div>
 
     <!-- ข้อมูลวิชาการย่อ -->
     <div class="result" style="background:#ffffff;border-color:#e5efff">
@@ -221,7 +228,7 @@
         <p class="item"><b>Half-life:</b> 4 – 6 hrs (ทารกแรกเกิด), ~22 hrs (preterm)</p>
       </div>
     </div>
-  </div><!-- /container -->
+  </div>
 
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
@@ -231,6 +238,53 @@
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <script>
+    (function(){
+      const host = (window.location && window.location.hostname) || "";
+      // ใช้ JS mode เฉพาะบน GitHub Pages
+      if (!host.endsWith("github.io")) return;
+
+      const form = document.getElementById("midazolam-smalldose-form");
+      const resultBox = document.getElementById("midazolam-smalldose-result");
+      if (!form || !resultBox) return;
+
+      form.addEventListener("submit", function(e){
+        e.preventDefault();
+        const val = parseFloat(form.dose.value || "0");
+        if (!val || val <= 0){
+          alert("กรุณากรอกขนาดยา (mg) ให้ถูกต้อง");
+          return;
+        }
+        const units = val * 100; // u = mg × 100
+
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `
+          <p class="order-line">
+            <b>Order:</b> Midazolam ${val.toFixed(2)} mg
+          </p>
+          <div class="left-align muted" style="margin-top:8px">
+            <p class="item">
+              <b>วิธีเตรียม (small dose):</b>
+              5% Dextrose in water 80 u + ยา 1 mg (20 u)
+            </p>
+            <p class="item">
+              ความเข้มข้น: 1 mg ใน 100 u ⇒
+              <span class="mono">0.01 mg/u (10 mcg/u)</span>
+            </p>
+            <p class="item">
+              สูตรคิดเป็นยูนิต:
+              <span class="mono">u = mg × 100</span>
+            </p>
+            <p class="item">
+              แทนค่า: <span class="mono">${val.toFixed(2)} × 100</span>
+              = <span class="pill-red">${Math.round(units)}</span> u
+            </p>
+          </div>
+        `;
+      });
+    })();
+  </script>
 
 </body>
 </html>

@@ -171,7 +171,7 @@
 <body>
 
   <div class="title-badge">Vancomycin : 500 mg / vial → reconst. to 50 mg/ml</div>
-  <p class="subtitle">เลือกความเข้มข้นเป้าหมายก่อนให้: 5 mg/ml (หรือ 7 mg/ml กรณีจำกัดน้ำ)</p>
+  <p class="subtitle">เลือกความเข้มข้นเป้าหมายก่อนให้: 5 mg/ml (หรือ 10 mg/ml กรณีจำกัดน้ำ)</p>
 
   <div class="container">
     <!-- รอบที่ 1: คำนวณจาก Dose + เลือกความเข้มข้น -->
@@ -197,7 +197,7 @@
       <select id="concentration" name="concentration" required>
         <option value="" disabled {% if concentration is none %}selected{% endif %}>— เลือก —</option>
         <option value="5" {% if concentration==5 %}selected{% endif %}>5 mg/ml</option>
-        <option value="7" {% if concentration==7 %}selected{% endif %}>7 mg/ml</option>
+        <option value="10" {% if concentration==10 %}selected{% endif %}>10 mg/ml</option>
       </select>
     </div>
 

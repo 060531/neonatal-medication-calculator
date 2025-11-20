@@ -83,12 +83,12 @@
     .grid{
       display:grid;
       grid-template-columns:repeat(2, minmax(180px, 1fr));
-      gap:20px;        /* ลดระยะห่างให้พอดีจอเล็ก */
+      gap:20px;
       justify-items:center; align-items:stretch;
     }
     .grid .btn{ width:100%; }
 
-    /* ===== ปุ่มลอยติดล่าง (คุมความกว้างไม่ให้ล้น) ===== */
+    /* ===== ปุ่มลอยติดล่าง ===== */
     .float-actions{
       position:fixed; left:50%;
       bottom:calc(10px + env(safe-area-inset-bottom, 0px));
@@ -105,7 +105,7 @@
     }
     .float-actions .btn{ min-width:130px; }
 
-    /* ===== Footer (ย่อฟอนต์อัตโนมัติ) ===== */
+    /* ===== Footer ===== */
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
       margin:6px 0 var(--floatbar-gap);
@@ -130,8 +130,14 @@
   <div class="container">
     <div class="box">
       <div class="grid">
-        <a href="{{ u('morphine_continuous_route') }}" class="btn btn-primary">Morphine Continuous</a>
-        <a href="{{ u('morphine_small_dose_route') }}" class="btn btn-primary">Morphine Small Dose</a>
+        <!-- ปุ่มมี id เพื่อให้ JS แก้ href บน GitHub Pages -->
+        <a id="btn-morph-cont"
+           href="{{ u('morphine_continuous_route') }}"
+           class="btn btn-primary">Morphine Continuous</a>
+
+        <a id="btn-morph-small"
+           href="{{ u('morphine_small_dose_route') }}"
+           class="btn btn-primary">Morphine Small Dose</a>
       </div>
     </div>
   </div><!-- /container -->
@@ -142,9 +148,35 @@
 
   <!-- ปุ่มลอย -->
   <div class="float-actions">
-    <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
-    <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
+    <a id="btn-back-med"
+       href="{{ u('medication_administration') }}"
+       class="btn btn-cyan">Back</a>
+    <a id="btn-back-home"
+       href="{{ u('index') }}"
+       class="btn btn-red">Back to Home</a>
   </div>
+
+  <script>
+    // แก้ลิงก์อัตโนมัติเมื่อรันบน GitHub Pages ให้ไปยังไฟล์ .html
+    (function(){
+      const host = (window.location && window.location.hostname) || "";
+      if (!host.endsWith("github.io")) return;   // ถ้าไม่ใช่ GitHub Pages ไม่ต้องแก้
+
+      const path = window.location.pathname;
+      const lastSlash = path.lastIndexOf("/");
+      const base = lastSlash >= 0 ? path.slice(0, lastSlash + 1) : "/";
+
+      const morphCont  = document.getElementById("btn-morph-cont");
+      const morphSmall = document.getElementById("btn-morph-small");
+      const backMed    = document.getElementById("btn-back-med");
+      const backHome   = document.getElementById("btn-back-home");
+
+      if (morphCont)  morphCont.href  = base + "morphine_continuous.html";
+      if (morphSmall) morphSmall.href = base + "morphine_small_dose.html";
+      if (backMed)    backMed.href    = base + "medication_administration.html";
+      if (backHome)   backHome.href   = base + "index.html";
+    })();
+  </script>
 
 </body>
 </html>

@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -108,6 +108,9 @@
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
 
+  .left-align{ text-align:left; }
+  .order-line{ text-align:center; margin:6px 0; }
+
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
     position:fixed; left:50%; transform:translateX(-50%);
@@ -129,42 +132,34 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ: dose-row ให้ label+field อยู่บรรทัดเดียว ========== */
   @media (max-width: 640px){
-    .dose-row, .conc-row{
+    .dose-row{
       display:grid;
-      grid-template-columns:auto 1fr;  /* label | field */
+      grid-template-columns:auto 1fr;
       align-items:center;
       column-gap:8px;
       width:100%;
       max-width:520px;
       margin-left:auto; margin-right:auto;
     }
-    .dose-row > label,
-    .conc-row > label{
+    .dose-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
-    .dose-row > input[type="number"],
-    .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+    .dose-row > input[type="number"]{
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
-    .dose-row > label,
-    .conc-row > label{ font-size:13px; max-width:42vw; }
-    .dose-row > input[type="number"],
-    .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
+    .dose-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"]{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -179,33 +174,47 @@
   <div class="title-badge">Metronidazole : 500 mg / 100 ml (5 mg/ml)</div>
 
   <div class="container">
-    <!-- กล่องคำนวณ (รอบเดียว: mg → ml ที่ 5 mg/ml) -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <!-- กล่องคำนวณ -->
+    <div class="calc-box">
+      <form id="metronidazole-form"
+            class="calc-row"
+            action="{{ u('metronidazole') }}"
+            method="post">
+        <input type="hidden" name="action" value="dose" />
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
 
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
-
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
+      </div>
     {% endif %}
 
     {% if dose is not none %}
-      {% set result_ml = (dose / 5.0) %}
+      {# ใช้ค่าจาก Python ถ้ามี ไม่งั้นคำนวณใน Jinja สำรอง #}
+      {% set result_ml = calculated_ml if calculated_ml is not none else (dose / 5.0) %}
       <div class="result">
         <p class="order-line"><b>Order:</b> Metronidazole {{ dose|fmt(2) }} mg</p>
         <div class="left-align muted">
           <p><b>ความแรงอ้างอิง (premix):</b> 500 mg / 100 ml ⇒ <b>5 mg/ml</b></p>
           <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 5</span></p>
-          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 5</span> = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
-          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 5</span>
+             = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
+          <p><b>ดังนั้น:</b> {{ dose|fmt(2) }} mg
+             = <span class="pill">{{ result_ml|round(2) }} ml</span></p>
         </div>
       </div>
     {% endif %}
