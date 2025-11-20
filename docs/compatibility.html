@@ -139,9 +139,13 @@
     
 <style>
   /* --- กันผลกระทบจากสไตล์ global --- */
-  .compat-page{ display:block; text-align:initial; }
+  .compat-page{
+    display:block;
+    text-align:initial;
+    width:100%;
+  }
 
-  /* --- โครงหน้า / กึ่งกลางแน่นอน --- */
+  /* --- โครงหน้า / กึ่งกลาง --- */
   .compat-shell{
     box-sizing:border-box;
     width:100%;
@@ -151,29 +155,53 @@
     padding-left:max(clamp(10px,4vw,20px),env(safe-area-inset-left));
     padding-right:max(clamp(10px,4vw,20px),env(safe-area-inset-right));
   }
-  .compat-shell, .compat-shell *{ font-size:clamp(13px,2.6vw,16px); line-height:1.35; }
+  .compat-shell, .compat-shell *{
+    font-size:clamp(13px,2.6vw,16px);
+    line-height:1.35;
+  }
 
-  .title-wrap{ display:grid; place-items:center; text-align:center; }
+  .title-wrap{
+    display:grid;
+    place-items:center;
+    text-align:center;
+  }
   .title-banner{
-    display:inline-flex; align-items:center; justify-content:center; gap:10px;
-    padding:12px 18px; border-radius:14px; color:#fff; font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:12px 18px;
+    border-radius:14px;
+    color:#fff;
+    font-weight:800;
     font-size:clamp(18px,4vw,26px);
     background:linear-gradient(135deg,#0ea5a6,#0b74d0);
     box-shadow:0 10px 24px rgba(0,0,0,.25);
-    margin-inline:auto; margin-bottom:16px; max-width:92vw;
+    margin-inline:auto;
+    margin-bottom:16px;
+    max-width:92vw;
   }
 
-  .card-wrap{ width:100%; max-width:1000px; margin-inline:auto; }
+  .card-wrap{
+    width:100%;
+    max-width:1000px;
+    margin-inline:auto;
+  }
   .glass-card{
     background:rgba(255,255,255,0.95);
     border:1px solid rgba(15,23,42,.08);
-    border-radius:16px; box-shadow:0 10px 28px rgba(2,8,23,.15);
-    padding:clamp(14px,3vw,22px); color:#0f172a;
+    border-radius:16px;
+    box-shadow:0 10px 28px rgba(2,8,23,.15);
+    padding:clamp(14px,3vw,22px);
+    color:#0f172a;
+    margin-bottom:8px; /* เผื่อพื้นที่สำหรับผลลัพธ์ / legend */
   }
 
   /* --- ฟอร์มแบบ Grid --- */
   .form-grid{
-    display:grid; gap:12px 16px; align-items:end;
+    display:grid;
+    gap:12px 16px;
+    align-items:end;
     grid-template-columns:1fr;
     grid-template-areas:
       "a"
@@ -183,7 +211,11 @@
   .field-a{ grid-area:a; }
   .field-b{ grid-area:b; }
   .actions{
-    grid-area:actions; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+    grid-area:actions;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
   }
   @media (min-width:820px){
     .form-grid{
@@ -194,44 +226,45 @@
     }
   }
 
-  label{ font-weight:700; margin:0 6px 6px 2px; display:inline-block; }
+  label{
+    font-weight:700;
+    margin:0 6px 6px 2px;
+    display:inline-block;
+  }
   select{
-    width:100%; min-width:0; padding:10px 12px;
-    border-radius:10px; border:1px solid #cbd5e1; background:#fff; color:#0f172a;
+    width:100%;
+    min-width:0;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    color:#0f172a;
     font-size:inherit;
   }
 
   .btn{
-    display:inline-block; padding:clamp(8px,1.6vw,10px) clamp(12px,2.4vw,16px);
-    border-radius:10px; font-weight:800; border:0; cursor:pointer; white-space:nowrap;
+    display:inline-block;
+    padding:clamp(8px,1.6vw,10px) clamp(12px,2.4vw,16px);
+    border-radius:10px;
+    font-weight:800;
+    border:0;
+    cursor:pointer;
+    white-space:nowrap;
     text-decoration:none;
   }
-  .btn-primary{ background:#0ea5a6; color:#fff; }
-  .btn-secondary{ background:#e2e8f0; color:#0f172a; }
-  .btn:hover{ filter:brightness(.95); }
-
-  /* --- Legend --- */
-  .legend{
-    display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-    gap:10px 14px; margin-top:12px; color:#334155;
-    font-size:clamp(10px,1.4vw,12px); line-height:1.25;
+  .btn-primary{
+    background:#0ea5a6;
+    color:#fff;
   }
-  .legend .item{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
-  .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
-  .dot.C{background:#16a34a;} .dot.I{background:#dc2626;}
-  .dot.U{background:#f59e0b;} .dot.ND{background:#2563eb;}
-
-    .glass-card{
-    background:rgba(255,255,255,0.95);
-    border:1px solid rgba(15,23,42,.08);
-    border-radius:16px;
-    box-shadow:0 10px 28px rgba(2,8,23,.15);
-    padding:clamp(14px,3vw,22px);
+  .btn-secondary{
+    background:#e2e8f0;
     color:#0f172a;
-    margin-bottom:8px; /* ให้มีพื้นที่เผื่อข้อความด้านล่าง */
+  }
+  .btn:hover{
+    filter:brightness(.95);
   }
 
-  /* กล่องผลลัพธ์หลัก */
+  /* --- กล่องผลลัพธ์หลัก --- */
   .compat-result{
     margin-top:16px;
     padding:14px 18px;
@@ -264,12 +297,48 @@
     color:#1e3a8a;
   }
 
+  /* --- Legend --- */
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:10px 14px;
+    margin-top:12px;
+    color:#334155;
+    font-size:clamp(10px,1.4vw,12px);
+    line-height:1.25;
+  }
+  .legend .item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    display:inline-block;
+  }
+  .dot.C{ background:#16a34a; }
+  .dot.I{ background:#dc2626; }
+  .dot.U{ background:#f59e0b; }
+  .dot.ND{ background:#2563eb; }
+
   @media (min-width:1200px){
-    .legend{ flex-wrap:nowrap; gap:18px; font-size:10px; }
+    .legend{
+      flex-wrap:nowrap;
+      gap:18px;
+      font-size:10px;
+    }
     .dot{ width:9px; height:9px; }
   }
   @media (min-width:1600px){
-    .legend{ font-size:9px; gap:20px; }
+    .legend{
+      font-size:9px;
+      gap:20px;
+    }
     .dot{ width:8px; height:8px; }
   }
 </style>
@@ -277,13 +346,17 @@
 <div class="compat-page">
   <div class="compat-shell">
     <div class="title-wrap">
-      <div class="title-banner">ตรวจสอบความเข้ากันได้ของยา (Compatibility)</div>
+      <div class="title-banner">
+        ตรวจสอบความเข้ากันได้ของยา (Compatibility)
+      </div>
     </div>
 
     <div class="card-wrap">
       <div class="glass-card">
         
-        <form method="post" action="./core.compatibility_page.html">
+        
+          <form method="get" action="#">
+        
           <div class="form-grid">
             <!-- ยา A -->
             <div class="field-a">
@@ -305,28 +378,46 @@
 
             <!-- ปุ่ม -->
             <div class="actions">
-              <button type="submit" class="btn btn-primary">ตรวจสอบ</button>
-              <a href="./core.index.html" class="btn btn-secondary">กลับหน้า Home</a>
+              <button type="submit" class="btn btn-primary">
+                ตรวจสอบ
+              </button>
+
+              
+              
+              <a href="./core.index.html" class="btn btn-secondary">
+                กลับหน้า Home
+              </a>
             </div>
           </div>
         </form>
 
-                
-                  <!-- Legend -->
+        
+        
+
+        <!-- Legend -->
         <div class="legend">
-          <div class="item"><span class="dot C"></span> C = Compatible / ผสมร่วมได้</div>
-          <div class="item"><span class="dot I"></span> I = Incompatible / ห้ามผสม</div>
-          <div class="item"><span class="dot U"></span> U = Uncertain / ไม่ชัดเจน</div>
-          <div class="item"><span class="dot ND"></span> ND = No data / ไม่มีข้อมูล</div>
+          <div class="item">
+            <span class="dot C"></span>
+            C = Compatible / ผสมร่วมได้
+          </div>
+          <div class="item">
+            <span class="dot I"></span>
+            I = Incompatible / ห้ามผสม
+          </div>
+          <div class="item">
+            <span class="dot U"></span>
+            U = Uncertain / ไม่ชัดเจน
+          </div>
+          <div class="item">
+            <span class="dot ND"></span>
+            ND = No data / ไม่มีข้อมูล
+          </div>
         </div>
 
-        </div>
       </div>
     </div>
   </div>
 </div>
-
-
 
   </div>
 
