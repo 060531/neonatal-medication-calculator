@@ -239,7 +239,7 @@
     <a href="{{ u('index') }}" class="btn" style="background:#e71f1f" data-nav="home">Back to Home</a>
   </div>
 
-  <script>
+<script>
   (function () {
     const host = window.location.hostname || "";
     const isGithub = host.endsWith("github.io");
@@ -254,6 +254,9 @@
     const resultBox     = document.getElementById('result-box');
 
     if (!form || !origDoseInput || !origVolInput || !desDoseInput || !resultBox) return;
+
+    // 🔹 ซ่อนกล่องผลลัพธ์ไว้ก่อนบน GitHub
+    resultBox.style.display = 'none';
 
     const CONC = 10; // mg/ml
 
@@ -309,10 +312,12 @@
           </p>
         </div>
       `;
+      // แสดงกล่องหลังคำนวณ
       resultBox.style.display = 'block';
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   })();
-  </script>
+</script>
 
 </body>
 </html>

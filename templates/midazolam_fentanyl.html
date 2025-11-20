@@ -232,72 +232,87 @@
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
 
-  <script>
-    // ความเข้มข้นอ้างอิง
-    const MID_CONC = 5;   // mg/ml
-    const FEN_CONC = 50;  // mcg/ml
+<script>
+  // ความเข้มข้นอ้างอิง
+  const MID_CONC = 5;   // mg/ml
+  const FEN_CONC = 50;  // mcg/ml
 
-    let midazolamVolume = 0, fentanylVolume = 0, diluentVolume = 0;
+  let midazolamVolume = 0, fentanylVolume = 0, diluentVolume = 0;
 
-    const resultEl = document.getElementById('result');
-    const multiplierBox = document.getElementById('multiplier-box');
+  const resultEl      = document.getElementById('result');
+  const multiplierBox = document.getElementById('multiplier-box');
 
-    document.getElementById('dosage-form').addEventListener('submit', function(e){
-      e.preventDefault();
+  // ==== เช็คว่าอยู่บน GitHub Pages หรือไม่ ====
+  const host     = window.location.hostname || "";
+  const isGithub = host.endsWith("github.io");
 
-      const midDose = parseFloat(document.getElementById('midazolam_dosage').value || '0');   // mg
-      const fenDose = parseFloat(document.getElementById('fentanyl_dosage').value  || '0');   // mcg
-      const totalVol = parseFloat(document.getElementById('original_volume').value || '0');   // ml
+  // ถ้าเป็น GitHub → ซ่อนกล่องรอบที่ 2 ไว้ก่อน
+  if (isGithub && multiplierBox) {
+    multiplierBox.style.display = 'none';
+  }
 
-      if ([midDose, fenDose, totalVol].some(v => isNaN(v) || v <= 0)){
-        alert('กรุณากรอกค่าที่ถูกต้อง (> 0)');
-        return;
+  document.getElementById('dosage-form').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const midDose = parseFloat(document.getElementById('midazolam_dosage').value || '0');   // mg
+    const fenDose = parseFloat(document.getElementById('fentanyl_dosage').value  || '0');   // mcg
+    const totalVol = parseFloat(document.getElementById('original_volume').value || '0');   // ml
+
+    if ([midDose, fenDose, totalVol].some(v => isNaN(v) || v <= 0)){
+      alert('กรุณากรอกค่าที่ถูกต้อง (> 0)');
+      return;
+    }
+
+    midazolamVolume = midDose / MID_CONC;   // ml
+    fentanylVolume  = fenDose / FEN_CONC;   // ml
+    diluentVolume   = totalVol - (midazolamVolume + fentanylVolume);
+
+    resultEl.innerHTML = `
+      <p class="order-line"><b>ผลลัพธ์ (1 เท่า):</b></p>
+      <div class="left-align">
+        <p>Midazolam: <span class="mono">${midDose.toFixed(2)} ÷ ${MID_CONC}</span> =
+           <span class="pill">${midazolamVolume.toFixed(2)} ml</span></p>
+        <p>Fentanyl: <span class="mono">${fenDose.toFixed(2)} ÷ ${FEN_CONC}</span> =
+           <span class="pill">${fentanylVolume.toFixed(2)} ml</span></p>
+        <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+        <p><b>ตัวทำละลาย:</b> ${totalVol.toFixed(2)} − (${midazolamVolume.toFixed(2)} + ${fentanylVolume.toFixed(2)}) =
+           <b><span class="pill">${diluentVolume.toFixed(2)} ml</span></b></p>
+      </div>
+    `;
+    resultEl.style.display = 'block';
+
+    // เปิดใช้งานรอบคูณ
+    if (multiplierBox) {
+      if (isGithub) {
+        // บน GitHub แสดงกล่องหลังคำนวณรอบแรกเท่านั้น
+        multiplierBox.style.display = 'block';
       }
-
-      midazolamVolume = midDose / MID_CONC;   // ml
-      fentanylVolume  = fenDose / FEN_CONC;   // ml
-      diluentVolume   = totalVol - (midazolamVolume + fentanylVolume);
-
-      resultEl.innerHTML = `
-        <p class="order-line"><b>ผลลัพธ์ (1 เท่า):</b></p>
-        <div class="left-align">
-          <p>Midazolam: <span class="mono">${midDose.toFixed(2)} ÷ ${MID_CONC}</span> =
-             <span class="pill">${midazolamVolume.toFixed(2)} ml</span></p>
-          <p>Fentanyl: <span class="mono">${fenDose.toFixed(2)} ÷ ${FEN_CONC}</span> =
-             <span class="pill">${fentanylVolume.toFixed(2)} ml</span></p>
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ตัวทำละลาย:</b> ${totalVol.toFixed(2)} − (${midazolamVolume.toFixed(2)} + ${fentanylVolume.toFixed(2)}) =
-             <b><span class="pill">${diluentVolume.toFixed(2)} ml</span></b></p>
-        </div>
-      `;
-      resultEl.style.display = 'block';
-
-      // เปิดใช้งานรอบคูณ
       multiplierBox.style.opacity = '1';
       multiplierBox.style.pointerEvents = 'auto';
-    });
+    }
+  });
 
-    document.getElementById('multiply-button').addEventListener('click', function(){
-      if (midazolamVolume <= 0 && fentanylVolume <= 0) return;
+  document.getElementById('multiply-button').addEventListener('click', function(){
+    if (midazolamVolume <= 0 && fentanylVolume <= 0) return;
 
-      const m = parseFloat(document.getElementById('multiplication').value || '1');
-      const midX = midazolamVolume * m;
-      const fenX = fentanylVolume * m;
-      const dilX = diluentVolume * m;
+    const m   = parseFloat(document.getElementById('multiplication').value || '1');
+    const midX = midazolamVolume * m;
+    const fenX = fentanylVolume * m;
+    const dilX = diluentVolume * m;
 
-      const block = document.createElement('div');
-      block.className = 'left-align';
-      block.style.marginTop = '10px';
-      block.innerHTML = `
-        <p class="order-line"><b>ผลลัพธ์หลังคูณ ${m} เท่า</b></p>
-        <p>Midazolam × ${m}: <span class="pill">${midX.toFixed(2)} ml</span></p>
-        <p>Fentanyl × ${m}: <span class="pill">${fenX.toFixed(2)} ml</span></p>
-        <p><b>ตัวทำละลาย × ${m}:</b> <span class="pill">${dilX.toFixed(2)} ml</span></p>
-      `;
-      resultEl.appendChild(block);
-      resultEl.style.display = 'block';
-    });
-  </script>
+    const block = document.createElement('div');
+    block.className = 'left-align';
+    block.style.marginTop = '10px';
+    block.innerHTML = `
+      <p class="order-line"><b>ผลลัพธ์หลังคูณ ${m} เท่า</b></p>
+      <p>Midazolam × ${m}: <span class="pill">${midX.toFixed(2)} ml</span></p>
+      <p>Fentanyl × ${m}: <span class="pill">${fenX.toFixed(2)} ml</span></p>
+      <p><b>ตัวทำละลาย × ${m}:</b> <span class="pill">${dilX.toFixed(2)} ml</span></p>
+    `;
+    resultEl.appendChild(block);
+    resultEl.style.display = 'block';
+  });
+</script>
 
 </body>
 </html>
