@@ -21,6 +21,7 @@
     /* ===== Global guard + BG เต็มจอ (ไม่กระพริบบนมือถือ) ===== */
     html, body { height:100%; overflow-x:hidden; }
     *, *::before, *::after { box-sizing:border-box; }
+    img, video, canvas, svg { max-width:100%; height:auto; }
     body{
       margin:0; min-height:100svh;
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
@@ -83,12 +84,12 @@
     .grid{
       display:grid;
       grid-template-columns:repeat(2, minmax(180px, 1fr));
-      gap:20px;        /* ลดระยะห่างให้พอดีจอเล็ก */
+      gap:20px;
       justify-items:center; align-items:stretch;
     }
     .grid .btn{ width:100%; }
 
-    /* ===== ปุ่มลอยติดล่าง (คุมความกว้างไม่ให้ล้น) ===== */
+    /* ===== ปุ่มลอยติดล่าง ===== */
     .float-actions{
       position:fixed; left:50%;
       bottom:calc(10px + env(safe-area-inset-bottom, 0px));
@@ -105,7 +106,7 @@
     }
     .float-actions .btn{ min-width:130px; }
 
-    /* ===== Footer (ย่อฟอนต์อัตโนมัติ) ===== */
+    /* ===== Footer ===== */
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
       margin:6px 0 var(--floatbar-gap);
@@ -136,7 +137,7 @@
     </div>
   </div>
 
-  <!-- Footer: ฟอนต์จะเล็กลงอัตโนมัติบนจอเล็ก -->
+  <!-- Footer -->
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
   </footer>

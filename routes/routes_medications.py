@@ -941,11 +941,17 @@ def fentanyl_continuous_route():
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
+            # ตัวอย่าง: rate = dose × 0.1
             result = _round2(dose * 0.1)
         except Exception as e:
             error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
-    return render_template('fentanyl_continuous.html',
-                           dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+    return render_template(
+        'fentanyl_continuous.html',
+        dose=dose,
+        result=result,
+        error=error,
+        update_date=UPDATE_DATE
+    )
 
 
 @meds_bp.route('/fentanyl_small_dose', methods=['GET', 'POST'])
@@ -954,11 +960,17 @@ def fentanyl_small_dose_route():
     if request.method == 'POST':
         try:
             dose = _as_float(request.form.get('dose'), 'dose')
-            result = _round2(dose * 0.05)
+            # ปริมาตรที่ควรดูดจาก stock 50 mcg/ml
+            result = _round2(dose / 50.0)
         except Exception as e:
             error = f"กรุณากรอกข้อมูลที่ถูกต้อง: {e}"
-    return render_template('fentanyl_small_dose.html',
-                           dose=dose, result=result, error=error, update_date=UPDATE_DATE)
+    return render_template(
+        'fentanyl_small_dose.html',
+        dose=dose,
+        result=result,
+        error=error,
+        update_date=UPDATE_DATE
+    )
 
 @meds_bp.route('/furosemide', methods=['GET', 'POST'])
 def furosemide_route():

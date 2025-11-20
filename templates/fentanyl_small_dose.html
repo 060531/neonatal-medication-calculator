@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Fentanyl Calculation</title>
+  <title>Fentanyl Small Dose</title>
   <style>
     /* ===== Theme tokens ===== */
     :root{
@@ -14,11 +14,11 @@
       --panel:#ffe6e6b8;
       --text:#0f172a;
 
-      --gutter: 12px;                           /* ระยะขอบซ้าย-ขวา */
-      --floatbar-gap: clamp(80px,16vw,110px);   /* กันปุ่มลอยไม่ทับ footer */
+      --gutter: 12px;
+      --floatbar-gap: clamp(80px,16vw,110px);
     }
 
-    /* ===== Global guard + BG เต็มจอ ===== */
+    /* Global */
     html, body { height:100%; overflow-x:hidden; }
     *, *::before, *::after { box-sizing:border-box; }
     img, video, canvas, svg { max-width:100%; height:auto; }
@@ -29,14 +29,13 @@
       padding-left:max(0px, env(safe-area-inset-left));
       padding-right:max(0px, env(safe-area-inset-right));
     }
-    /* พื้นหลังเต็มจอแบบไม่กระพริบบนมือถือ */
     body::before{
       content:""; position:fixed; inset:0; z-index:-1;
       background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
       background-size:cover; background-position:center; background-repeat:no-repeat;
     }
 
-    /* ===== Header (กันหล่นขอบด้วย clamp + max-width) ===== */
+    /* Header */
     .title-badge{
       display:inline-block;
       margin:28px auto 12px;
@@ -45,11 +44,11 @@
       font-size: clamp(18px, 4.6vw, 28px); line-height:1.2;
       border-radius:12px; border:1px solid rgba(255,255,255,.14);
       box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
-      max-width: calc(100vw - (var(--gutter)*2));   /* ไม่ให้เกินจอ */
-      white-space: normal; word-break: keep-all;    /* อนุญาตขึ้นบรรทัดใหม่แบบสวย */
+      max-width: calc(100vw - (var(--gutter)*2));
+      white-space: normal; word-break: keep-all;
     }
 
-    /* ===== Wrapper / panel ===== */
+    /* Container */
     .container{
       width:min(820px, calc(100vw - (var(--gutter)*2)));
       margin:0 auto 12px; padding:20px;
@@ -59,13 +58,12 @@
       backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%);
     }
 
-    /* ===== Calc box ===== */
     .calc-box{
       margin:14px auto 16px; max-width:740px;
-      padding:16px;
       background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
       border:1px solid #b7d6ff; border-radius:14px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+      padding:16px;
       padding-left:max(12px, var(--gutter));
       padding-right:max(12px, var(--gutter));
     }
@@ -73,37 +71,33 @@
     .calc-row{
       display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
     }
-    .calc-row label{ font-weight:800; color:#0b255e; }
 
-    .calc-row input{
-      width: clamp(160px, 50vw, 220px);
-      max-width:60vw; padding:10px 12px; border-radius:10px;
-      border:1px solid #c7d9f9; text-align:center; background:#fff; font-size:16px;
-    }
-
-    /* ===== ทำให้ label + input ใน dose-row อยู่แถวเดียวเสมอ ===== */
     .dose-row{
       display:grid;
-      grid-template-columns: auto 1fr;  /* ซ้าย label | ขวา input ยืด */
+      grid-template-columns: auto 1fr;
       align-items:center;
       column-gap:10px;
       width:100%; max-width:520px;
       margin-inline:auto;
     }
     .dose-row > label{
-      white-space:nowrap;         /* กันตกลบ */
-      max-width:44vw;             /* กัน label ยาวเกิน */
+      font-weight:800; color:#0b255e;
+      white-space:nowrap;
+      max-width:44vw;
       text-align:right;
     }
     .dose-row > input[type="number"]{
       min-width:0; width:100%;
+      padding:10px 12px; border-radius:10px;
+      border:1px solid #c7d9f9; text-align:center; background:#fff; font-size:16px;
     }
+
     @media (max-width:360px){
       .dose-row > label{ font-size:14px; }
       .dose-row > input[type="number"]{ font-size:14px; padding:8px 10px; }
     }
 
-    /* ===== Buttons ===== */
+    /* Buttons */
     .btn{
       appearance:none; border:none; border-radius:10px; cursor:pointer;
       padding:10px 16px; font-weight:800; color:#fff;
@@ -114,9 +108,10 @@
     .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
     .btn:active{ transform:translateY(1px); }
     .btn-blue{ background:var(--brand-700); }
-    .btn-red{  background:#e71f1f; } .btn-cyan{ background:#049bb5; }
+    .btn-red{  background:#e71f1f; }
+    .btn-cyan{ background:#049bb5; }
 
-    /* ===== Results ===== */
+    /* Result */
     .result{
       text-align:left; margin:12px auto; max-width:740px;
       background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px; padding:12px;
@@ -132,12 +127,8 @@
     .muted{ color:#334155; }
     .left-align{ text-align:left; }
     .order-line{ text-align:center; margin:6px 0; }
-    .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:16px 0 6px; text-decoration: underline; }
-    .bullet{ text-align:left; margin:0 0 8px 0; }
-    .bullet ul{ margin:6px 0 0 22px; }
-    .item{ margin:6px 0; }
 
-    /* ===== Floating actions ===== */
+    /* Float actions */
     .float-actions{
       position:fixed; left:50%; transform:translateX(-50%);
       bottom: calc(10px + env(safe-area-inset-bottom, 0px));
@@ -151,11 +142,10 @@
       backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
       width:min(540px, calc(100vw - (var(--gutter)*2)));
       max-width:calc(100vw - (var(--gutter)*2));
-      pointer-events:auto;
     }
     .float-actions .btn{ min-width:120px; }
 
-    /* ===== Footer (ย่อฟอนต์อัตโนมัติบนจอเล็ก) ===== */
+    /* Footer */
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
       margin:6px 0 var(--floatbar-gap);
@@ -164,7 +154,6 @@
       line-height:1.4;
     }
 
-    /* ===== Mobile tweaks ===== */
     @media (max-width:640px){
       .container{ padding:14px; }
       .calc-row{ gap:10px; }
@@ -173,68 +162,113 @@
 </head>
 <body>
 
-  <!-- หัวข้อบนสุด (จะปรับขนาดเอง ไม่หล่นขอบจอ) -->
-  <div class="title-badge">Fentanyl : 100 mcg / 2 ml (≈ 50 mcg/ml)</div>
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">Fentanyl Small Dose (100 mcg / 2 ml ≈ 50 mcg/ml)</div>
 
   <div class="container">
-    <!-- กล่องคำนวณ : label+input บรรทัดเดียว -->
+    <!-- กล่องคำนวณ -->
     <div class="calc-box">
-      <form id="__will_handle_by_js__" class="calc-row">
+      <form id="fentanyl-smalldose-form"
+            class="calc-row"
+            action="{{ u('fentanyl_small_dose_route') }}"
+            method="post">
         <input type="hidden" name="action" value="dose" />
-
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mcg):</label>
-          <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mcg)" required step="0.01" value="{{ dose if dose is not none else '' }}">
+          <input type="number" id="dose" name="dose"
+                 placeholder="ขนาดยา (mcg)"
+                 required step="0.01"
+                 value="{{ dose if dose is not none else '' }}">
         </div>
-
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
     {% if error %}
-      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">{{ error }}</div>
-    {% endif %}
-
-    {% if dose is not none %}
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Fentanyl {{ dose|fmt(2) }} mcg</p>
-
-        <div class="left-align" style="margin-top:8px">
-          <p class="item"><b>แนวทางเตรียมแบบ Small dose:</b></p>
-          <ul class="muted" style="margin-top:4px">
-            <li>วิธีเตรียม: <b>5% Dextrose in water 80 u + ยา 10 mcg (20 u)</b></li>
-            <li><b>สูตรจากความแรง ~ 50 mcg/ml</b> → <span class="mono">ml = mcg ÷ 50</span></li>
-            <li>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span>
-              = <span class="pill">{{ (dose / 50) | round(2) }}</span> ml</li>
-            <li><b>คิดเป็นหน่วยยูนิต (u):</b>
-              <b>ดังนั้น</b> {{ dose|fmt(2) }} mcg =
-              <b><span class="pill-red">{{ (dose * 10) | int }}</span></b> u</li>
-          </ul>
-        </div>
+      <div class="result" style="background:#fff0f0; border-color:#f2b6b6; color:#9b1c1c">
+        {{ error }}
       </div>
     {% endif %}
+
+    <!-- บล็อกผลลัพธ์ (Flask mode: ใช้ Jinja, GitHub: ใช้ JS เขียนทับ) -->
+    <div id="fentanyl-smalldose-result"
+         class="result"
+         {% if dose is none %}style="display:none"{% endif %}>
+      {% if dose is not none %}
+        <p class="order-line"><b>Order:</b> Fentanyl {{ dose|fmt(2) }} mcg</p>
+
+        <div class="left-align muted" style="margin-top:8px">
+          <p><b>Stock:</b> 100 mcg / 2 ml → 50 mcg/ml</p>
+          <p>สูตร: <span class="mono">ml = mcg ÷ 50</span></p>
+          <p>แทนค่า: <span class="mono">{{ dose|fmt(2) }} ÷ 50</span>
+            = <span class="pill">{{ (dose / 50) | round(2) }}</span> ml</p>
+          <p>คิดเป็นหน่วยยูนิต (u) ตามสูตรผสมใน ward (ตัวอย่าง):</p>
+          <p>ถ้าผสมให้ได้ 10 mcg = 20 u ⇒ 1 u ≈ 0.5 mcg</p>
+          <p>ดังนั้น {{ dose|fmt(2) }} mcg ≈
+            <span class="pill-red">{{ (dose * 10) | int }}</span> u</p>
+        </div>
+      {% endif %}
+    </div>
 
     <!-- ข้อมูลวิชาการ -->
     <div class="result" style="background:#ffffff;border-color:#e5efff">
       <div class="left-align muted">
-        <p class="item">☞ <b>ขนาดยาแนะนำ:</b> 1 – 4 mcg/kg/dose</p>
-        <p class="item"><b>Solvent:</b> 5% Dextrose in water (small dose)</p>
-        <p class="item"><b>Monitoring:</b> Respiratory rate, Blood pressure</p>
-        <p class="item"><b>Half-life:</b> 3 – 4 hrs</p>
+        <p>☞ <b>ขนาดยาแนะนำโดยทั่วไป:</b> 1 – 4 mcg/kg/dose (ตามแนวทางของแต่ละสถาบัน)</p>
+        <p><b>Solvent ที่นิยมใช้ small dose:</b> 5% Dextrose in water</p>
+        <p><b>Monitoring:</b> Respiratory rate, Blood pressure, SpO₂</p>
+        <p><b>Half-life โดยประมาณ:</b> 3 – 4 ชั่วโมง (ขึ้นกับภาวะผู้ป่วย)</p>
       </div>
     </div>
-  </div><!-- /container -->
+  </div>
 
   <!-- Footer -->
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
   </footer>
 
-  <!-- ปุ่มลอยติดล่าง -->
+  <!-- ปุ่มลอย -->
   <div class="float-actions">
     <a href="{{ u('medication_administration') }}" class="btn btn-cyan">Back</a>
     <a href="{{ u('index') }}" class="btn btn-red">Back to Home</a>
   </div>
+
+  <script>
+    (function(){
+      const host = (window.location && window.location.hostname) || "";
+      // ใช้ JS mode เฉพาะบน GitHub Pages
+      if (!host.endsWith("github.io")) return;
+
+      const form = document.getElementById("fentanyl-smalldose-form");
+      const resultBox = document.getElementById("fentanyl-smalldose-result");
+      if (!form || !resultBox) return;
+
+      form.addEventListener("submit", function(e){
+        e.preventDefault();
+        const val = parseFloat(form.dose.value || "0");
+        if (!val || val <= 0){
+          alert("กรุณากรอกขนาดยา (mcg) ให้ถูกต้อง");
+          return;
+        }
+        const ml = val / 50;       // 50 mcg/ml
+        const units = val * 10;    // ตามตัวอย่าง 10 mcg = 20 u → 1 mcg = 2 u
+
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `
+          <p class="order-line"><b>Order:</b> Fentanyl ${val.toFixed(2)} mcg</p>
+          <div class="left-align muted" style="margin-top:8px">
+            <p><b>Stock:</b> 100 mcg / 2 ml → 50 mcg/ml</p>
+            <p>สูตร: <span class="mono">ml = mcg ÷ 50</span></p>
+            <p>แทนค่า: <span class="mono">${val.toFixed(2)} ÷ 50</span>
+              = <span class="pill">${ml.toFixed(2)}</span> ml</p>
+            <p>คิดเป็นหน่วยยูนิต (ตัวอย่างการผสมใน ward):</p>
+            <p>ถ้าผสมให้ได้ 10 mcg = 20 u ⇒ 1 u ≈ 0.5 mcg</p>
+            <p>ดังนั้น ${val.toFixed(2)} mcg ≈
+              <span class="pill-red">${Math.round(units)}</span> u</p>
+          </div>
+        `;
+      });
+    })();
+  </script>
 
 </body>
 </html>
