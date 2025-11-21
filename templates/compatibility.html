@@ -140,7 +140,6 @@
     font-weight:500;
   }
 
-  /* เปลี่ยนสีทั้งกรอบตาม status (ใช้สีเดียวกับ legend) */
   .compat-result.compat-C{
     background:rgba(22,163,74,0.10);
     border-color:#16a34a;
@@ -208,6 +207,51 @@
   }
 </style>
 
+{# fallback รายชื่อยาถ้า drugs ว่าง (ใช้ทั้ง A/B) #}
+{% set fallback_names = [
+  "Acyclovir",
+  "Amikacin",
+  "Aminophylline",
+  "Amoxicillin / Clavimoxy",
+  "Amphotericin B",
+  "Ampicillin",
+  "Benzathine penicillin G",
+  "Calcium gluconate",
+  "Cefazolin",
+  "Cefotaxime",
+  "Ceftazidime",
+  "Ciprofloxacin",
+  "Clindamycin",
+  "Cloxacillin",
+  "Colistin",
+  "Dexamethasone",
+  "Dobutamine",
+  "Dopamine",
+  "Fentanyl",
+  "Furosemide",
+  "Gentamicin",
+  "Hydrocortisone",
+  "Insulin Human Regular",
+  "Levofloxacin",
+  "Meropenem",
+  "Metronidazole (Flagyl)",
+  "Midazolam",
+  "Midazolam + Fentanyl",
+  "Morphine",
+  "Nimbex (Cisatracurium)",
+  "Omeprazole",
+  "Penicillin G sodium",
+  "Phenobarbital",
+  "Phenytoin (Dilantin)",
+  "Remdesivir",
+  "Sul-am®",
+  "Sulbactam",
+  "Sulperazone",
+  "Tazocin",
+  "Unasyn",
+  "Vancomycin"
+] %}
+
 <div class="compat-page">
   <div class="compat-shell">
     <div class="title-wrap">
@@ -218,7 +262,6 @@
 
     <div class="card-wrap">
       <div class="glass-card">
-        {# ฟอร์ม: Flask = ยิงไปยัง route / Static (GitHub) = action เป็น # #}
         {% if use_static %}
           <form method="get" action="#">
         {% else %}
@@ -230,12 +273,21 @@
               <label for="drug_a">ยา A</label>
               <select id="drug_a" name="drug_a" required>
                 <option value="">-- เลือกยา --</option>
-                {% for d in drugs %}
-                  <option value="{{ d.id }}"
-                    {% if selected_drug_id and (selected_drug_id|string) == (d.id|string) %}selected{% endif %}>
-                    {{ d.generic_name }}
-                  </option>
-                {% endfor %}
+
+                {# ถ้ามี drugs จาก DB → ใช้ DB #}
+                {% if drugs %}
+                  {% for d in drugs %}
+                    <option value="{{ d.id }}"
+                      {% if selected_drug_id and (selected_drug_id|string) == (d.id|string) %}selected{% endif %}>
+                      {{ d.generic_name }}
+                    </option>
+                  {% endfor %}
+                {# ถ้าไม่มี drugs → ใช้ fallback_names #}
+                {% else %}
+                  {% for name in fallback_names %}
+                    <option value="{{ loop.index }}">{{ name }}</option>
+                  {% endfor %}
+                {% endif %}
               </select>
             </div>
 
@@ -244,12 +296,19 @@
               <label for="drug_b">ยา B</label>
               <select id="drug_b" name="drug_b" required>
                 <option value="">-- เลือกยา --</option>
-                {% for d in drugs %}
-                  <option value="{{ d.id }}"
-                    {% if selected_co_drug_id and (selected_co_drug_id|string) == (d.id|string) %}selected{% endif %}>
-                    {{ d.generic_name }}
-                  </option>
-                {% endfor %}
+
+                {% if drugs %}
+                  {% for d in drugs %}
+                    <option value="{{ d.id }}"
+                      {% if selected_co_drug_id and (selected_co_drug_id|string) == (d.id|string) %}selected{% endif %}>
+                      {{ d.generic_name }}
+                    </option>
+                  {% endfor %}
+                {% else %}
+                  {% for name in fallback_names %}
+                    <option value="{{ loop.index }}">{{ name }}</option>
+                  {% endfor %}
+                {% endif %}
               </select>
             </div>
 
@@ -259,7 +318,6 @@
                 ตรวจสอบ
               </button>
 
-              {# ปุ่มกลับ Home: dual mode Flask / GitHub #}
               {% set home_href = (URL_MAP['index']
                                   if (use_static and URL_MAP is defined)
                                   else url_for('core.index')) %}
@@ -270,7 +328,6 @@
           </div>
         </form>
 
-        {# กล่องผลลัพธ์ #}
         {% if status_code %}
           <div class="compat-result compat-{{ status_code }}">
             <p style="margin:0 0 4px 0;">
