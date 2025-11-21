@@ -314,17 +314,21 @@
 
             <!-- ปุ่ม -->
             <div class="actions">
-              <button type="submit" class="btn btn-primary">
-                ตรวจสอบ
-              </button>
+  <button
+    type="{% if use_static %}button{% else %}submit{% endif %}"
+    class="btn btn-primary"
+    id="compat-check-btn">
+    ตรวจสอบ
+  </button>
 
-              {% set home_href = (URL_MAP['index']
-                                  if (use_static and URL_MAP is defined)
-                                  else url_for('core.index')) %}
-              <a href="{{ home_href }}" class="btn btn-secondary">
-                กลับหน้า Home
-              </a>
-            </div>
+  {% set home_href = (URL_MAP['index']
+                      if (use_static and URL_MAP is defined)
+                      else url_for('core.index')) %}
+  <a href="{{ home_href }}" class="btn btn-secondary">
+    กลับหน้า Home
+  </a>
+</div>
+
           </div>
         </form>
 
@@ -385,7 +389,6 @@
 const STATIC_COMPAT = {
   {% for row in compat_pairs %}
   {{ (row.drug_a|lower ~ '|' ~ row.drug_b|lower)|tojson }}: {
-    code: {{ row.status|tojson }},
     text: {{ (
         'Compatible / ผสมร่วมได้'  if row.status == 'C' else
         'Incompatible / ห้ามผสม'   if row.status == 'I' else
@@ -408,13 +411,11 @@ const STATIC_COMPAT = {
     return String(s || "").trim().toLowerCase();
   }
 
-  var form = document.querySelector(".compat-page form");
-  var box  = document.getElementById("compat-result-box");
-  if (!form || !box) return;
+  var box = document.getElementById("compat-result-box");
+  var btn = document.getElementById("compat-check-btn");
+  if (!box || !btn) return;
 
-  form.addEventListener("submit", function(ev){
-    ev.preventDefault();
-
+  btn.addEventListener("click", function(){
     var selA = document.getElementById("drug_a");
     var selB = document.getElementById("drug_b");
     if (!selA || !selB) return;
@@ -434,7 +435,7 @@ const STATIC_COMPAT = {
       html =
         "<p style='margin:0 0 4px 0;'>ไม่พบข้อมูลคู่นี้ในไฟล์ static</p>" +
         "<p style='margin:0 0 4px 0;'>No data / ไม่มีข้อมูล</p>";
-    }else{
+    } else {
       code = data.code || "ND";
       var text = data.text || "No data / ไม่มีข้อมูล";
 
@@ -459,6 +460,7 @@ const STATIC_COMPAT = {
   });
 })();
 </script>
+
 {% endif %}
 
       </div>
