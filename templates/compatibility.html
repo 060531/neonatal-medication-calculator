@@ -3,14 +3,12 @@
 
 {% block content %}
 <style>
-  /* --- กันผลกระทบจากสไตล์ global --- */
   .compat-page{
     display:block;
     text-align:initial;
     width:100%;
   }
 
-  /* --- โครงหน้า / กึ่งกลาง --- */
   .compat-shell{
     box-sizing:border-box;
     width:100%;
@@ -59,10 +57,9 @@
     box-shadow:0 10px 28px rgba(2,8,23,.15);
     padding:clamp(14px,3vw,22px);
     color:#0f172a;
-    margin-bottom:8px; /* เผื่อพื้นที่สำหรับผลลัพธ์ / legend */
+    margin-bottom:8px;
   }
 
-  /* --- ฟอร์มแบบ Grid --- */
   .form-grid{
     display:grid;
     gap:12px 16px;
@@ -117,19 +114,10 @@
     white-space:nowrap;
     text-decoration:none;
   }
-  .btn-primary{
-    background:#0ea5a6;
-    color:#fff;
-  }
-  .btn-secondary{
-    background:#e2e8f0;
-    color:#0f172a;
-  }
-  .btn:hover{
-    filter:brightness(.95);
-  }
+  .btn-primary{ background:#0ea5a6; color:#fff; }
+  .btn-secondary{ background:#e2e8f0; color:#0f172a; }
+  .btn:hover{ filter:brightness(.95); }
 
-  /* --- กล่องผลลัพธ์หลัก --- */
   .compat-result{
     margin-top:16px;
     padding:14px 18px;
@@ -139,7 +127,6 @@
     background:rgba(255,255,255,0.9);
     font-weight:500;
   }
-
   .compat-result.compat-C{
     background:rgba(22,163,74,0.10);
     border-color:#16a34a;
@@ -161,7 +148,6 @@
     color:#1e3a8a;
   }
 
-  /* --- Legend --- */
   .legend{
     display:flex;
     flex-wrap:wrap;
@@ -191,65 +177,28 @@
   .dot.ND{ background:#2563eb; }
 
   @media (min-width:1200px){
-    .legend{
-      flex-wrap:nowrap;
-      gap:18px;
-      font-size:10px;
-    }
+    .legend{ flex-wrap:nowrap; gap:18px; font-size:10px; }
     .dot{ width:9px; height:9px; }
   }
   @media (min-width:1600px){
-    .legend{
-      font-size:9px;
-      gap:20px;
-    }
+    .legend{ font-size:9px; gap:20px; }
     .dot{ width:8px; height:8px; }
   }
 </style>
 
-{# fallback รายชื่อยาถ้า drugs ว่าง (ใช้ทั้ง A/B) #}
+{# fallback รายชื่อยา (ใช้กรณีไม่มี drugs จาก DB เช่นตอน build static) #}
 {% set fallback_names = [
-  "Acyclovir",
-  "Amikacin",
-  "Aminophylline",
-  "Amoxicillin / Clavimoxy",
-  "Amphotericin B",
-  "Ampicillin",
-  "Benzathine penicillin G",
-  "Calcium gluconate",
-  "Cefazolin",
-  "Cefotaxime",
-  "Ceftazidime",
-  "Ciprofloxacin",
-  "Clindamycin",
-  "Cloxacillin",
-  "Colistin",
-  "Dexamethasone",
-  "Dobutamine",
-  "Dopamine",
-  "Fentanyl",
-  "Furosemide",
-  "Gentamicin",
-  "Hydrocortisone",
-  "Insulin Human Regular",
-  "Levofloxacin",
-  "Meropenem",
-  "Metronidazole (Flagyl)",
-  "Midazolam",
-  "Midazolam + Fentanyl",
-  "Morphine",
-  "Nimbex (Cisatracurium)",
-  "Omeprazole",
-  "Penicillin G sodium",
-  "Phenobarbital",
-  "Phenytoin (Dilantin)",
-  "Remdesivir",
-  "Sul-am®",
-  "Sulbactam",
-  "Sulperazone",
-  "Tazocin",
-  "Unasyn",
-  "Vancomycin"
+  "Acyclovir","Amikacin","Aminophylline","Amoxicillin / Clavimoxy",
+  "Amphotericin B","Ampicillin","Benzathine penicillin G",
+  "Calcium gluconate","Cefazolin","Cefotaxime","Ceftazidime",
+  "Ciprofloxacin","Clindamycin","Cloxacillin","Colistin",
+  "Dexamethasone","Dobutamine","Dopamine","Fentanyl","Furosemide",
+  "Gentamicin","Hydrocortisone","Insulin Human Regular",
+  "Levofloxacin","Meropenem","Metronidazole (Flagyl)","Midazolam",
+  "Midazolam + Fentanyl","Morphine","Nimbex (Cisatracurium)",
+  "Omeprazole","Penicillin G sodium","Phenobarbital",
+  "Phenytoin (Dilantin)","Remdesivir","Sul-am®","Sulbactam",
+  "Sulperazone","Tazocin","Unasyn","Vancomycin"
 ] %}
 
 <div class="compat-page">
@@ -274,7 +223,6 @@
               <select id="drug_a" name="drug_a" required>
                 <option value="">-- เลือกยา --</option>
 
-                {# ถ้ามี drugs จาก DB → ใช้ DB #}
                 {% if drugs %}
                   {% for d in drugs %}
                     <option value="{{ d.id }}"
@@ -282,7 +230,6 @@
                       {{ d.generic_name }}
                     </option>
                   {% endfor %}
-                {# ถ้าไม่มี drugs → ใช้ fallback_names #}
                 {% else %}
                   {% for name in fallback_names %}
                     <option value="{{ loop.index }}">{{ name }}</option>
@@ -314,54 +261,45 @@
 
             <!-- ปุ่ม -->
             <div class="actions">
-  <button
-    type="{% if use_static %}button{% else %}submit{% endif %}"
-    class="btn btn-primary"
-    id="compat-check-btn">
-    ตรวจสอบ
-  </button>
+              <button type="submit" class="btn btn-primary">
+                ตรวจสอบ
+              </button>
 
-  {% set home_href = (URL_MAP['index']
-                      if (use_static and URL_MAP is defined)
-                      else url_for('core.index')) %}
-  <a href="{{ home_href }}" class="btn btn-secondary">
-    กลับหน้า Home
-  </a>
-</div>
-
+              {% set home_href = (URL_MAP['index']
+                                  if (use_static and URL_MAP is defined)
+                                  else url_for('core.index')) %}
+              <a href="{{ home_href }}" class="btn btn-secondary">
+                กลับหน้า Home
+              </a>
+            </div>
           </div>
         </form>
 
+        <!-- กล่องผลลัพธ์ (Flask จะ render ข้างใน; GitHub ใช้ JS เขียนแทน) -->
         <div id="compat-result-box"
-     class="compat-result {% if status_code %}compat-{{ status_code }}{% else %}hidden{% endif %}">
-  {% if status_code %}
-    <p style="margin:0 0 4px 0;">
-      ผลการตรวจสอบ:
-      <strong>{{ drug_a_name or 'ยา A' }}</strong>
-      +
-      <strong>{{ drug_b_name or 'ยา B' }}</strong>
-      →
-      <strong>{{ status_code }}</strong>
-    </p>
+             class="compat-result {% if status_code %}compat-{{ status_code }}{% else %}hidden{% endif %}">
+          {% if status_code %}
+            <p style="margin:0 0 4px 0;">
+              ผลการตรวจสอบ:
+              <strong>{{ drug_a_name or 'ยา A' }}</strong>
+              +
+              <strong>{{ drug_b_name or 'ยา B' }}</strong>
+              →
+              <strong>{{ status_code }}</strong>
+            </p>
 
-    <p style="margin:0 0 4px 0;">
-      {{ status_text }}
-    </p>
+            <p style="margin:0 0 4px 0;">
+              {{ status_text }}
+            </p>
 
-    {% if compat and compat.source %}
-      <p style="margin:0;font-size:12px;">
-        อ้างอิง: {{ compat.source }}
-      </p>
-    {% endif %}
-
-    {% if compat and compat.note %}
-      <p style="margin:0;font-size:12px;">
-        หมายเหตุ: {{ compat.note }}
-      </p>
-    {% endif %}
-  {% endif %}
-</div>
-
+            {% if compat and compat.source %}
+              <p style="margin:0;font-size:12px;">อ้างอิง: {{ compat.source }}</p>
+            {% endif %}
+            {% if compat and compat.note %}
+              <p style="margin:0;font-size:12px;">หมายเหตุ: {{ compat.note }}</p>
+            {% endif %}
+          {% endif %}
+        </div>
 
         <!-- Legend -->
         <div class="legend">
@@ -382,89 +320,119 @@
             ND = No data / ไม่มีข้อมูล
           </div>
         </div>
-        
-{% if use_static and compat_pairs is defined and compat_pairs %}
-<script>
-// แปลงข้อมูลจาก seed_compatibility.json เป็น map ในฝั่ง JS (เก็บไว้บน window)
-window.STATIC_COMPAT = {
-  {% for row in compat_pairs %}
-  {{ (row.drug_a ~ '|' ~ row.drug_b)|tojson }}: {
-    code: {{ row.status|tojson }},
-    text: {{ (
-        'Compatible / ผสมร่วมได้'  if row.status == 'C' else
-        'Incompatible / ห้ามผสม'   if row.status == 'I' else
-        'Uncertain / ไม่ชัดเจน'    if row.status == 'U' else
-        'No data / ไม่มีข้อมูล'
-      )|tojson }},
-    source: {{ (row.source or '')|tojson }},
-    note: {{ (row.note or '')|tojson }}
-  }{% if not loop.last %},{% endif %}
-  {% endfor %}
-};
-</script>
-
-<script>
-(function(){
-  // ใช้ map จาก global
-  var dataMap = window.STATIC_COMPAT || {};
-
-  function norm(s){
-    return String(s || "").trim().toLowerCase();
-  }
-
-  var form = document.querySelector(".compat-page form");
-  var box  = document.getElementById("compat-result-box");
-  if (!form || !box) return;
-
-  form.addEventListener("submit", function(ev){
-    ev.preventDefault();   // กันไม่ให้ reload หน้า
-
-    var selA = document.getElementById("drug_a");
-    var selB = document.getElementById("drug_b");
-    if (!selA || !selB || !selA.value || !selB.value) return;
-
-    var nameA = selA.options[selA.selectedIndex].text;
-    var nameB = selB.options[selB.selectedIndex].text;
-
-    var key1 = norm(nameA) + "|" + norm(nameB);
-    var key2 = norm(nameB) + "|" + norm(nameA);
-    var data = dataMap[key1] || dataMap[key2];
-
-    var code, html;
-
-    if (!data){
-      code = "ND";
-      html =
-        "<p style='margin:0 0 4px 0;'>ไม่พบข้อมูลคู่นี้ในไฟล์ static</p>" +
-        "<p style='margin:0 0 4px 0;'>No data / ไม่มีข้อมูล</p>";
-    }else{
-      code = data.code || "ND";
-      var text = data.text || "No data / ไม่มีข้อมูล";
-
-      html =
-        "<p style='margin:0 0 4px 0;'>ผลการตรวจสอบ: <strong>" +
-        nameA + "</strong> + <strong>" + nameB +
-        "</strong> → <strong>" + code + "</strong></p>" +
-        "<p style='margin:0 0 4px 0;'>" + text + "</p>";
-
-      if (data.source){
-        html += "<p style='margin:0;font-size:12px;'>อ้างอิง: " + data.source + "</p>";
-      }
-      if (data.note){
-        html += "<p style='margin:0;font-size:12px;'>หมายเหตุ: " + data.note + "</p>";
-      }
-    }
-
-    box.className = "compat-result compat-" + code;
-    box.innerHTML = html;
-    box.scrollIntoView({ behavior:"smooth", block:"center" });
-  });
-})();
-</script>
-{% endif %}
 
       </div>
     </div>
   </div>
 </div>
+
+{# ---------- JS ฝั่ง GitHub (static) : ใช้ seed_compatibility.json ---------- #}
+{% if use_static %}
+<script>
+(function(){
+  const DATA_URL = 'data/seed_compatibility.json';
+
+  function norm(s){
+    return String(s || '').trim().toLowerCase();
+  }
+  function statusText(code){
+    switch (code) {
+      case 'C': return 'Compatible / ผสมร่วมได้';
+      case 'I': return 'Incompatible / ห้ามผสม';
+      case 'U': return 'Uncertain / ไม่ชัดเจน';
+      case 'ND':
+      default:  return 'No data / ไม่มีข้อมูล';
+    }
+  }
+
+  let compatPromise = null;
+  function loadCompat(){
+    if (!compatPromise){
+      compatPromise = fetch(DATA_URL)
+        .then(r => r.json())
+        .then(rows => {
+          const map = {};
+          rows.forEach(row => {
+            const a = norm(row.drug_a || row.drug || '');
+            const b = norm(row.drug_b || row.co_drug || '');
+            if (!a || !b || a === b) return;
+
+            const code = String(row.status || 'ND').toUpperCase();
+            const entry = {
+              code:  code,
+              text:  statusText(code),
+              source: row.source || '',
+              note:   row.note || ''
+            };
+            const key1 = a + '|' + b;
+            const key2 = b + '|' + a;
+            map[key1] = entry;
+            map[key2] = entry;
+          });
+          return map;
+        })
+        .catch(err => {
+          console.error('loadCompat error', err);
+          return {};
+        });
+    }
+    return compatPromise;
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const form = document.querySelector('.compat-page form');
+    const box  = document.getElementById('compat-result-box');
+    if (!form || !box) return;
+
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+
+      const selA = document.getElementById('drug_a');
+      const selB = document.getElementById('drug_b');
+      if (!selA || !selB || !selA.value || !selB.value) return;
+
+      const nameA = selA.options[selA.selectedIndex].text;
+      const nameB = selB.options[selB.selectedIndex].text;
+
+      loadCompat().then(map => {
+        const key1 = norm(nameA) + '|' + norm(nameB);
+        const key2 = norm(nameB) + '|' + norm(nameA);
+        const data = map[key1] || map[key2];
+
+        let code = 'ND';
+        let html;
+
+        if (!data){
+          html =
+            "<p style='margin:0 0 4px 0;'>ไม่พบข้อมูลคู่นี้ในไฟล์ static</p>" +
+            "<p style='margin:0 0 4px 0;'>No data / ไม่มีข้อมูล</p>";
+        } else {
+          code = data.code || 'ND';
+          const text = data.text || statusText(code);
+
+          html =
+            "<p style='margin:0 0 4px 0;'>ผลการตรวจสอบ: <strong>" +
+            nameA + "</strong> + <strong>" + nameB +
+            "</strong> → <strong>" + code + "</strong></p>" +
+            "<p style='margin:0 0 4px 0;'>" + text + "</p>";
+
+          if (data.source){
+            html += "<p style='margin:0;font-size:12px;'>อ้างอิง: " +
+                    data.source + "</p>";
+          }
+          if (data.note){
+            html += "<p style='margin:0;font-size:12px;'>หมายเหตุ: " +
+                    data.note + "</p>";
+          }
+        }
+
+        box.className = 'compat-result compat-' + code;
+        box.innerHTML = html;
+        box.scrollIntoView({ behavior:'smooth', block:'center' });
+      });
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}
