@@ -219,6 +219,14 @@
         </b>
       </p>
     </div>
+
+    {# ปุ่มคำนวณยา สำหรับ GitHub (static) #}
+    <button id="drug-btn-static"
+            type="button"
+            class="drug-button"
+            style="display:none">
+      คำนวณยา
+    </button>
   </div>
 
   <div class="button-group">
@@ -227,6 +235,10 @@
   </div>
 
   <script>
+    // URL ปลายทางสำหรับหน้า drug calculation (จะถูก map เป็น .html ตอน build)
+    const DRUG_CALC_URL = "{{ u('drug_calculation') }}";
+    let lastPMA = null;
+
     function calculatePMAStatic() {
       const gaWeeks = parseInt(document.getElementById('ga_weeks').value) || 0;
       const gaDays  = parseInt(document.getElementById('ga_days').value) || 0;
@@ -245,7 +257,28 @@
       document.getElementById('pma_res_bw').textContent    = bwVal ? bwVal.toFixed(2) : '-';
 
       document.getElementById('pma-result-static').style.display = 'block';
+
+      // เก็บค่าไว้ใช้ตอนกดปุ่มคำนวณยา
+      lastPMA = { pmaWeeks, pmaDays, pna, bwVal, calc };
+
+      const btn = document.getElementById('drug-btn-static');
+      btn.style.display = 'block';
+      btn.disabled = false;
     }
+
+    document.getElementById('drug-btn-static').addEventListener('click', function () {
+      if (!lastPMA) return;
+
+      const params = new URLSearchParams({
+        pma_weeks:      lastPMA.pmaWeeks,
+        pma_days:       lastPMA.pmaDays,
+        postnatal_days: lastPMA.pna,
+        bw:             lastPMA.bwVal ? lastPMA.bwVal.toFixed(3) : '',
+        calc:           lastPMA.calc
+      });
+
+      window.location.href = DRUG_CALC_URL + '?' + params.toString();
+    });
   </script>
 
 {# =========================
