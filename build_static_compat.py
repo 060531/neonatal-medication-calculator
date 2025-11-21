@@ -1,88 +1,77 @@
 # build_static_compat.py
-"""
-สร้างไฟล์ docs/compatibility.html สำหรับ GitHub Pages
-โดยดึง:
-  - รายชื่อยา (Drug) สำหรับ dropdown
-  - คู่ยา + status (Compatibility) สำหรับ STATIC_COMPAT ใน JS
-"""
-
 from pathlib import Path
-import json
 
 from flask import render_template
+from sqlalchemy.orm import aliased
 
 from app import create_app
+from extensions import db
 from models import Drug, Compatibility
 
-ROOT_DIR = Path(__file__).resolve().parent
-DOCS_DIR = ROOT_DIR / "docs"
-DATA_DIR = ROOT_DIR / "data"
 
-
-def load_url_map():
-    """
-    โหลด URL_MAP เดิมที่ใช้ตอน build static หน้าอื่น ๆ
-    ถ้าไม่มีไฟล์ก็ส่ง {} ไป (template จะ fallback เอง)
-    """
-    url_map_path = DATA_DIR / "url_map.json"
-    if not url_map_path.exists():
-        return {}
-
-    try:
-        return json.loads(url_map_path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-
-def build_static_compat():
+def build_compat_page():
     app = create_app()
-
     with app.app_context():
-        # ----- รายชื่อยา สำหรับ dropdown -----
+        # 1) ดึงรายชื่อยาไว้เติม dropdown
         drugs = Drug.query.order_by(Drug.generic_name).all()
         print(f"🔍 static build: found {len(drugs)} drugs in DB")
 
-        # ----- คู่ยา + status สำหรับ STATIC_COMPAT -----
-        compat_rows = Compatibility.query.all()
+        # 2) ดึงผล compatibility + ชื่อยาแบบ join ถูกต้อง
+        DrugA = aliased(Drug)
+        DrugB = aliased(Drug)
+
+        rows = (
+            db.session.query(
+                DrugA.generic_name.label("drug_a"),
+                DrugB.generic_name.label("drug_b"),
+                Compatibility.status,
+                Compatibility.source,
+                Compatibility.note,
+            )
+            .join(DrugA, Compatibility.drug_id == DrugA.id)
+            .join(DrugB, Compatibility.co_drug_id == DrugB.id)
+            .order_by(DrugA.generic_name, DrugB.generic_name)
+            .all()
+        )
+
         compat_pairs = []
-
-        for row in compat_rows:
-            drug_a = Drug.query.get(row.drug_id)
-            drug_b = Drug.query.get(row.co_drug_id)
-            if not drug_a or not drug_b:
-                continue
-
+        for r in rows:
             compat_pairs.append(
                 {
-                    "drug_a": (drug_a.generic_name or "").strip(),
-                    "drug_b": (drug_b.generic_name or "").strip(),
-                    "status": (row.status or "ND").strip(),
-                    "source": row.source or "",
-                    "note": row.note or "",
+                    "drug_a": r.drug_a,
+                    "drug_b": r.drug_b,
+                    "status": (r.status or "ND"),
+                    "source": (r.source or ""),
+                    "note": (r.note or ""),
                 }
             )
 
-        print(f"🔍 static build: found {len(compat_pairs)} compatibility pairs")
+        print(f"🔍 static build: found {len(compat_pairs)} compat pairs")
 
-        url_map = load_url_map()
-
-        html = render_template(
-            "compatibility.html",
-            # flags สำหรับ template
-            static_build=True,
+        # 3) context ที่ส่งเข้า template compatibility.html
+        ctx = dict(
             use_static=True,
-            home_page=False,
-            # data สำหรับ dropdown + JS
+            static_build=True,
+            URL_MAP={"index": "./index.html"},
             drugs=drugs,
+            selected_drug_id=None,
+            selected_co_drug_id=None,
+            status_code=None,
+            status_text="",
+            compat=None,
+            drug_a_name=None,
+            drug_b_name=None,
             compat_pairs=compat_pairs,
-            URL_MAP=url_map,
         )
 
-    DOCS_DIR.mkdir(exist_ok=True)
-    out_path = DOCS_DIR / "compatibility.html"
-    out_path.write_text(html, encoding="utf-8")
-    print(f"✅ wrote {out_path}")
+        html = render_template("compatibility.html", **ctx)
+
+        # 4) เขียนออกไปที่ docs/compatibility.html (สำหรับ GitHub Pages)
+        out_path = Path(app.root_path).parent / "docs" / "compatibility.html"
+        out_path.parent.mkdir(exist_ok=True)
+        out_path.write_text(html, encoding="utf-8")
+        print(f"✅ wrote {out_path}")
 
 
 if __name__ == "__main__":
-    build_static_compat()
+    build_compat_page()
