@@ -1,64 +1,88 @@
 # build_static_compat.py
-#
-# build หน้า docs/compatibility.html สำหรับ GitHub Pages
-# - ใช้ fallback list สำหรับ dropdown (อยู่ใน template)
-# - ใช้ data/seed_compatibility.json สำหรับผลลัพธ์คู่ยา (ฝั่ง static)
+"""
+สร้างไฟล์ docs/compatibility.html สำหรับ GitHub Pages
+โดยดึง:
+  - รายชื่อยา (Drug) สำหรับ dropdown
+  - คู่ยา + status (Compatibility) สำหรับ STATIC_COMPAT ใน JS
+"""
 
 from pathlib import Path
 import json
 
 from flask import render_template
 
-# ดึง Flask app
-try:
-    from app import app as flask_app
-except ImportError:
-    from app import create_app
-    flask_app = create_app()
+from app import create_app
+from models import Drug, Compatibility
 
 ROOT_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = ROOT_DIR / "docs"
-DATA_PATH = ROOT_DIR / "data" / "seed_compatibility.json"
+DOCS_DIR = ROOT_DIR / "docs"
+DATA_DIR = ROOT_DIR / "data"
 
 
-def build_compatibility_page():
-    OUTPUT_DIR.mkdir(exist_ok=True)
+def load_url_map():
+    """
+    โหลด URL_MAP เดิมที่ใช้ตอน build static หน้าอื่น ๆ
+    ถ้าไม่มีไฟล์ก็ส่ง {} ไป (template จะ fallback เอง)
+    """
+    url_map_path = DATA_DIR / "url_map.json"
+    if not url_map_path.exists():
+        return {}
 
-    # อ่านไฟล์ JSON สำหรับคู่ยา
     try:
-        raw = DATA_PATH.read_text(encoding="utf-8")
-        compat_pairs = json.loads(raw)
-        if not isinstance(compat_pairs, list):
-            compat_pairs = []
-    except Exception as e:
-        print(f"⚠️ cannot read seed_compatibility.json: {e}")
+        return json.loads(url_map_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def build_static_compat():
+    app = create_app()
+
+    with app.app_context():
+        # ----- รายชื่อยา สำหรับ dropdown -----
+        drugs = Drug.query.order_by(Drug.generic_name).all()
+        print(f"🔍 static build: found {len(drugs)} drugs in DB")
+
+        # ----- คู่ยา + status สำหรับ STATIC_COMPAT -----
+        compat_rows = Compatibility.query.all()
         compat_pairs = []
 
-    with flask_app.app_context():
+        for row in compat_rows:
+            drug_a = Drug.query.get(row.drug_id)
+            drug_b = Drug.query.get(row.co_drug_id)
+            if not drug_a or not drug_b:
+                continue
+
+            compat_pairs.append(
+                {
+                    "drug_a": (drug_a.generic_name or "").strip(),
+                    "drug_b": (drug_b.generic_name or "").strip(),
+                    "status": (row.status or "ND").strip(),
+                    "source": row.source or "",
+                    "note": row.note or "",
+                }
+            )
+
+        print(f"🔍 static build: found {len(compat_pairs)} compatibility pairs")
+
+        url_map = load_url_map()
+
         html = render_template(
             "compatibility.html",
+            # flags สำหรับ template
             static_build=True,
             use_static=True,
-            URL_MAP={
-                "index": "index.html",
-                "compatibility_page": "compatibility.html",
-            },
-            # dropdown จะใช้ fallback_names ใน template เอง
-            drugs=None,
+            home_page=False,
+            # data สำหรับ dropdown + JS
+            drugs=drugs,
             compat_pairs=compat_pairs,
-            selected_drug_id=None,
-            selected_co_drug_id=None,
-            compat=None,
-            status_code=None,
-            status_text=None,
-            drug_a_name=None,
-            drug_b_name=None,
+            URL_MAP=url_map,
         )
 
-    out_path = OUTPUT_DIR / "compatibility.html"
+    DOCS_DIR.mkdir(exist_ok=True)
+    out_path = DOCS_DIR / "compatibility.html"
     out_path.write_text(html, encoding="utf-8")
     print(f"✅ wrote {out_path}")
 
 
 if __name__ == "__main__":
-    build_compatibility_page()
+    build_static_compat()
