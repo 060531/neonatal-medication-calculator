@@ -11,19 +11,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="/static/manifest.webmanifest">
+        href="./static/manifest.webmanifest">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="/static/icons/icon-192.png">
+        href="./static/icons/icon-192.png">
 
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
-        href="/static/style.css">
+        href="./static/style.css">
   <script defer
-          src="/static/app.js"></script>
+          src="./static/app.js"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -352,7 +352,7 @@
       <div class="glass-card">
         
         
-          <form method="post" action="/compatibility">
+          <form method="get" action="#">
         
           <div class="form-grid">
             <div class="field-a">
@@ -545,7 +545,7 @@
               </button>
 
               
-              <a href="/" class="btn btn-secondary">
+              <a href="./core.index.html" class="btn btn-secondary">
                 กลับหน้า Home
               </a>
             </div>
@@ -587,7 +587,7 @@
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-22</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
@@ -595,7 +595,7 @@
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      var swPath = "/static/service-worker.js?v=2025-11-12-01";
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
         if (!reg) {
