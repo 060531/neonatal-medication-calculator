@@ -11,19 +11,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="./static/manifest.webmanifest">
+        href="/static/manifest.webmanifest">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png">
+        href="/static/icons/icon-192.png">
 
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
-        href="./static/style.css">
+        href="/static/style.css">
   <script defer
-          src="./static/app.js"></script>
+          src="/static/app.js"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -341,8 +341,6 @@
 
 
 
-
-
 <div class="compat-page">
   <div class="compat-shell">
     <div class="title-wrap">
@@ -354,7 +352,7 @@
     <div class="card-wrap">
       <div class="glass-card">
         
-          <form method="get" action="#">
+          <form method="post" action="/compatibility">
         
           <div class="form-grid">
             <!-- ยา A -->
@@ -370,81 +368,19 @@
                   
                     <option value="3">Aminophylline</option>
                   
-                    <option value="4">Amoxicillin / Clavimoxy</option>
+                    <option value="4">Amphotericin b</option>
                   
-                    <option value="5">Amphotericin B</option>
+                    <option value="5">Ampicillin</option>
                   
-                    <option value="6">Ampicillin</option>
+                    <option value="6">Calcium gluconate</option>
                   
-                    <option value="7">Benzathine penicillin G</option>
+                    <option value="7">Cefotaxime</option>
                   
-                    <option value="8">Calcium gluconate</option>
+                    <option value="8">Cloxacillin</option>
                   
-                    <option value="9">Cefazolin</option>
+                    <option value="9">Colistin</option>
                   
-                    <option value="10">Cefotaxime</option>
-                  
-                    <option value="11">Ceftazidime</option>
-                  
-                    <option value="12">Ciprofloxacin</option>
-                  
-                    <option value="13">Clindamycin</option>
-                  
-                    <option value="14">Cloxacillin</option>
-                  
-                    <option value="15">Colistin</option>
-                  
-                    <option value="16">Dexamethasone</option>
-                  
-                    <option value="17">Dobutamine</option>
-                  
-                    <option value="18">Dopamine</option>
-                  
-                    <option value="19">Fentanyl</option>
-                  
-                    <option value="20">Furosemide</option>
-                  
-                    <option value="21">Gentamicin</option>
-                  
-                    <option value="22">Hydrocortisone</option>
-                  
-                    <option value="23">Insulin Human Regular</option>
-                  
-                    <option value="24">Levofloxacin</option>
-                  
-                    <option value="25">Meropenem</option>
-                  
-                    <option value="26">Metronidazole (Flagyl)</option>
-                  
-                    <option value="27">Midazolam</option>
-                  
-                    <option value="28">Midazolam + Fentanyl</option>
-                  
-                    <option value="29">Morphine</option>
-                  
-                    <option value="30">Nimbex (Cisatracurium)</option>
-                  
-                    <option value="31">Omeprazole</option>
-                  
-                    <option value="32">Penicillin G sodium</option>
-                  
-                    <option value="33">Phenobarbital</option>
-                  
-                    <option value="34">Phenytoin (Dilantin)</option>
-                  
-                    <option value="35">Remdesivir</option>
-                  
-                    <option value="36">Sul-am®</option>
-                  
-                    <option value="37">Sulbactam</option>
-                  
-                    <option value="38">Sulperazone</option>
-                  
-                    <option value="39">Tazocin</option>
-                  
-                    <option value="40">Unasyn</option>
-                  
-                    <option value="41">Vancomycin</option>
+                    <option value="10">Levofloxacin</option>
                   
                 
               </select>
@@ -463,81 +399,19 @@
                   
                     <option value="3">Aminophylline</option>
                   
-                    <option value="4">Amoxicillin / Clavimoxy</option>
+                    <option value="4">Amphotericin b</option>
                   
-                    <option value="5">Amphotericin B</option>
+                    <option value="5">Ampicillin</option>
                   
-                    <option value="6">Ampicillin</option>
+                    <option value="6">Calcium gluconate</option>
                   
-                    <option value="7">Benzathine penicillin G</option>
+                    <option value="7">Cefotaxime</option>
                   
-                    <option value="8">Calcium gluconate</option>
+                    <option value="8">Cloxacillin</option>
                   
-                    <option value="9">Cefazolin</option>
+                    <option value="9">Colistin</option>
                   
-                    <option value="10">Cefotaxime</option>
-                  
-                    <option value="11">Ceftazidime</option>
-                  
-                    <option value="12">Ciprofloxacin</option>
-                  
-                    <option value="13">Clindamycin</option>
-                  
-                    <option value="14">Cloxacillin</option>
-                  
-                    <option value="15">Colistin</option>
-                  
-                    <option value="16">Dexamethasone</option>
-                  
-                    <option value="17">Dobutamine</option>
-                  
-                    <option value="18">Dopamine</option>
-                  
-                    <option value="19">Fentanyl</option>
-                  
-                    <option value="20">Furosemide</option>
-                  
-                    <option value="21">Gentamicin</option>
-                  
-                    <option value="22">Hydrocortisone</option>
-                  
-                    <option value="23">Insulin Human Regular</option>
-                  
-                    <option value="24">Levofloxacin</option>
-                  
-                    <option value="25">Meropenem</option>
-                  
-                    <option value="26">Metronidazole (Flagyl)</option>
-                  
-                    <option value="27">Midazolam</option>
-                  
-                    <option value="28">Midazolam + Fentanyl</option>
-                  
-                    <option value="29">Morphine</option>
-                  
-                    <option value="30">Nimbex (Cisatracurium)</option>
-                  
-                    <option value="31">Omeprazole</option>
-                  
-                    <option value="32">Penicillin G sodium</option>
-                  
-                    <option value="33">Phenobarbital</option>
-                  
-                    <option value="34">Phenytoin (Dilantin)</option>
-                  
-                    <option value="35">Remdesivir</option>
-                  
-                    <option value="36">Sul-am®</option>
-                  
-                    <option value="37">Sulbactam</option>
-                  
-                    <option value="38">Sulperazone</option>
-                  
-                    <option value="39">Tazocin</option>
-                  
-                    <option value="40">Unasyn</option>
-                  
-                    <option value="41">Vancomycin</option>
+                    <option value="10">Levofloxacin</option>
                   
                 
               </select>
@@ -550,14 +424,14 @@
               </button>
 
               
-              <a href="./core.index.html" class="btn btn-secondary">
+              <a href="/" class="btn btn-secondary">
                 กลับหน้า Home
               </a>
             </div>
           </div>
         </form>
 
-        <!-- กล่องผลลัพธ์ (ฝั่ง Flask render server-side) -->
+        <!-- กล่องผลลัพธ์ ฝั่ง Flask -->
         <div id="compat-result-box"
              class="compat-result hidden">
           
@@ -584,7 +458,108 @@
         </div>
 
         
+        <script>
+        const STATIC_COMPAT = {
         
+          
+          "acyclovir|amikacin": {
+            code: "ND",
+            text: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25",
+            source: "Trissel\u0027s 2022",
+            note: "No data found; avoid mixing."
+          },
+          
+          "acyclovir|aminophylline": {
+            code: "ND",
+            text: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25",
+            source: "Trissel\u0027s 2022",
+            note: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25; \u0e2b\u0e25\u0e35\u0e01\u0e40\u0e25\u0e35\u0e48\u0e22\u0e07\u0e01\u0e32\u0e23\u0e1c\u0e2a\u0e21\u0e43\u0e19 line \u0e40\u0e14\u0e35\u0e22\u0e27\u0e01\u0e31\u0e19"
+          },
+          
+          "acyclovir|ampicillin": {
+            code: "C",
+            text: "Compatible / \u0e1c\u0e2a\u0e21\u0e23\u0e48\u0e27\u0e21\u0e44\u0e14\u0e49",
+            source: "Trissel\u0027s Handbook 2024",
+            note: "\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16 Y-site \u0e44\u0e14\u0e49\u0e43\u0e19 D5W \u0e15\u0e32\u0e21\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02\u0e04\u0e27\u0e32\u0e21\u0e40\u0e02\u0e49\u0e21\u0e02\u0e49\u0e19\u0e17\u0e35\u0e48\u0e41\u0e19\u0e30\u0e19\u0e33"
+          },
+          
+          "acyclovir|calcium gluconate": {
+            code: "I",
+            text: "Incompatible / \u0e2b\u0e49\u0e32\u0e21\u0e1c\u0e2a\u0e21",
+            source: "Pediatric Injectable Drugs",
+            note: "\u0e44\u0e21\u0e48\u0e40\u0e02\u0e49\u0e32\u0e01\u0e31\u0e19 \u0e21\u0e35\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e40\u0e01\u0e34\u0e14\u0e15\u0e30\u0e01\u0e2d\u0e19"
+          },
+          
+          "acyclovir|colistin": {
+            code: "ND",
+            text: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25",
+            source: "Trissel\u0027s 2022",
+            note: "No data found; avoid mixing."
+          },
+          
+          "acyclovir|amphotericin b": {
+            code: "I",
+            text: "Incompatible / \u0e2b\u0e49\u0e32\u0e21\u0e1c\u0e2a\u0e21",
+            source: "Trissel\u0027s 2022",
+            note: "Incompatible / \u0e44\u0e21\u0e48\u0e04\u0e27\u0e23\u0e43\u0e0a\u0e49\u0e23\u0e48\u0e27\u0e21\u0e01\u0e31\u0e19\u0e43\u0e19 line \u0e40\u0e14\u0e35\u0e22\u0e27\u0e01\u0e31\u0e19"
+          },
+          
+          "acyclovir|cefotaxime": {
+            code: "C",
+            text: "Compatible / \u0e1c\u0e2a\u0e21\u0e23\u0e48\u0e27\u0e21\u0e44\u0e14\u0e49",
+            source: "Trissel\u0027s 2022",
+            note: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25"
+          },
+          
+          "acyclovir|cloxacillin": {
+            code: "C",
+            text: "Compatible / \u0e1c\u0e2a\u0e21\u0e23\u0e48\u0e27\u0e21\u0e44\u0e14\u0e49",
+            source: "Trissel\u0027s 2022",
+            note: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25"
+          },
+          
+          "cefotaxime|cloxacillin": {
+            code: "C",
+            text: "Compatible / \u0e1c\u0e2a\u0e21\u0e23\u0e48\u0e27\u0e21\u0e44\u0e14\u0e49",
+            source: "Trissel\u0027s 2022",
+            note: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25"
+          },
+          
+          "cefotaxime|levofloxacin": {
+            code: "U",
+            text: "Uncertain / \u0e44\u0e21\u0e48\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19",
+            source: "Trissel\u0027s 2022",
+            note: "No data / \u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25"
+          }
+          
+        
+        };
+        </script>
+
+        <script>
+        (function(){
+          // ให้ทำงานได้ทั้งกรณี STATIC_COMPAT มี/ไม่มีข้อมูล (ถ้าไม่มีจะเป็น {} แต่ยังไม่ error)
+          function norm(s){
+            return String(s || "").trim().toLowerCase();
+          }
+
+          var form = document.querySelector(".compat-page form");
+          var box  = document.getElementById("compat-result-box");
+          if (!form || !box) return;
+
+          form.addEventListener("submit", function(ev){
+            
+
+            var selA = document.getElementById("drug_a");
+            var selB = document.getElementById("drug_b");
+            if (!selA || !selB || !selA.value || !selB.value) return;
+
+            
+            // โหมด Flask → ปล่อยให้ส่ง POST ไปหา core.compatibility_page ตามปกติ
+            
+          });
+        })();
+        </script>
 
       </div>
     </div>
@@ -594,7 +569,7 @@
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-22</p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
@@ -602,7 +577,7 @@
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
+      var swPath = "/static/service-worker.js?v=2025-11-12-01";
 
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
         if (!reg) {
