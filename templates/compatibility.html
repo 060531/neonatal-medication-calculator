@@ -135,6 +135,7 @@
     background:rgba(255,255,255,0.9);
     font-weight:500;
   }
+
   .compat-result.compat-C{
     background:rgba(22,163,74,0.10);
     border-color:#16a34a;
@@ -155,8 +156,6 @@
     border-color:#2563eb;
     color:#1e3a8a;
   }
-
-  .hidden{ display:none !important; }
 
   .legend{
     display:flex;
@@ -203,20 +202,50 @@
   }
 </style>
 
-{# เผื่อกรณีไม่ได้ส่ง fallback_names มาจาก Python #}
-{% if fallback_names is not defined %}
+{# fallback รายชื่อยา ถ้าไม่ได้ส่ง drugs มาจาก Flask #}
 {% set fallback_names = [
-  "Acyclovir","Amikacin","Aminophylline","Amoxicillin / Clavimoxy",
-  "Amphotericin B","Ampicillin","Benzathine penicillin G","Calcium gluconate",
-  "Cefazolin","Cefotaxime","Ceftazidime","Ciprofloxacin","Clindamycin",
-  "Cloxacillin","Colistin","Dexamethasone","Dobutamine","Dopamine","Fentanyl",
-  "Furosemide","Gentamicin","Hydrocortisone","Insulin Human Regular",
-  "Levofloxacin","Meropenem","Metronidazole (Flagyl)","Midazolam",
-  "Midazolam + Fentanyl","Morphine","Nimbex (Cisatracurium)","Omeprazole",
-  "Penicillin G sodium","Phenobarbital","Phenytoin (Dilantin)","Remdesivir",
-  "Sul-am®","Sulbactam","Sulperazone","Tazocin","Unasyn","Vancomycin"
+  "Acyclovir",
+  "Amikacin",
+  "Aminophylline",
+  "Amoxicillin / Clavimoxy",
+  "Amphotericin B",
+  "Ampicillin",
+  "Benzathine penicillin G",
+  "Calcium gluconate",
+  "Cefazolin",
+  "Cefotaxime",
+  "Ceftazidime",
+  "Ciprofloxacin",
+  "Clindamycin",
+  "Cloxacillin",
+  "Colistin",
+  "Dexamethasone",
+  "Dobutamine",
+  "Dopamine",
+  "Fentanyl",
+  "Furosemide",
+  "Gentamicin",
+  "Hydrocortisone",
+  "Insulin Human Regular",
+  "Levofloxacin",
+  "Meropenem",
+  "Metronidazole (Flagyl)",
+  "Midazolam",
+  "Midazolam + Fentanyl",
+  "Morphine",
+  "Nimbex (Cisatracurium)",
+  "Omeprazole",
+  "Penicillin G sodium",
+  "Phenobarbital",
+  "Phenytoin (Dilantin)",
+  "Remdesivir",
+  "Sul-am®",
+  "Sulbactam",
+  "Sulperazone",
+  "Tazocin",
+  "Unasyn",
+  "Vancomycin"
 ] %}
-{% endif %}
 
 <div class="compat-page">
   <div class="compat-shell">
@@ -228,13 +257,13 @@
 
     <div class="card-wrap">
       <div class="glass-card">
+        {# โหมด static (GitHub Pages) ใช้ GET; โหมด Flask ใช้ POST #}
         {% if use_static %}
           <form method="get" action="#">
         {% else %}
           <form method="post" action="{{ url_for('core.compatibility_page') }}">
         {% endif %}
           <div class="form-grid">
-            <!-- ยา A -->
             <div class="field-a">
               <label for="drug_a">ยา A</label>
               <select id="drug_a" name="drug_a" required>
@@ -254,7 +283,6 @@
               </select>
             </div>
 
-            <!-- ยา B -->
             <div class="field-b">
               <label for="drug_b">ยา B</label>
               <select id="drug_b" name="drug_b" required>
@@ -274,7 +302,6 @@
               </select>
             </div>
 
-            <!-- ปุ่ม -->
             <div class="actions">
               <button type="submit" class="btn btn-primary">
                 ตรวจสอบ
@@ -290,7 +317,7 @@
           </div>
         </form>
 
-        <!-- กล่องผลลัพธ์ ฝั่ง Flask -->
+        {# กล่องผลลัพธ์ที่ใช้ร่วม ทั้ง Flask และ Static JS #}
         <div id="compat-result-box"
              class="compat-result {% if status_code %}compat-{{ status_code }}{% else %}hidden{% endif %}">
           {% if status_code %}
@@ -302,19 +329,25 @@
               →
               <strong>{{ status_code }}</strong>
             </p>
+
             <p style="margin:0 0 4px 0;">
               {{ status_text }}
             </p>
+
             {% if compat and compat.source %}
-              <p style="margin:0;font-size:12px;">อ้างอิง: {{ compat.source }}</p>
+              <p style="margin:0;font-size:12px;">
+                อ้างอิง: {{ compat.source }}
+              </p>
             {% endif %}
+
             {% if compat and compat.note %}
-              <p style="margin:0;font-size:12px;">หมายเหตุ: {{ compat.note }}</p>
+              <p style="margin:0;font-size:12px;">
+                หมายเหตุ: {{ compat.note }}
+              </p>
             {% endif %}
           {% endif %}
         </div>
 
-        <!-- Legend -->
         <div class="legend">
           <div class="item">
             <span class="dot C"></span>
@@ -334,30 +367,30 @@
           </div>
         </div>
 
-        {# ===== ฝังข้อมูลคู่ยาสำหรับ static จาก compat_pairs ถ้ามี ===== #}
+        {% if use_static and compat_pairs is defined and compat_pairs %}
         <script>
+        // map ข้อมูล compatibility ฝั่ง static
         const STATIC_COMPAT = {
-        {% if compat_pairs is defined and compat_pairs %}
           {% for row in compat_pairs %}
-          {{ (row.drug_a|lower ~ '|' ~ row.drug_b|lower)|tojson }}: {
+          {{ (row.drug_a|trim|lower ~ '|' ~ row.drug_b|trim|lower)|tojson }}: {
             code: {{ row.status|tojson }},
             text: {{ (
-              'Compatible / ผสมร่วมได้'  if row.status == 'C' else
-              'Incompatible / ห้ามผสม'   if row.status == 'I' else
-              'Uncertain / ไม่ชัดเจน'    if row.status == 'U' else
-              'No data / ไม่มีข้อมูล'
-            )|tojson }},
+                'Compatible / ผสมร่วมได้'  if row.status == 'C' else
+                'Incompatible / ห้ามผสม'   if row.status == 'I' else
+                'Uncertain / ไม่ชัดเจน'    if row.status == 'U' else
+                'No data / ไม่มีข้อมูล'
+              )|tojson }},
             source: {{ (row.source or '')|tojson }},
             note: {{ (row.note or '')|tojson }}
           }{% if not loop.last %},{% endif %}
           {% endfor %}
-        {% endif %}
         };
         </script>
 
         <script>
         (function(){
-          // ให้ทำงานได้ทั้งกรณี STATIC_COMPAT มี/ไม่มีข้อมูล (ถ้าไม่มีจะเป็น {} แต่ยังไม่ error)
+          if (!window.STATIC_COMPAT) return;
+
           function norm(s){
             return String(s || "").trim().toLowerCase();
           }
@@ -367,29 +400,26 @@
           if (!form || !box) return;
 
           form.addEventListener("submit", function(ev){
-            {% if use_static %}
-            // โหมด static → ใช้ JS lookup แทนส่งไป server
             ev.preventDefault();
-            {% endif %}
 
             var selA = document.getElementById("drug_a");
             var selB = document.getElementById("drug_b");
-            if (!selA || !selB || !selA.value || !selB.value) return;
+            if (!selA || !selB) return;
+            if (!selA.value || !selB.value) return;
 
-            {% if use_static %}
             var nameA = selA.options[selA.selectedIndex].text;
             var nameB = selB.options[selB.selectedIndex].text;
 
             var key1 = norm(nameA) + "|" + norm(nameB);
             var key2 = norm(nameB) + "|" + norm(nameA);
-            var data = (window.STATIC_COMPAT || {})[key1] ||
-                       (window.STATIC_COMPAT || {})[key2];
+            var data = STATIC_COMPAT[key1] || STATIC_COMPAT[key2];
 
             var code, html;
+
             if (!data){
               code = "ND";
               html =
-                "<p style='margin:0 0 4px 0;'>ไม่พบข้อมูลคู่นี้ในไฟล์ static</p>" +
+                "<p style='margin:0 0 4px 0;'>ไม่พบข้อมูลอยู่ในไฟล์ static</p>" +
                 "<p style='margin:0 0 4px 0;'>No data / ไม่มีข้อมูล</p>";
             }else{
               code = data.code || "ND";
@@ -413,12 +443,10 @@
             box.innerHTML = html;
             box.classList.remove("hidden");
             box.scrollIntoView({ behavior:"smooth", block:"center" });
-            {% else %}
-            // โหมด Flask → ปล่อยให้ส่ง POST ไปหา core.compatibility_page ตามปกติ
-            {% endif %}
           });
         })();
         </script>
+        {% endif %}
 
       </div>
     </div>
