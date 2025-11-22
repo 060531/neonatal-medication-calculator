@@ -11,19 +11,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="./static/manifest.webmanifest">
+        href="/static/manifest.webmanifest">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png">
+        href="/static/icons/icon-192.png">
 
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
-        href="./static/style.css">
+        href="/static/style.css">
   <script defer
-          src="./static/app.js"></script>
+          src="/static/app.js"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -335,7 +335,7 @@
     <div class="card-wrap">
       <div class="glass-card">
         
-          <form method="get" action="#">
+          <form method="post" action="/compatibility">
         
           <div class="form-grid">
             <!-- ยา A -->
@@ -533,7 +533,7 @@
               </button>
 
               
-              <a href="./core.index.html" class="btn btn-secondary">
+              <a href="/" class="btn btn-secondary">
                 กลับหน้า Home
               </a>
             </div>
@@ -573,118 +573,11 @@
 
 
 
-<script>
-(function(){
-  const DATA_URL = 'data/seed_compatibility.json';
-
-  function norm(s){
-    return String(s || '').trim().toLowerCase();
-  }
-  function statusText(code){
-    switch (code) {
-      case 'C': return 'Compatible / ผสมร่วมได้';
-      case 'I': return 'Incompatible / ห้ามผสม';
-      case 'U': return 'Uncertain / ไม่ชัดเจน';
-      case 'ND':
-      default:  return 'No data / ไม่มีข้อมูล';
-    }
-  }
-
-  let compatPromise = null;
-  function loadCompat(){
-    if (!compatPromise){
-      compatPromise = fetch(DATA_URL)
-        .then(r => r.json())
-        .then(rows => {
-          const map = {};
-          rows.forEach(row => {
-            const a = norm(row.drug_a || row.drug || '');
-            const b = norm(row.drug_b || row.co_drug || '');
-            if (!a || !b || a === b) return;
-
-            const code = String(row.status || 'ND').toUpperCase();
-            const entry = {
-              code:  code,
-              text:  statusText(code),
-              source: row.source || '',
-              note:   row.note || ''
-            };
-            const key1 = a + '|' + b;
-            const key2 = b + '|' + a;
-            map[key1] = entry;
-            map[key2] = entry;
-          });
-          return map;
-        })
-        .catch(err => {
-          console.error('loadCompat error', err);
-          return {};
-        });
-    }
-    return compatPromise;
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    const form = document.querySelector('.compat-page form');
-    const box  = document.getElementById('compat-result-box');
-    if (!form || !box) return;
-
-    form.addEventListener('submit', function(ev){
-      ev.preventDefault();
-
-      const selA = document.getElementById('drug_a');
-      const selB = document.getElementById('drug_b');
-      if (!selA || !selB || !selA.value || !selB.value) return;
-
-      const nameA = selA.options[selA.selectedIndex].text;
-      const nameB = selB.options[selB.selectedIndex].text;
-
-      loadCompat().then(map => {
-        const key1 = norm(nameA) + '|' + norm(nameB);
-        const key2 = norm(nameB) + '|' + norm(nameA);
-        const data = map[key1] || map[key2];
-
-        let code = 'ND';
-        let html;
-
-        if (!data){
-          html =
-            "<p style='margin:0 0 4px 0;'>ไม่พบข้อมูลคู่นี้ในไฟล์ static</p>" +
-            "<p style='margin:0 0 4px 0;'>No data / ไม่มีข้อมูล</p>";
-        } else {
-          code = data.code || 'ND';
-          const text = data.text || statusText(code);
-
-          html =
-            "<p style='margin:0 0 4px 0;'>ผลการตรวจสอบ: <strong>" +
-            nameA + "</strong> + <strong>" + nameB +
-            "</strong> → <strong>" + code + "</strong></p>" +
-            "<p style='margin:0 0 4px 0;'>" + text + "</p>";
-
-          if (data.source){
-            html += "<p style='margin:0;font-size:12px;'>อ้างอิง: " +
-                    data.source + "</p>";
-          }
-          if (data.note){
-            html += "<p style='margin:0;font-size:12px;'>หมายเหตุ: " +
-                    data.note + "</p>";
-          }
-        }
-
-        box.className = 'compat-result compat-' + code;
-        box.innerHTML = html;
-        box.scrollIntoView({ behavior:'smooth', block:'center' });
-      });
-    });
-  });
-})();
-</script>
-
 
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-22</p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
@@ -692,7 +585,7 @@
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
+      var swPath = "/static/service-worker.js?v=2025-11-12-01";
 
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
         if (!reg) {
