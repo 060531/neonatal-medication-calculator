@@ -1,406 +1,582 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <title>ตรวจสอบ Compatibility</title>
 
+  
+
+  <!-- PWA meta -->
+  <meta name="theme-color" content="#0ea5a6" />
+  <link rel="manifest"
+        href="./static/manifest.webmanifest">
+
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon"
+        href="./static/icons/icon-192.png">
+
+  <!-- App CSS/JS (dual path) -->
+  <link rel="stylesheet"
+        href="./static/style.css">
+  <script defer
+          src="./static/app.js"></script>
+
   <style>
-    :root{
-      --brand-900:#0b74d0;
-      --brand-700:#0ea5a6;
-      --panel:#ffffff;
-      --bg-card:#ffffffee;
-      --text:#0f172a;
-      --floatbar-gap:90px;
-    }
-
-    *{ box-sizing:border-box; }
-
+    /* ---------- Global ---------- */
+    :root{ color-scheme: light only; }
+    html,body{ height:100%; }
     body{
+      font-family: Arial, Helvetica, sans-serif;
+      text-align:center;
       margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
+      padding:0;
+      color:#228cb3;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
       background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
       background-size:cover;
       background-position:center;
-      background-attachment:fixed;
+      background-repeat:no-repeat;
     }
 
-    .compat-page{
-      min-height:100vh;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:24px 12px calc(40px + var(--floatbar-gap));
+    h1{
+      font-size:2.5em; color:#fff; margin:20px 0 16px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.6);
+      background:linear-gradient(135deg,#039eac,#007a8c);
+      padding:15px 30px; border-radius:15px; display:inline-block;
+      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
+      font-weight:700; letter-spacing:1px;
     }
 
-    .compat-shell{
-      width:100%;
-      max-width:1040px;
-      margin:auto;
+    .container{
+      max-width:1000px; width:100%;
+      box-sizing:border-box;
+      border-radius:10px; padding:20px;
+      box-shadow:0 4px 8px rgba(0,0,0,.2);
+      background:transparent;
+      display:flex; flex-direction:column; align-items:center; gap:20px;
     }
 
-    .title-wrap{
-      display:grid;
-      place-items:center;
-      margin-bottom:12px;
-      text-align:center;
+    .button{
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+      width:150px; height:110px; margin:10px; padding:10px;
+      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
+      box-shadow:0 5px #999; border:none; font-size:14px;
+      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
+    }
+    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
+    .button:hover{ filter:brightness(.95); }
+    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
+
+    .home-button{ background:#008CBA; }
+    .home-button:hover{ filter:brightness(.95); }
+    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
+
+    footer{
+      margin-top:auto; color:#fff; font-size:16px; padding:10px;
+      text-shadow:2px 2px 5px rgba(3,3,3,.7);
     }
 
-    .title-banner{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding:12px 18px;
-      border-radius:14px;
-      color:#fff;
-      font-weight:800;
-      font-size:clamp(18px,4vw,26px);
-      background:linear-gradient(135deg,#0ea5a6,#0b74d0);
-      box-shadow:0 10px 24px rgba(0,0,0,.25);
-      max-width:92vw;
+    .home-grid{
+      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
+      max-width:1000px; box-sizing:border-box;
     }
 
-    .card-wrap{
-      width:100%;
-      max-width:1000px;
-      margin:0 auto;
-    }
+    
 
-    .glass-card{
-      background:var(--bg-card);
-      border-radius:16px;
-      border:1px solid rgba(15,23,42,.08);
-      box-shadow:0 10px 30px rgba(15,23,42,.18);
-      padding:clamp(14px,3vw,22px);
-    }
+    .hidden{ display:none !important; }
 
-    .form-grid{
-      display:grid;
-      gap:12px 16px;
-      align-items:end;
-      grid-template-columns:1fr;
-      grid-template-areas:
-        "a"
-        "b"
-        "actions";
-    }
-    .field-a{ grid-area:a; }
-    .field-b{ grid-area:b; }
-    .actions{
-      grid-area:actions;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
-    }
-
-    @media (min-width:820px){
-      .form-grid{
-        grid-template-columns:1fr 1fr;
-        grid-template-areas:
-          "a b"
-          "actions actions";
+    /* Mobile: หน้า Home → 2 คอลัมน์ */
+    @media (max-width:600px){
+      .home-page h1{
+        font-size:1.25rem;
+        padding:8px 12px;
+        margin:12px 0 0;
       }
-    }
+      .home-grid{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:25px;
+        width:100%;
+        max-width:420px;
+        padding:10px;
+      }
+      .home-page .button{
+        width:100%;
+        height:100px;
+        margin:0;
+        font-size:12.5px;
+        border-radius:12px;
+        padding:8px;
+        box-shadow:0 4px #999;
+      }
+      .home-page .button img{
+        max-width:32px;
+        margin-bottom:6px;
+      }
+      .home-page .button span small{
+        font-size:11px;
+      }
+      footer{
+        font-size: 11px;     /* เล็กลง */
+        padding: 6px 4px;    /* เว้นขอบน้อยลง */
+        line-height: 1.3;
+      }
 
-    label{
-      font-weight:700;
-      margin:0 6px 6px 2px;
-      display:inline-block;
     }
-
-    select{
-      width:100%;
-      padding:10px 12px;
-      border-radius:10px;
-      border:1px solid #cbd5e1;
-      background:#fff;
-      font-size:14px;
-    }
-
-    .btn{
-      display:inline-block;
-      padding:8px 16px;
-      border-radius:10px;
-      font-weight:800;
-      border:0;
-      cursor:pointer;
-      white-space:nowrap;
-      text-decoration:none;
-      font-size:14px;
-    }
-    .btn-primary{
-      background:#0ea5a6;
-      color:#fff;
-    }
-    .btn-secondary{
-      background:#e2e8f0;
-      color:#0f172a;
-    }
-    .btn:hover{ filter:brightness(.95); }
-
-    .compat-result{
-      margin-top:16px;
-      padding:14px 18px;
-      border-radius:12px;
-      border:1px solid #e2e8f0;
-      background:#f8fafcdd;
-      text-align:center;
-      font-size:14px;
-    }
-    .compat-result.compat-C{
-      background:rgba(22,163,74,.10);
-      border-color:#16a34a;
-      color:#064e3b;
-    }
-    .compat-result.compat-I{
-      background:rgba(220,38,38,.10);
-      border-color:#dc2626;
-      color:#7f1d1d;
-    }
-    .compat-result.compat-U{
-      background:rgba(245,158,11,.12);
-      border-color:#f59e0b;
-      color:#78350f;
-    }
-    .compat-result.compat-ND{
-      background:rgba(37,99,235,.10);
-      border-color:#2563eb;
-      color:#1e3a8a;
-    }
-
-    .legend{
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:center;
-      align-items:center;
-      gap:10px 14px;
-      margin-top:12px;
-      font-size:11px;
-      color:#334155;
-    }
-    .legend .item{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      white-space:nowrap;
-    }
-    .dot{
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      display:inline-block;
-    }
-    .dot.C{ background:#16a34a; }
-    .dot.I{ background:#dc2626; }
-    .dot.U{ background:#f59e0b; }
-    .dot.ND{ background:#2563eb; }
-
-    .hidden{ display:none; }
   </style>
 </head>
-<body>
-  <div class="compat-page">
-    <div class="compat-shell">
-      <div class="title-wrap">
-        <div class="title-banner">
-          ตรวจสอบความเข้ากันได้ของยา (Compatibility)
-        </div>
+
+<body class=" ">
+  <div class="container">
+    
+<style>
+  .compat-page{
+    display:block;
+    text-align:initial;
+    width:100%;
+  }
+
+  .compat-shell{
+    box-sizing:border-box;
+    width:100%;
+    max-width:1040px;
+    margin:24px auto 16px;
+    padding-inline:clamp(12px,4vw,24px);
+    padding-left:max(clamp(10px,4vw,20px),env(safe-area-inset-left));
+    padding-right:max(clamp(10px,4vw,20px),env(safe-area-inset-right));
+  }
+  .compat-shell, .compat-shell *{
+    font-size:clamp(13px,2.6vw,16px);
+    line-height:1.35;
+  }
+
+  .title-wrap{
+    display:grid;
+    place-items:center;
+    text-align:center;
+  }
+  .title-banner{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:12px 18px;
+    border-radius:14px;
+    color:#fff;
+    font-weight:800;
+    font-size:clamp(18px,4vw,26px);
+    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+    margin-inline:auto;
+    margin-bottom:16px;
+    max-width:92vw;
+  }
+
+  .card-wrap{
+    width:100%;
+    max-width:1000px;
+    margin-inline:auto;
+  }
+  .glass-card{
+    background:rgba(255,255,255,0.95);
+    border:1px solid rgba(15,23,42,.08);
+    border-radius:16px;
+    box-shadow:0 10px 28px rgba(2,8,23,.15);
+    padding:clamp(14px,3vw,22px);
+    color:#0f172a;
+    margin-bottom:8px;
+  }
+
+  .form-grid{
+    display:grid;
+    gap:12px 16px;
+    align-items:end;
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "a"
+      "b"
+      "actions";
+  }
+  .field-a{ grid-area:a; }
+  .field-b{ grid-area:b; }
+  .actions{
+    grid-area:actions;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  @media (min-width:820px){
+    .form-grid{
+      grid-template-columns:1fr 1fr;
+      grid-template-areas:
+        "a b"
+        "actions actions";
+    }
+  }
+
+  label{
+    font-weight:700;
+    margin:0 6px 6px 2px;
+    display:inline-block;
+  }
+  select{
+    width:100%;
+    min-width:0;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    background:#fff;
+    color:#0f172a;
+    font-size:inherit;
+  }
+
+  .btn{
+    display:inline-block;
+    padding:clamp(8px,1.6vw,10px) clamp(12px,2.4vw,16px);
+    border-radius:10px;
+    font-weight:800;
+    border:0;
+    cursor:pointer;
+    white-space:nowrap;
+    text-decoration:none;
+  }
+  .btn-primary{
+    background:#0ea5a6;
+    color:#fff;
+  }
+  .btn-secondary{
+    background:#e2e8f0;
+    color:#0f172a;
+  }
+  .btn:hover{ filter:brightness(.95); }
+
+  .compat-result{
+    margin-top:16px;
+    padding:14px 18px;
+    border-radius:12px;
+    text-align:center;
+    border:1px solid #e2e8f0;
+    background:rgba(255,255,255,0.9);
+    font-weight:500;
+  }
+
+  .compat-result.compat-C{
+    background:rgba(22,163,74,0.10);
+    border-color:#16a34a;
+    color:#064e3b;
+  }
+  .compat-result.compat-I{
+    background:rgba(220,38,38,0.10);
+    border-color:#dc2626;
+    color:#7f1d1d;
+  }
+  .compat-result.compat-U{
+    background:rgba(245,158,11,0.12);
+    border-color:#f59e0b;
+    color:#78350f;
+  }
+  .compat-result.compat-ND{
+    background:rgba(37,99,235,0.10);
+    border-color:#2563eb;
+    color:#1e3a8a;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:10px 14px;
+    margin-top:12px;
+    color:#334155;
+    font-size:clamp(10px,1.4vw,12px);
+    line-height:1.25;
+  }
+  .legend .item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    display:inline-block;
+  }
+  .dot.C{ background:#16a34a; }
+  .dot.I{ background:#dc2626; }
+  .dot.U{ background:#f59e0b; }
+  .dot.ND{ background:#2563eb; }
+
+  .hidden{ display:none; }
+</style>
+
+
+
+
+<div class="compat-page">
+  <div class="compat-shell">
+    <div class="title-wrap">
+      <div class="title-banner">
+        ตรวจสอบความเข้ากันได้ของยา (Compatibility)
       </div>
+    </div>
 
-      <div class="card-wrap">
-        <div class="glass-card">
-          <form id="compat-form">
-            <div class="form-grid">
-              <div class="field-a">
-                <label for="drug_a">ยา A</label>
-                <select id="drug_a" required>
-                  <option value="">-- เลือกยา --</option>
-                </select>
-              </div>
+    <div class="card-wrap">
+      <div class="glass-card">
+        
 
-              <div class="field-b">
-                <label for="drug_b">ยา B</label>
-                <select id="drug_b" required>
-                  <option value="">-- เลือกยา --</option>
-                </select>
-              </div>
-
-              <div class="actions">
-                <button type="submit" class="btn btn-primary">ตรวจสอบ</button>
-                <a href="index.html" class="btn btn-secondary">กลับหน้า Home</a>
-              </div>
+        
+        
+          <form method="get" action="#">
+        
+          <div class="form-grid">
+            <div class="field-a">
+              <label for="drug_a">ยา A</label>
+              <select id="drug_a" name="drug_a" required>
+                <option value="">-- เลือกยา --</option>
+                
+                  
+                    <option value="1">Acyclovir</option>
+                  
+                    <option value="2">Amikacin</option>
+                  
+                    <option value="3">Aminophylline</option>
+                  
+                    <option value="4">Amoxicillin / Clavimoxy</option>
+                  
+                    <option value="5">Amphotericin B</option>
+                  
+                    <option value="6">Ampicillin</option>
+                  
+                    <option value="7">Benzathine penicillin G</option>
+                  
+                    <option value="8">Calcium gluconate</option>
+                  
+                    <option value="9">Cefazolin</option>
+                  
+                    <option value="10">Cefotaxime</option>
+                  
+                    <option value="11">Ceftazidime</option>
+                  
+                    <option value="12">Ciprofloxacin</option>
+                  
+                    <option value="13">Clindamycin</option>
+                  
+                    <option value="14">Cloxacillin</option>
+                  
+                    <option value="15">Colistin</option>
+                  
+                    <option value="16">Dexamethasone</option>
+                  
+                    <option value="17">Dobutamine</option>
+                  
+                    <option value="18">Dopamine</option>
+                  
+                    <option value="19">Fentanyl</option>
+                  
+                    <option value="20">Furosemide</option>
+                  
+                    <option value="21">Gentamicin</option>
+                  
+                    <option value="22">Hydrocortisone</option>
+                  
+                    <option value="23">Insulin Human Regular</option>
+                  
+                    <option value="24">Levofloxacin</option>
+                  
+                    <option value="25">Meropenem</option>
+                  
+                    <option value="26">Metronidazole (Flagyl)</option>
+                  
+                    <option value="27">Midazolam</option>
+                  
+                    <option value="28">Midazolam + Fentanyl</option>
+                  
+                    <option value="29">Morphine</option>
+                  
+                    <option value="30">Nimbex (Cisatracurium)</option>
+                  
+                    <option value="31">Omeprazole</option>
+                  
+                    <option value="32">Penicillin G sodium</option>
+                  
+                    <option value="33">Phenobarbital</option>
+                  
+                    <option value="34">Phenytoin (Dilantin)</option>
+                  
+                    <option value="35">Remdesivir</option>
+                  
+                    <option value="36">Sul-am®</option>
+                  
+                    <option value="37">Sulbactam</option>
+                  
+                    <option value="38">Sulperazone</option>
+                  
+                    <option value="39">Tazocin</option>
+                  
+                    <option value="40">Unasyn</option>
+                  
+                    <option value="41">Vancomycin</option>
+                  
+                
+              </select>
             </div>
-          </form>
 
-          <div id="compat-result-box" class="compat-result hidden"></div>
+            <div class="field-b">
+              <label for="drug_b">ยา B</label>
+              <select id="drug_b" name="drug_b" required>
+                <option value="">-- เลือกยา --</option>
+                
+                  
+                    <option value="1">Acyclovir</option>
+                  
+                    <option value="2">Amikacin</option>
+                  
+                    <option value="3">Aminophylline</option>
+                  
+                    <option value="4">Amoxicillin / Clavimoxy</option>
+                  
+                    <option value="5">Amphotericin B</option>
+                  
+                    <option value="6">Ampicillin</option>
+                  
+                    <option value="7">Benzathine penicillin G</option>
+                  
+                    <option value="8">Calcium gluconate</option>
+                  
+                    <option value="9">Cefazolin</option>
+                  
+                    <option value="10">Cefotaxime</option>
+                  
+                    <option value="11">Ceftazidime</option>
+                  
+                    <option value="12">Ciprofloxacin</option>
+                  
+                    <option value="13">Clindamycin</option>
+                  
+                    <option value="14">Cloxacillin</option>
+                  
+                    <option value="15">Colistin</option>
+                  
+                    <option value="16">Dexamethasone</option>
+                  
+                    <option value="17">Dobutamine</option>
+                  
+                    <option value="18">Dopamine</option>
+                  
+                    <option value="19">Fentanyl</option>
+                  
+                    <option value="20">Furosemide</option>
+                  
+                    <option value="21">Gentamicin</option>
+                  
+                    <option value="22">Hydrocortisone</option>
+                  
+                    <option value="23">Insulin Human Regular</option>
+                  
+                    <option value="24">Levofloxacin</option>
+                  
+                    <option value="25">Meropenem</option>
+                  
+                    <option value="26">Metronidazole (Flagyl)</option>
+                  
+                    <option value="27">Midazolam</option>
+                  
+                    <option value="28">Midazolam + Fentanyl</option>
+                  
+                    <option value="29">Morphine</option>
+                  
+                    <option value="30">Nimbex (Cisatracurium)</option>
+                  
+                    <option value="31">Omeprazole</option>
+                  
+                    <option value="32">Penicillin G sodium</option>
+                  
+                    <option value="33">Phenobarbital</option>
+                  
+                    <option value="34">Phenytoin (Dilantin)</option>
+                  
+                    <option value="35">Remdesivir</option>
+                  
+                    <option value="36">Sul-am®</option>
+                  
+                    <option value="37">Sulbactam</option>
+                  
+                    <option value="38">Sulperazone</option>
+                  
+                    <option value="39">Tazocin</option>
+                  
+                    <option value="40">Unasyn</option>
+                  
+                    <option value="41">Vancomycin</option>
+                  
+                
+              </select>
+            </div>
 
-          <div class="legend">
-            <div class="item"><span class="dot C"></span> C = Compatible / ผสมร่วมได้</div>
-            <div class="item"><span class="dot I"></span> I = Incompatible / ห้ามผสม</div>
-            <div class="item"><span class="dot U"></span> U = Uncertain / ไม่ชัดเจน</div>
-            <div class="item"><span class="dot ND"></span> ND = No data / ไม่มีข้อมูล</div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">ตรวจสอบ</button>
+
+              
+                
+              
+              <a href="./core.index.html" class="btn btn-secondary">
+                กลับหน้า Home
+              </a>
+            </div>
           </div>
+        </form>
+
+        
+        <div id="compat-result-box"
+             class="compat-result hidden">
+          
         </div>
+
+        <div class="legend">
+          <div class="item"><span class="dot C"></span> C = Compatible / ผสมร่วมได้</div>
+          <div class="item"><span class="dot I"></span> I = Incompatible / ห้ามผสม</div>
+          <div class="item"><span class="dot U"></span> U = Uncertain / ไม่ชัดเจน</div>
+          <div class="item"><span class="dot ND"></span> ND = No data / ไม่มีข้อมูล</div>
+        </div>
+
+        
+        
       </div>
     </div>
   </div>
+</div>
 
+  </div>
+
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
+
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
   <script>
     (function () {
-      const DATA_URL = "data/seed_compatibility.json";
+      if (!("serviceWorker" in navigator)) return;
 
-      function norm(s) {
-        return String(s || "")
-          .trim()
-          .toLowerCase()
-          .replace(/\s+/g, " ");
-      }
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
-      function statusToCode(s) {
-        if (!s) return "ND";
-        const t = String(s).trim().toLowerCase();
-        if (["c", "compatible", "เข้ากันได้"].some(x => t.startsWith(x))) return "C";
-        if (["i", "incompatible", "ห้ามผสม", "ไม่เข้ากัน"].some(x => t.startsWith(x))) return "I";
-        if (["u", "uncertain", "ไม่แน่ชัด"].some(x => t.startsWith(x))) return "U";
-        if (["nd", "no data", "ไม่มีข้อมูล"].includes(t)) return "ND";
-        return "ND";
-      }
-
-      function codeToText(code) {
-        switch (code) {
-          case "C": return "Compatible / ผสมร่วมได้";
-          case "I": return "Incompatible / ห้ามผสม";
-          case "U": return "Uncertain / ไม่ชัดเจน";
-          default:  return "No data / ไม่มีข้อมูล";
+      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
+        if (!reg) {
+          return navigator.serviceWorker.register(swPath).catch(console.error);
         }
-      }
-
-      const form = document.getElementById("compat-form");
-      const selA = document.getElementById("drug_a");
-      const selB = document.getElementById("drug_b");
-      const box  = document.getElementById("compat-result-box");
-
-      if (!form || !selA || !selB || !box) return;
-
-      let rows = [];
-      let loaded = false;
-
-      function showResult(html, code) {
-        box.className = "compat-result compat-" + (code || "ND");
-        box.innerHTML = html;
-        box.classList.remove("hidden");
-        box.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-
-      function buildOptions() {
-        const names = new Set();
-        rows.forEach(r => {
-          if (r.drug) names.add(String(r.drug).trim());
-          if (r.co_drug) names.add(String(r.co_drug).trim());
-        });
-        const sorted = Array.from(names).sort((a, b) => a.localeCompare(b, "en", {sensitivity:"base"}));
-
-        // ล้าง options เดิม (เผื่อ reload script)
-        [selA, selB].forEach(sel => {
-          while (sel.options.length > 1) sel.remove(1);
-        });
-
-        for (const name of sorted) {
-          const o1 = document.createElement("option");
-          o1.value = name;
-          o1.textContent = name;
-          const o2 = o1.cloneNode(true);
-          selA.appendChild(o1);
-          selB.appendChild(o2);
-        }
-      }
-
-      // โหลด JSON จาก docs/data/seed_compatibility.json
-      fetch(DATA_URL)
-        .then(resp => {
-          if (!resp.ok) throw new Error("HTTP " + resp.status);
-          return resp.json();
-        })
-        .then(json => {
-          if (!Array.isArray(json)) throw new Error("JSON is not array");
-          rows = json;
-          loaded = true;
-          buildOptions();
-        })
-        .catch(err => {
-          console.error("load compat error", err);
-          showResult(
-            "ไม่สามารถโหลดไฟล์ <code>data/seed_compatibility.json</code><br>ตรวจสอบ path และ commit/push ขึ้น GitHub Pages แล้วลองใหม่อีกครั้ง",
-            "ND"
-          );
-        });
-
-      form.addEventListener("submit", function (ev) {
-        ev.preventDefault();
-
-        if (!loaded) {
-          showResult("กำลังโหลดข้อมูลจากไฟล์ static... โปรดลองใหม่อีกครั้ง", "ND");
-          return;
-        }
-
-        const nameA = selA.value;
-        const nameB = selB.value;
-
-        if (!nameA || !nameB) {
-          showResult("กรุณาเลือกยา A และยา B ให้ครบถ้วน", "ND");
-          return;
-        }
-        if (nameA === nameB) {
-          showResult("กรุณาเลือกยาคนละชนิดกัน", "ND");
-          return;
-        }
-
-        const na = norm(nameA);
-        const nb = norm(nameB);
-
-        let found = null;
-        for (const r of rows) {
-          const d1 = norm(r.drug);
-          const d2 = norm(r.co_drug);
-          if ((d1 === na && d2 === nb) || (d1 === nb && d2 === na)) {
-            found = r;
-            break;
-          }
-        }
-
-        if (!found) {
-          showResult(
-            "ไม่พบข้อมูลคู่นี้ในไฟล์ static<br>No data / ไม่มีข้อมูล",
-            "ND"
-          );
-          return;
-        }
-
-        const raw = (found.status || "").toString().trim().toUpperCase();
-        const code = ["C","I","U","ND"].includes(raw) ? raw : statusToCode(found.status);
-        const text = codeToText(code);
-
-        let html =
-          "<p style='margin:0 0 4px 0;'>ผลการตรวจสอบ: " +
-          "<strong>" + nameA + "</strong> + <strong>" + nameB +
-          "</strong> → <strong>" + code + "</strong></p>" +
-          "<p style='margin:0 0 4px 0;'>" + text + "</p>";
-
-        if (found.source) {
-          html += "<p style='margin:0;font-size:12px;'>อ้างอิง: " +
-                  found.source + "</p>";
-        }
-        if (found.note) {
-          html += "<p style='margin:0;font-size:12px;'>หมายเหตุ: " +
-                  found.note + "</p>";
-        }
-
-        showResult(html, code);
+      }).catch(function () {
+        navigator.serviceWorker.register(swPath).catch(console.error);
       });
     })();
   </script>
