@@ -11,19 +11,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="/static/manifest.webmanifest">
+        href="./static/manifest.webmanifest">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="/static/icons/icon-192.png">
+        href="./static/icons/icon-192.png">
 
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
-        href="/static/style.css">
+        href="./static/style.css">
   <script defer
-          src="/static/app.js"></script>
+          src="./static/app.js"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -249,9 +249,17 @@
     white-space:nowrap;
     text-decoration:none;
   }
-  .btn-primary{ background:#0ea5a6; color:#fff; }
-  .btn-secondary{ background:#e2e8f0; color:#0f172a; }
-  .btn:hover{ filter:brightness(.95); }
+  .btn-primary{
+    background:#0ea5a6;
+    color:#fff;
+  }
+  .btn-secondary{
+    background:#e2e8f0;
+    color:#0f172a;
+  }
+  .btn:hover{
+    filter:brightness(.95);
+  }
 
   .compat-result{
     margin-top:16px;
@@ -283,6 +291,8 @@
     color:#1e3a8a;
   }
 
+  .hidden{ display:none !important; }
+
   .legend{
     display:flex;
     flex-wrap:wrap;
@@ -312,14 +322,23 @@
   .dot.ND{ background:#2563eb; }
 
   @media (min-width:1200px){
-    .legend{ flex-wrap:nowrap; gap:18px; font-size:10px; }
+    .legend{
+      flex-wrap:nowrap;
+      gap:18px;
+      font-size:10px;
+    }
     .dot{ width:9px; height:9px; }
   }
   @media (min-width:1600px){
-    .legend{ font-size:9px; gap:20px; }
+    .legend{
+      font-size:9px;
+      gap:20px;
+    }
     .dot{ width:8px; height:8px; }
   }
 </style>
+
+
 
 
 
@@ -335,7 +354,7 @@
     <div class="card-wrap">
       <div class="glass-card">
         
-          <form method="post" action="/compatibility">
+          <form method="get" action="#">
         
           <div class="form-grid">
             <!-- ยา A -->
@@ -343,7 +362,6 @@
               <label for="drug_a">ยา A</label>
               <select id="drug_a" name="drug_a" required>
                 <option value="">-- เลือกยา --</option>
-
                 
                   
                     <option value="1">Acyclovir</option>
@@ -437,7 +455,6 @@
               <label for="drug_b">ยา B</label>
               <select id="drug_b" name="drug_b" required>
                 <option value="">-- เลือกยา --</option>
-
                 
                   
                     <option value="1">Acyclovir</option>
@@ -533,14 +550,14 @@
               </button>
 
               
-              <a href="/" class="btn btn-secondary">
+              <a href="./core.index.html" class="btn btn-secondary">
                 กลับหน้า Home
               </a>
             </div>
           </div>
         </form>
 
-        <!-- กล่องผลลัพธ์ (Flask จะ render ข้างใน; GitHub ใช้ JS เขียนแทน) -->
+        <!-- กล่องผลลัพธ์ (ฝั่ง Flask render server-side) -->
         <div id="compat-result-box"
              class="compat-result hidden">
           
@@ -566,18 +583,18 @@
           </div>
         </div>
 
+        
+        
+
       </div>
     </div>
   </div>
 </div>
 
-
-
-
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-22</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
@@ -585,7 +602,7 @@
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      var swPath = "/static/service-worker.js?v=2025-11-12-01";
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
         if (!reg) {
