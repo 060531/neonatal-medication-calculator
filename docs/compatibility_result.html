@@ -75,11 +75,6 @@
     .button:hover{ filter:brightness(.95); }
     .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
 
-    .compat-card-wide{
-      max-width: 960px;
-      margin: 0 auto;
-    }
-
     .home-button{ background:#008CBA; }
     .home-button:hover{ filter:brightness(.95); }
     .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
@@ -151,27 +146,26 @@
   <div class="compat-card compat-card-wide">
     <h2 class="compat-subtitle">Result analyze</h2>
 
-    <!-- ชื่อยา A / B -->
+    
     <div class="compat-result-header">
-      <span class="compat-pill" id="drug-a-label">Drug A</span>
+      <span class="compat-pill" data-drug-a>Drug A</span>
       <span class="compat-with">with</span>
-      <span class="compat-pill" id="drug-b-label">Drug B</span>
+      <span class="compat-pill" data-drug-b>Drug B</span>
     </div>
 
-    <!-- สถานะ C / I / U / ND -->
+    
     <div class="compat-status-line">
-      <span class="compat-status-pill" id="status-code">ND</span>
-      <span class="compat-status-text" id="status-text">Unknown</span>
+      <span class="compat-status-pill" data-status-code>ND</span>
+      <span class="compat-status-text" data-status-label>Unknown</span>
     </div>
 
     <hr>
 
-    <!-- note + แหล่งอ้างอิง -->
     <div class="compat-note-block">
-      <p class="compat-note-main" id="compat-note">
+      <p class="compat-note-main" data-note-main>
         ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
       </p>
-      <p class="compat-note-ref" id="compat-source"></p>
+      <p class="compat-note-ref" data-note-ref></p>
     </div>
 
     <div class="compat-legend" style="margin-top:20px">
@@ -188,67 +182,34 @@
   </div>
 </div>
 
+
 <script>
-  const STATUS_TEXT = {
-    "C": "Compatible / ผสมร่วมได้",
-    "I": "Incompatible / ห้ามผสม",
-    "U": "Uncertain / ไม่ชัดเจน",
-    "ND": "No data / ไม่มีข้อมูล"
-  };
+  (function () {
+    var params = new URLSearchParams(window.location.search);
 
-  function canon(name) {
-    return (name || "").trim().toLowerCase();
-  }
+    var drugA = params.get("drug_a") || "Drug A";
+    var drugB = params.get("drug_b") || "Drug B";
 
-  // ดึงค่าจาก query string
-  const params = new URLSearchParams(window.location.search);
-  const drugA = params.get("drug_a") || "";
-  const drugB = params.get("drug_b") || "";
+    var elA = document.querySelector("[data-drug-a]");
+    var elB = document.querySelector("[data-drug-b]");
+    if (elA) elA.textContent = drugA;
+    if (elB) elB.textContent = drugB;
 
-  // แสดงชื่อยาในหัวข้อ
-  document.getElementById("drug-a-label").textContent = drugA || "—";
-  document.getElementById("drug-b-label").textContent = drugB || "—";
-
-  fetch("data/seed_compatibility.json")
-    .then(resp => resp.json())
-    .then(rows => {
-      const a = canon(drugA);
-      const b = canon(drugB);
-
-      // หา record ทั้งแบบ A+B และ B+A
-      const match = rows.find(r => {
-        const ra = canon(r.drug_a);
-        const rb = canon(r.drug_b);
-        return (ra === a && rb === b) || (ra === b && rb === a);
-      });
-
-      const statusCodeEl = document.getElementById("status-code");
-      const statusTextEl = document.getElementById("status-text");
-      const noteEl       = document.getElementById("compat-note");
-      const sourceEl     = document.getElementById("compat-source");
-
-      if (match) {
-        const code = (match.status || "ND").toUpperCase();
-
-        statusCodeEl.textContent = code;
-        statusTextEl.textContent = STATUS_TEXT[code] || "Unknown";
-
-        noteEl.textContent   = match.note   || "";
-        sourceEl.textContent = match.source ? "อ้างอิง: " + match.source : "";
-
-      } else {
-        // กรณีไม่มี record จริง ๆ
-        statusCodeEl.textContent = "ND";
-        statusTextEl.textContent = "Unknown";
-
-        noteEl.textContent =
-          "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจดูชื่ออีกครั้ง / ยืนยันเพิ่มเติม)";
-        sourceEl.textContent = "";
-      }
-    })
-    .catch(err => {
-      console.error("Error loading compat JSON:", err);
-    });
+    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
+    var status = params.get("status");
+    var sCodeEl = document.querySelector("[data-status-code]");
+    var sLabelEl = document.querySelector("[data-status-label]");
+    if (status && sCodeEl && sLabelEl) {
+      var map = {
+        "C": "Compatible / ผสมร่วมได้",
+        "I": "Incompatible / ห้ามผสม",
+        "U": "Uncertain / ไม่ชัดเจน",
+        "ND": "No data / ไม่มีข้อมูล"
+      };
+      sCodeEl.textContent = status;
+      sLabelEl.textContent = map[status] || "Unknown";
+    }
+  })();
 </script>
 
   </div>
