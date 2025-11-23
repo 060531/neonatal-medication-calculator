@@ -81,11 +81,11 @@
       color: #fff;
     }
 
-/* ปุ่มตัวอักษรกลุ่มยา */
 .letter-group {
-  text-align: center;
+  text-align: center;   /* เดิมเป็น left */
   margin-top: 4px;
 }
+
 .letter-heading {
   font-weight: bold;
   font-size: 18px;
@@ -95,10 +95,11 @@
   padding-bottom: 4px;
 }
 
-/* ===== ปุ่มยา: layout เดสก์ท็อป 4 ปุ่ม/แถว ===== */
+
+/* ===== ปุ่มยา: layout หลัก (เดสก์ท็อป) ===== */
 .med-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 ปุ่ม/แถว */
   gap: 8px;
   justify-content: center;
 }
@@ -107,7 +108,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 100%;                  /* กินเต็ม cell ของ grid */
   height: 50px;
   font-size: 14px;
   text-align: center;
@@ -127,17 +128,19 @@
   background: linear-gradient(135deg, rgb(38, 145, 137), rgb(5, 95, 98));
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
+
 .medication-dose-button:active {
   box-shadow: 0 3px #666;
   transform: translateY(2px);
 }
+
 .red-button {
   background: linear-gradient(135deg, #f85145, #c62828);
 }
+
 .red-button:hover {
   background: linear-gradient(135deg, #ff0000, #b71c1c);
 }
-
     /* ปุ่ม Back แบบใหม่ */
     .top-fix-actions {
       position: sticky;
@@ -193,7 +196,7 @@
   }
 
   .med-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* เหลือ 2 ปุ่มต่อแถว */
     gap: 8px;
   }
 
@@ -212,37 +215,6 @@
   <div id="top"></div>
 
   <h1>Select a Medication</h1>
-
-    <script>
-  function getParam(name) {
-    return new URLSearchParams(window.location.search).get(name);
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const pmaWeeks = parseInt(getParam('pma_weeks') || '0', 10);
-    const pmaDays  = parseInt(getParam('pma_days')  || '0', 10);
-    const calc     = parseFloat(getParam('calc')    || '0');
-    const pnaDays  = parseInt(getParam('postnatal_days') || '0', 10);
-    const bw       = parseFloat(getParam('bw')      || '0');
-
-    // แสดงค่าพื้นฐานบนหน้า
-    document.getElementById('pmaInfo').textContent =
-      `PMA: ${pmaWeeks} weeks ${pmaDays} days (Calc: ${calc.toFixed(1)} weeks)`;
-    document.getElementById('pnaInfo').textContent = `Postnatal Age: ${pnaDays} days`;
-    document.getElementById('bwInfo').textContent  = `Birth Weight: ${bw.toFixed(2)} kg`;
-
-    // ตัวอย่างคำนวณ dose ง่าย ๆ: dose = calc × bw
-    const dose = calc * bw;
-    document.getElementById('doseInfo').textContent =
-      `ตัวอย่างขนาดยาโดยรวม (calc × BW) ≈ ${dose.toFixed(2)} หน่วย (ปรับตาม protocol จริงได้)`;
-  });
-</script>
-
-<p id="pmaInfo"></p>
-<p id="pnaInfo"></p>
-<p id="bwInfo"></p>
-<p id="doseInfo" style="font-weight:bold"></p>
-
 
   <div class="container">
     <!-- แถบ A–Z ด้านบน (เลือกเฉพาะตัวที่มีจริง) -->
@@ -438,7 +410,8 @@
     <section id="U" class="letter-group">
       <div class="letter-heading">U</div>
       <div class="med-grid">
-        <a href="#" class="medication-dose-button">Unasyun</a>
+        <a href="./unasyun_dose.html" 
+          class="medication-dose-button">Unasyun</a>
       </div>
     </section>
 
@@ -453,21 +426,6 @@
       </div>
     </section>
   </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const search = window.location.search;   // ?pma_weeks=...&bw=...
-
-    if (!search) return;
-
-    document.querySelectorAll('.medication-dose-button[href]').forEach(function (a) {
-      const base = a.getAttribute('href').split('?')[0];
-      a.setAttribute('href', base + search);
-    });
-  });
-</script>
-
-
 
   <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
     <a href="./index.html" class="back-btn">⬅ Back to Home</a>

@@ -237,17 +237,6 @@
     font-weight:700;
     cursor:pointer;
   }
-  .calc-btn{
-    margin-top:10px;
-    width:100%;
-    padding:8px 0;
-    border-radius:10px;
-    border:none;
-    background:#088686;
-    color:#fff;
-    font-weight:700;
-    cursor:pointer;
-  }
 
   .button-group{
     text-align:center;
@@ -334,26 +323,42 @@
         </div>
       </div>
 
-      <button type="button"
-        class="calc-btn"
-        onclick="calculatePMAStatic()">
-  Calculate PMA
-</button>
-
+      <button type="button" class="pma-btn" onclick="calculatePMAStatic()">
+        Calculate PMA
+      </button>
     </form>
 
-    <div id="pmaResultBox" class="pma-result" style="display:none">
-  <p>PMA: <span id="pmaText" class="pma-pill"></span></p>
-  <p>Calc.: <b id="calcText" style="color:#0f766e"></b></p>
-  <p>Postnatal Age: <b id="pnaText" style="color:#0f766e"></b></p>
-  <p>Birth Weight (BW): <b id="bwText" style="color:#0f766e"></b></p>
+    <div id="pma-result-static" class="pma-result" style="display:none">
+      <p>PMA:
+        <span class="pma-pill">
+          <span id="pma_res_weeks"></span> weeks
+          <span id="pma_res_days"></span> days
+        </span>
+      </p>
+      <p>Calc.:
+        <b style="color:#0f766e">
+          <span id="pma_res_calc"></span> weeks
+        </b>
+      </p>
+      <p>Postnatal Age:
+        <b style="color:#0f766e">
+          <span id="pma_res_pna"></span> days
+        </b>
+      </p>
+      <p>Birth Weight (BW):
+        <b style="color:#0f766e">
+          <span id="pma_res_bw"></span> kg
+        </b>
+      </p>
+    </div>
 
-  <!-- ปุ่มสำหรับไปหน้าคำนวณยา (ซ่อนก่อน แล้วค่อยโชว์ด้วย JS) -->
-  <button id="drugBtn" class="drug-button" style="display:none; margin-top:8px;">
-    คำนวณยา
-  </button>
-</div>
-
+    
+    <button id="drug-btn-static"
+            type="button"
+            class="drug-button"
+            style="display:none">
+      คำนวณยา
+    </button>
   </div>
 
   <div class="button-group">
@@ -361,54 +366,52 @@
     <a href="./index.html" class="back-button">Back to Home</a>
   </div>
 
-<script>
-  function calculatePMAStatic() {
-    // 1) อ่านค่าจาก input
-    const gaWeeks = parseInt(document.getElementById('ga_weeks').value || '0', 10);
-    const gaDays  = parseInt(document.getElementById('ga_days').value  || '0', 10);
-    const pnaDays = parseInt(document.getElementById('postnatal_days').value || '0', 10);
-    const bw      = parseFloat(document.getElementById('bw').value     || '0');
+  <script>
+    // URL ปลายทางสำหรับหน้า drug calculation (จะถูก map เป็น .html ตอน build)
+    const DRUG_CALC_URL = "./drug_calculation.html";
+    let lastPMA = null;
 
-    // 2) คำนวณ PMA
-    const totalDays = gaWeeks * 7 + gaDays + pnaDays;
-    const pmaWeeks  = Math.floor(totalDays / 7);
-    const pmaDays   = totalDays % 7;
-    const calcWeeks = totalDays / 7;
+    function calculatePMAStatic() {
+      const gaWeeks = parseInt(document.getElementById('ga_weeks').value) || 0;
+      const gaDays  = parseInt(document.getElementById('ga_days').value) || 0;
+      const pna     = parseInt(document.getElementById('postnatal_days').value) || 0;
+      const bwVal   = parseFloat(document.getElementById('bw').value) || 0;
 
-    // 3) อัปเดตกล่องผลลัพธ์บนหน้า PMA
-    const box     = document.getElementById('pmaResultBox');
-    const pmaText = document.getElementById('pmaText');
-    const calcText= document.getElementById('calcText');
-    const pnaText = document.getElementById('pnaText');
-    const bwText  = document.getElementById('bwText');
+      const totalDays = gaWeeks * 7 + gaDays + pna;
+      const pmaWeeks  = Math.floor(totalDays / 7);
+      const pmaDays   = totalDays % 7;
+      const calc      = (pmaWeeks + pmaDays / 7).toFixed(1);
 
-    if (box && pmaText && calcText && pnaText && bwText) {
-      box.style.display = 'block';                         // โชว์กล่องผลลัพธ์
-      pmaText.textContent  = `${pmaWeeks} weeks ${pmaDays} days`;
-      calcText.textContent = `${calcWeeks.toFixed(1)} weeks`;
-      pnaText.textContent  = `${pnaDays} days`;
-      bwText.textContent   = bw ? `${bw.toFixed(2)} kg` : '-';
+      document.getElementById('pma_res_weeks').textContent = pmaWeeks;
+      document.getElementById('pma_res_days').textContent  = pmaDays;
+      document.getElementById('pma_res_calc').textContent  = calc;
+      document.getElementById('pma_res_pna').textContent   = pna;
+      document.getElementById('pma_res_bw').textContent    = bwVal ? bwVal.toFixed(2) : '-';
+
+      document.getElementById('pma-result-static').style.display = 'block';
+
+      // เก็บค่าไว้ใช้ตอนกดปุ่มคำนวณยา
+      lastPMA = { pmaWeeks, pmaDays, pna, bwVal, calc };
+
+      const btn = document.getElementById('drug-btn-static');
+      btn.style.display = 'block';
+      btn.disabled = false;
     }
 
-    // 4) เตรียม query string สำหรับส่งต่อไปหน้า drug_calculation
-    const params = new URLSearchParams({
-      pma_weeks:      pmaWeeks,
-      pma_days:       pmaDays,
-      calc:           calcWeeks.toFixed(1),
-      postnatal_days: pnaDays,
-      bw:             bw.toFixed(2)
+    document.getElementById('drug-btn-static').addEventListener('click', function () {
+      if (!lastPMA) return;
+
+      const params = new URLSearchParams({
+        pma_weeks:      lastPMA.pmaWeeks,
+        pma_days:       lastPMA.pmaDays,
+        postnatal_days: lastPMA.pna,
+        bw:             lastPMA.bwVal ? lastPMA.bwVal.toFixed(3) : '',
+        calc:           lastPMA.calc
+      });
+
+      window.location.href = DRUG_CALC_URL + '?' + params.toString();
     });
-
-    // 5) โชว์ปุ่ม "คำนวณยา" + ผูกให้กดแล้วไปหน้า drug_calculation.html
-    const drugBtn = document.getElementById('drugBtn');
-    if (drugBtn) {
-      drugBtn.style.display = 'inline-block';   // เอาออกจาก display:none
-      drugBtn.onclick = function () {
-        window.location.href = 'drug_calculation.html?' + params.toString();
-      };
-    }
-  }
-</script>
+  </script>
 
 
 

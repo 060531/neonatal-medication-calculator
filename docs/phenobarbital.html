@@ -1,371 +1,318 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-  <title>Phenobarbital: คิด mL จาก mg + วิธีผสม</title>
-
-  
-
-  <!-- PWA meta -->
-  <meta name="theme-color" content="#0ea5a6" />
-  <link rel="manifest"
-        href="./static/manifest.webmanifest">
-
-  <!-- iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png">
-
-  <!-- App CSS/JS (dual path) -->
-  <link rel="stylesheet"
-        href="./static/style.css">
-  <script defer
-          src="./static/app.js"></script>
-
-  <style>
-    /* ---------- Global ---------- */
-    :root{ color-scheme: light only; }
-    html,body{ height:100%; }
-    body{
-      font-family: Arial, Helvetica, sans-serif;
-      text-align:center;
-      margin:0;
-      padding:0;
-      color:#228cb3;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
-    }
-
-    h1{
-      font-size:2.5em; color:#fff; margin:20px 0 16px;
-      text-shadow:2px 2px 6px rgba(0,0,0,.6);
-      background:linear-gradient(135deg,#039eac,#007a8c);
-      padding:15px 30px; border-radius:15px; display:inline-block;
-      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
-      font-weight:700; letter-spacing:1px;
-    }
-
-    .container{
-      max-width:1000px; width:100%;
-      box-sizing:border-box;
-      border-radius:10px; padding:20px;
-      box-shadow:0 4px 8px rgba(0,0,0,.2);
-      background:transparent;
-      display:flex; flex-direction:column; align-items:center; gap:20px;
-    }
-
-    .button{
-      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
-      width:150px; height:110px; margin:10px; padding:10px;
-      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
-      box-shadow:0 5px #999; border:none; font-size:14px;
-      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
-    }
-    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
-    .button:hover{ filter:brightness(.95); }
-    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
-
-    .home-button{ background:#008CBA; }
-    .home-button:hover{ filter:brightness(.95); }
-    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
-
-    footer{
-      margin-top:auto; color:#fff; font-size:16px; padding:10px;
-      text-shadow:2px 2px 5px rgba(3,3,3,.7);
-    }
-
-    .home-grid{
-      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
-      max-width:1000px; box-sizing:border-box;
-    }
-
-    
-
-    .hidden{ display:none !important; }
-
-    /* Mobile: หน้า Home → 2 คอลัมน์ */
-    @media (max-width:600px){
-      .home-page h1{
-        font-size:1.25rem;
-        padding:8px 12px;
-        margin:12px 0 0;
-      }
-      .home-grid{
-        display:grid;
-        grid-template-columns:repeat(2, minmax(0,1fr));
-        gap:25px;
-        width:100%;
-        max-width:420px;
-        padding:10px;
-      }
-      .home-page .button{
-        width:100%;
-        height:100px;
-        margin:0;
-        font-size:12.5px;
-        border-radius:12px;
-        padding:8px;
-        box-shadow:0 4px #999;
-      }
-      .home-page .button img{
-        max-width:32px;
-        margin-bottom:6px;
-      }
-      .home-page .button span small{
-        font-size:11px;
-      }
-      footer{
-        font-size: 11px;     /* เล็กลง */
-        padding: 6px 4px;    /* เว้นขอบน้อยลง */
-        line-height: 1.3;
-      }
-
-    }
-  </style>
-</head>
-
-<body class=" ">
-  <div class="container">
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Penicillin G sodium Calculation</title>
 <style>
-  :root { color-scheme: light; }
+  /* ========== Theme tokens ========== */
+  :root{
+    --blue-900:#0b2b7a;
+    --blue-700:#1e57d2;
+    --sky-50:#eef7ff;
+    --sky-100:#d7ecff;
+    --panel:#e6f3ffb8;
+    --text:#0f172a;
 
-  /* กล่องคำนวณ */
-  .card{
-    max-width:680px;margin:24px auto;background:#fff;border:1px solid #e5e7eb;
-    border-radius:16px;padding:20px 20px 16px;box-shadow:0 10px 24px rgba(2,8,23,.12)
-  }
-  .title{margin:0 0 8px 0;font-size:22px;font-weight:800;color:#0f172a;text-align:center}
-  .hint{color:#475569;text-align:center;margin-bottom:12px}
-  .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:8px}
-  label{font-weight:700;color:#0f172a}
-  input[type="number"]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px}
-  .btn{padding:12px 16px;border-radius:10px;border:0;background:#0ea5e9;color:#fff;font-weight:800;cursor:pointer}
-  .btn:hover{filter:brightness(.97)}
-  .err{color:#b91c1c;margin-top:8px;text-align:center;font-weight:700}
-
-  .result{margin-top:14px;padding:14px;border-radius:12px;background:#f8fafc;border:1px dashed #cbd5e1}
-  .big{font-size:28px;font-weight:900;color:#111827;text-align:center}
-
-  /* สูตร/แทนค่า—บรรทัดเดียว */
-  .formula { text-align:center }
-  .formula .line{
-    display:flex; gap:8px; align-items:center; justify-content:center;
-    flex-wrap:nowrap; white-space:nowrap;
-  }
-  .mono{
-    font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-weight:800; padding:2px 6px; border-radius:6px;
-    background:#e7527e; color:#fff;
-  }
-  @media (max-width: 400px){
-    .formula .line{ flex-wrap:wrap; white-space:normal; }
+    --floatbar-gap: clamp(80px, 16vw, 110px);
+    --page-gutter: 12px;
   }
 
-/* กล่องข้อมูลประกอบ (บังคับ 1 คอลัมน์เสมอ) */
-.sections.one-col{
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 900px;
-  margin: 18px auto 0;
-}
+  /* ========== Global guard + BG เต็มจอ ========== */
+  html, body { overflow-x: hidden; height: 100%; }
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video, canvas, svg { max-width: 100%; height: auto; }
+  pre, code { white-space: pre-wrap; word-break: break-word; }
 
-/* กล่องแต่ละส่วน + เนื้อหาชิดซ้าย */
-.section{
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 14px 16px;
-  text-align: left;            /* เนื้อหาชิดซ้าย */
-}
-
-/* หัวข้ออยู่กึ่งกลาง */
-.section h3{
-  margin: 0 0 6px 0;
-  font-size: 18px;
-  font-weight: 800;
-  color: #0f172a;
-  text-align: center;          /* หัวข้อกึ่งกลาง */
-}
-
-/* ข้อความ/ลิสต์ภายใน ให้ชิดซ้ายเสมอ */
-.section p{
-  margin: 6px 0;
-  color: #334155;
-  text-align: left;
-}
-.section ul{
-  margin: 6px 0 0 18px;
-  color: #334155;
-  text-align: left;
-}
-
-/* ไฮไลต์ตัวหนา */
-.hl{
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.header-box{
-    background: linear-gradient(180deg,#8ad2f8,#e2e8f0); /* ไล่สีอ่อน */
-    border:1px solid #97a7c9;
-    border-radius:18px;
-    padding:18px 20px;
-    box-shadow: 0 8px 22px rgba(2,8,23,.10);
+  body{
+    margin:0; min-height:100svh;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color:var(--text); text-align:center;
+    background:none;
+    padding-left:max(0px, env(safe-area-inset-left));
+    padding-right:max(0px, env(safe-area-inset-right));
   }
-  .header-box h2{ margin:0; color:#0f172a; font-weight:800; }
-
-  /* ===== ปุ่มลอยล่าง-กึ่งกลาง ===== */
-  .foot-actions{
-    position: fixed;
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%);
-    display: flex; gap: 12px; justify-content: center; align-items: center;
-
-    background: rgba(255, 255, 255, 0.525);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    padding: 10px 12px;
-    border: 1px solid rgba(15,23,42,0.08);
-    border-radius: 14px;
-    box-shadow: 0 10px 24px rgba(2,8,23,.18);
-    z-index: 60;
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background-image:url('https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg');
+    background-size:cover; background-position:center; background-repeat:no-repeat;
   }
-  .foot-actions a{
-    display:inline-block;text-decoration:none;color:#ffffff;font-weight:600;
-    padding:6px 17px;border-radius:9px;min-width:0px;text-align:center;
+
+  /* ========== Header ========== */
+  .title-badge{
+    display:inline-block; margin:28px auto 12px; padding:10px 18px;
+    background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
+    border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.14);
+    max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
   }
-  .back{ background:#64748b; }
-  .home{ background:#16a34a; }
-  @media (max-width: 560px){
-    .foot-actions{ gap:8px; padding:8px 10px; bottom:12px; }
-    .foot-actions a{ min-width:150px; padding:12px 16px; }
+
+  /* ========== Wrapper / panel ========== */
+  .container{
+    width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
+    margin:0 auto 12px; padding:20px;
+    background:var(--panel);
+    border:1px solid #b9d9ff; border-radius:16px;
+    box-shadow:0 8px 24px rgba(15,23,42,.18);
+    backdrop-filter: blur(6px) saturate(120%);
+    -webkit-backdrop-filter: blur(6px) saturate(120%);
+  }
+
+  /* ========== กล่องคำนวณ / ฟอร์ม ========== */
+  .calc-box{
+    margin:14px auto 20px; max-width:740px; padding:16px;
+    background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
+    border:1px solid #b7d6ff; border-radius:14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 8px 18px rgba(0,0,0,.06);
+    padding-left:max(12px, var(--page-gutter));
+    padding-right:max(12px, var(--page-gutter));
+  }
+  .calc-row{
+    display:flex; flex-wrap:wrap;
+    gap:10px; align-items:center; justify-content:center;
+  }
+
+  /* ฟิลด์มาตรฐาน */
+  input[type="number"], select{
+    width: clamp(160px, 50vw, 220px);
+    max-width:60vw; padding:10px 12px; border-radius:10px;
+    border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
+  }
+  .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+
+  /* ========== ปุ่มมาตรฐาน ========== */
+  .btn{
+    appearance:none; border:none; border-radius:10px; cursor:pointer;
+    padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
+    box-shadow:0 6px 0 rgba(10,30,85,.25);
+    transition: transform .06s ease, filter .2s ease;
+  }
+  .btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(1px); }
+  .btn-blue{ background:var(--blue-700); }
+  .btn-red{ background:#e71f1f; }
+  .btn-cyan{ background:#049bb5; }
+
+  /* ========== ผลลัพธ์ / ข้อความประกอบ ========== */
+  .result{
+    text-align:left; margin:14px auto; max-width:740px; padding:14px;
+    background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
+    padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
+  }
+  .result b{ color:#0b2b7a; }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .muted{ color:#334155; }
+  .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
+  .bullet{ text-align:left; margin:0 0 10px 0; }
+  .bullet ul{ margin:6px 0 0 22px; }
+
+  .order-line{ font-weight:900; margin:0 0 6px; text-align:center; }
+  .left-align{ text-align:left; }
+
+  .hidden{ display:none !important; }
+
+  /* ========== ปุ่มลอยล่าง ========== */
+  .float-actions{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
+    display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:8px 10px; border-radius:14px;
+    background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 8px 18px rgba(2,8,23,.28);
+    backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+    width:min(540px, calc(100vw - calc(var(--page-gutter)*2)));
+    max-width: calc(100vw - calc(var(--page-gutter)*2));
+  }
+
+  /* ========== Footer ========== */
+  footer.page-footer{
+    text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
+    margin: 6px 0 var(--floatbar-gap);
+    padding-left: var(--page-gutter); padding-right: var(--page-gutter);
+    font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
+  }
+
+  /* ========== มือถือ: label + field ให้อยู่บรรทัดเดียว ========== */
+  @media (max-width: 640px){
+    .dose-row{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      align-items:center;
+      column-gap:8px;
+      width:100%;
+      max-width:520px;
+      margin-left:auto; margin-right:auto;
+    }
+    .dose-row > label{
+      white-space:nowrap;
+      max-width:44vw;
+      font-size:14px; line-height:1.2;
+    }
+    .dose-row > input[type="number"]{
+      min-width:0; width:100%;
+      font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
+    }
+    .calc-row > .btn{ min-width:120px; }
+  }
+
+  @media (max-width: 360px){
+    .dose-row > label{ font-size:13px; max-width:42vw; }
+    .dose-row > input[type="number"]{ font-size:13px; padding:7px 9px; height:36px; }
+  }
+
+  @media (max-width:640px){
+    .title-badge{ font-size:22px; padding:8px 14px; }
+    .container{ padding:14px; }
+    .calc-row{ gap:8px; }
   }
 </style>
-    <div class="container">
-          <div class="header-box">
-            <h2>Phenobarbital 200 mg/mL</h2>
+
+</head>
+<body>
+
+  <!-- หัวข้อบนสุด -->
+  <div class="title-badge">
+    Penicillin G sodium (PGS) : 5 MU / vial → reconst. to 500,000 unit/ml
+  </div>
+
+  <div class="container">
+    <!-- กล่องคำนวณ -->
+    <div class="calc-box">
+      <form id="pgs-form"
+            class="calc-row"
+            action="./penicillin.html"
+            method="post">
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (unit):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="เช่น 250000"
+                 step="0.01"
+                 required
+                 value="">
         </div>
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
+      </form>
     </div>
-        
-<div class="card">
-  <h2 class="title">Phenobarbital</h2>
-  <div class="hint">
-    คำนวณที่ความเข้มข้นมาตรฐาน <b> mg/ml</b>
-    <small>สูตร: ml = mg ÷ </small>
-  </div>
 
-  <form method="post" class="row">
-    <div>
-      <label>ปริมาณที่ต้องการ (mg)</label>
-      <input type="number" step="0.01" min="0" name="dose" value="" required>
+    
+
+    <!-- กล่องผลลัพธ์ (Flask จัดการผ่าน Jinja, JS จะเขียนทับในโหมด docs) -->
+    <div id="result-box"
+         class="result"
+         style="display:none">
+      
     </div>
-    <button class="btn" type="submit">คำนวณ</button>
-  </form>
 
-  
+    <!-- หมายเหตุ/วิชาการ -->
+    <div class="bullet">
+      <p class="section-head">Solvent / การเตรียม</p>
+      <ul class="muted">
+        <li>Sterile water / 0.9% NSS / 5% Dextrose in water <b>8.2 ml</b></li>
+        <li>ได้สารละลายยา <b>10 ml</b> → <u>ความแรง 500,000 unit/ml</u></li>
+      </ul>
 
-  
-</div>
+      <p class="section-head">Solution</p>
+      <ul class="muted">
+        <li>Sterile water</li>
+        <li>0.9% Normal saline solution (NSS)</li>
+        <li>5% Dextrose in water</li>
+      </ul>
 
-<!-- 🔹 กล่องข้อมูล (1 คอลัมน์เสมอ) -->
-<div class="sections one-col">
+      <p class="section-head">ความเข้มขณะให้ (สูงสุด)</p>
+      <ul class="muted">
+        <li>≤ 500,000 unit/ml</li>
+      </ul>
 
-  <div class="section">
-    <h3>🔹 ข้อมูลพื้นฐาน</h3>
-    <ul>
-      <li><span class="hl">Phenobarbital sodium (Ampule)</span> 1 mL = <b>200 mg/ml</b> (เข้มข้นสูง)</li>
-      <li><b>ต้องเจือจางก่อนใช้</b> เพื่อให้เหมาะสมต่อการให้ผู้ป่วย</li>
-    </ul>
-  </div>
+      <p class="section-head">ระยะเวลาในการบริหารยา</p>
+      <ul class="muted">
+        <li>Slow IV push 3 – 5 mins</li>
+      </ul>
 
-  <div class="section">
-    <h3>🔹 วิธีการผสม</h3>
-    <p><b>ขนาดยา:</b> Phenobarbital <b>200 mg/ml</b></p>
-    <p><b>ตัวทำละลายที่ใช้ได้:</b> SWFI, D5W, D10W, NSS</p>
-    <p><b>สูตรจำง่าย:</b> <code>1 ml phenobarbital + 9 ml diluent = 20 mg/ml</code></p>
-  </div>
+      <p class="section-head">ความคงตัวหลังเจือจาง</p>
+      <ul class="muted">
+        <li>ประมาณ 7 วัน ที่อุณหภูมิ 2 – 8 °C</li>
+      </ul>
 
-  <div class="section">
-    <h3>🔹 ข้อควรจำหลังผสม</h3>
-    <ul>
-      <li>ใช้ทันทีหลังผสม (ampule)</li>
-      <li>เก็บให้พ้นแสง</li>
-    </ul>
-  </div>
+      <p class="section-head">ข้อควรระวัง / การติดตาม</p>
+      <ul class="muted">
+        <li><u>ระวังสับสนกับ Benzathine Penicillin 1.2 MU</u></li>
+        <li>Anaphylaxis ในการให้ครั้งแรก</li>
+        <li>Hypernatremia (PGS 1 MU มี Na ~ 1.68 mEq)</li>
+      </ul>
+    </div>
+  </div><!-- /container -->
 
-  <div class="section">
-    <h3>🔹 ความเข้มข้นสุดท้ายก่อนให้</h3>
-    <ul>
-      <li>ควรไม่เกิน <b>10 mg/ml</b> เพื่อป้องกันการระคายเคืองหลอดเลือด</li>
-      <li>อัตราการให้ <b>ไม่เกิน 1 mg/kg/min</b></li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h3>🔹 การติดตามหลังให้ยา (Monitor)</h3>
-    <ul>
-      <li>Heart Rate: ระวัง bradycardia</li>
-      <li>Seizure: ประเมินอาการชัก</li>
-      <li>Blood Pressure: ระวัง hypotension</li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h3>🔹 Drug incompatibility (ยาที่ห้ามผสมในหลอดเดียวกัน)</h3>
-    <ul>
-      <li>Adrenaline</li>
-      <li>Bactrim</li>
-      <li>Cefotaxime</li>
-      <li>Dobutamine</li>
-      <li>Levophed</li>
-      <li>Phenytoin</li>
-      <li>Fat emulsion</li>
-      <li>Ranitidine</li>
-    </ul>
-  </div>
-
-</div>
-
-<!-- ปุ่มล่าง: ลอยติดขอบล่าง กึ่งกลางจอ -->
-<div class="foot-actions">
-  <a href="./Medication_administration.html" class="back">Back</a>
-  <a href="./index.html" class="home">Back to Home</a>
-</div>
-
-  </div>
-
-  <footer>
+  <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
-  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
+  <div class="float-actions">
+    <a href="./Medication_administration.html" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="./index.html" class="btn btn-red" data-nav="home">Back to Home</a>
+  </div>
+
+  <!-- JS: สำหรับโหมด docs / GitHub Pages -->
   <script>
-    (function () {
-      if (!("serviceWorker" in navigator)) return;
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
 
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
+    // ปรับลิงก์ Back ในโหมด GitHub ให้ไปไฟล์ .html
+    if (isGithub) {
+      const backMed  = document.querySelector('.float-actions a[data-nav="med"]');
+      const backHome = document.querySelector('.float-actions a[data-nav="home"]');
+      if (backMed)  backMed.href  = "./medication_administration.html";
+      if (backHome) backHome.href = "./index.html";
+    }
 
-      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
-        }
-      }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
-      });
-    })();
+    // ถ้าไม่ใช่ GitHub → ให้ Flask handle ตามปกติ
+    if (!isGithub) return;
+
+    const form      = document.getElementById('pgs-form');
+    const doseInput = document.getElementById('dose');
+    const resultBox = document.getElementById('result-box');
+
+    if (!form || !doseInput || !resultBox) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (unit) ให้ถูกต้อง');
+        return;
+      }
+
+      // สูตร: ml = unit ÷ 500,000
+      const ml = doseVal / 500000.0;
+
+      const doseStr = doseVal.toFixed(0);
+      const mlStr   = ml.toFixed(3);
+
+      resultBox.innerHTML = `
+        <p class="order-line">
+          <b>Order:</b> Penicillin G sodium ${doseStr} unit
+        </p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติมตัวทำละลายรวมเป็น 10 ml ⇒ <b>500,000 unit/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = unit ÷ 500,000</span></p>
+          <p>แทนค่า:
+            <span class="mono">${doseStr} ÷ 500,000</span>
+            = <span class="pill">${mlStr} ml</span>
+          </p>
+          <p><b>ดังนั้น:</b>
+            ${doseStr} unit = <span class="pill">${mlStr} ml</span>
+          </p>
+        </div>
+      `;
+      resultBox.style.display = 'block';
+    });
+  })();
   </script>
+
 </body>
 </html>

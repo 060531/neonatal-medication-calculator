@@ -78,9 +78,10 @@
     max-width:60vw; padding:10px 12px; border-radius:10px;
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
+
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -102,11 +103,23 @@
     padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
   }
   .result b{ color:#0b2b7a; }
-  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .mono{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
+  }
   .muted{ color:#334155; }
-  .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
+
+  .section-head{
+    text-align:left; font-weight:900; color:#0b2b7a;
+    margin:18px 0 6px; text-decoration: underline;
+  }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+
+  .order-line{ font-weight:900; margin:0 0 6px; text-align:center; }
+  .left-align{ text-align:left; }
+
+  .hidden{ display:none !important; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -129,8 +142,7 @@
     font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
   }
 
-  /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
+  /* ========== มือถือ: label + field ให้อยู่บรรทัดเดียว ========== */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
@@ -144,19 +156,17 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
@@ -164,7 +174,6 @@
     .conc-row > select{ font-size:13px; padding:7px 9px; height:36px; }
   }
 
-  /* ========== จอเล็ก: เก็บงานอื่น ๆ ========== */
   @media (max-width:640px){
     .title-badge{ font-size:22px; padding:8px 14px; }
     .container{ padding:14px; }
@@ -175,44 +184,74 @@
 <body>
 
   <!-- หัวข้อบนสุด -->
-  <div class="title-badge">Tazocin : Piperacillin 4000 mg + Tazobactam 500 mg / vial <br> → reconst. to 200 mg/ml (Piperacillin)</div>
+  <div class="title-badge">
+    Tazocin : Piperacillin 4000 mg + Tazobactam 500 mg / vial <br>
+    → reconst. to 200 mg/ml (Piperacillin)
+  </div>
 
   <div class="container">
     <!-- รอบที่ 1: คำนวณ mg → ml (อ้างอิง Piperacillin 200 mg/ml) -->
-        <div class="calc-box">
-  <form id="__will_handle_by_js__" class="calc-row">
-    <input type="hidden" name="action" value="dose" />
+    <div class="calc-box">
+      <form id="tazocin-dose-form"
+            class="calc-row"
+            action="./tazocin.html"
+            method="post">
+        <input type="hidden" name="action" value="dose" />
 
-    <div class="dose-row">
-      <label for="dose">กรอกขนาดยา (mg):</label>
-      <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01" value="">
-    </div>
+        <div class="dose-row">
+          <label for="dose">กรอกขนาดยา (mg):</label>
+          <input type="number"
+                 id="dose"
+                 name="dose"
+                 placeholder="ขนาดยา (mg)"
+                 required
+                 step="0.01"
+                 value="">
+        </div>
 
-    <button type="submit" class="btn btn-blue">คำนวณ</button>
-  </form>
-</div>
-
-    
-
-    
-
-    <!-- รอบที่ 2: เลือกเงื่อนไข (เปิดใช้เมื่อมี result_ml) -->
-    <div class="calc-box" style="opacity:.55; pointer-events:none">
-      <form id="__will_handle_by_js__" class="calc-row">
-        <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="">
-        <input type="hidden" name="result_ml_hidden" value="">
-        <label for="multiplication">เลือกเงื่อนไข:</label>
-        <select name="multiplication" required>
-          <option value="" disabled selected>— เลือก —</option>
-          <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
-          <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
-        </select>
-        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+        <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
     
+
+    <!-- ผลลัพธ์รอบที่ 1 -->
+    <div id="dose-result"
+         class="result"
+         style="display:none">
+      
+    </div>
+
+    <!-- รอบที่ 2: เลือกเงื่อนไข (ซ่อนไว้ก่อน จนกว่าจะมีผลรอบแรก) -->
+    <div id="tazocin-cond-box"
+         class="calc-box hidden">
+      <form id="tazocin-mult-form"
+            class="calc-row"
+            action="./tazocin.html"
+            method="post">
+        <input type="hidden" name="action" value="condition" />
+        <input type="hidden" id="dose_hidden" name="dose_hidden"
+               value="">
+        <input type="hidden" id="result_ml_hidden" name="result_ml_hidden"
+               value="">
+
+        <label for="multiplication">เลือกเงื่อนไข:</label>
+        <select id="multiplication" name="multiplication" required>
+          <option value="" disabled selected>— เลือก —</option>
+          <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
+          <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
+        </select>
+
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+      </form>
+    </div>
+
+    <!-- ผลลัพธ์รอบที่ 2 -->
+    <div id="mult-result"
+         class="result"
+         style="display:none">
+      
+    </div>
 
     
 
@@ -259,9 +298,191 @@
   </footer>
 
   <div class="float-actions">
-    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
-    <a href="./index.html" class="btn btn-red">Back to Home</a>
+    <a href="./Medication_administration.html" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="./index.html" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
 
+  <!-- JS: โหมด docs (github.io) จะคำนวณบนหน้า, โหมด Flask ปล่อยให้ server ทำงาน -->
+  <script>
+  (function () {
+    const host = window.location.hostname || "";
+    const isGithub = host.endsWith("github.io");
+
+    // ถ้าไม่ใช่ docs → ให้ Flask handle ปกติ
+    if (!isGithub) return;
+
+    const doseForm      = document.getElementById('tazocin-dose-form');
+    const multForm      = document.getElementById('tazocin-mult-form');
+    const doseResultEl  = document.getElementById('dose-result');
+    const multResultEl  = document.getElementById('mult-result');
+    const condBox       = document.getElementById('tazocin-cond-box');
+    const doseInput     = document.getElementById('dose');
+    const doseHidden    = document.getElementById('dose_hidden');
+    const resultHidden  = document.getElementById('result_ml_hidden');
+    const multSelect    = document.getElementById('multiplication');
+
+    if (!doseForm || !doseResultEl || !condBox) return;
+
+    const CONC = 200.0;  // mg/mL
+
+    function createOrGetBox(id, refNode) {
+      let box = document.getElementById(id);
+      if (!box) {
+        box = document.createElement('div');
+        box.id = id;
+        box.className = 'result';
+        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+      }
+      return box;
+    }
+
+    // รอบที่ 1: คำนวณ mg → ml
+    doseForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const doseVal = parseFloat(doseInput.value || '0');
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert('กรุณากรอกขนาดยา (mg) ให้ถูกต้อง');
+        return;
+      }
+
+      const resultMl = doseVal / CONC;
+
+      doseHidden.value   = doseVal.toFixed(2);
+      resultHidden.value = resultMl.toFixed(2);
+
+      doseResultEl.innerHTML = `
+        <p class="order-line"><b>Order:</b> Tazocin ${doseVal.toFixed(2)} mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังเตรียม:</b> เติม Sterile water 18 ml → ได้สารละลาย 20 ml ⇒
+            <b>200 mg/ml (Piperacillin)</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg × 20 ÷ 4000</span>
+            (หรือ <span class="mono">mg ÷ 200</span>)</p>
+          <p>แทนค่า: <span class="mono">${doseVal.toFixed(2)} × 20 ÷ 4000</span> =
+            <span class="pill">${resultMl.toFixed(2)} ml</span></p>
+          <p><b>ดังนั้น:</b> ${doseVal.toFixed(2)} mg =
+            <span class="pill">${resultMl.toFixed(2)} ml</span></p>
+        </div>
+      `;
+      doseResultEl.style.display = 'block';
+
+      condBox.classList.remove('hidden');
+      multResultEl.style.display = 'none';
+
+      const extra = document.getElementById('gh-tazocin-extra');
+      if (extra) extra.remove();
+    });
+
+    // รอบที่ 2: 3X / 6X
+    if (multForm && multResultEl && multSelect) {
+      multForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const doseVal = parseFloat(doseHidden.value || doseInput.value || '0');
+        const baseMl  = parseFloat(resultHidden.value || '0');
+        const mult    = parseInt(multSelect.value || '0', 10);
+
+        if (isNaN(doseVal) || doseVal <= 0 ||
+            isNaN(baseMl) || baseMl <= 0 ||
+            (mult !== 3 && mult !== 6)) {
+          alert('กรุณากรอกข้อมูลให้ครบถ้วน และเลือกตัวคูณให้ถูกต้อง');
+          return;
+        }
+
+        const total = baseMl * mult;
+        let detailHtml = '';
+
+        if (mult === 3) {
+          if (total < 9) {
+            const need = 9 - total;
+            detailHtml = `
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − ${total.toFixed(2)}) =
+                <b>${need.toFixed(2)} ml</b></p>
+            `;
+          } else {
+            detailHtml = `<p><b>**ดูดยา : 9 ml ไม่ต้องผสมสารละลาย**</b></p>`;
+          }
+          detailHtml += `
+            <p class="highlight">
+              <b>ปริมาณยาที่บริหารเข้าทารก = 3 ml → ตั้งอัตรา 6 ml/hr. (30 mins)</b>
+            </p>
+          `;
+        } else if (mult === 6) {
+          if (total < 6) {
+            const need = 6 - total;
+            detailHtml = `
+              <p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − ${total.toFixed(2)}) =
+                <b>${need.toFixed(2)} ml</b></p>
+            `;
+          } else {
+            detailHtml = `<p><b>**ดูดยา : 6 ml ไม่ต้องผสมสารละลาย**</b></p>`;
+          }
+          detailHtml += `
+            <p class="highlight">
+              <b>ปริมาณยาที่บริหารเข้าทารก = 1 ml → ตั้งอัตรา 2 ml/hr. (30 mins)</b>
+            </p>
+          `;
+        }
+
+        multResultEl.innerHTML = `
+          <p class="order-line"><b>ผลลัพธ์หลังจากคูณ ${mult} เท่า = ${total.toFixed(2)} ml</b></p>
+          <div class="left-align">
+            ${detailHtml}
+          </div>
+        `;
+        multResultEl.style.display = 'block';
+
+        // กล่องคำอธิบาย extra แบบ content_extra (เหมือน gentamicin/meropenem)
+        let config;
+        if (mult === 3) {
+          config = {
+            message: "การบริหารยาโดย Intermittent intravenous infusion pump (3X → Up to 9 mL)",
+            details: [
+              "เหมาะกับทารกที่มีน้ำหนักมากกว่า 1,500 กรัม",
+              "กำหนดให้ปริมาณสารละลายยา (ปริมาณยา + สารละลายเจือจางยา) = 8–9 ml.",
+              "(ความจุ Extension Tube ~5 ml + Volume ที่ต้องบริหารเข้าผู้ป่วย ~3 ml.)",
+              "<div style='text-align:center'>(3X + สารละลายเจือจางยา Up to 9 mL)</div>",
+              "การเตรียมยา:",
+              "1) คำนวณปริมาณยาที่ต้องการใช้ (ml.)",
+              "2) ใช้ Syringe ขนาดเหมาะสม ดูดปริมาณยาที่ต้องการเตรียมไว้",
+              "3) เติมสารละลายเจือจางยาให้ครบปริมาณที่กำหนด",
+              "4) ต่อ Syringe กับ Extension Tube และวางบน Syringe pump",
+              "5) Purge ยาให้ทั่วท่อก่อนเริ่มบริหาร",
+            ]
+          };
+        } else {
+          config = {
+            message: "การบริหารยาโดย Intermittent intravenous infusion (6X → Up to 6 mL)",
+            details: [
+              "เหมาะกับทารกที่มีน้ำหนักน้อยกว่า 1,500 กรัม หรือจำกัดปริมาณน้ำ",
+              "กำหนดให้สารละลายยาที่บริหารเข้าสู่ผู้ป่วย = 1 ml",
+              "<div style='text-align:center'>6X + สารละลายเจือจางยา Up to 6 mL</div>",
+              "สารละลายทั้งหมด 6 ml ⇒ ความจุ Extension Tube ~5 ml + Volume เข้าผู้ป่วย ~1 ml",
+              "บริหารโดย Syringe pump ตั้งอัตรา ~2 ml/hr ตามแผนการรักษา"
+            ]
+          };
+        }
+
+        const extraBox = createOrGetBox('gh-tazocin-extra', multResultEl);
+        let extraHtml =
+          "<p style='font-weight:900; text-align:center; margin:6px 0'>" +
+          config.message + "</p><div class='muted'>";
+
+        config.details.forEach(function (d) {
+          if (d.indexOf("Up to") !== -1) {
+            extraHtml +=
+              "<div style='background:#ffeb3b; font-weight:700; padding:8px; " +
+              "text-align:center; border-radius:6px; margin:10px 0'>" +
+              d + "</div>";
+          } else {
+            extraHtml += "<p style='margin:6px 0'>" + d + "</p>";
+          }
+        });
+
+        extraHtml += "</div>";
+        extraBox.innerHTML = extraHtml;
+      });
+    }
+  })();
+  </script>
 </body>
 </html>

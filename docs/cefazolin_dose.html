@@ -189,33 +189,46 @@
     <h1>CeFAZolin Dosage Information</h1>
 
     <!-- PMA / PNA / BW -->
-<p><strong>PMA:</strong>
-  <span id="pmaSpan">-</span>
-</p>
+    <p><strong>PMA:</strong>
+      
+        -
+      
+    </p>
 
-<p><strong>Calc.:</strong>
-  <span id="calcSpan">weeks</span>
-</p>
+    <p><strong>Calc.:</strong>
+      
+         weeks
+      
+    </p>
 
-<p><strong>Postnatal Age:</strong>
-  <span id="pnaSpan">-</span>
-</p>
+    <p><strong>Postnatal Age:</strong>
+      
+        -
+      
+    </p>
 
-<div class="section-title">Calculated Dosage</div>
+    <p><strong>Birth Weight (BW):</strong>
+      
+        -
+      
+    </p>
 
-<p>Birth Weight (BW):
-  <span id="bwSpan" class="highlight-dose">- kg</span>
-</p>
+    <!-- Calculated dose -->
+    <div class="section-title">Calculated Dosage</div>
+    <p>
+      Recommended Dose:
+      <span class="highlight-dose">
+        
+  - – - mg/day
 
-    <div class="section-title">Calculated Dosage for Neonates</div>
-<p>Recommended Dose :
-  <span id="doseSpan" class="highlight-dose">- mg / dose</span>
-</p>
-
-<p>Interval:
-  <span id="intervalSpan" class="highlight-dose">-</span>
-</p>
-
+      </span>
+    </p>
+    <p>
+      Interval:
+      <span class="highlight-dose">
+        
+      </span>
+    </p>
 
     <div class="section-title">Dose</div>
     <p>25 mg/kg/dose IV or IM.</p>
@@ -227,60 +240,52 @@
       interval, with Postnatal Age as the secondary qualifier.
     </p>
 
-    <table id="cefIntervalTable">
-  <thead>
-    <tr>
-      <th colspan="3">Dosing Interval Chart</th>
-    </tr>
-    <tr>
-      <th>PMA (weeks)</th>
-      <th>Postnatal (days)</th>
-      <th>Interval (hours)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- PMA < 29 wk -->
-    <tr data-pma-min="0" data-pma-max="28.9" data-pna-min="0" data-pna-max="28">
-      <td rowspan="2">&lt;29</td>
-      <td>0 to 28</td>
-      <td>12</td>
-    </tr>
-    <tr data-pma-min="0" data-pma-max="28.9" data-pna-min="29" data-pna-max="365">
-      <td>&gt;28</td>
-      <td>8</td>
-    </tr>
-
-    <!-- PMA 30–36 wk -->
-    <tr data-pma-min="30" data-pma-max="36" data-pna-min="0" data-pna-max="14">
-      <td rowspan="2">30 to 36</td>
-      <td>0 to 14</td>
-      <td>12</td>
-    </tr>
-    <tr data-pma-min="30" data-pma-max="36" data-pna-min="15" data-pna-max="365">
-      <td>&gt;14</td>
-      <td>8</td>
-    </tr>
-
-    <!-- PMA 37–44 wk -->
-    <tr data-pma-min="37" data-pma-max="44" data-pna-min="0" data-pna-max="7">
-      <td rowspan="2">37 to 44</td>
-      <td>0 to 7</td>
-      <td>12</td>
-    </tr>
-    <tr data-pma-min="37" data-pma-max="44" data-pna-min="8" data-pna-max="365">
-      <td>&gt;7</td>
-      <td>8</td>
-    </tr>
-
-    <!-- PMA > 45 wk -->
-    <tr data-pma-min="45" data-pma-max="60" data-pna-min="0" data-pna-max="365">
-      <td>&gt;45</td>
-      <td>ALL</td>
-      <td>6</td>
-    </tr>
-  </tbody>
-</table>
-
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3">Dosing Interval Chart</th>
+        </tr>
+        <tr>
+          <th>PMA (weeks)</th>
+          <th>Postnatal (days)</th>
+          <th>Interval (hours)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="2">&lt;29</td>
+          <td>0 to 28</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>&gt;28</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td rowspan="2">30 to 36</td>
+          <td>0 to 14</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>&gt;14</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td rowspan="2">37 to 44</td>
+          <td>0 to 7</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>&gt;7</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td>&gt;45</td>
+          <td>ALL</td>
+          <td>6</td>
+        </tr>
+      </tbody>
+    </table>
 
     <hr>
 
@@ -413,99 +418,6 @@
         </tr>
       </tbody>
     </table>
-        <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
-    <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const params   = new URLSearchParams(window.location.search);
-  const pmaWeeks = parseInt(params.get('pma_weeks') || '0', 10);
-  const pmaDays  = parseInt(params.get('pma_days')  || '0', 10);
-  const calc     = parseFloat(params.get('calc')    || '0');          // PMA (weeks, decimal)
-  const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10); // Postnatal age (days)
-  const bw       = parseFloat(params.get('bw')      || '0');          // birth weight (kg)
-
-  // element สำหรับแสดงผล
-  const pmaSpan      = document.getElementById('pmaSpan');
-  const calcSpan     = document.getElementById('calcSpan');
-  const pnaSpan      = document.getElementById('pnaSpan');
-  const bwSpan       = document.getElementById('bwSpan');
-  const doseSpan     = document.getElementById('doseSpan');
-  const intervalSpan = document.getElementById('intervalSpan');
-
-  if (!pmaSpan || !calcSpan || !pnaSpan || !bwSpan || !doseSpan || !intervalSpan) {
-    console.error('Missing elements on CeFAZolin page');
-    return;
-  }
-
-  // ----- แสดงค่า PMA / Calc / Postnatal age / BW -----
-  pmaSpan.textContent = (pmaWeeks || pmaDays)
-    ? `${pmaWeeks} weeks ${pmaDays} days`
-    : '-';
-
-  calcSpan.textContent = calc
-    ? `${calc.toFixed(1)} weeks`
-    : 'weeks';
-
-  pnaSpan.textContent = pnaDays
-    ? `${pnaDays} days`
-    : '-';
-
-  bwSpan.textContent = bw
-    ? `${bw.toFixed(2)} kg`
-    : '- kg';
-
-  // ----- คำนวณ dose = 25 mg/kg/dose -----
-  if (bw > 0) {
-    const mgPerKg = 25;              // CeFAZolin 25 mg/kg/dose
-    const doseMg  = mgPerKg * bw;
-    doseSpan.textContent = `${doseMg.toFixed(2)} mg / dose`;
-  } else {
-    doseSpan.textContent = '- mg / dose';
-  }
-
-  // ----- หา interval จากตาราง และไฮไลต์แถวที่ตรงเงื่อนไข -----
-  const table = document.getElementById('cefIntervalTable');
-  let foundRow = null;
-
-  if (table && calc && !Number.isNaN(pnaDays)) {
-    const rows = table.tBodies[0].rows;
-
-    // ล้าง highlight เดิมทุกแถวก่อน
-    [...rows].forEach(tr => tr.classList.remove('highlight'));
-
-    for (const row of rows) {
-      const pmaMin = Number(row.dataset.pmaMin);
-      const pmaMax = Number(row.dataset.pmaMax);
-      const pnaMin = Number(row.dataset.pnaMin);
-      const pnaMax = Number(row.dataset.pnaMax);
-
-      if (
-        !Number.isNaN(pmaMin) && !Number.isNaN(pmaMax) &&
-        !Number.isNaN(pnaMin) && !Number.isNaN(pnaMax) &&
-        calc   >= pmaMin && calc   <= pmaMax &&
-        pnaDays >= pnaMin && pnaDays <= pnaMax
-      ) {
-        row.classList.add('highlight');
-        foundRow = row;
-        break;
-      }
-    }
-  }
-
-  // ตั้งค่า Interval ตามแถวที่เจอ
-  if (foundRow) {
-    const hoursText = foundRow.cells[2].textContent.trim();  // คอลัมน์ Interval (hours)
-    const hoursNum  = Number(hoursText);
-    if (!Number.isNaN(hoursNum) && hoursNum > 0) {
-      intervalSpan.textContent = `q ${hoursNum} hr(s)`;
-    } else {
-      intervalSpan.textContent = '-';
-    }
-  } else {
-    intervalSpan.textContent = '-';
-  }
-});
-</script>
-
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>

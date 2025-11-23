@@ -46,7 +46,7 @@
       padding-left:max(12px,var(--page-gutter));padding-right:max(12px,var(--page-gutter));
     }
     .result b{color:#0b2b7a}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#1d3e8c;color:#fff;padding:2px 6px;border-radius:6px;font-weight:800}
     .muted{color:#334155}
     .section-head{text-align:left;font-weight:900;color:#0b2b7a;margin:18px 0 6px;text-decoration:underline}
     .bullet{text-align:left;margin:0 0 10px 0}
@@ -83,7 +83,7 @@
     <div class="calc-box">
       <form id="cefotaxime-form"
             class="calc-row"
-            action="/cefotaxime"
+            action="./cefotaxime.html"
             method="post">
         <input type="hidden" name="step" value="dose" />
         <div class="dose-row">
@@ -102,7 +102,7 @@
 
     
 
-    <!-- กล่องแสดงผลรอบที่ 1 -->
+    <!-- กล่องแสดงผลรอบที่ 1 (แสดงวิธีละเอียด) -->
     <div id="result"
          class="result hidden">
       
@@ -112,7 +112,7 @@
     <div class="calc-box
                 hidden"
          id="step2-box">
-      <form action="/cefotaxime" method="post" class="calc-row">
+      <form action="./cefotaxime.html" method="post" class="calc-row">
         <input type="hidden" name="step" value="condition">
         <input type="hidden" name="dose" value="">
         <input type="hidden" name="result_ml" value="">
@@ -167,7 +167,7 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-19</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <div class="float-actions">
@@ -180,7 +180,6 @@
   (function () {
     var host = window.location.hostname || "";
     var isGithub = host.endsWith("github.io");
-
 
     // ถ้าไม่ใช่ GitHub → ให้ Flask จัดการทั้งหมด
     if (!isGithub) return;
@@ -241,13 +240,24 @@
 
       var box = createOrGetBox("gh-cefotaxime-step1", formDose.closest(".calc-box"));
       box.innerHTML =
-        "<p><b>Order:</b> Cefotaxime " + doseVal.toFixed(2) + " mg</p>" +
-        "<p><b>สูตรจากสต็อก 1000 mg / 10 mL</b> → " +
-        "<span class='mono'>mL = mg / 100</span></p>" +
-        "<p>แทนค่า: <span class='mono'>" +
-        doseVal.toFixed(2) + " / 100 = " +
-        "<span class='pill'>" + resultMlVal.toFixed(2) +
-        "</span> mL</span></p>";
+        "<p class='order-line'><b>Order:</b> Cefotaxime " + doseVal.toFixed(2) + " mg</p>" +
+        "<div class='left-align muted'>" +
+          "<p><b>Step 1: เตรียมยา (Reconstitution)</b></p>" +
+          "<p>- ผงยาในขวด = <b>1000 mg</b></p>" +
+          "<p>- เติม Sterile water <b>9.5 mL</b> → ได้สารละลายรวมประมาณ <b>10 mL</b></p>" +
+          "<p>- ความเข้มข้นหลังเตรียม: " +
+          "<span class='mono'>1000 mg ÷ 10 mL = 100 mg/mL</span></p>" +
+
+          "<p style='margin-top:10px;'><b>Step 2: คำนวณปริมาตรจากขนาดยาที่ต้องการ</b></p>" +
+          "<p>- ต้องการขนาดยา (Dose) = <b>" + doseVal.toFixed(2) + " mg</b></p>" +
+          "<p>- ใช้สูตร: <span class='mono'>ปริมาตร (mL) = Dose (mg) ÷ 100</span></p>" +
+          "<p>- แทนค่า: <span class='mono'>" + doseVal.toFixed(2) +
+          " ÷ 100</span> = <span class='pill'>" + resultMlVal.toFixed(2) +
+          "</span> mL</p>" +
+
+          "<p style='margin-top:10px;'><b>สรุป:</b> ต้องดึงยาออกจากขวดปริมาตร " +
+          "<span class='pill'>" + resultMlVal.toFixed(2) + "</span> mL</p>" +
+        "</div>";
 
       if (step2Box) {
         step2Box.classList.remove("hidden");   // แสดงบล็อกเงื่อนไขหลังคำนวณรอบแรก
@@ -273,35 +283,53 @@
       var total   = round2(resultMlVal * m);
       var target  = (m === 3) ? 9.0 : 6.0;
       var diluent = round2(Math.max(target - total, 0));
+      var volToBaby = (m === 3) ? 3 : 1;
+      var rateText = (m === 3)
+        ? "~6 mL/hr (≈ 30–60 mins)"
+        : "~2 mL/hr (≈ 30–60 mins)";
 
       var boxMain = createOrGetBox("gh-cefotaxime-step2", formCond.closest(".calc-box"));
       var htmlMain =
-        "<p><b>ผลลัพธ์หลังจากคูณ " + m + " เท่า = " + total.toFixed(2) + " mL</b></p>" +
-        "<div class='left-align'>";
+        "<p class='order-line'><b>ผลลัพธ์หลังจากคูณ " + m +
+        " เท่า = " + total.toFixed(2) + " mL</b></p>" +
+        "<div class='left-align muted'>" +
+          "<p><b>Step 3: คูณปริมาตรยาตามเงื่อนไข</b></p>" +
+          "<p>- ปริมาตรยาจากรอบแรก = <span class='pill'>" +
+            resultMlVal.toFixed(2) + "</span> mL</p>" +
+          "<p>- เงื่อนไขที่เลือก = คูณ <b>" + m + "</b> เท่า</p>" +
+          "<p>- แทนค่า: <span class='mono'>" + resultMlVal.toFixed(2) +
+            " × " + m + "</span> = <span class='pill'>" +
+            total.toFixed(2) + "</span> mL</p>" +
 
-      if (m === 3) {
-        if (total < 9) {
-          htmlMain += "<p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (9 − " +
-                      total.toFixed(2) + ") = " + diluent.toFixed(2) + " mL</p>";
-        } else {
-          htmlMain += "<p><b>**ดูดยา : 9 mL ไม่ต้องผสมสารละลาย**</b></p>";
-        }
-        htmlMain += "<p style='background:#f1b81b;padding:5px;border-radius:5px;'>" +
-                    "<b>ปริมาณยาที่บริหารเข้าทารก = 3 mL → ตั้งอัตรา ~6 mL/hr</b></p>";
+          "<p style='margin-top:10px;'><b>Step 4: เปรียบเทียบกับปริมาตรรวมที่ต้องการ</b></p>" +
+          "<p>- เป้าหมายปริมาตรรวม = <b>" + target.toFixed(2) + " mL</b></p>";
+
+      if (total < target) {
+        htmlMain +=
+          "<p>- ต้องเติมสารละลายเพิ่ม = " +
+          "<span class='mono'>" + target.toFixed(2) + " − " +
+          total.toFixed(2) + "</span> = <span class='pill'>" +
+          diluent.toFixed(2) + "</span> mL</p>" +
+          "<p>→ ผสม “ยาที่เตรียมได้ (" + total.toFixed(2) +
+          " mL)” + " + “สารละลายเจือจาง " + diluent.toFixed(2) +
+          " mL” รวมเป็น <b>" + target.toFixed(2) + " mL</b></p>";
       } else {
-        if (total < 6) {
-          htmlMain += "<p><b>ดังนั้น สารละลายที่ต้องผสม :</b> (6 − " +
-                      total.toFixed(2) + ") = " + diluent.toFixed(2) + " mL</p>";
-        } else {
-          htmlMain += "<p><b>**ดูดยา : 6 mL ไม่ต้องผสมสารละลาย**</b></p>";
-        }
-        htmlMain += "<p style='background:#f1b81b;padding:5px;border-radius:5px;'>" +
-                    "<b>ปริมาณยาที่บริหารเข้าทารก = 1 mL → ตั้งอัตรา ~2 mL/hr</b></p>";
+        htmlMain +=
+          "<p>- ปริมาตรยาที่ได้ (" + total.toFixed(2) +
+          " mL) ≥ เป้าหมาย " + target.toFixed(2) + " mL</p>" +
+          "<p><b>ข้อเสนอแนะ:</b> ดูดยาใช้เพียง " + target.toFixed(2) +
+          " mL (ส่วนที่เหลือสามารถทิ้งตามแนวทาง)</p>";
       }
 
-      htmlMain += "</div>";
+      htmlMain +=
+        "<p style='margin-top:10px;background:#f1b81b;padding:5px;border-radius:5px;'>" +
+        "<b>ปริมาณยาที่บริหารเข้าทารก = " + volToBaby +
+        " mL → ตั้งอัตรา " + rateText + "</b></p>" +
+        "</div>";
+
       boxMain.innerHTML = htmlMain;
 
+      // extra block (เหมือน content_extra ของ Flask)
       var config;
       if (m === 3) {
         config = {

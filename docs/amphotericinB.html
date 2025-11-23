@@ -84,7 +84,7 @@
     .order-line{margin-top:0;margin-bottom:10px}
     .mono{
       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      background:#0f172a;color:#fff;padding:2px 6px;
+      background:#1d3e8c;color:#fff;padding:2px 6px;
       border-radius:6px;font-weight:800;
     }
     .muted{color:#334155}
@@ -160,7 +160,7 @@
 
     <!-- รอบที่ 1: คำนวณจาก mg → mL -->
     <div class="calc-box">
-      <form action="/amphotericinB" method="post" class="calc-row">
+      <form action="./amphotericinB.html" method="post" class="calc-row">
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
@@ -172,27 +172,41 @@
       </form>
     </div>
 
-    <!-- รอบที่ 2: เลือกตัวคูณ (ให้แสดงตลอด แต่เริ่มต้นล็อกไว้) -->
-    <div class="calc-box" style="margin-top:10px;opacity:.55;pointer-events:none" id="ampho-step2-box">
-      <form action="/amphotericinB" method="post" class="calc-row" style="gap:12px">
+    
+
+    
+
+    
+
+    
+    
+
+    <!-- รอบที่ 2: เลือกตัวคูณ -->
+    <div class="calc-box" id="ampho-step2-box"
+         
+           style="margin-top:10px;display:none;opacity:.55;pointer-events:none"
+         >
+      <form action="./amphotericinB.html" method="post" class="calc-row" style="gap:12px">
         <input type="hidden" name="action" value="condition" />
         <input type="hidden" name="dose" value="">
         <input type="hidden" name="result_ml_1" value="">
         <input type="hidden" name="result_ml_2" value="">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required
+                disabled
                 style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
           <option value="" disabled selected>— เลือก —</option>
-          <option value="1.5">1.5 เท่า</option>
-          <option value="2">2 เท่า</option>
-          <option value="2.5">2.5 เท่า</option>
-          <option value="3">3 เท่า</option>
-          <option value="3.5">3.5 เท่า</option>
-          <option value="4">4 เท่า</option>
-          <option value="4.5">4.5 เท่า</option>
-          <option value="5">5 เท่า</option>
+          <option value="1.5" >1.5 เท่า</option>
+          <option value="2"   >2 เท่า</option>
+          <option value="2.5" >2.5 เท่า</option>
+          <option value="3"   >3 เท่า</option>
+          <option value="3.5" >3.5 เท่า</option>
+          <option value="4"   >4 เท่า</option>
+          <option value="4.5" >4.5 เท่า</option>
+          <option value="5"   >5 เท่า</option>
         </select>
-        <button type="submit" class="btn btn-blue" name="calculate_multiplication">
+        <button type="submit" class="btn btn-blue" name="calculate_multiplication"
+                disabled>
           คำนวณการคูณ
         </button>
       </form>
@@ -200,7 +214,7 @@
 
     
 
-    <!-- สรุป/วิชาการ -->
+    <!-- สรุป -->
     <div class="bullet">
       <p class="muted">☞ <b>ขนาดยา:</b> 0.5 – 1 mg/kg</p>
 
@@ -237,7 +251,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <div class="float-actions">
@@ -250,14 +264,13 @@
   var host = window.location.hostname || "";
   var isGithub = host.endsWith("github.io");
 
-  // ---------- ถ้าไม่ได้รันบน GitHub (คือรันผ่าน Flask) ⇒ ไม่ใช้ JS calculator ----------
+  // ถ้าไม่ใช่ GitHub ⇒ โหมด Flask: ให้ backend คำนวณ / คุมการล็อกเอง
   if (!isGithub) return;
 
   // ---------- เตรียม element ต่าง ๆ ----------
   var forms = document.querySelectorAll("form");
   if (!forms.length) return;
 
-  // ฟอร์มรอบที่ 1 = ฟอร์มแรก, ฟอร์มรอบที่ 2 (คำนวณการคูณ) = ฟอร์มที่สอง
   var formDose  = forms[0] || null;
   var formStep2 = forms[1] || null;
 
@@ -266,6 +279,7 @@
   var doseInput = formDose.querySelector("[name='dose']");
   var step2Box  = document.getElementById("ampho-step2-box");
   var multSelect = formStep2 ? formStep2.querySelector("#multiplication") : null;
+  var step2Button = formStep2 ? formStep2.querySelector("button[type='submit']") : null; // ★
 
   if (!doseInput) return;
 
@@ -275,11 +289,13 @@
     step2Box.style.opacity       = ".55";
     step2Box.style.pointerEvents = "none";
   }
+  if (multSelect) multSelect.disabled = true;    // ★ ล็อกไว้ก่อน
+  if (step2Button) step2Button.disabled = true; // ★
 
   // เก็บค่าที่คำนวณได้จากขั้นที่ 1 ไว้ใช้ต่อในขั้นที่ 2
   var doseVal   = null;
-  var ml1Val    = null;  // จาก stock 50 mg/10 mL
-  var ml2Val    = null;  // volume เป้าหมาย 0.1 mg/mL
+  var ml1Val    = null;
+  var ml2Val    = null;
 
   function round2(x) {
     return Math.round((x + Number.EPSILON) * 100) / 100;
@@ -291,7 +307,6 @@
       box = document.createElement("div");
       box.id = id;
       box.className = "result";
-      // แทรกตามหลัง block ที่อ้างอิง
       refNode.parentNode.insertBefore(box, refNode.nextSibling);
     }
     return box;
@@ -309,18 +324,13 @@
       return;
     }
 
-    // stock: 50 mg ละลายใน Sterile water 10 mL ⇒ 5 mg/mL
     var result_ml_1 = round2((d * 10.0) / 50.0);
-
-    // target ≤ 0.1 mg/mL ⇒ total volume = dose / 0.1
     var result_ml_2 = round2(d / 0.1);
 
-    // เก็บค่าไว้ใช้ในรอบที่ 2
     doseVal = d;
     ml1Val  = result_ml_1;
     ml2Val  = result_ml_2;
 
-    // อัปเดต hidden field ในฟอร์มรอบ 2 เผื่อในอนาคตใช้
     if (formStep2) {
       var hDose  = formStep2.querySelector('input[name="dose"]');
       var hMl1   = formStep2.querySelector('input[name="result_ml_1"]');
@@ -330,7 +340,6 @@
       if (hMl2)  hMl2.value  = result_ml_2.toFixed(2);
     }
 
-    // แสดงผล step 1 (เหมือนฝั่ง Flask)
     var box1 = createOrGetBox("gh-ampho-step1", formDose.closest(".calc-box"));
     box1.innerHTML =
       "<p class='order-line'><b>Order:</b> Amphotericin-B " + d.toFixed(2) + " mg</p>" +
@@ -346,12 +355,14 @@
       result_ml_2.toFixed(2) + " mL</span></p>" +
       "<p class='muted'><b>เจือจาง/ให้ยา:</b> ใช้เฉพาะ <b>5% Dextrose in Water</b> (ห้าม NSS เพราะตกตะกอน)</p>";
 
-    // เปิดกล่องรอบที่ 2 (เลือกเงื่อนไข) หลังจากคำนวณรอบแรกเสร็จ
+    // ★ ปลดล็อก + แสดง step 2 หลังคำนวณ
     if (step2Box) {
       step2Box.style.display       = "block";
       step2Box.style.opacity       = "1";
       step2Box.style.pointerEvents = "auto";
     }
+    if (multSelect)  multSelect.disabled  = false;
+    if (step2Button) step2Button.disabled = false;
   });
 
   // ---------- ขั้นที่ 2: เลือกตัวคูณ + คำนวณต่อ ----------

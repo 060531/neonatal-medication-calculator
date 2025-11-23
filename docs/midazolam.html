@@ -83,7 +83,7 @@
     .grid{
       display:grid;
       grid-template-columns:repeat(2, minmax(180px, 1fr));
-      gap:20px;        /* ลดระยะห่างให้พอดีจอเล็ก */
+      gap:20px;
       justify-items:center; align-items:stretch;
     }
     .grid .btn{ width:100%; }
@@ -130,8 +130,14 @@
   <div class="container">
     <div class="box">
       <div class="grid">
-        <a href="./midazolam_continuous_route.html" class="btn btn-primary">Midazolam Continuous</a>
-        <a href="./midazolam_small_dose_route.html" class="btn btn-primary">Midazolam Small Dose</a>
+        <!-- GitHub ใช้ .html | Flask ใช้ data-flask-href -->
+        <a href="midazolam_continuous.html"
+           data-flask-href="./midazolam_continuous_route.html"
+           class="btn btn-primary">Midazolam Continuous</a>
+
+        <a href="midazolam_small_dose.html"
+           data-flask-href="./midazolam_small_dose_route.html"
+           class="btn btn-primary">Midazolam Small Dose</a>
       </div>
     </div>
   </div><!-- /container -->
@@ -145,6 +151,25 @@
     <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
+
+  <!-- สวิตช์ลิงก์ให้ใช้ได้ทั้ง Flask และ GitHub -->
+  <script>
+    (function(){
+      const host     = window.location.hostname || "";
+      const isGithub = host.endsWith("github.io");
+
+      // ถ้าไม่ใช่ GitHub (เช่น รันผ่าน Flask) → ใช้ URL จาก data-flask-href
+      if (!isGithub) {
+        document.querySelectorAll('[data-flask-href]').forEach(function(a){
+          const flaskHref = a.getAttribute('data-flask-href');
+          if (flaskHref) {
+            a.setAttribute('href', flaskHref);
+          }
+        });
+      }
+      // ถ้าเป็น GitHub → ปล่อยให้ href="*.html" ทำงานตามปกติ
+    })();
+  </script>
 
 </body>
 </html>

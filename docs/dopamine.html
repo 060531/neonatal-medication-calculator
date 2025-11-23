@@ -107,7 +107,7 @@
       background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px; padding:12px;
     }
     .result b{ color:#0b2b7a; }
-    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#1d3e8c; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
     .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#fde047; color:#111; font-weight:800; }
     .muted{ color:#334155; }
     .left-align{ text-align:left; }
@@ -127,7 +127,7 @@
       max-width: calc(100vw - (var(--gutter)*2));
     }
 
-    /* Footer ย่ออัตโนมัติ (เหมือน dobutamine) */
+    /* Footer */
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
       margin: 6px 0 var(--floatbar-gap);
@@ -153,17 +153,34 @@
   <div class="title-badge">Dopamine (250 mg / 10 ml) = 25 mg/ml</div>
 
   <div class="container">
-    <!-- รอบ 1 -->
+    <!-- รอบ 1: Flask + GitHub ใช้ฟอร์มเดียวกัน -->
     <div class="calc-box">
-      <form id="dopamine-form" class="calc-form">
+      <form id="dopamine-form"
+            class="calc-form"
+            action="./dopamine.html"
+            method="post">
+        <input type="hidden" name="action" value="dose">
+
         <div class="field">
           <label for="desired_dosage">ขนาดยาที่ต้องการ (mg):</label>
-          <input type="number" id="desired_dosage" name="desired_dosage" placeholder="เช่น 25" step="0.01" required>
+          <input type="number"
+                 id="desired_dosage"
+                 name="desired_dosage"
+                 placeholder="เช่น 25"
+                 step="0.01"
+                 required
+                 value="">
         </div>
 
         <div class="field">
           <label for="original_volume">ปริมาตรสารละลายเป้าหมาย (ml):</label>
-          <input type="number" id="original_volume" name="original_volume" placeholder="เช่น 24" step="0.01" required>
+          <input type="number"
+                 id="original_volume"
+                 name="original_volume"
+                 placeholder="เช่น 24"
+                 step="0.01"
+                 required
+                 value="">
         </div>
 
         <div class="actions">
@@ -172,28 +189,54 @@
       </form>
     </div>
 
-    <div id="result" class="result" style="display:none;"></div>
+    
 
-    <!-- รอบ 2 -->
-    <div id="multiplier-container" class="calc-box" style="display:none;">
-      <form id="multiplier-form" class="calc-row">
+    <!-- ผลลัพธ์รอบแรก -->
+    <div id="result"
+         class="result"
+         style="display:none">
+      
+    </div>
+
+    <!-- รอบ 2: เลือกตัวคูณ -->
+    <div id="multiplier-container"
+         class="calc-box"
+         style="display:none; opacity:.55; pointer-events:none">
+      <form id="multiplier-form"
+            class="calc-row"
+            action="./dopamine.html"
+            method="post">
+        <input type="hidden" name="action" value="condition">
+        <input type="hidden" name="desired_dosage_hidden"
+               value="">
+        <input type="hidden" name="original_volume_hidden"
+               value="">
+        <input type="hidden" name="dose_ml_hidden"
+               value="">
+
         <label for="multiplication">เลือกเงื่อนไข (ตัวคูณ):</label>
-        <select id="multiplication" required>
-          <option value="1.5">1.5 เท่า</option>
-          <option value="2">2 เท่า</option>
-          <option value="2.5">2.5 เท่า</option>
-          <option value="3">3 เท่า</option>
-          <option value="3.5">3.5 เท่า</option>
-          <option value="4">4 เท่า</option>
-          <option value="4.5">4.5 เท่า</option>
-          <option value="5">5 เท่า</option>
+        <select id="multiplication" name="multiplication" required>
+          <option value="1.5" >1.5 เท่า</option>
+          <option value="2"   >2 เท่า</option>
+          <option value="2.5" >2.5 เท่า</option>
+          <option value="3"   >3 เท่า</option>
+          <option value="3.5" >3.5 เท่า</option>
+          <option value="4"   >4 เท่า</option>
+          <option value="4.5" >4.5 เท่า</option>
+          <option value="5"   >5 เท่า</option>
         </select>
         <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
       </form>
     </div>
 
-    <div id="final-result" class="result" style="display:none;"></div>
+    <!-- ผลลัพธ์รอบสอง -->
+    <div id="final-result"
+         class="result"
+         style="display:none">
+      
+    </div>
 
+    <!-- หมายเหตุ/วิชาการ -->
     <div class="result" style="background:#ffffff;border-color:#e5efff">
       <p class="order-line muted">☞ <b>สต็อก:</b> 250 mg/10 ml ⇒ <b>25 mg/ml</b></p>
       <div class="left-align muted">
@@ -212,14 +255,30 @@
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 
+  <!-- JS: ใช้เฉพาะตอนรันบน GitHub Pages (hostname ลงท้าย github.io) -->
   <script>
-    // สต็อก Dopamine: 25 mg/ml
-    const CONC = 25;
+  (function () {
+    const host = window.location.hostname || "";
+    if (!host.endsWith("github.io")) {
+      // รันบน Flask → ให้ backend เป็นคนคำนวณ ไม่ต้องดัก form
+      return;
+    }
+
+    // ===== ฝั่ง GitHub: คำนวณด้วย JS =====
+    const CONC = 25; // 25 mg/ml
     let dose_ml = 0;
     let targetVol_ml = 0;
 
+    const form1 = document.getElementById('dopamine-form');
+    const form2 = document.getElementById('multiplier-form');
+    const resultEl = document.getElementById('result');
+    const multBox = document.getElementById('multiplier-container');
+    const finalEl = document.getElementById('final-result');
+
+    if (!form1) return;
+
     // รอบที่ 1
-    document.getElementById('dopamine-form').addEventListener('submit', function(e){
+    form1.addEventListener('submit', function(e){
       e.preventDefault();
       const desiredDosage = parseFloat(document.getElementById('desired_dosage').value || '0');
       targetVol_ml = parseFloat(document.getElementById('original_volume').value || '0');
@@ -232,7 +291,6 @@
       dose_ml = desiredDosage / CONC;
       const diluent_ml = targetVol_ml - dose_ml;
 
-      const resultEl = document.getElementById('result');
       resultEl.innerHTML = `
         <p class="order-line"><b>Order:</b> Dopamine ${desiredDosage.toFixed(2)} mg</p>
         <div class="left-align">
@@ -245,31 +303,41 @@
         </div>
       `;
       resultEl.style.display = 'block';
-      document.getElementById('multiplier-container').style.display = 'block';
-      document.getElementById('final-result').style.display = 'none';
+
+      if (multBox){
+        multBox.style.display = 'block';
+        multBox.style.opacity = '1';
+        multBox.style.pointerEvents = 'auto';
+      }
+      if (finalEl){ finalEl.style.display = 'none'; }
     });
 
     // รอบที่ 2
-    document.getElementById('multiplier-form').addEventListener('submit', function(e){
-      e.preventDefault();
-      const multiplication = parseFloat(document.getElementById('multiplication').value || '1');
+    if (form2){
+      form2.addEventListener('submit', function(e){
+        e.preventDefault();
+        const multiplication = parseFloat(document.getElementById('multiplication').value || '1');
 
-      const dose_ml_mult = dose_ml * multiplication;
-      const totalVol_mult = targetVol_ml * multiplication;
-      const diluent_mult = totalVol_mult - dose_ml_mult;
+        const dose_ml_mult = dose_ml * multiplication;
+        const totalVol_mult = targetVol_ml * multiplication;
+        const diluent_mult = totalVol_mult - dose_ml_mult;
 
-      const finalEl = document.getElementById('final-result');
-      finalEl.innerHTML = `
-        <p><b>ผลลัพธ์หลังคูณ ${multiplication} เท่า</b></p>
-        <div class="left-align">
-          <p>ยา: <span class="pill">${dose_ml.toFixed(2)} ml</span> × ${multiplication} = <b>${dose_ml_mult.toFixed(2)} ml</b></p>
-          <p>ปริมาตรรวม: <span class="pill">${targetVol_ml.toFixed(2)} ml</span> × ${multiplication} = <b>${totalVol_mult.toFixed(2)} ml</b></p>
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
-          <p><b>ดังนั้น ตัวทำละลาย:</b> ${totalVol_mult.toFixed(2)} − ${dose_ml_mult.toFixed(2)} = <b><span class="pill">${diluent_mult.toFixed(2)} ml</span></b></p>
-        </div>
-      `;
-      finalEl.style.display = 'block';
-    });
+        finalEl.innerHTML = `
+          <p><b>ผลลัพธ์หลังคูณ ${multiplication} เท่า</b></p>
+          <div class="left-align">
+            <p>ยา: <span class="pill">${dose_ml.toFixed(2)} ml</span> × ${multiplication}
+               = <b>${dose_ml_mult.toFixed(2)} ml</b></p>
+            <p>ปริมาตรรวม: <span class="pill">${targetVol_ml.toFixed(2)} ml</span> × ${multiplication}
+               = <b>${totalVol_mult.toFixed(2)} ml</b></p>
+            <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+            <p><b>ดังนั้น ตัวทำละลาย:</b> ${totalVol_mult.toFixed(2)} − ${dose_ml_mult.toFixed(2)}
+               = <b><span class="pill">${diluent_mult.toFixed(2)} ml</span></b></p>
+          </div>
+        `;
+        finalEl.style.display = 'block';
+      });
+    }
+  })();
   </script>
 
 </body>

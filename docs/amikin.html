@@ -103,7 +103,7 @@
     .result b{color:#0b2b7a}
     .mono{
       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      background:#0f172a;
+      background:#1d3e8c;
       color:#fff;
       padding:2px 6px;
       border-radius:6px;
@@ -231,7 +231,7 @@
   <div class="container">
     <!-- ฟอร์ม #1: คำนวณ mg -> mL -->
     <div class="calc-box">
-      <form action="/amikin" method="post" class="calc-row">
+      <form action="./amikin.html" method="post" class="calc-row">
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
@@ -247,28 +247,31 @@
 
     
 
-    <!-- ฟอร์ม #2: เลือกเงื่อนไข -->
-    <div class="calc-box"
-         style="opacity:.55;pointer-events:none">
-      <form action="/amikin" method="post" class="calc-row">
-        <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden"
-               value="">
-        <input type="hidden" name="result_ml_hidden"
-               value="">
-        <label for="multiplication">เลือกเงื่อนไข:</label>
-        <select name="multiplication" id="multiplication" required>
-          <option value="" disabled selected>— เลือก —</option>
-          <option value="3" >
-            3 เท่า (รวมเป้าหมาย ~ 9 ml)
-          </option>
-          <option value="6" >
-            6 เท่า (รวมเป้าหมาย ~ 6 ml)
-          </option>
-        </select>
-        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
-      </form>
-    </div>
+<!-- ฟอร์ม #2: เลือกเงื่อนไข -->
+<div class="calc-box"
+     
+       style="display:none;opacity:.55;pointer-events:none"
+     >
+  <form action="./amikin.html" method="post" class="calc-row">
+    <input type="hidden" name="action" value="condition" />
+    <input type="hidden" name="dose_hidden"
+           value="">
+    <input type="hidden" name="result_ml_hidden"
+           value="">
+    <label for="multiplication">เลือกเงื่อนไข:</label>
+    <select name="multiplication" id="multiplication" required>
+      <option value="" disabled selected>— เลือก —</option>
+      <option value="3" >
+        3 เท่า (รวมเป้าหมาย ~ 9 ml)
+      </option>
+      <option value="6" >
+        6 เท่า (รวมเป้าหมาย ~ 6 ml)
+      </option>
+    </select>
+    <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+  </form>
+</div>
+
 
     
 
@@ -312,7 +315,7 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <div class="float-actions">
@@ -320,7 +323,6 @@
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 
-  
   <!-- JS calculator สำหรับ GitHub Pages (static) -->
   <script>
   (function() {
@@ -394,8 +396,9 @@
       // เปิดให้เลือก step 2 ได้ (ปลด opacity + pointer-events)
       var calcBox2 = formCond.closest(".calc-box");
       if (calcBox2) {
-        calcBox2.style.opacity = "1";
-        calcBox2.style.pointerEvents = "auto";
+        calcBox2.style.display = "block";      // ✅ เปิดให้มองเห็น
+        calcBox2.style.opacity = "1";          // ✅ เอาโปร่งให้ชัด
+        calcBox2.style.pointerEvents = "auto"; // ✅ กดเลือกเมนูได้
       }
     });
 

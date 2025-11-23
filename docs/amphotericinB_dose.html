@@ -153,29 +153,33 @@
     <h1>Amphotericin B Dosage Information</h1>
 
     <!-- PMA / PNA / BW -->
-<!-- Display the calculated PMA, Postnatal Age, BW -->
-<p><strong>PMA:</strong>
-  <span id="pmaSpan">-</span>
-</p>
+    <p><strong>PMA:</strong>
+      
+        -
+      
+    </p>
 
-<p><strong>Postnatal Age:</strong>
-  <span id="pnaSpan">-</span>
-</p>
+    <p><strong>Postnatal Age:</strong>
+      
+        -
+      
+    </p>
 
-<p><strong>Birth Weight (BW):</strong>
-  <span id="bwSpan">- kg</span>
-</p>
+    <p><strong>Birth Weight (BW):</strong>
+      
+        -
+      
+    </p>
 
-<!-- Calculated dose -->
-<div class="section-title">Calculated Dosage for Neonates</div>
-<p>
-  <strong>Maintenance Dose:</strong>
-  <span id="maintenanceSpan" class="highlight-dose">
-    0.00 to 0.00 mg/dose
-  </span>
-  <span id="intervalSpan">(IV every 24 hours)</span>
-</p>
-
+    <!-- Calculated dose -->
+    <div class="section-title">Calculated Dosage for Neonates</div>
+    <p>
+      <strong>Maintenance Dose:</strong>
+      <span class="highlight-dose">
+        0.00 to 0.00 mg/dose
+      </span>
+      (IV every 24 hours)
+    </p>
 
     <!-- Dose Section -->
     <div class="section-title">Dose</div>
@@ -247,61 +251,6 @@
 
     <div class="section-title">Terminal Injection Site Incompatibility</div>
     <p>Fat emulsion. Amikacin, aztreonam, calcium chloride, calcium gluconate, cefepime, cimetidine, ciprofloxacin, dopamine, enalaprilat, fluconazole, gentamicin, linezolid, magnesium sulfate, meropenem, penicillin G, piperacillin/tazobactam, potassium chloride, propofol, ranitidine, remifentanil, and tobramycin.</p>
-
-      <!-- SCRIPT สำหรับดึงค่าและคำนวณ -->
-    <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const params   = new URLSearchParams(window.location.search);
-
-    const pmaWeeks = parseInt(params.get('pma_weeks')      || '0', 10);
-    const pmaDays  = parseInt(params.get('pma_days')       || '0', 10);
-    const pnaDays  = parseInt(params.get('postnatal_days') || '0', 10);
-    const bw       = parseFloat(params.get('bw')           || '0');
-
-    const pmaSpan         = document.getElementById('pmaSpan');
-    const pnaSpan         = document.getElementById('pnaSpan');
-    const bwSpan          = document.getElementById('bwSpan');
-    const maintenanceSpan = document.getElementById('maintenanceSpan');
-    const intervalSpan    = document.getElementById('intervalSpan');
-
-    if (!pmaSpan || !pnaSpan || !bwSpan || !maintenanceSpan || !intervalSpan) {
-      console.error('ตรวจสอบ id ของ element ให้ตรงกับ script');
-      return;
-    }
-
-    // ----- แสดงค่า PMA / PNA / BW -----
-    pmaSpan.textContent = (pmaWeeks || pmaDays)
-      ? `${pmaWeeks} weeks ${pmaDays} days`
-      : '-';
-
-    pnaSpan.textContent = pnaDays
-      ? `${pnaDays} days`
-      : '-';
-
-    bwSpan.textContent = bw
-      ? `${bw.toFixed(2)} kg`
-      : '- kg';
-
-    // ----- สูตร Maintenance dose (ตัวอย่าง) -----
-    // TODO: ปรับค่าตาม guideline จริงของยาตัวนี้
-    const maintLowPerKg  = 5;  // mg/kg/dose (ต่ำสุด - ตัวอย่าง)
-    const maintHighPerKg = 7;  // mg/kg/dose (สูงสุด - ตัวอย่าง)
-
-    if (bw > 0) {
-      const lowDose  = maintLowPerKg  * bw;
-      const highDose = maintHighPerKg * bw;
-
-      maintenanceSpan.textContent =
-        `${lowDose.toFixed(2)} to ${highDose.toFixed(2)} mg/dose`;
-    } else {
-      maintenanceSpan.textContent = '0.00 to 0.00 mg/dose';
-    }
-
-    // ถ้าต้องการเปลี่ยนข้อความความถี่ ให้ปรับที่นี่
-    intervalSpan.textContent = '(IV every 24 hours)';
-  });
-</script>
-
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>

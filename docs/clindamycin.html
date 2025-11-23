@@ -79,8 +79,8 @@
     border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
   }
   .subtitle{margin:0 0 12px; color:#e20707; text-shadow:0 2px 6px rgba(0,0,0,.35); font-weight:700;}
-    .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
+  .highlight{ background:#fde047; padding:6px; border-radius:6px; font-weight:800; }
+  .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800; }
 
   /* ========== ปุ่มมาตรฐาน ========== */
   .btn{
@@ -102,11 +102,17 @@
     padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
   }
   .result b{ color:#0b2b7a; }
-  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+  .mono{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#1d3e8c; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800;
+  }
   .muted{ color:#334155; }
   .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
   .bullet{ text-align:left; margin:0 0 10px 0; }
   .bullet ul{ margin:6px 0 0 22px; }
+
+  .order-line{ font-weight:900; margin:0 0 6px; }
+  .left-align{ text-align:left; }
 
   /* ========== ปุ่มลอยล่าง ========== */
   .float-actions{
@@ -130,7 +136,6 @@
   }
 
   /* ========== มือถือ: บังคับ "label + field" ให้อยู่บรรทัดเดียว ========== */
-  /* ครอบคู่ไว้ด้วย <div class="dose-row">…</div> และ <div class="conc-row">…</div> */
   @media (max-width: 640px){
     .dose-row, .conc-row{
       display:grid;
@@ -144,19 +149,18 @@
     .dose-row > label,
     .conc-row > label{
       white-space:nowrap;
-      max-width:44vw;                   /* กันข้อความยาวเกิน */
+      max-width:44vw;
       font-size:14px; line-height:1.2;
     }
     .dose-row > input[type="number"],
     .conc-row > select{
-      min-width:0; width:100%;          /* ยืดกินพื้นที่ที่เหลือและอนุญาตให้หด */
+      min-width:0; width:100%;
       font-size:14px; padding:8px 10px; height:38px; box-sizing:border-box;
     }
-    /* ปุ่มไม่กินพื้นที่เกินความจำเป็น */
     .calc-row > .btn{ min-width:120px; }
   }
 
-  /* ========== จอแคบมาก (≤360px): ย่อเพิ่มให้เข้าบรรทัดเดียวแน่นอน ========== */
+  /* ========== จอแคบมาก (≤360px) ========== */
   @media (max-width: 360px){
     .dose-row > label,
     .conc-row > label{ font-size:13px; max-width:42vw; }
@@ -186,7 +190,7 @@
     <!-- รอบ 1: คำนวณจาก mg → ml -->
     <div class="calc-box">
       <form id="clinda-dose-form"
-            action="#"
+            action="./clindamycin.html"
             method="post"
             class="calc-row">
         <input type="hidden" name="action" value="dose" />
@@ -206,13 +210,14 @@
 
     
 
-    <!-- รอบ 2: เลือกตัวคูณ -->
+        <!-- รอบ 2: เลือกตัวคูณ -->
     <div class="calc-box"
+         id="clinda-step2-box"
          
-           style="opacity:.55; pointer-events:none"
+           style="display:none; opacity:.55; pointer-events:none"
          >
       <form id="clinda-cond-form"
-            action="#"
+            action="./clindamycin.html"
             method="post"
             class="calc-row">
         <input type="hidden" name="action" value="condition" />
@@ -235,6 +240,7 @@
         <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
       </form>
     </div>
+
 
     
 
@@ -269,7 +275,7 @@
 
   <!-- footer -->
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-18</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <!-- ปุ่มลอยติดล่าง -->
@@ -278,7 +284,7 @@
     <a href="./index.html" class="btn btn-red">Back to Home</a>
   </div>
 
-    <!-- ---------- JS สำหรับ GitHub Pages ---------- -->
+  <!-- ---------- JS สำหรับ GitHub Pages ---------- -->
   <script>
   (function () {
     var host = window.location.hostname || "";
@@ -288,6 +294,11 @@
     var formDose = document.getElementById("clinda-dose-form");
     var formCond = document.getElementById("clinda-cond-form");
     if (!formDose || !formCond) return;
+
+    var step2Box = document.getElementById("clinda-step2-box");
+
+    var doseInput  = document.getElementById("dose");
+    var multSelect = document.getElementById("multiplication");
 
     var doseInput  = document.getElementById("dose");
     var multSelect = document.getElementById("multiplication");
@@ -339,18 +350,21 @@
       box.innerHTML =
         "<p class='order-line'><b>Order:</b> Clindamycin " +
         doseVal.toFixed(2) + " mg</p>" +
-        "<p><b>ขั้นตอนที่ 1: ปริมาณยา (600 mg / 4 ml)</b></p>" +
-        "<p>ใช้สูตร <span class='mono'>(mg × 4) / 600</span> ⇒ " +
-        "<span class='mono'>" + doseVal.toFixed(2) + " × 4 / 600 = </span>" +
-        "<span class='pill'>" + r1.toFixed(2) + " ml</span></p>" +
-        "<p style='margin-top:10px'><b>ขั้นตอนที่ 2: ปริมาณสารละลายเป้าหมาย (6 mg/ml)</b></p>" +
-        "<p>ใช้สูตร <span class='mono'>(mg × 1) / 6</span> ⇒ " +
-        "<span class='mono'>" + doseVal.toFixed(2) + " × 1 / 6 = </span>" +
-        "<span class='pill'>" + r2.toFixed(2) + " ml</span></p>";
+        "<div class='left-align muted'>" +
+          "<p><b>ขั้นตอนที่ 1: ปริมาณยา (600 mg / 4 ml)</b></p>" +
+          "<p>ใช้สูตร <span class='mono'>(mg × 4) / 600</span> ⇒ " +
+          "<span class='mono'>" + doseVal.toFixed(2) + " × 4 / 600 = </span>" +
+          "<span class='pill'>" + r1.toFixed(2) + " ml</span></p>" +
+          "<p style='margin-top:10px'><b>ขั้นตอนที่ 2: ปริมาณสารละลายเป้าหมาย (6 mg/ml)</b></p>" +
+          "<p>ใช้สูตร <span class='mono'>(mg × 1) / 6</span> ⇒ " +
+          "<span class='mono'>" + doseVal.toFixed(2) + " × 1 / 6 = </span>" +
+          "<span class='pill'>" + r2.toFixed(2) + " ml</span></p>" +
+        "</div>";
 
-      // เปิดฟอร์มรอบ 2
-      var box2 = formCond.closest(".calc-box");
+            // เปิดฟอร์มรอบ 2 เฉพาะหลังจากคำนวณรอบแรกแล้ว
+      var box2 = step2Box || formCond.closest(".calc-box");
       if (box2) {
+        box2.style.display = "block";
         box2.style.opacity = "1";
         box2.style.pointerEvents = "auto";
       }
@@ -379,7 +393,7 @@
       var box = createOrGetBox("gh-clinda-step2", formCond.closest(".calc-box"));
       box.innerHTML =
         "<p class='order-line'><b>ผลลัพธ์หลังจากคูณ " + m + " เท่า</b></p>" +
-        "<div style='background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;'>" +
+        "<div class='left-align' style='background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;'>" +
           "<p>" + m + " × " + r1.toFixed(2) + " ml = <b>" +
             f1.toFixed(2) + "</b> ml " +
             "<span class='muted'>(จากสูตร: (mg × 4) / 600)</span></p>" +
@@ -397,7 +411,6 @@
     });
   })();
   </script>
-  
-  
+
 </body>
 </html>

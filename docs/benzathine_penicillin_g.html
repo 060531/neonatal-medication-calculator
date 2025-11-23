@@ -46,7 +46,7 @@
       padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
     }
     .result b{ color:#0b2b7a; }
-    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#1d3e8c; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800; }
     .muted{ color:#334155; }
     .section-head{ text-align:left; font-weight:900; color:#0b2b7a; margin:18px 0 6px; text-decoration: underline; }
     .bullet{ text-align:left; margin:0 0 10px 0; } .bullet ul{ margin:6px 0 0 22px; }
@@ -78,7 +78,7 @@
 
     <!-- ฟอร์มคำนวณ (POST เข้า route) -->
     <div class="calc-box">
-      <form action="#" method="post" class="calc-row">
+      <form action="./benzathine_penicillin_g.html" method="post" class="calc-row">
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (units):</label>
           <input type="number" id="dose" name="dose" step="1" min="0" placeholder="เช่น 1200000" required
@@ -93,7 +93,7 @@
               <span>SW 3.6 → 4 mL (<b>300,000 u/mL</b>)</span>
             </label>
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-              <input type="radio" name="scheme" value="150k" >
+              <input type="radio" name="scheme" value="150k" checked>
               <span>SW 7.2 → 8 mL (<b>150,000 u/mL</b>)</span>
             </label>
           </div>
@@ -129,12 +129,12 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-19</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <div class="float-actions">
-    <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
-    <a href="./index.html" class="btn btn-red">Back to Home</a>
+    <a href="./Medication_administration.html" class="btn btn-cyan" data-nav="med">Back</a>
+    <a href="./index.html" class="btn btn-red" data-nav="home">Back to Home</a>
   </div>
 
   <!-- JS: ทำให้ใช้ได้ทั้ง Flask + GitHub Pages -->
@@ -142,6 +142,7 @@
   (function () {
     var host = window.location.hostname || "";
     var isGithub = host.endsWith("github.io");
+
 
     // ถ้าไม่ใช่ GitHub → ให้ Flask จัดการคำนวณตามเดิม
     if (!isGithub) return;

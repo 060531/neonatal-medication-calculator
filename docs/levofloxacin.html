@@ -6,7 +6,6 @@
   <title>Levofloxacin Calculation</title>
 
   <style>
-    /* ========== Theme tokens (ยกจากหน้า Vancomycin) ========== */
     :root{
       --blue-900:#0b2b7a;
       --blue-700:#1e57d2;
@@ -14,12 +13,10 @@
       --sky-100:#d7ecff;
       --panel:#e6f3ffb8;
       --text:#0f172a;
-
       --floatbar-gap: clamp(80px, 16vw, 110px);
       --page-gutter: 12px;
     }
 
-    /* Global guard + BG */
     html, body { overflow-x: hidden; height: 100%; }
     *, *::before, *::after { box-sizing: border-box; }
     img, video, canvas, svg { max-width: 100%; height: auto; }
@@ -38,17 +35,16 @@
       background-size:cover; background-position:center; background-repeat:no-repeat;
     }
 
-    /* Header */
     .title-badge{
       display:inline-block; margin:28px auto 8px; padding:10px 18px;
       background:var(--blue-900); color:#fff; font-weight:900; font-size:28px;
-      border-radius:12px; box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
+      border-radius:12px;
+      box-shadow:0 10px 22px rgba(7,29,85,.35), inset 0 1px 0 rgba(255,255,255,.18);
       border:1px solid rgba(255,255,255,.14);
       max-width:min(100%, calc(100vw - calc(var(--page-gutter)*2)));
     }
     .subtitle{margin:0 0 12px; color:#0b2b7a; text-shadow:0 2px 6px rgba(0,0,0,.18); font-weight:700;}
 
-    /* Wrapper / panel */
     .container{
       width:min(820px, calc(100vw - calc(var(--page-gutter)*2)));
       margin:0 auto 12px; padding:20px;
@@ -59,7 +55,6 @@
       -webkit-backdrop-filter: blur(6px) saturate(120%);
     }
 
-    /* กล่องคำนวณ / ฟอร์ม */
     .calc-box{
       margin:14px auto 20px; max-width:740px; padding:16px;
       background:linear-gradient(180deg, var(--sky-100), var(--sky-50));
@@ -73,16 +68,20 @@
       gap:10px; align-items:center; justify-content:center;
     }
 
-    /* ฟิลด์มาตรฐาน */
-    .form-group{ margin: 6px 0 10px; width:100%; max-width:560px; text-align:left; margin-left:auto; margin-right:auto; }
-    .form-group label{ display:block; font-weight:800; color:#0b2b7a; margin-bottom:6px; }
+    .form-group{
+      margin: 6px 0 10px;
+      width:100%; max-width:560px;
+      text-align:left; margin-left:auto; margin-right:auto;
+    }
+    .form-group label{
+      display:block; font-weight:800; color:#0b2b7a; margin-bottom:6px;
+    }
     input[type="number"], select{
       width:100%;
       padding:10px 12px; border-radius:10px;
       border:1px solid #c7d9f9; background:#fff; font-size:16px; text-align:center;
     }
 
-    /* ปุ่มมาตรฐาน */
     .btn{
       appearance:none; border:none; border-radius:10px; cursor:pointer;
       padding:10px 16px; font-weight:800; color:#fff; text-decoration:none;
@@ -95,17 +94,24 @@
     .btn-red{ background:#e71f1f; }
     .btn-cyan{ background:#049bb5; }
 
-    /* ผลลัพธ์ / ข้อความประกอบ */
     .result{
       text-align:left; margin:14px auto; max-width:740px; padding:14px;
       background:#f7fbff; border:1px dashed #cfe3ff; border-radius:12px;
-      padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
+      padding-left:max(12px, var(--page-gutter));
+      padding-right:max(12px, var(--page-gutter));
     }
-    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#fff; padding:2px 6px; border-radius:6px; font-weight:800 }
-    .pill{ display:inline-block; padding:2px 6px; border-radius:6px; background:#e01b1b; color:#fff; font-weight:800 }
+    .order-line{ margin-top:0; margin-bottom:10px; }
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#1d3e8c; color:#fff;
+      padding:2px 6px; border-radius:6px; font-weight:800;
+    }
+    .pill{
+      display:inline-block; padding:2px 6px; border-radius:6px;
+      background:#e01b1b; color:#fff; font-weight:800;
+    }
     .left-align{ text-align:left; }
 
-    /* ปุ่มลอยล่าง */
     .float-actions{
       position:fixed; left:50%; transform:translateX(-50%);
       bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index:1000;
@@ -113,28 +119,27 @@
       padding:8px 10px; border-radius:14px;
       background:rgba(15,23,42,.35); border:1px solid rgba(255,255,255,.2);
       box-shadow:0 8px 18px rgba(2,8,23,.28);
-      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
+      backdrop-filter: blur(8px) saturate(120%);
+      -webkit-backdrop-filter: blur(8px) saturate(120%);
       width:min(540px, calc(100vw - calc(var(--page-gutter)*2)));
       max-width: calc(100vw - calc(var(--page-gutter)*2));
     }
 
-    /* Footer */
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
       margin: 6px 0 var(--floatbar-gap);
       padding-left: var(--page-gutter); padding-right: var(--page-gutter);
       font-size: clamp(12px, 3.2vw, 16px); line-height:1.4;
     }
-    /* กล่องข้อมูลเพิ่มเติม */
-.info-card{
-  margin:14px auto; max-width:740px; padding:14px;
-  background:#ffffff; border:1px solid #b9d9ff; border-radius:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,.06);
-  padding-left:max(12px, var(--page-gutter)); padding-right:max(12px, var(--page-gutter));
-}
 
+    .info-card{
+      margin:14px auto; max-width:740px; padding:14px;
+      background:#ffffff; border:1px solid #b9d9ff; border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+      padding-left:max(12px, var(--page-gutter));
+      padding-right:max(12px, var(--page-gutter));
+    }
 
-    /* มือถือ */
     @media (max-width:640px){
       .title-badge{ font-size:22px; padding:8px 14px; }
       .container{ padding:14px; }
@@ -152,34 +157,40 @@
 
   <div class="container">
     <div class="calc-box">
-      <form id="__will_handle_by_js__" class="calc-row">
+      <!-- ★ เพิ่ม action / method เพื่อให้ Flask ใช้งานได้ -->
+      <form id="levo-form" class="calc-row"
+            action="./levofloxacin.html" method="post">
         <div class="form-group">
           <label for="dose">กรอกขนาดยา (mg):</label>
           <input type="number" id="dose" name="dose"
-       placeholder="เช่น 75" required step="0.01"
-       value="">
+                 placeholder="เช่น 75" required step="0.01"
+                 value="">
         </div>
 
         <div class="form-group">
           <label for="concentration">ความเข้มข้น (mg/mL):</label>
-          <!-- ถ้า backend ไม่ส่ง concentration มา จะใช้ค่าเริ่มต้น 5 mg/mL -->
-          <input type="number" id="concentration" name="concentration" placeholder="เช่น 5 (ถุง 500mg/100mL)" required step="0.01" value="5">
+          <input type="number" id="concentration" name="concentration"
+                 placeholder="เช่น 5 (ถุง 500mg/100mL)" required step="0.01"
+                 value="5">
         </div>
 
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
+    
+
+    
+
     <div class="info-card">
-  <div class="left-align">
-    <p><b>คำอธิบายรูปแบบ:</b> สารละลายพร้อมใช้ (Ready-to-use) ความเข้มข้นโดยทั่วไป 5 mg/mL</p>
-    <p><b>ตัวอย่างการเฝ้าระวัง:</b> QT prolongation, ภาวะเส้นเอ็นอักเสบ/ฉีกขาด, คลื่นไส้ เวียนศีรษะ, ปรับขนาดยาในไตเสื่อม</p>
-  </div>
-</div>
+      <div class="left-align">
+        <p><b>คำอธิบายรูปแบบ:</b> สารละลายพร้อมใช้ (Ready-to-use) ความเข้มข้นโดยทั่วไป 5 mg/mL</p>
+        <p><b>ตัวอย่างการเฝ้าระวัง:</b> QT prolongation, ภาวะเส้นเอ็นอักเสบ/ฉีกขาด, คลื่นไส้ เวียนศีรษะ, ปรับขนาดยาในไตเสื่อม</p>
+      </div>
+    </div>
 
   </div><!-- /container -->
 
-  <!-- ปุ่มลอยล่างแบบเดียวกับหน้า Vancomycin -->
   <div class="float-actions">
     <a href="./Medication_administration.html" class="btn btn-cyan">Back</a>
     <a href="./index.html" class="btn btn-red">Back to Home</a>
@@ -188,6 +199,60 @@
   <footer class="page-footer">
     <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
+
+  <!-- ★ JS: ใช้เฉพาะตอนรันบน GitHub (static) -->
+  <script>
+  (function () {
+    var host = window.location.hostname || "";
+    var isGithub = host.endsWith("github.io");
+    if (!isGithub) return;   // ถ้าเป็น Flask ให้ backend จัดการ
+
+    var form = document.getElementById("levo-form");
+    if (!form) return;
+
+    var doseInput = document.getElementById("dose");
+    var concInput = document.getElementById("concentration");
+
+    function round2(x){
+      return Math.round((x + Number.EPSILON) * 100) / 100;
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var d = parseFloat((doseInput.value || "").trim());
+      var c = parseFloat((concInput.value || "").trim());
+
+      if (!isFinite(d) || d <= 0){
+        alert("กรุณาใส่ขนาดยา (mg) ให้ถูกต้อง");
+        return;
+      }
+      if (!isFinite(c) || c <= 0){
+        alert("กรุณาใส่ความเข้มข้น (mg/mL) ที่มากกว่า 0");
+        return;
+      }
+
+      var ml = round2(d / c);
+
+      var box = document.getElementById("js-levo-result");
+      if (!box){
+        box = document.createElement("div");
+        box.id = "js-levo-result";
+        box.className = "result";
+        form.closest(".calc-box").insertAdjacentElement("afterend", box);
+      }
+
+      box.innerHTML =
+        "<p class='order-line'><b>Order :</b> Levofloxacin " + d.toFixed(2) + " mg</p>" +
+        "<div class='left-align'>" +
+        "<p><b>วิธีคิด:</b> <span class='mono'>" + d.toFixed(2) + " ÷ " +
+           c.toFixed(2) + "</span> = <span class='pill'>" + ml.toFixed(2) + " mL</span></p>" +
+        "<p><b>ดังนั้น:</b> ปริมาตรยาที่ต้องการ = " +
+           "<span class='pill'>" + ml.toFixed(2) + " mL</span></p>" +
+        "</div>";
+    });
+  })();
+  </script>
 
 </body>
 </html>

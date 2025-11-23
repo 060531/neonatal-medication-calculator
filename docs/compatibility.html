@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <title>ตรวจสอบ Compatibility</title>
+  <title>ตรวจสอบความเข้ากันได้ของยา (Compatibility)</title>
 
   
 
@@ -137,431 +137,62 @@
 <body class=" ">
   <div class="container">
     
-<style>
-  .compat-page{
-    display:block;
-    text-align:initial;
-    width:100%;
-  }
+<div class="compat-shell">
+  <h1 class="compat-title">
+    ตรวจสอบความเข้ากันได้ของยา<br>
+    <span>Drug Compatibility</span>
+  </h1>
 
-  .compat-shell{
-    box-sizing:border-box;
-    width:100%;
-    max-width:1040px;
-    margin:24px auto 16px;
-    padding-inline:clamp(12px,4vw,24px);
-    padding-left:max(clamp(10px,4vw,20px),env(safe-area-inset-left));
-    padding-right:max(clamp(10px,4vw,20px),env(safe-area-inset-right));
-  }
-  .compat-shell, .compat-shell *{
-    font-size:clamp(13px,2.6vw,16px);
-    line-height:1.35;
-  }
+  <div class="compat-card">
+    <form method="post" action="./compatibility.html" class="compat-form">
+      <div class="compat-row">
+        <div class="compat-field">
+          <label for="drug_a">ยา A</label>
+          <select id="drug_a" name="drug_a" required>
+            <option value="">-- เลือกยา --</option>
+            
+          </select>
+        </div>
 
-  .title-wrap{
-    display:grid;
-    place-items:center;
-    text-align:center;
-  }
-  .title-banner{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    padding:12px 18px;
-    border-radius:14px;
-    color:#fff;
-    font-weight:800;
-    font-size:clamp(18px,4vw,26px);
-    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
-    box-shadow:0 10px 24px rgba(0,0,0,.25);
-    margin-inline:auto;
-    margin-bottom:16px;
-    max-width:92vw;
-  }
-
-  .card-wrap{
-    width:100%;
-    max-width:1000px;
-    margin-inline:auto;
-  }
-  .glass-card{
-    background:rgba(255,255,255,0.95);
-    border:1px solid rgba(15,23,42,.08);
-    border-radius:16px;
-    box-shadow:0 10px 28px rgba(2,8,23,.15);
-    padding:clamp(14px,3vw,22px);
-    color:#0f172a;
-    margin-bottom:8px;
-  }
-
-  .form-grid{
-    display:grid;
-    gap:12px 16px;
-    align-items:end;
-    grid-template-columns:1fr;
-    grid-template-areas:
-      "a"
-      "b"
-      "actions";
-  }
-  .field-a{ grid-area:a; }
-  .field-b{ grid-area:b; }
-  .actions{
-    grid-area:actions;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    justify-content:center;
-  }
-  @media (min-width:820px){
-    .form-grid{
-      grid-template-columns:1fr 1fr;
-      grid-template-areas:
-        "a b"
-        "actions actions";
-    }
-  }
-
-  label{
-    font-weight:700;
-    margin:0 6px 6px 2px;
-    display:inline-block;
-  }
-  select{
-    width:100%;
-    min-width:0;
-    padding:10px 12px;
-    border-radius:10px;
-    border:1px solid #cbd5e1;
-    background:#fff;
-    color:#0f172a;
-    font-size:inherit;
-  }
-
-  .btn{
-    display:inline-block;
-    padding:clamp(8px,1.6vw,10px) clamp(12px,2.4vw,16px);
-    border-radius:10px;
-    font-weight:800;
-    border:0;
-    cursor:pointer;
-    white-space:nowrap;
-    text-decoration:none;
-  }
-  .btn-primary{
-    background:#0ea5a6;
-    color:#fff;
-  }
-  .btn-secondary{
-    background:#e2e8f0;
-    color:#0f172a;
-  }
-  .btn:hover{ filter:brightness(.95); }
-
-  .compat-result{
-    margin-top:16px;
-    padding:14px 18px;
-    border-radius:12px;
-    text-align:center;
-    border:1px solid #e2e8f0;
-    background:rgba(255,255,255,0.9);
-    font-weight:500;
-  }
-
-  .compat-result.compat-C{
-    background:rgba(22,163,74,0.10);
-    border-color:#16a34a;
-    color:#064e3b;
-  }
-  .compat-result.compat-I{
-    background:rgba(220,38,38,0.10);
-    border-color:#dc2626;
-    color:#7f1d1d;
-  }
-  .compat-result.compat-U{
-    background:rgba(245,158,11,0.12);
-    border-color:#f59e0b;
-    color:#78350f;
-  }
-  .compat-result.compat-ND{
-    background:rgba(37,99,235,0.10);
-    border-color:#2563eb;
-    color:#1e3a8a;
-  }
-
-  .legend{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    align-items:center;
-    gap:10px 14px;
-    margin-top:12px;
-    color:#334155;
-    font-size:clamp(10px,1.4vw,12px);
-    line-height:1.25;
-  }
-  .legend .item{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    white-space:nowrap;
-  }
-  .dot{
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    display:inline-block;
-  }
-  .dot.C{ background:#16a34a; }
-  .dot.I{ background:#dc2626; }
-  .dot.U{ background:#f59e0b; }
-  .dot.ND{ background:#2563eb; }
-
-  .hidden{ display:none; }
-</style>
-
-
-
-
-<div class="compat-page">
-  <div class="compat-shell">
-    <div class="title-wrap">
-      <div class="title-banner">
-        ตรวจสอบความเข้ากันได้ของยา (Compatibility)
+        <div class="compat-field">
+          <label for="drug_b">ยา B</label>
+          <select id="drug_b" name="drug_b" required>
+            <option value="">-- เลือกยา --</option>
+            
+          </select>
+        </div>
       </div>
-    </div>
 
-    <div class="card-wrap">
-      <div class="glass-card">
-        
+      <div class="compat-actions">
+        <button type="submit" class="btn-check">ตรวจสอบ</button>
+        <a href="./core.index.html" class="btn-home">กลับหน้า Home</a>
+      </div>
+    </form>
 
-        
-        
-          <form method="get" action="#">
-        
-          <div class="form-grid">
-            <div class="field-a">
-              <label for="drug_a">ยา A</label>
-              <select id="drug_a" name="drug_a" required>
-                <option value="">-- เลือกยา --</option>
-                
-                  
-                    <option value="1">Acyclovir</option>
-                  
-                    <option value="2">Amikacin</option>
-                  
-                    <option value="3">Aminophylline</option>
-                  
-                    <option value="4">Amoxicillin / Clavimoxy</option>
-                  
-                    <option value="5">Amphotericin B</option>
-                  
-                    <option value="6">Ampicillin</option>
-                  
-                    <option value="7">Benzathine penicillin G</option>
-                  
-                    <option value="8">Calcium gluconate</option>
-                  
-                    <option value="9">Cefazolin</option>
-                  
-                    <option value="10">Cefotaxime</option>
-                  
-                    <option value="11">Ceftazidime</option>
-                  
-                    <option value="12">Ciprofloxacin</option>
-                  
-                    <option value="13">Clindamycin</option>
-                  
-                    <option value="14">Cloxacillin</option>
-                  
-                    <option value="15">Colistin</option>
-                  
-                    <option value="16">Dexamethasone</option>
-                  
-                    <option value="17">Dobutamine</option>
-                  
-                    <option value="18">Dopamine</option>
-                  
-                    <option value="19">Fentanyl</option>
-                  
-                    <option value="20">Furosemide</option>
-                  
-                    <option value="21">Gentamicin</option>
-                  
-                    <option value="22">Hydrocortisone</option>
-                  
-                    <option value="23">Insulin Human Regular</option>
-                  
-                    <option value="24">Levofloxacin</option>
-                  
-                    <option value="25">Meropenem</option>
-                  
-                    <option value="26">Metronidazole (Flagyl)</option>
-                  
-                    <option value="27">Midazolam</option>
-                  
-                    <option value="28">Midazolam + Fentanyl</option>
-                  
-                    <option value="29">Morphine</option>
-                  
-                    <option value="30">Nimbex (Cisatracurium)</option>
-                  
-                    <option value="31">Omeprazole</option>
-                  
-                    <option value="32">Penicillin G sodium</option>
-                  
-                    <option value="33">Phenobarbital</option>
-                  
-                    <option value="34">Phenytoin (Dilantin)</option>
-                  
-                    <option value="35">Remdesivir</option>
-                  
-                    <option value="36">Sul-am®</option>
-                  
-                    <option value="37">Sulbactam</option>
-                  
-                    <option value="38">Sulperazone</option>
-                  
-                    <option value="39">Tazocin</option>
-                  
-                    <option value="40">Unasyn</option>
-                  
-                    <option value="41">Vancomycin</option>
-                  
-                
-              </select>
-            </div>
-
-            <div class="field-b">
-              <label for="drug_b">ยา B</label>
-              <select id="drug_b" name="drug_b" required>
-                <option value="">-- เลือกยา --</option>
-                
-                  
-                    <option value="1">Acyclovir</option>
-                  
-                    <option value="2">Amikacin</option>
-                  
-                    <option value="3">Aminophylline</option>
-                  
-                    <option value="4">Amoxicillin / Clavimoxy</option>
-                  
-                    <option value="5">Amphotericin B</option>
-                  
-                    <option value="6">Ampicillin</option>
-                  
-                    <option value="7">Benzathine penicillin G</option>
-                  
-                    <option value="8">Calcium gluconate</option>
-                  
-                    <option value="9">Cefazolin</option>
-                  
-                    <option value="10">Cefotaxime</option>
-                  
-                    <option value="11">Ceftazidime</option>
-                  
-                    <option value="12">Ciprofloxacin</option>
-                  
-                    <option value="13">Clindamycin</option>
-                  
-                    <option value="14">Cloxacillin</option>
-                  
-                    <option value="15">Colistin</option>
-                  
-                    <option value="16">Dexamethasone</option>
-                  
-                    <option value="17">Dobutamine</option>
-                  
-                    <option value="18">Dopamine</option>
-                  
-                    <option value="19">Fentanyl</option>
-                  
-                    <option value="20">Furosemide</option>
-                  
-                    <option value="21">Gentamicin</option>
-                  
-                    <option value="22">Hydrocortisone</option>
-                  
-                    <option value="23">Insulin Human Regular</option>
-                  
-                    <option value="24">Levofloxacin</option>
-                  
-                    <option value="25">Meropenem</option>
-                  
-                    <option value="26">Metronidazole (Flagyl)</option>
-                  
-                    <option value="27">Midazolam</option>
-                  
-                    <option value="28">Midazolam + Fentanyl</option>
-                  
-                    <option value="29">Morphine</option>
-                  
-                    <option value="30">Nimbex (Cisatracurium)</option>
-                  
-                    <option value="31">Omeprazole</option>
-                  
-                    <option value="32">Penicillin G sodium</option>
-                  
-                    <option value="33">Phenobarbital</option>
-                  
-                    <option value="34">Phenytoin (Dilantin)</option>
-                  
-                    <option value="35">Remdesivir</option>
-                  
-                    <option value="36">Sul-am®</option>
-                  
-                    <option value="37">Sulbactam</option>
-                  
-                    <option value="38">Sulperazone</option>
-                  
-                    <option value="39">Tazocin</option>
-                  
-                    <option value="40">Unasyn</option>
-                  
-                    <option value="41">Vancomycin</option>
-                  
-                
-              </select>
-            </div>
-
-            <div class="actions">
-              <button type="submit" class="btn btn-primary">ตรวจสอบ</button>
-
-              
-                
-              
-              <a href="./core.index.html" class="btn btn-secondary">
-                กลับหน้า Home
-              </a>
-            </div>
-          </div>
-        </form>
-
-        
-        <div id="compat-result-box"
-             class="compat-result hidden">
-          
-        </div>
-
-        <div class="legend">
-          <div class="item"><span class="dot C"></span> C = Compatible / ผสมร่วมได้</div>
-          <div class="item"><span class="dot I"></span> I = Incompatible / ห้ามผสม</div>
-          <div class="item"><span class="dot U"></span> U = Uncertain / ไม่ชัดเจน</div>
-          <div class="item"><span class="dot ND"></span> ND = No data / ไม่มีข้อมูล</div>
-        </div>
-
+    
+      <div class="compat-result compat-result-">
+        <p class="compat-pair">
+          Drug A + Drug B → <strong></strong>
+        </p>
         
         
       </div>
+    
+
+        <div class="compat-legend">
+      <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
+      • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
+      • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
+      • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
     </div>
+
   </div>
 </div>
 
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
