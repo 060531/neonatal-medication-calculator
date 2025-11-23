@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <title>Result analyze</title>
+  <title>Result analyze (Compatibility)</title>
 
   
 
@@ -137,151 +137,85 @@
 <body class=" ">
   <div class="container">
     
+<div class="compat-shell">
+  <h1 class="compat-title">
+    ตรวจสอบความเข้ากันได้ของยา<br>
+    <span>Drug Compatibility</span>
+  </h1>
 
+  <div class="compat-card compat-card-wide">
+    <h2 class="compat-subtitle">Result analyze</h2>
 
-
-
-
-
-
-
-
-
-
-<style>
-  /* ===== รีเซ็ตผลกระทบจาก base.html และจัดให้อยู่กลางจริง ๆ ===== */
-  .result-page{ display:grid; place-items:start center; text-align:initial; }
-  .result-page *{ box-sizing:border-box; }
-
-  /* ===== โครงและแบนเนอร์ ===== */
-  .compat-shell{
-    width:100%; max-width:980px; margin:24px auto 0;
-    padding-left:max(16px, env(safe-area-inset-left));
-    padding-right:max(16px, env(safe-area-inset-right));
-  }
-  .title-wrap{ text-align:center; }
-  .title-banner{
-    display:inline-flex; align-items:center; gap:10px;
-    padding:14px 22px; border-radius:14px; color:#fff; font-weight:800;
-    font-size:clamp(18px, 4.2vw, 26px);
-    background:linear-gradient(135deg,#0ea5a6,#0b74d0);
-    box-shadow:0 10px 24px rgba(0,0,0,.25);
-    margin:0 auto 14px;
-  }
-
-  /* ===== กล่องผลลัพธ์ (ให้อยู่กึ่งกลางแน่นอน) ===== */
-  .compat-wrap{
-    width:100%;
-    max-width:min(700px, 94vw);
-    margin:0 auto 28px;  /* << ทำให้กึ่งกลาง */
-    padding:0 10px;
-  }
-  .card{
-    background:rgba(255,255,255,0.96);
-    border:1px solid rgba(15,23,42,.08);
-    border-radius:18px;
-    box-shadow:0 10px 28px rgba(2,8,23,.15);
-    padding:clamp(16px, 3.3vw, 28px);
-    color:#0f172a;
-  }
-
-  .title{ font-weight:800; margin:0 0 16px; font-size:clamp(20px, 5vw, 28px); }
-
-  /* ===== แถวชื่อยา ===== */
-  .pair{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0 8px;}
-  .pill{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:8px 14px;font-weight:700;background:#f8fafc;border:1px solid #e2e8f0;}
-  .drug-name{ font-size:clamp(14px, 4.1vw, 18px); }
-  .muted{ color:#64748b; font-size:clamp(12px, 3.6vw, 16px); }
-
-  /* ===== รายละเอียด/ตาราง ===== */
-  .desc{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:clamp(10px, 2.8vw, 14px);margin-top:16px;font-size:clamp(13px, 3.6vw, 15px);line-height:1.45;}
-  .desc b{display:block;margin-bottom:4px;font-size:clamp(13px, 3.7vw, 16px);}
-  table.detail{width:100%;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;border-collapse:collapse;margin-top:10px;}
-  table.detail td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;font-size:clamp(12.5px, 3.5vw, 14.5px);}
-  table.detail tr:last-child td{border-bottom:0;}
-  table.detail td.head{background:#f8fafc;width:30%;font-weight:700;}
-
-  /* ===== Legend & Actions ===== */
-  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;color:#334155;font-size:clamp(12px, 3.4vw, 14px);justify-content:center;}
-  .legend .item{display:flex;align-items:center;gap:8px;}
-  .legend .dot{width:14px;height:14px;border-radius:50%;}
-  .actions{display:flex;justify-content:center;gap:10px;margin-top:18px;}
-  .btn{display:inline-block;padding:clamp(8px, 2.6vw, 10px) clamp(12px, 3.6vw, 16px);border-radius:12px;font-weight:800;text-decoration:none;border:1px solid transparent;font-size:clamp(13px, 3.8vw, 16px);}
-  .btn-green{background:#16a34a;color:#fff;}
-  .btn-gray{background:#e2e8f0;color:#0f172a;}
-  .btn:hover{filter:brightness(.96);}
-
-  /* ===== จอเล็ก/แท็บเล็ต ===== */
-  @media (max-width:380px){ .compat-wrap{max-width:min(720px,96vw); padding:0 8px;} .pair{gap:10px;} .pill{padding:7px 12px;} }
-  @media (min-width:600px){ .compat-wrap{max-width:740px;} .card{padding:24px;} }
-</style>
-
-<div class="result-page">
-  <div class="compat-shell">
-    <div class="title-wrap">
-      <div class="title-banner">ตรวจสอบความเข้ากันได้ของยา (Compatibility)</div>
+    
+    <div class="compat-result-header">
+      <span class="compat-pill" data-drug-a>Drug A</span>
+      <span class="compat-with">with</span>
+      <span class="compat-pill" data-drug-b>Drug B</span>
     </div>
-  </div>
 
-  <div class="compat-wrap">
-    <div class="card">
-      <h2 class="title">Result analyze</h2>
+    
+    <div class="compat-status-line">
+      <span class="compat-status-pill" data-status-code>ND</span>
+      <span class="compat-status-text" data-status-label>Unknown</span>
+    </div>
 
-      <!-- ชื่อยา + จุดสถานะ -->
-      <div class="pair">
-        <span class="pill">
-          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: #2563eb;"></span>
-          <span class="drug-name">—</span>
-        </span>
-        <span class="muted">with</span>
-        <span class="pill">
-          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: #2563eb;"></span>
-          <span class="drug-name">—</span>
-        </span>
-      </div>
+    <hr>
 
-      <!-- ป้ายผลลัพธ์ -->
-      <div style="display:flex; justify-content:center; margin-top:6px;">
-        <span class="pill" style="background:#eef2ff; border-color:#c7d2fe;">
-          <span style="width:22px;height:22px;border-radius:50%;flex:0 0 22px;background: #2563eb;"></span>
-          <span class="drug-name">Unknown</span>
-        </span>
-      </div>
+    <div class="compat-note-block">
+      <p class="compat-note-main" data-note-main>
+        ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
+      </p>
+      <p class="compat-note-ref" data-note-ref></p>
+    </div>
 
-      <!-- Note / meta -->
-      <div class="desc">
-        
-      </div>
+    <div class="compat-legend" style="margin-top:20px">
+      <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
+      • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
+      • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
+      • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
+    </div>
 
-      
-        <div class="desc" style="margin-top:12px;">
-          <b>ข้อมูลอ้างอิง</b>
-          
-            <div class="small text-body-secondary" style="margin-top:6px;">ยังไม่พบรายละเอียดอ้างอิงในระบบ (ตรวจคู่มือสถาบัน/สืบค้นเพิ่ม)</div>
-          
-        </div>
-      
-
-      <div class="legend">
-        <div class="item"><span class="dot" style="background:#16a34a;"></span> C = Compatible / ผสมร่วมได้</div>
-        <div class="item"><span class="dot" style="background:#dc2626;"></span> I = Incompatible / ห้ามผสม</div>
-        <div class="item"><span class="dot" style="background:#f59e0b;"></span> U = Uncertain / ไม่ชัดเจน</div>
-        <div class="item"><span class="dot" style="background:#2563eb;"></span> ND = No data / ไม่มีข้อมูล</div>
-      </div>
-
-      <div class="actions">
-  <a href="./core.compatibility_page.html" class="btn btn-green">← New check</a>
-  <a href="./index.html" class="btn btn-gray">Home</a>
-</div>
-
+    <div class="compat-actions" style="margin-top:20px">
+      <a href="compatibility.html" class="btn-check">↺ New check</a>
+      <a href="index.html" class="btn-home">Home</a>
     </div>
   </div>
 </div>
+
+
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+
+    var drugA = params.get("drug_a") || "Drug A";
+    var drugB = params.get("drug_b") || "Drug B";
+
+    var elA = document.querySelector("[data-drug-a]");
+    var elB = document.querySelector("[data-drug-b]");
+    if (elA) elA.textContent = drugA;
+    if (elB) elB.textContent = drugB;
+
+    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
+    var status = params.get("status");
+    var sCodeEl = document.querySelector("[data-status-code]");
+    var sLabelEl = document.querySelector("[data-status-label]");
+    if (status && sCodeEl && sLabelEl) {
+      var map = {
+        "C": "Compatible / ผสมร่วมได้",
+        "I": "Incompatible / ห้ามผสม",
+        "U": "Uncertain / ไม่ชัดเจน",
+        "ND": "No data / ไม่มีข้อมูล"
+      };
+      sCodeEl.textContent = status;
+      sLabelEl.textContent = map[status] || "Unknown";
+    }
+  })();
+</script>
 
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
