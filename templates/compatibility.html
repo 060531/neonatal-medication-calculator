@@ -9,21 +9,27 @@
     <span>Drug Compatibility</span>
   </h1>
 
+  {# ดูว่าเป็น static build (GitHub Pages) หรือไม่ #}
+  {% set is_static = static_build if static_build is defined else False %}
+
   <div class="compat-card">
-    <form method="post"
-          action="{{ url_for('core.compatibility_page') }}"
-          class="compat-form">
+    <form
+      class="compat-form"
+      method="{{ 'get' if is_static else 'post' }}"
+      action="{% if is_static %}compatibility.html{% else %}{{ url_for('core.compatibility_page') }}{% endif %}"
+    >
       <div class="compat-row">
-        <!-- ========== Drug A ========== -->
+
+        {# ========== Drug A ========== #}
         <div class="compat-field">
           <label for="drug_a">ยา A</label>
           <select id="drug_a" name="drug_a" class="compat-select" required>
             <option value="">-- เลือกยา --</option>
 
-            {# ---------- โหมด Flask + DB: มีตัวแปร drugs ---------- #}
+            {# โหมด Flask + DB: มีตัวแปร drugs #}
             {% if drugs is defined and drugs %}
               {% for d in drugs %}
-                {# รองรับทั้ง object จาก DB และ dict จาก static JSON #}
+                {# รองรับทั้ง object จาก DB และ dict จาก JSON #}
                 {% set label =
                   d.generic_name if d.generic_name is defined
                   else (d.name if d.name is defined
@@ -40,7 +46,7 @@
                 </option>
               {% endfor %}
 
-            {# ---------- โหมด static: ไม่มี drugs → ใช้ fallback list ---------- #}
+            {# โหมด static: ไม่มี drugs → ใช้ fallback list #}
             {% else %}
               {% for label in [
                 'Acyclovir',
@@ -90,7 +96,7 @@
           </select>
         </div>
 
-        <!-- ========== Drug B ========== -->
+        {# ========== Drug B ========== #}
         <div class="compat-field">
           <label for="drug_b">ยา B</label>
           <select id="drug_b" name="drug_b" class="compat-select" required>
@@ -174,8 +180,7 @@
       <div class="compat-result compat-result-{{ status_code|lower }}">
         <p class="compat-pair">
           {{ drug_a_name or 'Drug A' }} + {{ drug_b_name or 'Drug B' }}
-          → <strong>{{ status_code }}</strong>
-          {% if status_text %} ({{ status_text }}){% endif %}
+          → <strong>{{ status_code }}</strong>{% if status_text %} ({{ status_text }}){% endif %}
         </p>
 
         {% if compat is defined and compat and compat.note %}
