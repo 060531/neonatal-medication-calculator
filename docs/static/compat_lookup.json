@@ -1,0 +1,82 @@
+{
+  "acyclovir|amikacin": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Amikacin",
+    "status": "ND",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "acyclovir|aminophylline": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Aminophylline",
+    "status": "ND",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "acyclovir|ampicillin": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Ampicillin",
+    "status": "C",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's Handbook 2024"
+  },
+  "acyclovir|calcium gluconate": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Calcium gluconate",
+    "status": "I",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Pediatric Injectable Drugs"
+  },
+  "acyclovir|colistin": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Colistin",
+    "status": "ND",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "acyclovir|amphotericin b": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Amphotericin b",
+    "status": "I",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "acyclovir|cefotaxime": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Cefotaxime",
+    "status": "C",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "acyclovir|cloxacillin": {
+    "drug_a": "Acyclovir",
+    "drug_b": "Cloxacillin",
+    "status": "C",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "cefotaxime|cloxacillin": {
+    "drug_a": "Cefotaxime",
+    "drug_b": "Cloxacillin",
+    "status": "C",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  },
+  "cefotaxime|levofloxacin": {
+    "drug_a": "Cefotaxime",
+    "drug_b": "Levofloxacin",
+    "status": "U",
+    "summary_th": "",
+    "summary_en": "",
+    "reference": "Trissel's 2022"
+  }
+}

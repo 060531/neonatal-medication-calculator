@@ -184,32 +184,72 @@
 
 
 <script>
-  (function () {
-    var params = new URLSearchParams(window.location.search);
+  // อ่านชื่อยาจาก query string
+  const params = new URLSearchParams(window.location.search);
+  const drugA = params.get('drug_a') || '';
+  const drugB = params.get('drug_b') || '';
 
-    var drugA = params.get("drug_a") || "Drug A";
-    var drugB = params.get("drug_b") || "Drug B";
+  // แสดงหัวข้อบรรทัดแรก
+  const nameLine = document.getElementById('drug-names');
+  if (nameLine && drugA && drugB) {
+    nameLine.textContent = `${drugA} with ${drugB}`;
+  }
 
-    var elA = document.querySelector("[data-drug-a]");
-    var elB = document.querySelector("[data-drug-b]");
-    if (elA) elA.textContent = drugA;
-    if (elB) elB.textContent = drugB;
+  function canonicalName(name) {
+    return name
+      ? name.trim().toLowerCase().replace(/\s+/g, ' ')
+      : '';
+  }
 
-    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
-    var status = params.get("status");
-    var sCodeEl = document.querySelector("[data-status-code]");
-    var sLabelEl = document.querySelector("[data-status-label]");
-    if (status && sCodeEl && sLabelEl) {
-      var map = {
-        "C": "Compatible / ผสมร่วมได้",
-        "I": "Incompatible / ห้ามผสม",
-        "U": "Uncertain / ไม่ชัดเจน",
-        "ND": "No data / ไม่มีข้อมูล"
-      };
-      sCodeEl.textContent = status;
-      sLabelEl.textContent = map[status] || "Unknown";
-    }
-  })();
+  const statusMap = {
+    'C': 'C = Compatible / ผสมร่วมได้',
+    'I': 'I = Incompatible / ห้ามผสม',
+    'U': 'U = Uncertain / ไม่ชัดเจน',
+    'ND': 'ND = No data / ไม่มีข้อมูล'
+  };
+
+  const resultLine = document.getElementById('result-line');   // บรรทัด "ND Unknown" เดิม
+  const detailLine = document.getElementById('detail-line');   // บรรทัดภาษาไทยด้านล่าง
+
+  fetch('./static/compat_lookup.json')
+    .then(res => res.json())
+    .then(data => {
+      const key1 = canonicalName(drugA) + '|' + canonicalName(drugB);
+      const key2 = canonicalName(drugB) + '|' + canonicalName(drugA);
+      const pair = data[key1] || data[key2];
+
+      if (!pair) {
+        // ไม่พบคู่ใน dataset
+        if (resultLine) resultLine.textContent = 'ND Unknown';
+        if (detailLine) {
+          detailLine.textContent = 'ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่ชื่ออีกครั้ง / รออัปเดตฐานข้อมูล)';
+        }
+        return;
+      }
+
+      // พบข้อมูลคู่ยา
+      const statusText = statusMap[pair.status] || pair.status;
+      if (resultLine) {
+        resultLine.textContent =
+          `${pair.drug_a} + ${pair.drug_b} → ${statusText}`;
+      }
+
+      let html = '';
+      if (pair.summary_th) {
+        html += pair.summary_th + '<br>';
+      }
+      if (pair.reference) {
+        html += 'อ้างอิง: ' + pair.reference;
+      }
+      if (!html) {
+        html = 'มีข้อมูลสถานะ แต่ยังไม่มีคำอธิบายรายละเอียดในระบบ';
+      }
+      if (detailLine) detailLine.innerHTML = html;
+    })
+    .catch(err => {
+      console.error(err);
+      if (resultLine) resultLine.textContent = 'เกิดข้อผิดพลาดในการอ่านฐานข้อมูล';
+    });
 </script>
 
   </div>
