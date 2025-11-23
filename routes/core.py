@@ -1,13 +1,15 @@
 # routes/core.py
-from flask import Blueprint, render_template, request, flash   # ⬅ เพิ่ม request, flash
-from extensions import db                                      # ⬅ เพิ่ม
-from models import Drug, Compatibility                         # ⬅ เพิ่ม
+from flask import Blueprint, render_template, request, flash
+from extensions import db
+from models import Drug, Compatibility
 
 bp = Blueprint("core", __name__)
+
 
 @bp.route("/")
 def index():
     return render_template("index.html", home_page=True)
+
 
 @bp.route("/calculate-pma")
 def calculate_pma_page():
@@ -25,11 +27,11 @@ def calculate_pma_page():
     )
 
 
-# 🔹 แก้ฟังก์ชัน compatibility_page เดิมให้ดึงยา + รองรับ POST
+# ---------- Drug Compatibility (dynamic DB) ----------
 @bp.route("/compatibility", methods=["GET", "POST"], endpoint="compatibility_page")
 def compatibility_page():
-    # ดึงรายชื่อยาเรียงตามชื่อ
-    drugs = Drug.query.order_by(Drug.generic_name).all()
+    # ดึงรายชื่อยาเรียงตาม generic_name
+    drugs = Drug.query.order_by(Drug.generic_name.asc()).all()
 
     selected_drug_id = None
     selected_co_drug_id = None
@@ -40,41 +42,45 @@ def compatibility_page():
     drug_b_name = None
 
     if request.method == "POST":
-        selected_drug_id = request.form.get("drug_a")
-        selected_co_drug_id = request.form.get("drug_b")
+        selected_drug_id = request.form.get("drug_a") or None
+        selected_co_drug_id = request.form.get("drug_b") or None
 
         if selected_drug_id and selected_co_drug_id:
-            a_id = int(selected_drug_id)
-            b_id = int(selected_co_drug_id)
+            try:
+                a_id = int(selected_drug_id)
+                b_id = int(selected_co_drug_id)
+            except ValueError:
+                a_id = b_id = None
 
-            # ชื่อยาไว้ไปแสดงผล
-            drug_a = Drug.query.get(a_id)
-            drug_b = Drug.query.get(b_id)
-            drug_a_name = drug_a.generic_name if drug_a else None
-            drug_b_name = drug_b.generic_name if drug_b else None
+            if a_id and b_id:
+                # ดึงชื่อยาไว้ไปแสดงผล
+                drug_a = Drug.query.get(a_id)
+                drug_b = Drug.query.get(b_id)
+                drug_a_name = drug_a.generic_name if drug_a else None
+                drug_b_name = drug_b.generic_name if drug_b else None
 
-            # ทำให้ pair เรียงจาก id น้อย → มาก (ให้ตรงกับใน table)
-            if a_id > b_id:
-                a_id, b_id = b_id, a_id
+                # ให้ pair เรียงจาก id น้อย -> มาก ให้ตรงกับข้อมูลในตาราง compatibility
+                if a_id > b_id:
+                    a_id, b_id = b_id, a_id
 
-            compat = Compatibility.query.filter_by(
-                drug_id=a_id,
-                co_drug_id=b_id,
-            ).first()
+                compat = Compatibility.query.filter_by(
+                    drug_id=a_id,
+                    co_drug_id=b_id,
+                ).first()
 
-            code_to_text = {
-                "C": "Compatible / ผสมร่วมได้",
-                "I": "Incompatible / ห้ามผสม",
-                "U": "Uncertain / ไม่ชัดเจน",
-                "ND": "No data / ไม่มีข้อมูล",
-            }
+                code_to_text = {
+                    "C": "Compatible / ผสมร่วมได้",
+                    "I": "Incompatible / ห้ามผสม",
+                    "U": "Uncertain / ไม่ชัดเจน",
+                    "ND": "No data / ไม่มีข้อมูล",
+                }
 
-            if compat:
-                status_code = compat.status or "ND"
-            else:
-                status_code = "ND"
+                if compat:
+                    status_code = compat.status or "ND"
+                else:
+                    status_code = "ND"
 
-            status_text = code_to_text.get(status_code, "No data / ไม่มีข้อมูล")
+                status_text = code_to_text.get(status_code, "No data / ไม่มีข้อมูล")
 
     return render_template(
         "compatibility.html",
@@ -89,6 +95,7 @@ def compatibility_page():
     )
 
 
+# ---------- Medication menu ----------
 @bp.route("/medication", endpoint="medication_administration")
 def medication_administration():
     UPDATE_DATE = globals().get("UPDATE_DATE", "N/A")
@@ -134,7 +141,6 @@ def medication_administration():
         {"label": "Unasyn", "endpoint": "unasyn_route"},
         {"label": "Vancomycin", "endpoint": "vancomycin_route"},
     ]
-    # group by first letter
     from collections import defaultdict
     groups = defaultdict(list)
     for m in meds:
@@ -147,17 +153,21 @@ def medication_administration():
                            groups=groups, letters=letters, meds=meds,
                            update_date=UPDATE_DATE)
 
+
 @bp.route("/time-management", endpoint="time_management_route")
 def time_management_route():
     return render_template("time_management.html")
+
 
 @bp.get("/compatibility/check", endpoint="compatibility_check")
 def compatibility_check():
     return "compatibility check (stub)"
 
+
 @bp.get("/time-management/run", endpoint="run_time")
 def run_time():
     return "time runner (stub)"
+
 
 # --------- drug stubs: ให้กดจากรายการยาแล้วไม่ 404 ----------
 def _register_drug_stub(bp, endpoint, title):
@@ -166,46 +176,47 @@ def _register_drug_stub(bp, endpoint, title):
     view.__name__ = f"view_{endpoint}"
     bp.add_url_rule(f"/drug/{endpoint}", endpoint=endpoint, view_func=view)
 
+
 for _lbl, _ep in [
-    ("Acyclovir","acyclovir_route"),
-    ("Amikacin","amikin_route"),
-    ("Aminophylline","aminophylline_route"),
-    ("Amoxicillin / Clavimoxy","amoxicillin_clavimoxy_route"),
-    ("Amphotericin B","amphotericinB_route"),
-    ("Ampicillin","ampicillin_route"),
-    ("Benzathine penicillin G","benzathine_penicillin_g_route"),
-    ("Cefazolin","cefazolin_route"),
-    ("Cefotaxime","cefotaxime_route"),
-    ("Ceftazidime","ceftazidime_route"),
-    ("Ciprofloxacin","ciprofloxacin_route"),
-    ("Clindamycin","clindamycin_route"),
-    ("Cloxacillin","cloxacillin_route"),
-    ("Colistin","colistin_route"),
-    ("Dexamethasone","dexamethasone_route"),
-    ("Dobutamine","dobutamine_route"),
-    ("Dopamine","dopamine_route"),
-    ("Fentanyl","fentanyl_route"),
-    ("Furosemide","furosemide_route"),
-    ("Gentamicin","gentamicin_route"),
-    ("Hydrocortisone","hydrocortisone_route"),
-    ("Insulin Human Regular","insulin_route"),
-    ("Levofloxacin","levofloxacin_route"),
-    ("Meropenem","meropenem_route"),
-    ("Metronidazole (Flagyl)","metronidazole"),
-    ("Midazolam","midazolam_route"),
-    ("Midazolam + Fentanyl","midazolam_fentanyl_route"),
-    ("Morphine","morphine_route"),
-    ("Nimbex (Cisatracurium)","nimbex_route"),
-    ("Omeprazole","omeprazole_route"),
-    ("Penicillin G sodium","penicillin_g_sodium_route"),
-    ("Phenobarbital","phenobarbital_route"),
-    ("Phenytoin (Dilantin)","phenytoin_route"),
-    ("Remdesivir","remdesivir_route"),
-    ("Sul-am®","sul_am_route"),
-    ("Sulbactam","sulbactam_route"),
-    ("Sulperazone","sulperazone_route"),
-    ("Tazocin","tazocin_route"),
-    ("Unasyn","unasyn_route"),
-    ("Vancomycin","vancomycin_route"),
+    ("Acyclovir", "acyclovir_route"),
+    ("Amikacin", "amikin_route"),
+    ("Aminophylline", "aminophylline_route"),
+    ("Amoxicillin / Clavimoxy", "amoxicillin_clavimoxy_route"),
+    ("Amphotericin B", "amphotericinB_route"),
+    ("Ampicillin", "ampicillin_route"),
+    ("Benzathine penicillin G", "benzathine_penicillin_g_route"),
+    ("Cefazolin", "cefazolin_route"),
+    ("Cefotaxime", "cefotaxime_route"),
+    ("Ceftazidime", "ceftazidime_route"),
+    ("Ciprofloxacin", "ciprofloxacin_route"),
+    ("Clindamycin", "clindamycin_route"),
+    ("Cloxacillin", "cloxacillin_route"),
+    ("Colistin", "colistin_route"),
+    ("Dexamethasone", "dexamethasone_route"),
+    ("Dobutamine", "dobutamine_route"),
+    ("Dopamine", "dopamine_route"),
+    ("Fentanyl", "fentanyl_route"),
+    ("Furosemide", "furosemide_route"),
+    ("Gentamicin", "gentamicin_route"),
+    ("Hydrocortisone", "hydrocortisone_route"),
+    ("Insulin Human Regular", "insulin_route"),
+    ("Levofloxacin", "levofloxacin_route"),
+    ("Meropenem", "meropenem_route"),
+    ("Metronidazole (Flagyl)", "metronidazole"),
+    ("Midazolam", "midazolam_route"),
+    ("Midazolam + Fentanyl", "midazolam_fentanyl_route"),
+    ("Morphine", "morphine_route"),
+    ("Nimbex (Cisatracurium)", "nimbex_route"),
+    ("Omeprazole", "omeprazole_route"),
+    ("Penicillin G sodium", "penicillin_g_sodium_route"),
+    ("Phenobarbital", "phenobarbital_route"),
+    ("Phenytoin (Dilantin)", "phenytoin_route"),
+    ("Remdesivir", "remdesivir_route"),
+    ("Sul-am®", "sul_am_route"),
+    ("Sulbactam", "sulbactam_route"),
+    ("Sulperazone", "sulperazone_route"),
+    ("Tazocin", "tazocin_route"),
+    ("Unasyn", "unasyn_route"),
+    ("Vancomycin", "vancomycin_route"),
 ]:
     _register_drug_stub(bp, _ep, _lbl)

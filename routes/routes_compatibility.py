@@ -22,11 +22,10 @@ from models import Drug, Compatibility, AccessLog
 
 compat_bp = Blueprint("compat", __name__)
 
-# ===== Utility: path / normalize / status mapping =====
+# ================== Utilities ==================
 
 
 def _base_dir() -> Path:
-    # โฟลเดอร์ root ของโปรเจกต์ (ที่มี app.py)
     return Path(current_app.root_path).resolve()
 
 
@@ -39,13 +38,6 @@ def _norm_txt(s: str) -> str:
 
 
 def canonicalize_name(s: str) -> str:
-    """
-    แปลงชื่อยาให้ standardized:
-    - ตัด space เกิน
-    - lower-case
-    - แก้สะกดผิดยอดฮิต
-    - ลบคำต่อท้ายอย่าง ' small dose', ' continuous'
-    """
     if not s:
         return ""
     low = re.sub(r"\s+", " ", s.strip().lower())
@@ -57,13 +49,6 @@ def canonicalize_name(s: str) -> str:
 
 
 def status_to_code(s: str) -> str:
-    """
-    Map text → code:
-      C  = compatible
-      I  = incompatible
-      U  = uncertain
-      ND = no data
-    """
     if not s:
         return "ND"
     t = str(s).strip().lower()
@@ -133,16 +118,33 @@ def get_pair_meta(name_a: str, name_b: str):
     return load_pair_meta().get((min(a, b), max(a, b)))
 
 
+# ------------ Drug helpers ------------
+
+
 def get_all_drugs_for_select():
-    q = Drug.query.filter(Drug.generic_name.isnot(None)).order_by(
-        db.func.lower(Drug.generic_name)
-    )
-    return [{"id": d.id, "generic_name": d.generic_name} for d in q.all()]
+    """
+    ดึงรายชื่อยาทั้งหมดจากตาราง Drug
+    ใช้ field ไหนก็ได้ที่มีค่า (generic_name > name > title > drug)
+    """
+    rows = Drug.query.order_by(db.func.lower(Drug.generic_name)).all()
+
+    meds = []
+    for d in rows:
+        label = (
+            d.generic_name
+            or getattr(d, "name", None)
+            or getattr(d, "drug", None)
+            or getattr(d, "title", None)
+            or f"ID {d.id}"
+        )
+        meds.append({"id": d.id, "generic_name": label})
+
+    return meds
 
 
 def get_drug_name(drug_id: int):
     row = Drug.query.get(drug_id)
-    return row.generic_name if row else None
+    return row.generic_name if row and row.generic_name else (row.name if row else None)
 
 
 def group_meds_by_letter(
@@ -190,7 +192,6 @@ def group_meds_by_letter(
 # ===== Logging =====
 @compat_bp.before_app_request
 def log_request():
-    # log เฉพาะ request ที่วิ่งเข้า blueprint นี้
     if request.blueprint != compat_bp.name:
         return
 
@@ -204,11 +205,13 @@ def log_request():
     db.session.commit()
 
 
-# ===== Views: UI =====
+# ================== Views (UI) ==================
+
+
 @compat_bp.route("/compatibility", methods=["GET", "POST"], endpoint="compat_index")
 def compat_index():
     """
-    หน้าเลือกยาสองตัว (ใช้ UI ใหม่จาก compatibility.html)
+    หน้าเลือกยาสองตัว (UI Flask ใช้ DB)
     """
     drugs = get_all_drugs_for_select()
     groups = group_meds_by_letter(drugs, key_preference=("generic_name",))
@@ -218,8 +221,8 @@ def compat_index():
     selected_co_drug_id = None
 
     if request.method == "POST":
-        selected_drug_id = request.form.get("drug_a")
-        selected_co_drug_id = request.form.get("drug_b")
+        selected_drug_id = request.form.get("drug_a") or None
+        selected_co_drug_id = request.form.get("drug_b") or None
 
         if not selected_drug_id or not selected_co_drug_id:
             error = "กรุณาเลือกยาทั้งสองตัว"
@@ -235,7 +238,7 @@ def compat_index():
             )
 
     return render_template(
-        "compatibility.html",      # ใช้หน้าใหม่
+        "compatibility.html",
         drugs=drugs,
         groups=groups,
         error=error,
@@ -243,11 +246,9 @@ def compat_index():
         selected_co_drug_id=selected_co_drug_id,
     )
 
+
 @compat_bp.route("/compatibility/result", methods=["GET"], endpoint="compat_result")
 def compat_result():
-    """
-    แสดงผล compatibility ของคู่ยา ด้วย UI ใหม่ (compatibility_result.html)
-    """
     drug_a_id = request.args.get("drug_a_id", type=int)
     drug_b_id = request.args.get("drug_b_id", type=int)
 
@@ -263,7 +264,7 @@ def compat_result():
     meta = get_pair_meta(drug_a_name, drug_b_name)
 
     raw_status = compat.status if compat else "ND"
-    code = status_to_code(raw_status)  # ใช้ helper ด้านบนไฟล์
+    code = status_to_code(raw_status)
 
     note = compat.note if compat and compat.note else ""
 
@@ -278,12 +279,12 @@ def compat_result():
         note=note,
     )
 
-# ===== JSON API =====
+
+# ================== JSON APIs ==================
+
+
 @compat_bp.get("/api/compatibility")
 def api_compatibility():
-    """
-    GET /api/compatibility?drug_a=1&drug_b=2
-    """
     drug_a_id = request.args.get("drug_a", type=int)
     drug_b_id = request.args.get("drug_b", type=int)
 
@@ -312,9 +313,6 @@ def api_compatibility():
 
 @compat_bp.get("/api/drugs")
 def api_drugs():
-    """
-    GET /api/drugs?q=mero → สำหรับ auto-complete
-    """
     q = request.args.get("q", "", type=str).strip()
     query = Drug.query
     if q:
@@ -333,7 +331,10 @@ def api_drugs():
         ]
     )
 
-# ===== CLI command: import-compat =====
+
+# ================== CLI import command ==================
+
+
 @compat_bp.cli.command("import-compat-json")
 @click.argument("json_file")
 @click.option(
@@ -344,15 +345,6 @@ def api_drugs():
 )
 @with_appcontext
 def import_compat_json(json_file: str, truncate: bool):
-    """
-    ใช้งาน: flask --app app compat import-compat-json data/seed_compatibility.json --truncate
-
-    นำเข้าข้อมูลจากไฟล์ JSON ที่เป็น list:
-      [
-        {"drug": "...", "co_drug": "...", "status": "...", "source": "...", "note": "..."},
-        ...
-      ]
-    """
     path = Path(json_file)
     if not path.exists():
         click.echo(f"[ERROR] ไม่พบไฟล์: {path}")
@@ -371,7 +363,6 @@ def import_compat_json(json_file: str, truncate: bool):
         db.session.commit()
 
     created_drugs = 0
-    updated_drugs = 0
     created_pairs = 0
     updated_pairs = 0
     skipped_rows = 0
@@ -386,7 +377,6 @@ def import_compat_json(json_file: str, truncate: bool):
             skipped_rows += 1
             continue
 
-        # หา / สร้าง Drug A
         drug_a = Drug.query.filter(
             db.func.lower(Drug.generic_name) == name_a
         ).first()
@@ -395,7 +385,6 @@ def import_compat_json(json_file: str, truncate: bool):
             db.session.add(drug_a)
             created_drugs += 1
 
-        # หา / สร้าง Drug B
         drug_b = Drug.query.filter(
             db.func.lower(Drug.generic_name) == name_b
         ).first()
@@ -404,7 +393,6 @@ def import_compat_json(json_file: str, truncate: bool):
             db.session.add(drug_b)
             created_drugs += 1
 
-        # ให้ได้ id ก่อน
         db.session.flush()
         a_id, b_id = sorted([drug_a.id, drug_b.id])
 

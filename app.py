@@ -4,6 +4,7 @@ import argparse
 from datetime import date
 from flask import Flask, render_template
 from routes.routes_medications import meds_bp
+from flask import send_from_directory, redirect
 
 
 # ===== optional extensions =====
@@ -307,6 +308,20 @@ def create_app(testing: bool = False, update_date: str = None):
 
 
     return app
+    @app.route("/docs/<path:filename>")
+    def docs_static(filename):
+        docs_dir = os.path.join(app.root_path, "docs")
+        return send_from_directory(docs_dir, filename)
+
+
+    @app.route("/compatibility")
+    def compat_redirect():
+        # ให้ /compatibility กระโดดไปใช้ static viewer ตัวใหม่
+        return redirect("/docs/compatibility.html", code=302)
+
+    @core_bp.route("/compatibility")
+    def compatibility_page():
+        return render_template("compatibility.html")
 
 
 # รองรับรันแบบ: python app.py

@@ -19,7 +19,7 @@
       </span>
     </p>
 
-    
+
     {% if compat %}
       {% if compat.source %}
         <p><b>Source:</b> {{ compat.source }}</p>
@@ -48,7 +48,7 @@
   </div>
 
   <div style="margin-top:1rem;text-align:center">
-    <a href="{{ url_for('compat.compat_index') }}" class="btn btn-primary">ตรวจสอบคู่อื่น</a>
+    <a href="{{ url_for('core.compatibility_page') }}" class="btn btn-primary">ตรวจสอบคู่อื่น</a>
     <a href="{{ url_for('index') }}" class="btn btn-secondary">กลับหน้า Home</a>
   </div>
 </div>
