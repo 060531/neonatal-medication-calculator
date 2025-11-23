@@ -1,70 +1,70 @@
 [
-  {
-    "drug": "Acyclovir",
-    "co_drug": "Amikacin",
+    {
+    "drug_a": "Acyclovir",
+    "drug_b": "Amikacin",
     "status": "ND",
     "source": "Trissel's 2022",
     "note": "No data found; avoid mixing."
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Aminophylline",
+    "drug_a": "Acyclovir",
+    "drug_b": "Aminophylline",
     "status": "ND",
     "source": "Trissel's 2022",
     "note": "No data / ไม่มีข้อมูล; หลีกเลี่ยงการผสมใน line เดียวกัน"
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Ampicillin",
+    "drug_a": "Acyclovir",
+    "drug_b": "Ampicillin",
     "status": "C",
     "source": "Trissel's Handbook 2024",
     "note": "สามารถ Y-site ได้ใน D5W ตามเงื่อนไขความเข้มข้นที่แนะนำ"
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Calcium gluconate",
+    "drug_a": "Acyclovir",
+    "drug_b": "Calcium gluconate",
     "status": "I",
     "source": "Pediatric Injectable Drugs",
     "note": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน"
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Colistin",
+    "drug_a": "Acyclovir",
+    "drug_b": "Colistin",
     "status": "ND",
     "source": "Trissel's 2022",
     "note": "No data found; avoid mixing."
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Amphotericin B",
+    "drug_a": "Acyclovir",
+    "drug_b": "Amphotericin b",
     "status": "I",
     "source": "Trissel's 2022",
     "note": "Incompatible / ไม่ควรใช้ร่วมกันใน line เดียวกัน"
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Cefotaxime",
+    "drug_a": "Acyclovir",
+    "drug_b": "Cefotaxime",
     "status": "C",
     "source": "Trissel's 2022",
     "note": "No data / ไม่มีข้อมูล"
   },
   {
-    "drug": "Acyclovir",
-    "co_drug": "Cloxacillin",
+    "drug_a": "Acyclovir",
+    "drug_b": "Cloxacillin",
     "status": "C",
     "source": "Trissel's 2022",
     "note": "No data / ไม่มีข้อมูล"
   },
   {
-    "drug": "Cefotaxime",
-    "co_drug": "Cloxacillin",
+    "drug_a": "Cefotaxime",
+    "drug_b": "Cloxacillin",
     "status": "C",
     "source": "Trissel's 2022",
     "note": "No data / ไม่มีข้อมูล"
   },
   {
-    "drug": "Cefotaxime",
-    "co_drug": "Levofloxacin",
+    "drug_a": "Cefotaxime",
+    "drug_b": "Levofloxacin",
     "status": "U",
     "source": "Trissel's 2022",
     "note": "No data / ไม่มีข้อมูล"
