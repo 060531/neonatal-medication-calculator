@@ -14,28 +14,37 @@
       <div class="compat-row">
         <div class="compat-field">
           <label for="drug_a">ยา A</label>
-          <select id="drug_a" name="drug_a" required>
-            <option value="">-- เลือกยา --</option>
+          <select id="drug_a" name="drug_a" class="compat-select" required>
+          <option value="">-- เลือกยา --</option>
+          {% if drugs is defined and drugs %}
             {% for d in drugs %}
-              <option value="{{ d.id }}"
-                {% if selected_drug_id is not none and selected_drug_id|int == d.id %}selected{% endif %}>
-                {{ d.generic_name }}
-              </option>
+              {# รองรับทั้ง object จาก DB และ dict จาก static JSON #}
+              {% set label =
+                d.generic_name if d.generic_name is defined
+                else (d.name if d.name is defined
+                else (d.label if d.label is defined else '')) %}
+              {% set did = d.id if d.id is defined else (d.value if d.value is defined else '') %}
+              <option value="{{ did }}">{{ label }}</option>
             {% endfor %}
-          </select>
+          {% endif %}
+        </select>
         </div>
 
         <div class="compat-field">
           <label for="drug_b">ยา B</label>
-          <select id="drug_b" name="drug_b" required>
-            <option value="">-- เลือกยา --</option>
+          <select id="drug_b" name="drug_b" class="compat-select" required>
+          <option value="">-- เลือกยา --</option>
+          {% if drugs is defined and drugs %}
             {% for d in drugs %}
-              <option value="{{ d.id }}"
-                {% if selected_co_drug_id is not none and selected_co_drug_id|int == d.id %}selected{% endif %}>
-                {{ d.generic_name }}
-              </option>
+              {% set label =
+                d.generic_name if d.generic_name is defined
+                else (d.name if d.name is defined
+                else (d.label if d.label is defined else '')) %}
+              {% set did = d.id if d.id is defined else (d.value if d.value is defined else '') %}
+              <option value="{{ did }}">{{ label }}</option>
             {% endfor %}
-          </select>
+          {% endif %}
+        </select>
         </div>
       </div>
 
