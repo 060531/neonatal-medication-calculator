@@ -50,8 +50,12 @@
         <p class="compat-pair">
           {{ drug_a_name or 'Drug A' }} + {{ drug_b_name or 'Drug B' }} → <strong>{{ status_code }}</strong>
         </p>
+        {% if compat is defined and compat and compat.note %}
         <p class="compat-note">{{ compat.note }}</p>
+      {% endif %}
+        {% if compat is defined and compat and compat.source %}
         <p class="compat-source">อ้างอิง: {{ compat.source }}</p>
+      {% endif %}
       </div>
     {% elif selected_drug_id and selected_co_drug_id %}
       <div class="compat-result compat-result-nd">
@@ -70,7 +74,7 @@
       • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
       • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
     </div>
-    
+
   </div>
 </div>
 {% endblock %}
