@@ -10,41 +10,156 @@
   </h1>
 
   <div class="compat-card">
-    <form method="post" action="{{ url_for('core.compatibility_page') }}" class="compat-form">
+    <form method="post"
+          action="{{ url_for('core.compatibility_page') }}"
+          class="compat-form">
       <div class="compat-row">
+        <!-- ========== Drug A ========== -->
         <div class="compat-field">
           <label for="drug_a">ยา A</label>
           <select id="drug_a" name="drug_a" class="compat-select" required>
-          <option value="">-- เลือกยา --</option>
-          {% if drugs is defined and drugs %}
-            {% for d in drugs %}
-              {# รองรับทั้ง object จาก DB และ dict จาก static JSON #}
-              {% set label =
-                d.generic_name if d.generic_name is defined
-                else (d.name if d.name is defined
-                else (d.label if d.label is defined else '')) %}
-              {% set did = d.id if d.id is defined else (d.value if d.value is defined else '') %}
-              <option value="{{ did }}">{{ label }}</option>
-            {% endfor %}
-          {% endif %}
-        </select>
+            <option value="">-- เลือกยา --</option>
+
+            {# ---------- โหมด Flask + DB: มีตัวแปร drugs ---------- #}
+            {% if drugs is defined and drugs %}
+              {% for d in drugs %}
+                {# รองรับทั้ง object จาก DB และ dict จาก static JSON #}
+                {% set label =
+                  d.generic_name if d.generic_name is defined
+                  else (d.name if d.name is defined
+                  else (d.label if d.label is defined else '')) %}
+                {% set did = d.id if d.id is defined else (d.value if d.value is defined else '') %}
+
+                <option value="{{ did }}"
+                  {% if selected_drug_id is defined
+                        and selected_drug_id is not none
+                        and (selected_drug_id|string) == (did|string) %}
+                    selected
+                  {% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+
+            {# ---------- โหมด static: ไม่มี drugs → ใช้ fallback list ---------- #}
+            {% else %}
+              {% for label in [
+                'Acyclovir',
+                'Amikacin',
+                'Aminophylline',
+                'Amoxicillin / Clavimoxy',
+                'Amphotericin B',
+                'Ampicillin',
+                'Benzathine penicillin G',
+                'Cefazolin',
+                'Cefotaxime',
+                'Ceftazidime',
+                'Ciprofloxacin',
+                'Clindamycin',
+                'Cloxacillin',
+                'Colistin',
+                'Dexamethasone',
+                'Dobutamine',
+                'Dopamine',
+                'Fentanyl',
+                'Furosemide',
+                'Gentamicin',
+                'Hydrocortisone',
+                'Insulin Human Regular',
+                'Levofloxacin',
+                'Meropenem',
+                'Metronidazole (Flagyl)',
+                'Midazolam',
+                'Midazolam + Fentanyl',
+                'Morphine',
+                'Nimbex (Cisatracurium)',
+                'Omeprazole',
+                'Penicillin G sodium',
+                'Phenobarbital',
+                'Phenytoin (Dilantin)',
+                'Remdesivir',
+                'Sul-am®',
+                'Sulbactam',
+                'Sulperazone',
+                'Tazocin',
+                'Unasyn',
+                'Vancomycin'
+              ] %}
+                <option value="{{ label }}">{{ label }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
         </div>
 
+        <!-- ========== Drug B ========== -->
         <div class="compat-field">
           <label for="drug_b">ยา B</label>
           <select id="drug_b" name="drug_b" class="compat-select" required>
-          <option value="">-- เลือกยา --</option>
-          {% if drugs is defined and drugs %}
-            {% for d in drugs %}
-              {% set label =
-                d.generic_name if d.generic_name is defined
-                else (d.name if d.name is defined
-                else (d.label if d.label is defined else '')) %}
-              {% set did = d.id if d.id is defined else (d.value if d.value is defined else '') %}
-              <option value="{{ did }}">{{ label }}</option>
-            {% endfor %}
-          {% endif %}
-        </select>
+            <option value="">-- เลือกยา --</option>
+
+            {% if drugs is defined and drugs %}
+              {% for d in drugs %}
+                {% set label =
+                  d.generic_name if d.generic_name is defined
+                  else (d.name if d.name is defined
+                  else (d.label if d.label is defined else '')) %}
+                {% set did = d.id if d.id is defined else (d.value if d.value is defined else '') %}
+
+                <option value="{{ did }}"
+                  {% if selected_co_drug_id is defined
+                        and selected_co_drug_id is not none
+                        and (selected_co_drug_id|string) == (did|string) %}
+                    selected
+                  {% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            {% else %}
+              {% for label in [
+                'Acyclovir',
+                'Amikacin',
+                'Aminophylline',
+                'Amoxicillin / Clavimoxy',
+                'Amphotericin B',
+                'Ampicillin',
+                'Benzathine penicillin G',
+                'Cefazolin',
+                'Cefotaxime',
+                'Ceftazidime',
+                'Ciprofloxacin',
+                'Clindamycin',
+                'Cloxacillin',
+                'Colistin',
+                'Dexamethasone',
+                'Dobutamine',
+                'Dopamine',
+                'Fentanyl',
+                'Furosemide',
+                'Gentamicin',
+                'Hydrocortisone',
+                'Insulin Human Regular',
+                'Levofloxacin',
+                'Meropenem',
+                'Metronidazole (Flagyl)',
+                'Midazolam',
+                'Midazolam + Fentanyl',
+                'Morphine',
+                'Nimbex (Cisatracurium)',
+                'Omeprazole',
+                'Penicillin G sodium',
+                'Phenobarbital',
+                'Phenytoin (Dilantin)',
+                'Remdesivir',
+                'Sul-am®',
+                'Sulbactam',
+                'Sulperazone',
+                'Tazocin',
+                'Unasyn',
+                'Vancomycin'
+              ] %}
+                <option value="{{ label }}">{{ label }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
         </div>
       </div>
 
@@ -54,36 +169,41 @@
       </div>
     </form>
 
+    {# ========== แสดงผลลัพธ์ ========== #}
     {% if compat is not none %}
       <div class="compat-result compat-result-{{ status_code|lower }}">
         <p class="compat-pair">
-          {{ drug_a_name or 'Drug A' }} + {{ drug_b_name or 'Drug B' }} → <strong>{{ status_code }}</strong>
+          {{ drug_a_name or 'Drug A' }} + {{ drug_b_name or 'Drug B' }}
+          → <strong>{{ status_code }}</strong>
+          {% if status_text %} ({{ status_text }}){% endif %}
         </p>
+
         {% if compat is defined and compat and compat.note %}
-        <p class="compat-note">{{ compat.note }}</p>
-      {% endif %}
+          <p class="compat-note">{{ compat.note }}</p>
+        {% endif %}
         {% if compat is defined and compat and compat.source %}
-        <p class="compat-source">อ้างอิง: {{ compat.source }}</p>
-      {% endif %}
+          <p class="compat-source">อ้างอิง: {{ compat.source }}</p>
+        {% endif %}
       </div>
+
     {% elif selected_drug_id and selected_co_drug_id %}
       <div class="compat-result compat-result-nd">
         <p>ไม่พบข้อมูลคู่นี้ในฐานข้อมูล</p>
         <p class="compat-note">No data / ไม่มีข้อมูล</p>
       </div>
+
     {% else %}
       <p class="compat-hint">
         เลือกยา A และยา B แล้วกด “ตรวจสอบ” เพื่อดูผลลัพธ์
       </p>
     {% endif %}
 
-        <div class="compat-legend">
+    <div class="compat-legend">
       <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
       • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
       • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
       • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
     </div>
-
   </div>
 </div>
 {% endblock %}
