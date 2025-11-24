@@ -6,30 +6,35 @@
 
   <title>Result analyze (Compatibility)</title>
 
+  
+
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
-  <link rel="manifest" href="./static/manifest.webmanifest">
+  <link rel="manifest"
+        href="./static/manifest.webmanifest">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="apple-touch-icon" href="./static/icons/icon-192.png">
+  <link rel="apple-touch-icon"
+        href="./static/icons/icon-192.png">
 
-  <!-- App CSS/JS -->
-  <link rel="stylesheet" href="./static/style.css">
-  <script defer src="./static/app.js"></script>
+  <!-- App CSS/JS (dual path) -->
+  <link rel="stylesheet"
+        href="./static/style.css">
+  <script defer
+          src="./static/app.js"></script>
 
   <style>
+    /* ---------- Global ---------- */
     :root{ color-scheme: light only; }
-
     html,body{ height:100%; }
-
     body{
+      font-family: Arial, Helvetica, sans-serif;
+      text-align:center;
       margin:0;
       padding:0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      text-align:center;
-      color:#0f172a;
+      color:#228cb3;
       min-height:100vh;
       display:flex;
       flex-direction:column;
@@ -39,346 +44,186 @@
       background-size:cover;
       background-position:center;
       background-repeat:no-repeat;
-      background-attachment:fixed;
     }
 
-    .compat-wrap{
-      width:100%;
-      max-width:980px;
-      margin:0 auto;
-      padding:24px 12px 96px;
+    h1{
+      font-size:2.5em; color:#fff; margin:20px 0 16px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.6);
+      background:linear-gradient(135deg,#039eac,#007a8c);
+      padding:15px 30px; border-radius:15px; display:inline-block;
+      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
+      font-weight:700; letter-spacing:1px;
+    }
+
+    .container{
+      max-width:1000px; width:100%;
       box-sizing:border-box;
+      border-radius:10px; padding:20px;
+      box-shadow:0 4px 8px rgba(0,0,0,.2);
+      background:transparent;
+      display:flex; flex-direction:column; align-items:center; gap:20px;
     }
 
-    .compat-title-badge{
-      display:inline-block;
-      margin:16px auto 20px;
-      padding:14px 34px;
-      border-radius:20px;
-      background:linear-gradient(135deg,#08a0a8,#007b8c);
-      color:#f9fafb;
-      box-shadow:0 10px 24px rgba(0,0,0,.35);
-      font-size:1.6rem;
-      line-height:1.4;
-      text-shadow:1px 1px 4px rgba(0,0,0,.4);
+    .button{
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+      width:150px; height:110px; margin:10px; padding:10px;
+      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
+      box-shadow:0 5px #999; border:none; font-size:14px;
+      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
     }
-    .compat-title-badge span{
-      display:block;
-      font-size:.95rem;
-      opacity:.95;
-    }
+    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
+    .button:hover{ filter:brightness(.95); }
+    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
 
-    .compat-card{
-      margin:0 auto;
-      max-width:720px;
-      background:#ffffffee;
-      border-radius:18px;
-      padding:22px 20px 24px;
-      box-shadow:0 18px 45px rgba(15,23,42,.24);
-      text-align:center;
-    }
-
-    .compat-card h2{
-      margin:4px 0 10px;
-      font-size:1.4rem;
-      color:#0369a1;
-    }
-
-    .compat-pair-line{
-      font-weight:600;
-      margin-bottom:6px;
-    }
-
-    .compat-status-line{
-      margin-top:4px;
-      font-size:.98rem;
-      color:#6b7280;
-    }
-
-    .compat-status-pill{
-      display:inline-block;
-      min-width:28px;
-      padding:4px 10px;
-      border-radius:999px;
-      font-weight:600;
-      margin-right:6px;
-      color:#ffffff;
-      background:#6b7280;
-      font-size:.9rem;
-    }
-
-    /* panel สีเหมือน Flask */
-    .compat-result-panel{
-      margin:18px auto 8px;
-      border-radius:16px;
-      padding:14px 16px 12px;
-      text-align:left;
-      max-width:640px;
-      background:#fee2e2;
-      border:1px solid #fecaca;
-      color:#7f1d1d;
-      box-shadow:0 10px 24px rgba(185,28,28,.25);
-    }
-    .compat-result-panel.compat-ok{
-      background:#dcfce7;
-      border-color:#bbf7d0;
-      color:#14532d;
-      box-shadow:0 10px 24px rgba(22,163,74,.18);
-    }
-    .compat-result-panel.compat-uncertain{
-      background:#fef9c3;
-      border-color:#fef08a;
-      color:#854d0e;
-      box-shadow:0 10px 24px rgba(202,138,4,.18);
-    }
-    .compat-result-panel.compat-nd{
-      background:#e5e7eb;
-      border-color:#d4d4d8;
-      color:#374151;
-      box-shadow:0 10px 24px rgba(75,85,99,.18);
-    }
-
-    .compat-main-line{
-      margin:0 0 4px;
-      font-weight:600;
-    }
-
-    .compat-note-main{
-      margin:0 0 4px;
-      font-size:.94rem;
-    }
-
-    .compat-note-ref{
-      margin:0;
-      font-size:.88rem;
-      opacity:.9;
-    }
-
-    .compat-legend{
-      margin-top:16px;
-      font-size:.82rem;
-      color:#111827;
-    }
-    .compat-legend span{
-      white-space:nowrap;
-      margin:0 4px;
-    }
-    .dot{
-      display:inline-block;
-      width:10px;
-      height:10px;
-      border-radius:999px;
-      margin-right:3px;
-    }
-    .dot-c{ background:#22c55e; }
-    .dot-i{ background:#ef4444; }
-    .dot-u{ background:#eab308; }
-    .dot-nd{ background:#6b7280; }
-
-    .compat-actions{
-      margin-top:18px;
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .btn-compat{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:120px;
-      padding:8px 18px;
-      border-radius:999px;
-      border:none;
-      text-decoration:none;
-      font-size:.95rem;
-      font-weight:600;
-      cursor:pointer;
-    }
-    .btn-compat-primary{
-      background:#16a34a;
-      color:#f9fafb;
-    }
-    .btn-compat-secondary{
-      background:#e5e7eb;
-      color:#111827;
-    }
+    .home-button{ background:#008CBA; }
+    .home-button:hover{ filter:brightness(.95); }
+    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
 
     footer{
-      margin-top:auto;
-      padding:8px 4px 10px;
-      font-size:.72rem;
-      color:#f9fafb;
-      text-shadow:0 2px 6px rgba(0,0,0,.7);
+      margin-top:auto; color:#fff; font-size:16px; padding:10px;
+      text-shadow:2px 2px 5px rgba(3,3,3,.7);
     }
 
+    .home-grid{
+      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
+      max-width:1000px; box-sizing:border-box;
+    }
+
+    
+
+    .hidden{ display:none !important; }
+
+    /* Mobile: หน้า Home → 2 คอลัมน์ */
     @media (max-width:600px){
-      .compat-title-badge{
-        font-size:1.2rem;
-        padding:10px 18px;
+      .home-page h1{
+        font-size:1.25rem;
+        padding:8px 12px;
+        margin:12px 0 0;
       }
-      .compat-card{
-        padding:18px 14px 20px;
+      .home-grid{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:25px;
+        width:100%;
+        max-width:420px;
+        padding:10px;
       }
-      .compat-result-panel{
-        padding:12px 12px 10px;
+      .home-page .button{
+        width:100%;
+        height:100px;
+        margin:0;
+        font-size:12.5px;
+        border-radius:12px;
+        padding:8px;
+        box-shadow:0 4px #999;
       }
+      .home-page .button img{
+        max-width:32px;
+        margin-bottom:6px;
+      }
+      .home-page .button span small{
+        font-size:11px;
+      }
+      footer{
+        font-size: 11px;     /* เล็กลง */
+        padding: 6px 4px;    /* เว้นขอบน้อยลง */
+        line-height: 1.3;
+      }
+
     }
   </style>
 </head>
-<body>
-  <div class="compat-wrap">
-    <div class="compat-title-badge">
-      ตรวจสอบความเข้ากันได้ของยา
-      <span>Drug Compatibility</span>
+
+<body class=" ">
+  <div class="container">
+    
+<div class="compat-shell">
+  <h1 class="compat-title">
+    ตรวจสอบความเข้ากันได้ของยา<br>
+    <span>Drug Compatibility</span>
+  </h1>
+
+  <div class="compat-card compat-card-wide">
+    <h2 class="compat-subtitle">Result analyze</h2>
+
+    
+    <div class="compat-result-header">
+      <span class="compat-pill" data-drug-a>Drug A</span>
+      <span class="compat-with">with</span>
+      <span class="compat-pill" data-drug-b>Drug B</span>
     </div>
 
-    <div class="compat-card">
-      <h2>Result analyze</h2>
+    
+    <div class="compat-status-line">
+      <span class="compat-status-pill" data-status-code>ND</span>
+      <span class="compat-status-text" data-status-label>Unknown</span>
+    </div>
 
-      <!-- ชื่อยา -->
-      <div class="compat-pair-line" id="drug-pair">Drug A with Drug B</div>
+    <hr>
 
-      <!-- สถานะย่อ + label -->
-      <div class="compat-status-line">
-        <span class="compat-status-pill" id="status-code">ND</span>
-        <span id="status-label">Unknown</span>
-      </div>
+    <div class="compat-note-block">
+      <p class="compat-note-main" data-note-main>
+        ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
+      </p>
+      <p class="compat-note-ref" data-note-ref></p>
+    </div>
 
-      <hr style="max-width:80%;border:none;border-top:1px solid #e5e7eb;margin:14px auto 16px">
+    <div class="compat-legend" style="margin-top:20px">
+      <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
+      • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
+      • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
+      • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
+    </div>
 
-      <!-- กล่องผลลัพธ์สไตล์เดียวกับ Flask -->
-      <div class="compat-result-panel compat-nd" id="result-panel">
-        <p class="compat-main-line" id="main-line">
-          ยังไม่พบรายละเอียดคู่นี้ในระบบ
-        </p>
-        <p class="compat-note-main" id="note-main">
-          ตรวจสอบชื่อยาอีกครั้ง หรือสืบค้นข้อมูลเพิ่มเติมจากแหล่งอ้างอิงอื่น
-        </p>
-        <p class="compat-note-ref" id="note-ref"></p>
-      </div>
-
-      <!-- legend -->
-      <div class="compat-legend">
-        <span><span class="dot dot-c"></span>C = Compatible / ผสมร่วมได้</span>
-        • <span><span class="dot dot-i"></span>I = Incompatible / ห้ามผสม</span>
-        • <span><span class="dot dot-u"></span>U = Uncertain / ไม่ชัดเจน</span>
-        • <span><span class="dot dot-nd"></span>ND = No data / ไม่มีข้อมูล</span>
-      </div>
-
-      <!-- ปุ่ม -->
-      <div class="compat-actions">
-        <a href="compatibility.html" class="btn-compat btn-compat-primary">↺ New check</a>
-        <a href="index.html" class="btn-compat btn-compat-secondary">Home</a>
-      </div>
+    <div class="compat-actions" style="margin-top:20px">
+      <a href="compatibility.html" class="btn-check">↺ New check</a>
+      <a href="index.html" class="btn-home">Home</a>
     </div>
   </div>
+</div>
 
-  <footer>
-    Developed by Sukhontha Boonsookchan | update 2025-11-24
-  </footer>
 
-  <!-- Logic ฝั่ง GitHub Pages: อ่าน JSON แล้วแสดงผลเหมือน Flask -->
-  <script>
-    (function () {
-      const params = new URLSearchParams(window.location.search);
-      const drugA = params.get("drug_a") || "Drug A";
-      const drugB = params.get("drug_b") || "Drug B";
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
 
-      // อัปเดตชื่อบนจอ
-      const pairEl = document.getElementById("drug-pair");
-      if (pairEl) {
-        pairEl.textContent = drugA + " with " + drugB;
-      }
+    var drugA = params.get("drug_a") || "Drug A";
+    var drugB = params.get("drug_b") || "Drug B";
 
-      const codeEl   = document.getElementById("status-code");
-      const labelEl  = document.getElementById("status-label");
-      const panelEl  = document.getElementById("result-panel");
-      const mainLine = document.getElementById("main-line");
-      const noteMain = document.getElementById("note-main");
-      const noteRef  = document.getElementById("note-ref");
+    var elA = document.querySelector("[data-drug-a]");
+    var elB = document.querySelector("[data-drug-b]");
+    if (elA) elA.textContent = drugA;
+    if (elB) elB.textContent = drugB;
 
-      function canonicalName(name) {
-        return name ? name.trim().toLowerCase().replace(/\s+/g, " ") : "";
-      }
-
-      const STATUS_LABEL = {
+    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
+    var status = params.get("status");
+    var sCodeEl = document.querySelector("[data-status-code]");
+    var sLabelEl = document.querySelector("[data-status-label]");
+    if (status && sCodeEl && sLabelEl) {
+      var map = {
         "C": "Compatible / ผสมร่วมได้",
         "I": "Incompatible / ห้ามผสม",
         "U": "Uncertain / ไม่ชัดเจน",
         "ND": "No data / ไม่มีข้อมูล"
       };
+      sCodeEl.textContent = status;
+      sLabelEl.textContent = map[status] || "Unknown";
+    }
+  })();
+</script>
 
-      function applyStatus(code) {
-        code = code || "ND";
-        if (codeEl)  codeEl.textContent  = code;
-        if (labelEl) labelEl.textContent = STATUS_LABEL[code] || "Unknown";
+  </div>
 
-        if (!panelEl) return;
-        panelEl.classList.remove("compat-ok","compat-uncertain","compat-nd");
-        if (code === "C") panelEl.classList.add("compat-ok");
-        else if (code === "U") panelEl.classList.add("compat-uncertain");
-        else if (code === "ND") panelEl.classList.add("compat-nd");
-        else panelEl.classList.remove("compat-ok","compat-uncertain","compat-nd"); // I = กล่องแดง default
-      }
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
 
-      // default: ND (เผื่อหาไม่เจอ / fetch error)
-      applyStatus("ND");
-
-      // โหลดฐานข้อมูล static จาก compat_lookup.json
-      fetch("./static/compat_lookup.json")
-        .then(res => res.json())
-        .then(data => {
-          const key1 = canonicalName(drugA) + "|" + canonicalName(drugB);
-          const key2 = canonicalName(drugB) + "|" + canonicalName(drugA);
-          const pair = data[key1] || data[key2];
-
-          if (!pair) {
-            // ไม่มีคู่นี้ → ปล่อยข้อความ default
-            return;
-          }
-
-          const status = pair.status || "ND";
-          applyStatus(status);
-
-          // บรรทัดบนสุดในกล่อง (เหมือน Flask)
-          if (mainLine) {
-            mainLine.textContent =
-              (pair.drug_a || drugA) + " + " +
-              (pair.drug_b || drugB) + " → " +
-              (status === "C" ? "C (Compatible / ผสมร่วมได้)"
-               : status === "I" ? "I (Incompatible / ห้ามผสม)"
-               : status === "U" ? "U (Uncertain / ไม่ชัดเจน)"
-               : "ND (No data / ไม่มีข้อมูล)");
-          }
-
-          // ข้อความอธิบาย
-          const detail =
-            pair.summary_th || pair.summary_en || pair.note ||
-            "มีข้อมูลสถานะ แต่ยังไม่มีคำอธิบายรายละเอียดในระบบ";
-
-          if (noteMain) {
-            noteMain.textContent = detail;
-          }
-
-          // อ้างอิง
-          const ref = pair.reference || pair.source || "";
-          if (noteRef) {
-            noteRef.textContent = ref ? "อ้างอิง: " + ref : "";
-          }
-        })
-        .catch(err => {
-          console.error("compat lookup error:", err);
-        });
-    })();
-  </script>
-
-  <!-- สมัคร Service Worker (เวอร์ชันใหม่ที่แก้ scope แล้ว) -->
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
   <script>
     (function () {
       if (!("serviceWorker" in navigator)) return;
 
-      var swPath = "./static/service-worker.js?v=2025-11-24-01";
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
         if (!reg) {
