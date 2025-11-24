@@ -195,44 +195,72 @@
     if (elA) elA.textContent = drugA;
     if (elB) elB.textContent = drugB;
 
-    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
-    var status = params.get("status");
-    var sCodeEl = document.querySelector("[data-status-code]");
-    var sLabelEl = document.querySelector("[data-status-label]");
-    if (status && sCodeEl && sLabelEl) {
-      var map = {
-        "C": "Compatible / ผสมร่วมได้",
-        "I": "Incompatible / ห้ามผสม",
-        "U": "Uncertain / ไม่ชัดเจน",
-        "ND": "No data / ไม่มีข้อมูล"
-      };
-      sCodeEl.textContent = status;
-      sLabelEl.textContent = map[status] || "Unknown";
+    var sCodeEl   = document.querySelector("[data-status-code]");
+    var sLabelEl  = document.querySelector("[data-status-label]");
+    var noteMain  = document.querySelector("[data-note-main]");
+    var noteRef   = document.querySelector("[data-note-ref]");
+
+    function canonicalName(name) {
+      return name
+        ? name.trim().toLowerCase().replace(/\s+/g, " ")
+        : "";
     }
+
+    var STATUS_LABEL = {
+      "C": "Compatible / ผสมร่วมได้",
+      "I": "Incompatible / ห้ามผสม",
+      "U": "Uncertain / ไม่ชัดเจน",
+      "ND": "No data / ไม่มีข้อมูล"
+    };
+
+    function applyStatus(code, mainText, refText) {
+      code = code || "ND";
+      if (sCodeEl)  sCodeEl.textContent  = code;
+      if (sLabelEl) sLabelEl.textContent = STATUS_LABEL[code] || "Unknown";
+
+      if (mainText && noteMain) {
+        noteMain.textContent = mainText;
+      }
+      if (refText && noteRef) {
+        noteRef.textContent = "อ้างอิง: " + refText;
+      }
+    }
+
+    // 1) กรณีมี status ใน URL (จาก Flask) → ใช้ค่าจาก URL เป็นหลัก
+    var statusFromURL = params.get("status");
+    if (statusFromURL) {
+      applyStatus(statusFromURL, null, null);
+      return; // ไม่ต้องไปอ่าน JSON ซ้ำ
+    }
+
+    // 2) ถ้าไม่มี status (กรณี GitHub Pages) → ไปอ่านจาก static/compat_lookup.json
+    fetch("static/compat_lookup.json")
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var key1 = canonicalName(drugA) + "|" + canonicalName(drugB);
+        var key2 = canonicalName(drugB) + "|" + canonicalName(drugA);
+        var pair = data[key1] || data[key2];
+
+        if (!pair) {
+          // ไม่มีข้อมูลคู่ยานี้ → ปล่อยให้เป็น ND Unknown ตาม default ใน HTML
+          return;
+        }
+
+        var code = pair.status || "ND";
+        // note ใน compat_lookup.json ที่เรา build ไว้ ได้จาก summary_th หรือ summary_en หรือ reference
+        var mainText = pair.summary_th || pair.summary_en || "";
+        if (!mainText && pair.note) {
+          mainText = pair.note;
+        }
+        var refText = pair.reference || "";
+
+        applyStatus(code, mainText, refText);
+      })
+      .catch(function (err) {
+        console.error("compat lookup error:", err);
+      });
   })();
 </script>
 
-  </div>
-
-  <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
-  </footer>
-
-  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-  <script>
-    (function () {
-      if (!("serviceWorker" in navigator)) return;
-
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
-
-      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
-        }
-      }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
-      });
-    })();
-  </script>
 </body>
 </html>
