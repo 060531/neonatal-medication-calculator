@@ -1,67 +1,105 @@
-// static/service-worker.js
+/* docs/static/service-worker.js */
+const VERSION = "2025-11-27-04";
+const CACHE_NAME = `nmc-cache-${VERSION}`;
 
-// 1) เปลี่ยน version ทุกครั้งที่ deploy (ช่วยบังคับให้ browser โหลด cache ใหม่)
-const CACHE_VERSION = "v2025-11-24-01";
-const CACHE_NAME = `app-cache-${CACHE_VERSION}`;
-
-// prefix สำหรับไฟล์ static บน GitHub Pages
-// เช่น /neonatal-medication-calculator/static/
-const STATIC_PREFIX = new URL("./static/", self.location).pathname;
-
-// ถ้าเดิมคุณมี ASSETS เป็น array ของไฟล์อื่น ๆ ก็สามารถเพิ่มเข้าไปได้
-const ASSETS = [
-  `${STATIC_PREFIX}style.css`,
-  `${STATIC_PREFIX}app.js`,
-  `${STATIC_PREFIX}manifest.webmanifest`,
-  // เพิ่มไฟล์ static อื่น ๆ ที่อยาก cache ล่วงหน้าได้ที่นี่
+// ✅ cache เฉพาะไฟล์ใน origin เดียวกัน (ห้ามใส่ลิงก์ข้ามโดเมน) เพื่อลด addAll fail
+const PRECACHE_URLS = [
+  "./",
+  "./index.html",
+  "./compatibility.html",
+  "./compatibility_result.html",
+  "./static/style.css",
+  "./static/compat_lookup.json",
+  "./static/manifest.webmanifest",
+  "./static/icons/icon-192.png",
+  "./static/icons/icon-512.png"
 ];
 
-// ========== INSTALL ==========
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+
+    // ✅ อย่าใช้ cache.addAll() เพราะถ้าไฟล์ใดไฟล์หนึ่งพัง = พังทั้งชุด
+    for (const url of PRECACHE_URLS) {
+      try {
+        await cache.add(new Request(url, { cache: "reload" }));
+      } catch (err) {
+        // ปล่อยผ่านเพื่อไม่ให้ install fail
+        // console.warn("[SW] precache failed:", url, err);
+      }
+    }
+  })());
 });
 
-// ========== ACTIVATE ==========
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_NAME)
-            .map((key) => caches.delete(key))
-        )
-      )
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
-// ========== FETCH ==========
-// ดักเฉพาะไฟล์ใต้ /static/ เท่านั้น ไม่ยุ่งกับ HTML/หน้า result
-self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
+async function networkFirst(request, { noStore = false } = {}) {
+  const cache = await caches.open(CACHE_NAME);
 
-  // ทำงานเฉพาะ static files ของเรา
-  if (
-    url.origin === self.location.origin &&
-    url.pathname.startsWith(STATIC_PREFIX)
-  ) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
+  // ✅ บังคับ JSON สำคัญให้ network มากที่สุด
+  const req = noStore ? new Request(request, { cache: "no-store" }) : request;
 
-        return fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone);
-          });
-          return response;
-        });
-      })
-    );
+  try {
+    const fresh = await fetch(req);
+    if (fresh && fresh.ok) {
+      cache.put(request, fresh.clone());
+      return fresh;
+    }
+    // ถ้าได้ response แปลก ๆ ก็ fallback
+    const cached = await cache.match(request);
+    return cached || fresh;
+  } catch (err) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    return new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
   }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const fetchPromise = fetch(request)
+    .then((res) => {
+      if (res && res.ok) cache.put(request, res.clone());
+      return res;
+    })
+    .catch(() => null);
+
+  return cached || fetchPromise || new Response("", { status: 504 });
+}
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+
+  const url = new URL(req.url);
+
+  // ✅ ไม่ cache ของข้าม origin (ลดปัญหา request failed)
+  if (url.origin !== self.location.origin) return;
+
+  const accept = req.headers.get("accept") || "";
+  const isHTML = req.mode === "navigate" || accept.includes("text/html");
+  const isCompatJSON = url.pathname.endsWith("/static/compat_lookup.json");
+
+  if (isHTML) {
+    event.respondWith(networkFirst(req));
+    return;
+  }
+
+  // ✅ JSON ตัวนี้ต้องชนะ cache เสมอ (เวลาคุณแก้ compat_lookup.json)
+  if (isCompatJSON) {
+    event.respondWith(networkFirst(req, { noStore: true }));
+    return;
+  }
+
+  // ไฟล์อื่น ๆ (css/js/png) ใช้ SWR
+  event.respondWith(staleWhileRevalidate(req));
 });
