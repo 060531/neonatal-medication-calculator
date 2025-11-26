@@ -223,5 +223,24 @@
       });
     })();
   </script>
+  <script>
+(async () => {
+  const p = new URLSearchParams(location.search);
+  if (p.get("reset_sw") !== "1") return;
+
+  if ("serviceWorker" in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+  }
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
+  p.delete("reset_sw");
+  alert("ล้าง Service Worker + Cache แล้ว กด OK เพื่อรีโหลด");
+  location.replace(location.pathname + (p.toString() ? "?" + p.toString() : ""));
+})();
+</script>
+
 </body>
 </html>
