@@ -1,72 +1,52 @@
 {
   "acyclovir|amikacin": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Amikacin",
     "status": "ND",
-    "summary_th": "No data found; avoid mixing.",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data found; avoid mixing."
   },
   "acyclovir|aminophylline": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Aminophylline",
     "status": "ND",
-    "summary_th": "No data / ไม่มีข้อมูล; หลีกเลี่ยงการผสมใน line เดียวกัน",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล; หลีกเลี่ยงการผสมใน line เดียวกัน"
   },
   "acyclovir|ampicillin": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Ampicillin",
     "status": "C",
-    "summary_th": "สามารถ Y-site ได้ใน D5W ตามเงื่อนไขความเข้มข้นที่แนะนำ",
-    "reference": "Trissel's Handbook 2024"
+    "source": "Trissel's Handbook 2024",
+    "note": "สามารถ Y-site ได้ใน D5W ตามเงื่อนไขความเข้มข้นที่แนะนำ"
   },
   "acyclovir|calcium gluconate": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Calcium gluconate",
     "status": "I",
-    "summary_th": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน",
-    "reference": "Pediatric Injectable Drugs"
+    "source": "Pediatric Injectable Drugs",
+    "note": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน"
   },
   "acyclovir|colistin": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Colistin",
     "status": "ND",
-    "summary_th": "No data found; avoid mixing.",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data found; avoid mixing."
   },
   "acyclovir|amphotericin b": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Amphotericin b",
     "status": "I",
-    "summary_th": "Incompatible / ไม่ควรใช้ร่วมกันใน line เดียวกัน",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "Incompatible / ไม่ควรใช้ร่วมกันใน line เดียวกัน"
   },
   "acyclovir|cefotaxime": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Cefotaxime",
     "status": "C",
-    "summary_th": "No data / ไม่มีข้อมูล",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
   },
   "acyclovir|cloxacillin": {
-    "drug_a": "Acyclovir",
-    "drug_b": "Cloxacillin",
     "status": "C",
-    "summary_th": "No data / ไม่มีข้อมูล",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
   },
   "cefotaxime|cloxacillin": {
-    "drug_a": "Cefotaxime",
-    "drug_b": "Cloxacillin",
     "status": "C",
-    "summary_th": "No data / ไม่มีข้อมูล",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
   },
   "cefotaxime|levofloxacin": {
-    "drug_a": "Cefotaxime",
-    "drug_b": "Levofloxacin",
     "status": "U",
-    "summary_th": "No data / ไม่มีข้อมูล",
-    "reference": "Trissel's 2022"
+    "source": "Trissel's 2022",
+    "note": "No data / ไม่มีข้อมูล"
   }
 }
