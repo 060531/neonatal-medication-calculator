@@ -1,94 +1,67 @@
-/* docs/static/service-worker.js */
-const VERSION = "2025-11-27-03";
-const CACHE_STATIC = `static-${VERSION}`;
-const CACHE_PAGES  = `pages-${VERSION}`;
+// static/service-worker.js
 
-// ใส่เฉพาะไฟล์ที่ "มีจริงแน่" และอยู่ใน repo
-const PRECACHE = [
-  "./static/style.css",
-  "./static/manifest.webmanifest",
-  "./static/icons/icon-192.png",
-  "./static/icons/icon-512.png"
+// 1) เปลี่ยน version ทุกครั้งที่ deploy (ช่วยบังคับให้ browser โหลด cache ใหม่)
+const CACHE_VERSION = "v2025-11-24-01";
+const CACHE_NAME = `app-cache-${CACHE_VERSION}`;
+
+// prefix สำหรับไฟล์ static บน GitHub Pages
+// เช่น /neonatal-medication-calculator/static/
+const STATIC_PREFIX = new URL("./static/", self.location).pathname;
+
+// ถ้าเดิมคุณมี ASSETS เป็น array ของไฟล์อื่น ๆ ก็สามารถเพิ่มเข้าไปได้
+const ASSETS = [
+  `${STATIC_PREFIX}style.css`,
+  `${STATIC_PREFIX}app.js`,
+  `${STATIC_PREFIX}manifest.webmanifest`,
+  // เพิ่มไฟล์ static อื่น ๆ ที่อยาก cache ล่วงหน้าได้ที่นี่
 ];
 
-// --- helpers ---
-async function safePrecache() {
-  const cache = await caches.open(CACHE_STATIC);
-  for (const url of PRECACHE) {
-    try {
-      // cache:reload ช่วยให้ SW ดึงไฟล์ใหม่จริงเวลาอัปเดต
-      await cache.add(new Request(url, { cache: "reload" }));
-    } catch (e) {
-      // สำคัญ: "ห้ามล่ม" ถ้าไฟล์ไหนโหลดไม่ได้
-      // ไม่งั้น install จะ fail แล้ว SW จะค้างวงจรเดิม
-    }
-  }
-}
-
-async function networkFirst(req, cacheName, ignoreSearch = false) {
-  const cache = await caches.open(cacheName);
-  try {
-    const res = await fetch(req);
-    if (res && res.ok) await cache.put(req, res.clone());
-    return res;
-  } catch (e) {
-    const cached = await cache.match(req, { ignoreSearch });
-    return cached || new Response("Offline", { status: 503 });
-  }
-}
-
-async function staleWhileRevalidate(req, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(req);
-  const freshPromise = fetch(req).then(res => {
-    if (res && res.ok) cache.put(req, res.clone());
-    return res;
-  }).catch(() => null);
-
-  return cached || (await freshPromise) || new Response("Offline", { status: 503 });
-}
-
-// --- lifecycle ---
+// ========== INSTALL ==========
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  event.waitUntil(safePrecache());
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
 });
 
+// ========== ACTIVATE ==========
 self.addEventListener("activate", (event) => {
-  event.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(keys.filter(k => !k.includes(VERSION)).map(k => caches.delete(k)));
-    await self.clients.claim();
-  })());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key))
+        )
+      )
+      .then(() => self.clients.claim())
+  );
 });
 
-// --- fetch strategy ---
+// ========== FETCH ==========
+// ดักเฉพาะไฟล์ใต้ /static/ เท่านั้น ไม่ยุ่งกับ HTML/หน้า result
 self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  const url = new URL(req.url);
+  const url = new URL(event.request.url);
 
-  // เฉพาะ same-origin
-  if (url.origin !== self.location.origin) return;
+  // ทำงานเฉพาะ static files ของเรา
+  if (
+    url.origin === self.location.origin &&
+    url.pathname.startsWith(STATIC_PREFIX)
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
 
-  // หน้า purge ให้ผ่าน network ตรง ๆ
-  if (url.pathname.endsWith("/purge_sw.html")) return;
-
-  // *** สำคัญ: compat_lookup.json ให้ network-first เสมอ ***
-  if (url.pathname.endsWith("/static/compat_lookup.json")) {
-    event.respondWith(networkFirst(req, CACHE_PAGES, false));
-    return;
-  }
-
-  // HTML/documents => network-first (กันติดหน้าเก่า)
-  if (req.mode === "navigate" || req.destination === "document") {
-    // ignoreSearch=true เพื่อไม่สร้าง cache แยกเป็นร้อยอันตาม ?drug_a=
-    event.respondWith(networkFirst(req, CACHE_PAGES, true));
-    return;
-  }
-
-  // assets => SWR
-  if (["style", "script", "image", "font"].includes(req.destination)) {
-    event.respondWith(staleWhileRevalidate(req, CACHE_STATIC));
-    return;
+        return fetch(event.request).then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+          return response;
+        });
+      })
+    );
   }
 });
