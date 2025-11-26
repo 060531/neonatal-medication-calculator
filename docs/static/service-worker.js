@@ -1,67 +1,52 @@
-// static/service-worker.js
+/* eslint-disable no-restricted-globals */
+const CACHE_NAME = "nmcal-v2025-11-27-02";
 
-// 1) เปลี่ยน version ทุกครั้งที่ deploy (ช่วยบังคับให้ browser โหลด cache ใหม่)
-const CACHE_VERSION = "v2025-11-24-01";
-const CACHE_NAME = `app-cache-${CACHE_VERSION}`;
-
-// prefix สำหรับไฟล์ static บน GitHub Pages
-// เช่น /neonatal-medication-calculator/static/
-const STATIC_PREFIX = new URL("./static/", self.location).pathname;
-
-// ถ้าเดิมคุณมี ASSETS เป็น array ของไฟล์อื่น ๆ ก็สามารถเพิ่มเข้าไปได้
-const ASSETS = [
-  `${STATIC_PREFIX}style.css`,
-  `${STATIC_PREFIX}app.js`,
-  `${STATIC_PREFIX}manifest.webmanifest`,
-  // เพิ่มไฟล์ static อื่น ๆ ที่อยาก cache ล่วงหน้าได้ที่นี่
-];
-
-// ========== INSTALL ==========
+// install: ไม่ต้อง precache หนัก ๆ ก็ได้ แต่ให้ข้าม waiting เพื่ออัปเดตเร็ว
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
 });
 
-// ========== ACTIVATE ==========
+// activate: ล้าง cache เก่า + claim clients
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_NAME)
-            .map((key) => caches.delete(key))
-        )
-      )
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => (k !== CACHE_NAME ? caches.delete(k) : Promise.resolve())));
+    await self.clients.claim();
+  })());
 });
 
-// ========== FETCH ==========
-// ดักเฉพาะไฟล์ใต้ /static/ เท่านั้น ไม่ยุ่งกับ HTML/หน้า result
+// fetch strategy:
+// - ถ้าเป็น "navigate" (หน้า HTML) => network-first (แก้ปัญหา GH ค้างหน้าเก่า)
+// - ไฟล์อื่น => stale-while-revalidate (ไว + อัปเดตได้)
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
+  const req = event.request;
 
-  // ทำงานเฉพาะ static files ของเรา
-  if (
-    url.origin === self.location.origin &&
-    url.pathname.startsWith(STATIC_PREFIX)
-  ) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
-
-        return fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone);
-          });
-          return response;
-        });
-      })
-    );
+  // HTML pages
+  if (req.mode === "navigate") {
+    event.respondWith((async () => {
+      try {
+        return await fetch(req);
+      } catch (e) {
+        const cached = await caches.match(req);
+        return cached || Response.error();
+      }
+    })());
+    return;
   }
+
+  // Static assets
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(req);
+
+    const fetchPromise = fetch(req).then((res) => {
+      if (res && res.ok) cache.put(req, res.clone());
+      return res;
+    }).catch(() => cached);
+
+    return cached || fetchPromise;
+  })());
 });
