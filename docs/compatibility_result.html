@@ -3,179 +3,235 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <title>Result analyze (Compatibility)</title>
 
-  <meta name="theme-color" content="#0ea5a6" />
-  <link rel="manifest" href="./static/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./static/icons/icon-192.png">
-  <link rel="icon" href="./static/icons/icon-192.png">
+  
 
-  <link rel="stylesheet" href="./static/style.css">
-  <script defer src="./static/app.js"></script>
+  <!-- PWA meta -->
+  <meta name="theme-color" content="#0ea5a6" />
+  <link rel="manifest"
+        href="./static/manifest.webmanifest">
+
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon"
+        href="./static/icons/icon-192.png">
+
+  <!-- App CSS/JS (dual path) -->
+  <link rel="stylesheet"
+        href="./static/style.css">
+  <script defer
+          src="./static/app.js"></script>
 
   <style>
+    /* ---------- Global ---------- */
     :root{ color-scheme: light only; }
+    html,body{ height:100%; }
     body{
-      margin:0; min-height:100vh;
       font-family: Arial, Helvetica, sans-serif;
-      background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
-      background-size:cover; background-position:center; background-repeat:no-repeat;
-      display:flex; flex-direction:column; align-items:center;
-    }
-    .wrap{ width:min(920px,96vw); margin:22px auto 90px; }
-    .title-badge{
-      display:inline-block; margin:18px auto 14px; padding:12px 22px;
-      border-radius:16px; color:#fff; font-weight:900;
-      background:linear-gradient(135deg,#0291a6,#0b7285);
-      box-shadow:0 12px 26px rgba(15,23,42,.22);
-    }
-    .card{
-      margin:0 auto;
-      background:rgba(255,255,255,.88);
-      border-radius:18px;
-      padding:20px 18px;
-      box-shadow:0 18px 40px rgba(15,23,42,.25);
       text-align:center;
+      margin:0;
+      padding:0;
+      color:#228cb3;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
     }
-    .pair{ font-size:16px; color:#0f172a; margin-top:6px; }
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 14px; border-radius:999px;
-      font-weight:900; margin:10px 0 6px;
-      border:1px solid rgba(15,23,42,.12);
+
+    h1{
+      font-size:2.5em; color:#fff; margin:20px 0 16px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.6);
+      background:linear-gradient(135deg,#039eac,#007a8c);
+      padding:15px 30px; border-radius:15px; display:inline-block;
+      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
+      font-weight:700; letter-spacing:1px;
     }
-    .dot{ width:10px; height:10px; border-radius:999px; }
-    .meta{
-      margin-top:10px;
-      padding:12px 12px;
-      border-radius:12px;
-      background:#f1f5f9;
-      border:1px dashed #cbd5e1;
-      text-align:left;
-      color:#0f172a;
-      font-size:14px;
+
+    .container{
+      max-width:1000px; width:100%;
+      box-sizing:border-box;
+      border-radius:10px; padding:20px;
+      box-shadow:0 4px 8px rgba(0,0,0,.2);
+      background:transparent;
+      display:flex; flex-direction:column; align-items:center; gap:20px;
     }
-    .meta b{ color:#0b5f72; }
-    .actions{ margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-    .btn{
-      border:none; cursor:pointer; text-decoration:none;
-      padding:10px 16px; border-radius:999px; font-weight:800;
-      box-shadow:0 10px 20px rgba(15,23,42,.18);
-      display:inline-flex; align-items:center; gap:8px;
+
+    .button{
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+      width:150px; height:110px; margin:10px; padding:10px;
+      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
+      box-shadow:0 5px #999; border:none; font-size:14px;
+      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
     }
-    .btn.primary{ background:#16a34a; color:#fff; }
-    .btn.gray{ background:#e5e7eb; color:#0f172a; }
+    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
+    .button:hover{ filter:brightness(.95); }
+    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
+
+    .home-button{ background:#008CBA; }
+    .home-button:hover{ filter:brightness(.95); }
+    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
+
     footer{
-      margin-top:auto; color:#fff; font-size:12px;
-      padding:10px; text-shadow:0 1px 2px rgba(0,0,0,.6);
+      margin-top:auto; color:#fff; font-size:16px; padding:10px;
+      text-shadow:2px 2px 5px rgba(3,3,3,.7);
+    }
+
+    .home-grid{
+      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
+      max-width:1000px; box-sizing:border-box;
+    }
+
+    
+
+    .hidden{ display:none !important; }
+
+    /* Mobile: หน้า Home → 2 คอลัมน์ */
+    @media (max-width:600px){
+      .home-page h1{
+        font-size:1.25rem;
+        padding:8px 12px;
+        margin:12px 0 0;
+      }
+      .home-grid{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:25px;
+        width:100%;
+        max-width:420px;
+        padding:10px;
+      }
+      .home-page .button{
+        width:100%;
+        height:100px;
+        margin:0;
+        font-size:12.5px;
+        border-radius:12px;
+        padding:8px;
+        box-shadow:0 4px #999;
+      }
+      .home-page .button img{
+        max-width:32px;
+        margin-bottom:6px;
+      }
+      .home-page .button span small{
+        font-size:11px;
+      }
+      footer{
+        font-size: 11px;     /* เล็กลง */
+        padding: 6px 4px;    /* เว้นขอบน้อยลง */
+        line-height: 1.3;
+      }
+
     }
   </style>
 </head>
 
-<body>
-  <div class="wrap">
-    <div style="text-align:center">
-      <div class="title-badge">ตรวจสอบความเข้ากันได้ของยา<br><small style="opacity:.9;font-weight:700">Drug Compatibility</small></div>
+<body class=" ">
+  <div class="container">
+    
+<div class="compat-shell">
+  <h1 class="compat-title">
+    ตรวจสอบความเข้ากันได้ของยา<br>
+    <span>Drug Compatibility</span>
+  </h1>
+
+  <div class="compat-card compat-card-wide">
+    <h2 class="compat-subtitle">Result analyze</h2>
+
+    
+    <div class="compat-result-header">
+      <span class="compat-pill" data-drug-a>Drug A</span>
+      <span class="compat-with">with</span>
+      <span class="compat-pill" data-drug-b>Drug B</span>
     </div>
 
-    <div class="card">
-      <h2 style="margin:0;color:#0b5f72">Result analyze</h2>
-      <div id="pairText" class="pair">-</div>
+    
+    <div class="compat-status-line">
+      <span class="compat-status-pill" data-status-code>ND</span>
+      <span class="compat-status-text" data-status-label>Unknown</span>
+    </div>
 
-      <div id="statusBadge" class="badge" style="background:#e2e8f0">
-        <span id="statusDot" class="dot" style="background:#64748b"></span>
-        <span id="statusText">Loading...</span>
-      </div>
+    <hr>
 
-      <div class="meta">
-        <div><b>Source:</b> <span id="sourceText">-</span></div>
-        <div style="margin-top:6px"><b>Note:</b> <span id="noteText">-</span></div>
-      </div>
+    <div class="compat-note-block">
+      <p class="compat-note-main" data-note-main>
+        ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
+      </p>
+      <p class="compat-note-ref" data-note-ref></p>
+    </div>
 
-      <div class="actions">
-        <a class="btn primary" href="./compatibility.html">↺ New check</a>
-        <a class="btn gray" href="./index.html">🏠 Home</a>
-      </div>
+    <div class="compat-legend" style="margin-top:20px">
+      <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
+      • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
+      • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
+      • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
+    </div>
 
-      <div style="margin-top:10px;font-size:12px;color:#475569">
-        ● C = Compatible / ผสมร่วมได้ &nbsp; ● I = Incompatible / ห้ามผสม &nbsp; ● U = Uncertain &nbsp; ● ND = No data
-      </div>
+    <div class="compat-actions" style="margin-top:20px">
+      <a href="compatibility.html" class="btn-check">↺ New check</a>
+      <a href="index.html" class="btn-home">Home</a>
     </div>
   </div>
+</div>
 
-  <footer>Developed by Sukhontha Boonsookchan | update 2025-11-15</footer>
 
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+
+    var drugA = params.get("drug_a") || "Drug A";
+    var drugB = params.get("drug_b") || "Drug B";
+
+    var elA = document.querySelector("[data-drug-a]");
+    var elB = document.querySelector("[data-drug-b]");
+    if (elA) elA.textContent = drugA;
+    if (elB) elB.textContent = drugB;
+
+    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
+    var status = params.get("status");
+    var sCodeEl = document.querySelector("[data-status-code]");
+    var sLabelEl = document.querySelector("[data-status-label]");
+    if (status && sCodeEl && sLabelEl) {
+      var map = {
+        "C": "Compatible / ผสมร่วมได้",
+        "I": "Incompatible / ห้ามผสม",
+        "U": "Uncertain / ไม่ชัดเจน",
+        "ND": "No data / ไม่มีข้อมูล"
+      };
+      sCodeEl.textContent = status;
+      sLabelEl.textContent = map[status] || "Unknown";
+    }
+  })();
+</script>
+
+  </div>
+
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
+
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
   <script>
-    const STATUS_UI = {
-      C:  { label: "C Compatible",   dot:"#16a34a", bg:"#dcfce7" },
-      I:  { label: "I Incompatible", dot:"#ef4444", bg:"#fee2e2" },
-      U:  { label: "U Uncertain",    dot:"#f59e0b", bg:"#fef3c7" },
-      ND: { label: "ND No data",     dot:"#3b82f6", bg:"#dbeafe" },
-    };
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
 
-    const norm = (s) => (s || "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/\+/g, " ")
-      .replace(/\s+/g, " ")
-      .replace(/[“”"]/g, "")
-      .replace(/[’']/g, "");
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
 
-    const qs = new URLSearchParams(location.search);
-    const drugA_raw = qs.get("drug_a") || "";
-    const drugB_raw = qs.get("drug_b") || "";
-
-    document.getElementById("pairText").textContent =
-      `${drugA_raw || "-"} with ${drugB_raw || "-"}`;
-
-    async function loadLookup() {
-      // ✅ ห้ามใช้ /static/... (absolute) เพราะ GH Pages อยู่ใต้ /neonatal-medication-calculator/
-      const url = "./static/compat_lookup.json?v=" + Date.now();
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error("fetch compat_lookup.json failed: " + res.status);
-      return res.json();
-    }
-
-    function paint(status, source, note) {
-      const ui = STATUS_UI[status] || STATUS_UI.ND;
-      const badge = document.getElementById("statusBadge");
-      const dot = document.getElementById("statusDot");
-      const txt = document.getElementById("statusText");
-      badge.style.background = ui.bg;
-      dot.style.background = ui.dot;
-      txt.textContent = ui.label;
-
-      document.getElementById("sourceText").textContent = source || "-";
-      document.getElementById("noteText").textContent = note || "-";
-    }
-
-    (async () => {
-      try {
-        const a = norm(drugA_raw);
-        const b = norm(drugB_raw);
-
-        if (!a || !b) {
-          paint("ND", "-", "ข้อมูลไม่ครบ (drug_a/drug_b)");
-          return;
+      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
+        if (!reg) {
+          return navigator.serviceWorker.register(swPath).catch(console.error);
         }
-
-        const data = await loadLookup();
-
-        const k1 = `${a}|${b}`;
-        const k2 = `${b}|${a}`;
-        const hit = data[k1] || data[k2];
-
-        if (!hit) {
-          paint("ND", "-", "ยังไม่พบรายละเอียดคู่นี้ในระบบ (โปรดตรวจสอบชื่อยา/สะกด และลองใหม่)");
-          return;
-        }
-
-        paint(hit.status || "ND", hit.source, hit.note);
-      } catch (e) {
-        console.error(e);
-        paint("ND", "-", "โหลดฐานข้อมูลไม่สำเร็จ (ตรวจสอบว่า compat_lookup.json อยู่ที่ ./static/ และเปิดได้แบบ 200)");
-      }
+      }).catch(function () {
+        navigator.serviceWorker.register(swPath).catch(console.error);
+      });
     })();
   </script>
 </body>
