@@ -11,6 +11,10 @@ jobs:
         with: { python-version: '3.11' }
       - run: pip install jinja2
       - run: python tools/build_pages.py
+
+      - name: Patch compatibility_result (compat_lookup)
+        run: bash tools/patch_compatibility_result.sh
+
       - name: Commit docs
         run: |
           git config user.name "github-actions"
