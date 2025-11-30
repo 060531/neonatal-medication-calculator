@@ -229,14 +229,6 @@
 </script>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-<script>
-(function () {
-  if (!("serviceWorker" in navigator)) return;
-  navigator.serviceWorker.register("./service-worker.js?v=2025-11-30-06", { scope: "./" })
-    .catch(console.error);
-})();
-</script>
-
 <link rel="stylesheet" href="./static/style.css?v=2025-11-30-02">
 <script defer src="./static/app.js?v=2025-11-30-02"></script>
 

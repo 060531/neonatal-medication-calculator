@@ -243,13 +243,5 @@ formEl.addEventListener('submit', async (e) => {
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-<script>
-(function () {
-  if (!("serviceWorker" in navigator)) return;
-  navigator.serviceWorker.register("./service-worker.js?v=2025-11-30-06", { scope: "./" })
-    .catch(console.error);
-})();
-</script>
-
 </body>
 </html>
