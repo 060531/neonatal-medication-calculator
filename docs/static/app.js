@@ -2,7 +2,7 @@
 (() => {
   if (!("serviceWorker" in navigator)) return;
 
-  const SW_URL = "./service-worker.js?v=2025-11-30-05";
+  const SW_URL = "./service-worker.js?v=2025-11-30-06";
 // (removed) legacy hint for old SW path
 
   window.addEventListener("load", async () => {
