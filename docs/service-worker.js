@@ -1,36 +1,32 @@
 /* docs/service-worker.js */
-const VERSION = "2025-11-30-07";          // เปลี่ยนเลขนี้เมื่อปล่อยเวอร์ชันใหม่
-const CACHE_NAME = `nmc-${VERSION}`;
-const CACHE_PREFIX = "nmc-";
+const VERSION = "2025-11-30-01";
+const CACHE = `nmcalc-${VERSION}`;
 
+// cache เฉพาะไฟล์ที่ “ต้องมี” และมีอยู่จริง
 const CORE = [
   "./",
   "./index.html",
-  "./home.html",
-  "./compatibility.html",
-  "./compatibility_result.html",
   "./static/style.css",
   "./static/app.js",
   "./static/manifest.webmanifest",
   "./static/icons/icon-192.png",
   "./static/icons/icon-512.png",
-  "./static/compat_lookup.json"
 ];
 
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil((async () => {
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(CACHE);
 
-    // cache ทีละไฟล์: ไฟล์ไหนพังให้ข้าม (กัน install ล้ม)
-    for (const u of CORE) {
-      try {
-        await cache.add(new Request(u, { cache: "reload" }));
-      } catch (e) {
-        console.warn("[SW] skip cache:", u, e);
-      }
-    }
-
-    await self.skipWaiting();
+    // สำคัญ: ใช้ allSettled + fetch ทีละไฟล์ → มีไฟล์ใดพัง จะไม่ทำให้ install พังทั้งชุด
+    await Promise.allSettled(
+      CORE.map(async (url) => {
+        try {
+          const res = await fetch(new Request(url, { cache: "no-store" }));
+          if (res.ok) await cache.put(url, res.clone());
+        } catch (_) {}
+      })
+    );
   })());
 });
 
@@ -38,66 +34,47 @@ self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
     await Promise.all(
-      keys.map((k) => (k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME ? caches.delete(k) : null))
+      keys
+        .filter((k) => k.startsWith("nmcalc-") && k !== CACHE)
+        .map((k) => caches.delete(k))
     );
     await self.clients.claim();
   })());
 });
 
-// ให้หน้าเว็บสั่งข้าม waiting ได้
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
-});
-
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  if (req.method !== "GET") return;
-
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
 
-  // compat_lookup.json = network-first (กันข้อมูลค้าง)
+  // 1) ไฟล์ฐานข้อมูล compatibility ต้อง "network ตลอด" เพื่อลดปัญหาอ่านค่าเก่า
   if (url.pathname.endsWith("/static/compat_lookup.json")) {
+    event.respondWith(fetch(req, { cache: "no-store" }));
+    return;
+  }
+
+  // 2) HTML ใช้ network-first (ถ้าล่มค่อย fallback cache)
+  if (req.method === "GET" && req.headers.get("accept")?.includes("text/html")) {
     event.respondWith((async () => {
-      const cache = await caches.open(CACHE_NAME);
+      const cache = await caches.open(CACHE);
       try {
         const fresh = await fetch(req, { cache: "no-store" });
-        cache.put(req, fresh.clone());
+        if (fresh.ok) cache.put(req, fresh.clone()).catch(() => {});
         return fresh;
-      } catch (e) {
-        const cached = await cache.match(req);
-        return cached || new Response("{}", { headers: { "content-type": "application/json" } });
+      } catch (_) {
+        return (await cache.match(req, { ignoreSearch: true })) || Response.error();
       }
     })());
     return;
   }
 
-  // HTML navigation = network-first (กันหน้าเก่า)
-  const accept = req.headers.get("accept") || "";
-  const isHTML = req.mode === "navigate" || accept.includes("text/html");
-  if (isHTML) {
-    event.respondWith((async () => {
-      const cache = await caches.open(CACHE_NAME);
-      try {
-        const fresh = await fetch(req);
-        cache.put(req, fresh.clone());
-        return fresh;
-      } catch (e) {
-        const cached = await cache.match(req);
-        return cached || cache.match("./index.html") || fetch("./index.html");
-      }
-    })());
-    return;
-  }
-
-  // asset อื่น ๆ = cache-first
+  // 3) ไฟล์อื่น ๆ cache-first
   event.respondWith((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(req);
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(req, { ignoreSearch: true });
     if (cached) return cached;
 
-    const fresh = await fetch(req);
-    cache.put(req, fresh.clone());
-    return fresh;
+    const res = await fetch(req);
+    if (res.ok) cache.put(req, res.clone()).catch(() => {});
+    return res;
   })());
 });
