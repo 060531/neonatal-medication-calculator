@@ -3,155 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
   <title>Result analyze (Compatibility)</title>
 
-  
-
-  <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
-  <link rel="manifest"
-        href="./static/manifest.webmanifest">
+  <link rel="manifest" href="./static/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./static/icons/icon-192.png">
 
-  <!-- iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png">
-
-  <!-- App CSS/JS (dual path) -->
-  <link rel="stylesheet"
-        href="./static/style.css">
-  <script defer
-          src="./static/app.js"></script>
-
-  <style>
-    /* ---------- Global ---------- */
-    :root{ color-scheme: light only; }
-    html,body{ height:100%; }
-    body{
-      font-family: Arial, Helvetica, sans-serif;
-      text-align:center;
-      margin:0;
-      padding:0;
-      color:#228cb3;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
-    }
-
-    h1{
-      font-size:2.5em; color:#fff; margin:20px 0 16px;
-      text-shadow:2px 2px 6px rgba(0,0,0,.6);
-      background:linear-gradient(135deg,#039eac,#007a8c);
-      padding:15px 30px; border-radius:15px; display:inline-block;
-      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
-      font-weight:700; letter-spacing:1px;
-    }
-
-    .container{
-      max-width:1000px; width:100%;
-      box-sizing:border-box;
-      border-radius:10px; padding:20px;
-      box-shadow:0 4px 8px rgba(0,0,0,.2);
-      background:transparent;
-      display:flex; flex-direction:column; align-items:center; gap:20px;
-    }
-
-    .button{
-      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
-      width:150px; height:110px; margin:10px; padding:10px;
-      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
-      box-shadow:0 5px #999; border:none; font-size:14px;
-      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
-    }
-    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
-    .button:hover{ filter:brightness(.95); }
-    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
-
-    .home-button{ background:#008CBA; }
-    .home-button:hover{ filter:brightness(.95); }
-    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
-
-    footer{
-      margin-top:auto; color:#fff; font-size:16px; padding:10px;
-      text-shadow:2px 2px 5px rgba(3,3,3,.7);
-    }
-
-    .home-grid{
-      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
-      max-width:1000px; box-sizing:border-box;
-    }
-
-    
-
-    .hidden{ display:none !important; }
-
-    /* Mobile: หน้า Home → 2 คอลัมน์ */
-    @media (max-width:600px){
-      .home-page h1{
-        font-size:1.25rem;
-        padding:8px 12px;
-        margin:12px 0 0;
-      }
-      .home-grid{
-        display:grid;
-        grid-template-columns:repeat(2, minmax(0,1fr));
-        gap:25px;
-        width:100%;
-        max-width:420px;
-        padding:10px;
-      }
-      .home-page .button{
-        width:100%;
-        height:100px;
-        margin:0;
-        font-size:12.5px;
-        border-radius:12px;
-        padding:8px;
-        box-shadow:0 4px #999;
-      }
-      .home-page .button img{
-        max-width:32px;
-        margin-bottom:6px;
-      }
-      .home-page .button span small{
-        font-size:11px;
-      }
-      footer{
-        font-size: 11px;     /* เล็กลง */
-        padding: 6px 4px;    /* เว้นขอบน้อยลง */
-        line-height: 1.3;
-      }
-
-    }
-  </style>
+  <link rel="stylesheet" href="./static/style.css">
+  <script defer src="./static/app.js"></script>
 </head>
 
-<body class=" ">
+<body class="">
   <div class="container">
-    
-<div class="compat-shell">
-  <h1 class="compat-title">
-    ตรวจสอบความเข้ากันได้ของยา<br>
-    <span>Drug Compatibility</span>
-  </h1>
+    <div class="compat-shell">
+      <h1 class="compat-title">
+        ตรวจสอบความเข้ากันได้ของยา<br>
+        <span>Drug Compatibility</span>
+      </h1>
 
-  <div class="compat-card compat-card-wide">
-    <h2 class="compat-subtitle">Result analyze</h2>
+      <div class="compat-card compat-card-wide">
+        <h2 class="compat-subtitle">Result analyze</h2>
 
-    
-    <div class="compat-result-header">
-      <span class="compat-pill" data-drug-a>Drug A</span>
-      <span class="compat-with">with</span>
-      <span class="compat-pill" data-drug-b>Drug B</span>
+        <div class="compat-result-header">
+          <span class="compat-pill" data-drug-a>Drug A</span>
+          <span class="compat-with">with</span>
+          <span class="compat-pill" data-drug-b>Drug B</span>
+        </div>
+
+        <div class="compat-status-line">
+          <span class="compat-status-pill" data-status-code>…</span>
+          <span class="compat-status-text" data-status-label>Loading…</span>
+        </div>
+
+        <hr>
+
+        <div class="compat-note-block">
+          <p class="compat-note-main" data-note-main>กำลังโหลดฐานข้อมูล…</p>
+          <p class="compat-note-ref" data-note-ref></p>
+        </div>
+
+        <div class="compat-legend" style="margin-top:20px">
+          <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
+          • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
+          • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
+          • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
+        </div>
+
+        <div class="compat-actions" style="margin-top:20px">
+          <a href="compatibility.html" class="btn-check">↺ New check</a>
+          <a href="index.html" class="btn-home">Home</a>
+        </div>
+
+        <!-- debug box (แสดงเฉพาะเมื่อใส่ ?debug=1) -->
+        <pre id="dbg" style="display:none;text-align:left;margin-top:14px;padding:10px;border-radius:10px;background:rgba(0,0,0,.08);overflow:auto"></pre>
+      </div>
     </div>
+<<<<<<< Updated upstream
 
     
     <div class="compat-status-line">
@@ -212,27 +119,115 @@
   })();
 </script>
 
+=======
+>>>>>>> Stashed changes
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
+    <p>Developed by Sukhontha Boonsookchan | update <span id="buildDate"></span></p>
   </footer>
 
-  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-  <script>
-    (function () {
-      if (!("serviceWorker" in navigator)) return;
+<script>
+(function () {
+  // ====== ตั้งค่า build date (แก้ตรงนี้ครั้งเดียวต่อรอบ release) ======
+  const BUILD_DATE = "2025-11-30";
+  var bd = document.getElementById("buildDate");
+  if (bd) bd.textContent = BUILD_DATE;
 
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
+  // ====== DOM refs ======
+  var elA = document.querySelector("[data-drug-a]");
+  var elB = document.querySelector("[data-drug-b]");
+  var sCodeEl  = document.querySelector("[data-status-code]");
+  var sLabelEl = document.querySelector("[data-status-label]");
+  var noteMain = document.querySelector("[data-note-main]");
+  var noteRef  = document.querySelector("[data-note-ref]");
+  var dbg = document.getElementById("dbg");
 
-      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
-        }
-      }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
-      });
-    })();
-  </script>
+  function showDebug(msg) {
+    var params = new URLSearchParams(location.search);
+    if (params.get("debug") !== "1") return;
+    dbg.style.display = "block";
+    dbg.textContent += msg + "\n";
+  }
+
+  // ====== normalize ให้ตรงกับ key ใน compat_lookup.json ======
+  function norm(s) {
+    return (s || "")
+      .toString()
+      .normalize("NFKC")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");            // รวมช่องว่าง
+  }
+  function makeKey(a, b) {
+    return norm(a) + "|" + norm(b);
+  }
+
+  function paint(code, label, note, source) {
+    sCodeEl.textContent  = code || "ND";
+    sLabelEl.textContent = label || "No data / ไม่มีข้อมูล";
+
+    noteMain.textContent = note || "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)";
+    noteRef.textContent  = source ? ("Reference: " + source) : "";
+  }
+
+  // ====== read query ======
+  var params = new URLSearchParams(location.search);
+  var drugA = params.get("drug_a") || "Drug A";
+  var drugB = params.get("drug_b") || "Drug B";
+  if (elA) elA.textContent = drugA;
+  if (elB) elB.textContent = drugB;
+
+  // ถ้าไม่มีค่า query ให้จบ
+  if (!params.get("drug_a") || !params.get("drug_b")) {
+    paint("ND", "Missing input", "กรุณากลับไปเลือกยา A และ B ใหม่", "");
+    return;
+  }
+
+  // ====== fetch lookup ======
+  (async function run() {
+    try {
+      // กัน cache ค้าง: ผูกกับ BUILD_DATE (ไม่ใช้ Date.now() จะไม่ยิงทุกครั้งจนเปลือง)
+      var url = "./static/compat_lookup.json?v=" + encodeURIComponent(BUILD_DATE);
+
+      showDebug("fetch: " + url);
+      var res = await fetch(url, { cache: "no-store" });
+      showDebug("status: " + res.status);
+
+      if (!res.ok) throw new Error("fetch compat_lookup.json failed: " + res.status);
+
+      var db = await res.json();
+      var k1 = makeKey(drugA, drugB);
+      var k2 = makeKey(drugB, drugA);
+
+      showDebug("key1: " + k1);
+      showDebug("key2: " + k2);
+      showDebug("has key1: " + !!db[k1]);
+      showDebug("has key2: " + !!db[k2]);
+
+      var hit = db[k1] || db[k2];
+      if (!hit) {
+        paint("ND", "No data / ไม่มีข้อมูล", "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)", "");
+        return;
+      }
+
+      // hit = {status, source, note}
+      var code = (hit.status || "ND").toString().toUpperCase();
+      var labelMap = {
+        "C":  "Compatible / ผสมร่วมได้",
+        "I":  "Incompatible / ห้ามผสม",
+        "U":  "Uncertain / ไม่ชัดเจน",
+        "ND": "No data / ไม่มีข้อมูล"
+      };
+
+      paint(code, labelMap[code] || "Unknown", hit.note || "", hit.source || "");
+    } catch (e) {
+      console.error(e);
+      showDebug("ERROR: " + (e && e.message ? e.message : String(e)));
+      paint("ND", "Load failed", "โหลดฐานข้อมูลไม่สำเร็จ: กรุณาเปิด DevTools > Console ดู error", "");
+    }
+  })();
+})();
+</script>
 </body>
 </html>
