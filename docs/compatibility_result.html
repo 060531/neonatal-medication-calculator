@@ -22,6 +22,7 @@
   <!-- App CSS/JS (dual path) -->
   <link rel="stylesheet"
         href="./static/style.css">
+<<<<<<< Updated upstream
   <script defer
           src="./static/app.js"></script>
 
@@ -234,5 +235,52 @@
       });
     })();
   </script>
+=======
+<<<<<<< Updated upstream
+  >>>>>>> Stashed changes
+<script id="compat-lookup-patch">
+(async function () {
+  function normDrug(s){
+    return String(s || "")
+      .replace(/\+/g, " ")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+  }
+
+  const params = new URLSearchParams(location.search);
+  const drugA = params.get("drug_a") || "";
+  const drugB = params.get("drug_b") || "";
+
+  const a = normDrug(drugA);
+  const b = normDrug(drugB);
+  const k1 = a + "|" + b;
+  const k2 = b + "|" + a;
+
+  const sCodeEl  = document.querySelector("[data-status-code]");
+  const sLabelEl = document.querySelector("[data-status-label]");
+  if (!sCodeEl || !sLabelEl) return;
+
+  const map = { C:"Compatible", I:"Incompatible", U:"Uncertain", ND:"Unknown" };
+
+  const statusFromUrl = params.get("status");
+  if (statusFromUrl) {
+    const code = String(statusFromUrl).toUpperCase();
+    sCodeEl.textContent = code;
+    sLabelEl.textContent = map[code] || "Unknown";
+    return;
+  }
+
+  try {
+    const res = await fetch("./static/compat_lookup.json?x=" + Date.now(), { cache: "no-store" });
+    const lookup = await res.json();
+    const row = lookup[k1] || lookup[k2];
+    const code = (row && row.status ? String(row.status).toUpperCase() : "ND");
+    sCodeEl.textContent = code;
+    sLabelEl.textContent = map[code] || "Unknown";
+  } catch (e) {}
+})();
+</script>
+>>>>>>> Stashed changes
 </body>
 </html>
