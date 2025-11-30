@@ -1,72 +1,72 @@
 [
-    {
+  {
     "drug_a": "Acyclovir",
     "drug_b": "Amikacin",
     "status": "ND",
     "source": "Trissel's 2022",
-    "note": "No data found; avoid mixing."
+    "note": "No data found; avoid mixing / ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) และให้แยก line หรือ flush ก่อน-หลัง"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Aminophylline",
     "status": "ND",
     "source": "Trissel's 2022",
-    "note": "No data / ไม่มีข้อมูล; หลีกเลี่ยงการผสมใน line เดียวกัน"
+    "note": "No data found; avoid mixing / ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) และให้แยก line หรือ flush ก่อน-หลัง"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Ampicillin",
     "status": "C",
     "source": "Trissel's Handbook 2024",
-    "note": "สามารถ Y-site ได้ใน D5W ตามเงื่อนไขความเข้มข้นที่แนะนำ"
+    "note": "Compatible for Y-site in D5W under recommended concentrations/conditions / สามารถให้ร่วมสาย (Y-site) ใน D5W ได้ ภายใต้เงื่อนไขความเข้มข้น/ตัวทำละลายตามแหล่งอ้างอิง"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Calcium gluconate",
     "status": "I",
     "source": "Pediatric Injectable Drugs",
-    "note": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน"
+    "note": "Incompatible; precipitation risk / ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน ไม่ควรให้ร่วมสาย"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Colistin",
     "status": "ND",
     "source": "Trissel's 2022",
-    "note": "No data found; avoid mixing."
+    "note": "No data found; avoid mixing / ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) และให้แยก line หรือ flush ก่อน-หลัง"
   },
   {
     "drug_a": "Acyclovir",
-    "drug_b": "Amphotericin b",
+    "drug_b": "Amphotericin B",
     "status": "I",
     "source": "Trissel's 2022",
-    "note": "Incompatible / ไม่ควรใช้ร่วมกันใน line เดียวกัน"
+    "note": "Incompatible / ไม่ควรให้ร่วมกันใน line เดียวกัน (เสี่ยงไม่เข้ากัน/เกิดปัญหาความคงตัว)"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Cefotaxime",
-    "status": "C",
+    "status": "ND",
     "source": "Trissel's 2022",
-    "note": "No data / ไม่มีข้อมูล"
+    "note": "No data found; avoid mixing / ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) และให้แยก line หรือ flush ก่อน-หลัง"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Cloxacillin",
-    "status": "C",
+    "status": "ND",
     "source": "Trissel's 2022",
-    "note": "No data / ไม่มีข้อมูล"
+    "note": "No data found; avoid mixing / ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) และให้แยก line หรือ flush ก่อน-หลัง"
   },
   {
     "drug_a": "Cefotaxime",
     "drug_b": "Cloxacillin",
-    "status": "C",
+    "status": "ND",
     "source": "Trissel's 2022",
-    "note": "No data / ไม่มีข้อมูล"
+    "note": "No data found; avoid mixing / ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) และให้แยก line หรือ flush ก่อน-หลัง"
   },
   {
     "drug_a": "Cefotaxime",
     "drug_b": "Levofloxacin",
     "status": "U",
     "source": "Trissel's 2022",
-    "note": "No data / ไม่มีข้อมูล"
+    "note": "Uncertain / ไม่แน่ชัด (ข้อมูลไม่เพียงพอหรือไม่สรุปชัด) แนะนำหลีกเลี่ยงการให้ร่วมสาย และใช้แยก line หรือ flush ก่อน-หลัง"
   }
 ]
