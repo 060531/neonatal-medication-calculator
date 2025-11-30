@@ -185,30 +185,97 @@
 
 <script>
   (function () {
-    var params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
 
-    var drugA = params.get("drug_a") || "Drug A";
-    var drugB = params.get("drug_b") || "Drug B";
+    const drugA = params.get("drug_a") || "Drug A";
+    const drugB = params.get("drug_b") || "Drug B";
 
-    var elA = document.querySelector("[data-drug-a]");
-    var elB = document.querySelector("[data-drug-b]");
+    // เติมชื่อยาใน header
+    const elA = document.querySelector("[data-drug-a]");
+    const elB = document.querySelector("[data-drug-b]");
     if (elA) elA.textContent = drugA;
     if (elB) elB.textContent = drugB;
 
-    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
-    var status = params.get("status");
-    var sCodeEl = document.querySelector("[data-status-code]");
-    var sLabelEl = document.querySelector("[data-status-label]");
-    if (status && sCodeEl && sLabelEl) {
-      var map = {
-        "C": "Compatible / ผสมร่วมได้",
-        "I": "Incompatible / ห้ามผสม",
-        "U": "Uncertain / ไม่ชัดเจน",
-        "ND": "No data / ไม่มีข้อมูล"
-      };
-      sCodeEl.textContent = status;
-      sLabelEl.textContent = map[status] || "Unknown";
+    const statusCodeEl = document.querySelector("[data-status-code]");
+    const statusLabelEl = document.querySelector("[data-status-label]");
+    const noteMainEl   = document.querySelector("[data-note-main]");
+    const noteRefEl    = document.querySelector("[data-note-ref]");
+
+    function canonicalName(name) {
+      return (name || "")
+        .normalize("NFC")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
     }
+
+    function applyStatus(code, label, note, ref) {
+      if (statusCodeEl) statusCodeEl.textContent = code;
+      if (statusLabelEl) statusLabelEl.textContent = label;
+      if (noteMainEl)    noteMainEl.textContent   = note || "";
+      if (noteRefEl)     noteRefEl.textContent    = ref ? ("แหล่งอ้างอิง: " + ref) : "";
+
+      // ล้าง class เดิมแล้วใส่ class ตามสถานะ (เผื่อคุณมีสีใน style.css)
+      const pill = statusCodeEl;
+      if (!pill) return;
+      pill.classList.remove(
+        "compat-status-pill--c",
+        "compat-status-pill--i",
+        "compat-status-pill--u",
+        "compat-status-pill--nd"
+      );
+      switch (code) {
+        case "C": pill.classList.add("compat-status-pill--c"); break;
+        case "I": pill.classList.add("compat-status-pill--i"); break;
+        case "U": pill.classList.add("compat-status-pill--u"); break;
+        case "ND": pill.classList.add("compat-status-pill--nd"); break;
+      }
+    }
+
+    function showNoData(msg) {
+      applyStatus(
+        "ND",
+        "No data / ไม่มีข้อมูล",
+        msg || "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)"
+      );
+    }
+
+    // ดึง JSON จาก ./static/compat_lookup.json
+    const url = "./static/compat_lookup.json?v=" + Date.now();
+
+    fetch(url)
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        const key1 = canonicalName(drugA) + "|" + canonicalName(drugB);
+        const key2 = canonicalName(drugB) + "|" + canonicalName(drugA);
+        const rec = data[key1] || data[key2];
+
+        if (!rec) {
+          showNoData();
+          return;
+        }
+
+        const STATUS_MAP = {
+          "C": "Compatible / ผสมร่วมได้",
+          "I": "Incompatible / ห้ามผสม",
+          "U": "Uncertain / ไม่ชัดเจน",
+          "ND": "No data / ไม่มีข้อมูล"
+        };
+
+        const code  = (rec.status || "ND").toUpperCase();
+        const label = STATUS_MAP[code] || "Unknown";
+        const note  = rec.note || "";
+        const src   = rec.source || "";
+
+        applyStatus(code, label, note, src);
+      })
+      .catch(function (err) {
+        console.error("compat lookup failed:", err);
+        showNoData("โหลดฐานข้อมูลไม่สำเร็จ (ตรวจสอบไฟล์ compat_lookup.json ที่ ./static/)");
+      });
   })();
 </script>
 
