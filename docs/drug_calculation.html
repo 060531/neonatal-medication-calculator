@@ -435,5 +435,22 @@
   <footer>
     <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
+
+  <script>
+(() => {
+  const qs = location.search || "";
+  if (!qs) return;
+
+  const p = new URLSearchParams(qs);
+
+  // ✅ ส่งพารามิเตอร์ PMA/PNA/BW ต่อไปทุกปุ่มที่เป็น *_dose.html
+  document.querySelectorAll('a.medication-dose-button[href$="_dose.html"]').forEach((a) => {
+    const url = new URL(a.getAttribute("href"), location.href);
+    for (const [k, v] of p.entries()) url.searchParams.set(k, v);
+    a.href = url.toString();
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -3,398 +3,135 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-  <title>ตรวจสอบความเข้ากันได้ของยา (Compatibility)</title>
-
-  
-
-  <!-- PWA meta -->
-  <meta name="theme-color" content="#0ea5a6" />
-  <link rel="manifest"
-        href="./static/manifest.webmanifest">
-
-  <!-- iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png">
-
-  <!-- App CSS/JS (dual path) -->
-  <link rel="stylesheet"
-        href="./static/style.css">
-  <script defer
-          src="./static/app.js"></script>
+  <title>Drug Compatibility</title>
+  <link rel="manifest" href="./static/manifest.webmanifest">
+  <link rel="stylesheet" href="./static/style.css?v=2025-11-30-04">
 
   <style>
-    /* ---------- Global ---------- */
-    :root{ color-scheme: light only; }
-    html,body{ height:100%; }
     body{
       font-family: Arial, Helvetica, sans-serif;
-      text-align:center;
-      margin:0;
-      padding:0;
-      color:#228cb3;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
+      margin:0; padding:0; text-align:center;
       background-image:url("https://cdn.jsdelivr.net/gh/060531/images/IMG_4200.jpeg");
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+      min-height:100vh; display:flex; flex-direction:column; align-items:center;
+      color:#0f172a;
     }
-
+    .wrap{ max-width:860px; width:100%; padding:20px 12px; box-sizing:border-box; }
     h1{
-      font-size:2.5em; color:#fff; margin:20px 0 16px;
-      text-shadow:2px 2px 6px rgba(0,0,0,.6);
+      display:inline-block; margin:18px 0 14px; padding:12px 18px;
+      color:#fff; border-radius:14px;
       background:linear-gradient(135deg,#039eac,#007a8c);
-      padding:15px 30px; border-radius:15px; display:inline-block;
-      border:2px solid rgba(0,122,140,.5); box-shadow:0 4px 15px rgba(0,0,0,.3);
-      font-weight:700; letter-spacing:1px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.55);
     }
-
-    .container{
-      max-width:1000px; width:100%;
-      box-sizing:border-box;
-      border-radius:10px; padding:20px;
-      box-shadow:0 4px 8px rgba(0,0,0,.2);
-      background:transparent;
-      display:flex; flex-direction:column; align-items:center; gap:20px;
+    .card{
+      background:#ffffffea; border-radius:18px; padding:18px 14px;
+      box-shadow:0 18px 45px rgba(15,23,42,.24);
+      text-align:left;
     }
-
-    .button{
-      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
-      width:150px; height:110px; margin:10px; padding:10px;
-      text-decoration:none; color:#fff; background:#2e8aec; border-radius:10px;
-      box-shadow:0 5px #999; border:none; font-size:14px;
-      transition:transform .08s ease, filter .15s ease, box-shadow .15s ease;
+    label{ display:block; font-weight:700; margin:10px 0 6px; }
+    select, button{
+      width:100%; padding:12px 12px; border-radius:12px;
+      border:1px solid #e5e7eb; font-size:16px; box-sizing:border-box;
     }
-    .button img{ max-width:50px; height:auto; margin-bottom:10px; }
-    .button:hover{ filter:brightness(.95); }
-    .button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
-
-    .home-button{ background:#008CBA; }
-    .home-button:hover{ filter:brightness(.95); }
-    .home-button:active{ transform:translateY(4px); box-shadow:0 5px #666; }
-
-    footer{
-      margin-top:auto; color:#fff; font-size:16px; padding:10px;
-      text-shadow:2px 2px 5px rgba(3,3,3,.7);
+    button{
+      margin-top:14px; border:none; cursor:pointer;
+      background:#16a34a; color:#fff; font-weight:800;
     }
-
-    .home-grid{
-      display:flex; flex-wrap:wrap; justify-content:center; gap:5px; width:100%;
-      max-width:1000px; box-sizing:border-box;
-    }
-
-    
-
-    .hidden{ display:none !important; }
-
-    /* Mobile: หน้า Home → 2 คอลัมน์ */
-    @media (max-width:600px){
-      .home-page h1{
-        font-size:1.25rem;
-        padding:8px 12px;
-        margin:12px 0 0;
-      }
-      .home-grid{
-        display:grid;
-        grid-template-columns:repeat(2, minmax(0,1fr));
-        gap:25px;
-        width:100%;
-        max-width:420px;
-        padding:10px;
-      }
-      .home-page .button{
-        width:100%;
-        height:100px;
-        margin:0;
-        font-size:12.5px;
-        border-radius:12px;
-        padding:8px;
-        box-shadow:0 4px #999;
-      }
-      .home-page .button img{
-        max-width:32px;
-        margin-bottom:6px;
-      }
-      .home-page .button span small{
-        font-size:11px;
-      }
-      footer{
-        font-size: 11px;     /* เล็กลง */
-        padding: 6px 4px;    /* เว้นขอบน้อยลง */
-        line-height: 1.3;
-      }
-
-    }
+    .hint{ margin-top:10px; font-size:.92rem; color:#334155; }
+    .err{ margin-top:10px; font-size:.92rem; color:#b91c1c; }
   </style>
 </head>
 
-<body class=" ">
-  <div class="container">
-    
-<div class="compat-shell">
-  <h1 class="compat-title">
-    ตรวจสอบความเข้ากันได้ของยา<br>
-    <span>Drug Compatibility</span>
-  </h1>
+<body>
+  <div class="wrap">
+    <h1>ตรวจสอบความเข้ากันได้ของยา<br><span style="font-size:.9em;font-weight:600;">Drug Compatibility</span></h1>
 
-  
-  
+    <div class="card">
+      <form id="compatForm">
+        <label for="drugA">Drug A</label>
+        <select id="drugA" required>
+          <option value="">— กำลังโหลดรายการยา… —</option>
+        </select>
 
-  
-  
+        <label for="drugB">Drug B</label>
+        <select id="drugB" required>
+          <option value="">— กำลังโหลดรายการยา… —</option>
+        </select>
 
-  <div class="compat-card">
-    <form
-      class="compat-form"
-      method="get"
-      action="compatibility_result.html"
-    >
-      <div class="compat-row">
-
-        
-        <div class="compat-field">
-          <label for="drug_a">ยา A</label>
-          <select id="drug_a" name="drug_a" class="compat-select" required>
-            <option value="">-- เลือกยา --</option>
-
-            
-              
-              
-                <option value="Acyclovir">Acyclovir</option>
-              
-                <option value="Amikacin">Amikacin</option>
-              
-                <option value="Aminophylline">Aminophylline</option>
-              
-                <option value="Amoxicillin / Clavimoxy">Amoxicillin / Clavimoxy</option>
-              
-                <option value="Amphotericin B">Amphotericin B</option>
-              
-                <option value="Amphotericin b">Amphotericin b</option>
-              
-                <option value="Ampicillin">Ampicillin</option>
-              
-                <option value="Benzathine penicillin G">Benzathine penicillin G</option>
-              
-                <option value="Calcium gluconate">Calcium gluconate</option>
-              
-                <option value="Cefazolin">Cefazolin</option>
-              
-                <option value="Cefotaxime">Cefotaxime</option>
-              
-                <option value="Ceftazidime">Ceftazidime</option>
-              
-                <option value="Ciprofloxacin">Ciprofloxacin</option>
-              
-                <option value="Clindamycin">Clindamycin</option>
-              
-                <option value="Cloxacillin">Cloxacillin</option>
-              
-                <option value="Colistin">Colistin</option>
-              
-                <option value="Dexamethasone">Dexamethasone</option>
-              
-                <option value="Dobutamine">Dobutamine</option>
-              
-                <option value="Dopamine">Dopamine</option>
-              
-                <option value="Fentanyl">Fentanyl</option>
-              
-                <option value="Furosemide">Furosemide</option>
-              
-                <option value="Gentamicin">Gentamicin</option>
-              
-                <option value="Hydrocortisone">Hydrocortisone</option>
-              
-                <option value="Insulin Human Regular">Insulin Human Regular</option>
-              
-                <option value="Levofloxacin">Levofloxacin</option>
-              
-                <option value="Meropenem">Meropenem</option>
-              
-                <option value="Metronidazole (Flagyl)">Metronidazole (Flagyl)</option>
-              
-                <option value="Midazolam">Midazolam</option>
-              
-                <option value="Midazolam + Fentanyl">Midazolam + Fentanyl</option>
-              
-                <option value="Morphine">Morphine</option>
-              
-                <option value="Nimbex (Cisatracurium)">Nimbex (Cisatracurium)</option>
-              
-                <option value="Omeprazole">Omeprazole</option>
-              
-                <option value="Penicillin G sodium">Penicillin G sodium</option>
-              
-                <option value="Phenobarbital">Phenobarbital</option>
-              
-                <option value="Phenytoin (Dilantin)">Phenytoin (Dilantin)</option>
-              
-                <option value="Remdesivir">Remdesivir</option>
-              
-                <option value="Sul-am®">Sul-am®</option>
-              
-                <option value="Sulbactam">Sulbactam</option>
-              
-                <option value="Sulperazone">Sulperazone</option>
-              
-                <option value="Tazocin">Tazocin</option>
-              
-                <option value="Unasyn">Unasyn</option>
-              
-                <option value="Vancomycin">Vancomycin</option>
-              
-            
-          </select>
-        </div>
-
-        
-        <div class="compat-field">
-          <label for="drug_b">ยา B</label>
-          <select id="drug_b" name="drug_b" class="compat-select" required>
-            <option value="">-- เลือกยา --</option>
-
-            
-              
-                <option value="Acyclovir">Acyclovir</option>
-              
-                <option value="Amikacin">Amikacin</option>
-              
-                <option value="Aminophylline">Aminophylline</option>
-              
-                <option value="Amoxicillin / Clavimoxy">Amoxicillin / Clavimoxy</option>
-              
-                <option value="Amphotericin B">Amphotericin B</option>
-              
-                <option value="Amphotericin b">Amphotericin b</option>
-              
-                <option value="Ampicillin">Ampicillin</option>
-              
-                <option value="Benzathine penicillin G">Benzathine penicillin G</option>
-              
-                <option value="Calcium gluconate">Calcium gluconate</option>
-              
-                <option value="Cefazolin">Cefazolin</option>
-              
-                <option value="Cefotaxime">Cefotaxime</option>
-              
-                <option value="Ceftazidime">Ceftazidime</option>
-              
-                <option value="Ciprofloxacin">Ciprofloxacin</option>
-              
-                <option value="Clindamycin">Clindamycin</option>
-              
-                <option value="Cloxacillin">Cloxacillin</option>
-              
-                <option value="Colistin">Colistin</option>
-              
-                <option value="Dexamethasone">Dexamethasone</option>
-              
-                <option value="Dobutamine">Dobutamine</option>
-              
-                <option value="Dopamine">Dopamine</option>
-              
-                <option value="Fentanyl">Fentanyl</option>
-              
-                <option value="Furosemide">Furosemide</option>
-              
-                <option value="Gentamicin">Gentamicin</option>
-              
-                <option value="Hydrocortisone">Hydrocortisone</option>
-              
-                <option value="Insulin Human Regular">Insulin Human Regular</option>
-              
-                <option value="Levofloxacin">Levofloxacin</option>
-              
-                <option value="Meropenem">Meropenem</option>
-              
-                <option value="Metronidazole (Flagyl)">Metronidazole (Flagyl)</option>
-              
-                <option value="Midazolam">Midazolam</option>
-              
-                <option value="Midazolam + Fentanyl">Midazolam + Fentanyl</option>
-              
-                <option value="Morphine">Morphine</option>
-              
-                <option value="Nimbex (Cisatracurium)">Nimbex (Cisatracurium)</option>
-              
-                <option value="Omeprazole">Omeprazole</option>
-              
-                <option value="Penicillin G sodium">Penicillin G sodium</option>
-              
-                <option value="Phenobarbital">Phenobarbital</option>
-              
-                <option value="Phenytoin (Dilantin)">Phenytoin (Dilantin)</option>
-              
-                <option value="Remdesivir">Remdesivir</option>
-              
-                <option value="Sul-am®">Sul-am®</option>
-              
-                <option value="Sulbactam">Sulbactam</option>
-              
-                <option value="Sulperazone">Sulperazone</option>
-              
-                <option value="Tazocin">Tazocin</option>
-              
-                <option value="Unasyn">Unasyn</option>
-              
-                <option value="Vancomycin">Vancomycin</option>
-              
-            
-          </select>
-        </div>
-
-      </div>
-
-      <div class="compat-actions">
-        <button type="submit" class="btn-check">ตรวจสอบ</button>
-        <a href="./core.index.html" class="btn-home">กลับหน้า Home</a>
-      </div>
-    </form>
-
-    
-    
-      
-      <p class="compat-hint">
-        เลือกยา A และยา B แล้วกด “ตรวจสอบ” เพื่อดูผลลัพธ์
-      </p>
-    
-
-    <div class="compat-legend">
-      <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
-      • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
-      • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
-      • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
+        <button type="submit">ตรวจสอบ (Check)</button>
+        <div class="hint" id="hint"></div>
+        <div class="err" id="err"></div>
+      </form>
     </div>
   </div>
-</div>
 
-  </div>
+  <script>
+    const VERSION = "2025-11-30-04";
+    const jsonUrl = `./static/compat_lookup.json?v=${VERSION}`;
+    const hintEl = document.getElementById("hint");
+    const errEl  = document.getElementById("err");
 
-  <footer>
-    <p>Developed by Sukhontha Boonsookchan | update </p>
-  </footer>
+    function canon(s){
+      return (s || "").toString().trim().toLowerCase().replace(/\s+/g," ");
+    }
 
-  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
+    function extractDrugsFromLookup(map){
+      const set = new Set();
+      for (const k of Object.keys(map || {})) {
+        if (!k.includes("|")) continue;
+        const [a,b] = k.split("|");
+        if (a) set.add(canon(a));
+        if (b) set.add(canon(b));
+      }
+      return Array.from(set).sort((x,y)=>x.localeCompare(y));
+    }
+
+    function fillSelect(sel, items){
+      sel.innerHTML = `<option value="">— เลือกยา —</option>` +
+        items.map(v => `<option value="${v}">${v}</option>`).join("");
+    }
+
+    async function loadDrugs(){
+      errEl.textContent = "";
+      hintEl.textContent = "กำลังดึงรายการยาจากฐานข้อมูล (compat_lookup.json)…";
+
+      const res = await fetch(jsonUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error("โหลด compat_lookup.json ไม่สำเร็จ");
+
+      const map = await res.json();
+      const drugs = extractDrugsFromLookup(map);
+
+      if (!drugs.length) throw new Error("compat_lookup.json ไม่มีคีย์รูปแบบ a|b");
+
+      fillSelect(document.getElementById("drugA"), drugs);
+      fillSelect(document.getElementById("drugB"), drugs);
+      hintEl.textContent = `พร้อมใช้งาน: พบรายชื่อยา ${drugs.length} รายการ`;
+    }
+
+    document.getElementById("compatForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const a = document.getElementById("drugA").value;
+      const b = document.getElementById("drugB").value;
+      if (!a || !b) return;
+
+      const qs = new URLSearchParams({ drug_a: a, drug_b: b });
+      location.href = `compatibility_result.html?${qs.toString()}`;
+    });
+
+    loadDrugs().catch(err => {
+      errEl.textContent = "โหลดรายชื่อยาไม่สำเร็จ: " + err.message;
+      hintEl.textContent = "";
+      // fallback: ให้ยังเลือกได้บ้าง
+      fillSelect(document.getElementById("drugA"), ["acyclovir","ampicillin","amikacin"]);
+      fillSelect(document.getElementById("drugB"), ["acyclovir","ampicillin","amikacin"]);
+    });
+  </script>
+
   <script>
     (function () {
       if (!("serviceWorker" in navigator)) return;
-
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
-
-      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
-        }
-      }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
-      });
+      navigator.serviceWorker.register("./service-worker.js?v=2025-11-30-05", { scope: "./" })
+        .catch(console.error);
     })();
   </script>
 </body>
