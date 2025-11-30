@@ -1,5 +1,5 @@
 (function () {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./static/service-worker.js").catch(console.error);
+// navigator.serviceWorker.register("./static/service-worker.js").catch(console.error);
   }
 })();
