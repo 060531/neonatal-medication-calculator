@@ -182,79 +182,57 @@
   </div>
 </div>
 
+
 <script>
-(function () {
-  const STATUS_META = {
-    C:  { code:"C",  label:"Compatible / ผสมร่วมได้" },
-    I:  { code:"I",  label:"Incompatible / ห้ามผสม" },
-    U:  { code:"U",  label:"Uncertain / ไม่ชัดเจน" },
-    ND: { code:"ND", label:"No data / ไม่มีข้อมูล" }
-  };
+  (function () {
+    var params = new URLSearchParams(window.location.search);
 
-  function norm(s){
-    return (s || "")
-      .toString()
-      .normalize("NFKC")
-      .replace(/\u00A0/g, " ")
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, " ")
-      .replace(/\s*\/\s*/g, " / ")
-      .replace(/\s*\+\s*/g, " + ");
-  }
+    var drugA = params.get("drug_a") || "Drug A";
+    var drugB = params.get("drug_b") || "Drug B";
 
-  function paint(status, note, source){
-    const meta = STATUS_META[status] || STATUS_META.ND;
+    var elA = document.querySelector("[data-drug-a]");
+    var elB = document.querySelector("[data-drug-b]");
+    if (elA) elA.textContent = drugA;
+    if (elB) elB.textContent = drugB;
 
-    const sCodeEl  = document.querySelector("[data-status-code]");
-    const sLabelEl = document.querySelector("[data-status-label]");
-    const noteEl   = document.querySelector("[data-note-main]");
-    const refEl    = document.querySelector("[data-note-ref]");
-
-    if (sCodeEl)  sCodeEl.textContent = meta.code;
-    if (sLabelEl) sLabelEl.textContent = meta.label;
-    if (noteEl)   noteEl.textContent = note || "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)";
-    if (refEl)    refEl.textContent = source ? ("Source: " + source) : "";
-  }
-
-  async function run(){
-    const params = new URLSearchParams(location.search);
-    const drugA_raw = params.get("drug_a") || "Drug A";
-    const drugB_raw = params.get("drug_b") || "Drug B";
-
-    const elA = document.querySelector("[data-drug-a]");
-    const elB = document.querySelector("[data-drug-b]");
-    if (elA) elA.textContent = drugA_raw;
-    if (elB) elB.textContent = drugB_raw;
-
-    const a = norm(drugA_raw);
-    const b = norm(drugB_raw);
-    const key1 = `${a}|${b}`;
-    const key2 = `${b}|${a}`;
-
-    try {
-      // กัน cache ค้าง: no-store + cache-bust
-      const url = `./static/compat_lookup.json?v=${Date.now()}`;
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error("fetch compat_lookup.json failed: " + res.status);
-      const db = await res.json();
-
-      const hit = db[key1] || db[key2];
-      if (!hit) {
-        paint("ND", `ไม่พบคู่ยาในฐานข้อมูล (key: ${key1} / ${key2})`, "");
-        return;
-      }
-
-      paint(hit.status || "ND", hit.note || "", hit.source || "");
-    } catch (e) {
-      console.error(e);
-      paint("ND", "โหลดฐานข้อมูลไม่สำเร็จ (ตรวจสอบว่า compat_lookup.json เปิดได้แบบ 200)", "");
+    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
+    var status = params.get("status");
+    var sCodeEl = document.querySelector("[data-status-code]");
+    var sLabelEl = document.querySelector("[data-status-label]");
+    if (status && sCodeEl && sLabelEl) {
+      var map = {
+        "C": "Compatible / ผสมร่วมได้",
+        "I": "Incompatible / ห้ามผสม",
+        "U": "Uncertain / ไม่ชัดเจน",
+        "ND": "No data / ไม่มีข้อมูล"
+      };
+      sCodeEl.textContent = status;
+      sLabelEl.textContent = map[status] || "Unknown";
     }
-  }
-
-  run();
-})();
+  })();
 </script>
 
+  </div>
+
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
+  </footer>
+
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
+
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
+
+      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
+        if (!reg) {
+          return navigator.serviceWorker.register(swPath).catch(console.error);
+        }
+      }).catch(function () {
+        navigator.serviceWorker.register(swPath).catch(console.error);
+      });
+    })();
+  </script>
 </body>
 </html>
