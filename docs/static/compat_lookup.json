@@ -3,80 +3,80 @@
     "drug_a": "Acyclovir",
     "drug_b": "Amikacin",
     "status": "ND",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่พบข้อมูลความเข้ากันได้ที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "No reliable compatibility data found; avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   },
   "acyclovir|aminophylline": {
     "drug_a": "Acyclovir",
     "drug_b": "Aminophylline",
     "status": "ND",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่พบข้อมูลความเข้ากันได้ที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "No reliable compatibility data found; avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   },
   "acyclovir|ampicillin": {
     "drug_a": "Acyclovir",
     "drug_b": "Ampicillin",
     "status": "C",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "สามารถให้ร่วมสาย (Y-site) ใน D5W ได้ ภายใต้เงื่อนไขความเข้มข้น/ตัวทำละลายตามแหล่งอ้างอิง",
+    "summary_en": "Compatible for Y-site in D5W under recommended concentrations/conditions.",
     "reference": "Trissel's Handbook 2024"
   },
   "acyclovir|calcium gluconate": {
     "drug_a": "Acyclovir",
     "drug_b": "Calcium gluconate",
     "status": "I",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน ไม่ควรให้ร่วมสาย (Y-site) หรือใน line เดียวกัน",
+    "summary_en": "Incompatible; precipitation risk. Do not co-infuse via Y-site.",
     "reference": "Pediatric Injectable Drugs"
   },
   "acyclovir|colistin": {
     "drug_a": "Acyclovir",
     "drug_b": "Colistin",
     "status": "ND",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่พบข้อมูลความเข้ากันได้ที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "No reliable compatibility data found; avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   },
   "acyclovir|amphotericin b": {
     "drug_a": "Acyclovir",
     "drug_b": "Amphotericin B",
     "status": "I",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่เข้ากัน ไม่ควรให้ร่วมกันใน line เดียวกัน (เสี่ยงต่อความไม่เข้ากัน/ปัญหาความคงตัว)",
+    "summary_en": "Incompatible; do not administer via the same line (risk of instability/compatibility failure).",
     "reference": "Trissel's 2022"
   },
   "acyclovir|cefotaxime": {
     "drug_a": "Acyclovir",
     "drug_b": "Cefotaxime",
     "status": "ND",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่พบข้อมูลความเข้ากันได้ที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "No reliable compatibility data found; avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   },
   "acyclovir|cloxacillin": {
     "drug_a": "Acyclovir",
     "drug_b": "Cloxacillin",
     "status": "ND",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่พบข้อมูลความเข้ากันได้ที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "No reliable compatibility data found; avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   },
   "cefotaxime|cloxacillin": {
     "drug_a": "Cefotaxime",
     "drug_b": "Cloxacillin",
     "status": "ND",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่พบข้อมูลความเข้ากันได้ที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "No reliable compatibility data found; avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   },
   "cefotaxime|levofloxacin": {
     "drug_a": "Cefotaxime",
     "drug_b": "Levofloxacin",
     "status": "U",
-    "summary_th": "",
-    "summary_en": "",
+    "summary_th": "ไม่แน่ชัด (ข้อมูลไม่เพียงพอหรือสรุปไม่ชัด) แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ควรให้แยก line หรือ flush ก่อน-หลัง",
+    "summary_en": "Uncertain compatibility (insufficient/unclear evidence); avoid Y-site co-infusion. Use separate line or flush before/after.",
     "reference": "Trissel's 2022"
   }
 }
