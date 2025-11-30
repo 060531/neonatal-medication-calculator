@@ -390,10 +390,10 @@
 
       navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
         if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
+          return; // navigator.serviceWorker.register(swPath).catch(console.error);
         }
       }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
+        // navigator.serviceWorker.register(swPath).catch(console.error);
       });
     })();
   </script>
