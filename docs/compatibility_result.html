@@ -199,10 +199,7 @@
     var status = params.get("status");
     var sCodeEl = document.querySelector("[data-status-code]");
     var sLabelEl = document.querySelector("[data-status-label]");
-    
-    // PATCH: disable legacy status mapping (use compat-lookup-patch)
-    return;
-if (status && sCodeEl && sLabelEl) {
+    if (status && sCodeEl && sLabelEl) {
       var map = {
         "C": "Compatible / ผสมร่วมได้",
         "I": "Incompatible / ห้ามผสม",
