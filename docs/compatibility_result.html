@@ -182,34 +182,151 @@
   </div>
 </div>
 
-
 <script>
-  (function () {
-    var params = new URLSearchParams(window.location.search);
+(async function () {
+  const params = new URLSearchParams(window.location.search);
 
-    var drugA = params.get("drug_a") || "Drug A";
-    var drugB = params.get("drug_b") || "Drug B";
+  const rawA = (params.get("drug_a") || "Drug A").trim();
+  const rawB = (params.get("drug_b") || "Drug B").trim();
 
-    var elA = document.querySelector("[data-drug-a]");
-    var elB = document.querySelector("[data-drug-b]");
-    if (elA) elA.textContent = drugA;
-    if (elB) elB.textContent = drugB;
+  const elA = document.querySelector("[data-drug-a]");
+  const elB = document.querySelector("[data-drug-b]");
+  if (elA) elA.textContent = rawA;
+  if (elB) elB.textContent = rawB;
 
-    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
-    var status = params.get("status");
-    var sCodeEl = document.querySelector("[data-status-code]");
-    var sLabelEl = document.querySelector("[data-status-label]");
-    if (status && sCodeEl && sLabelEl) {
-      var map = {
-        "C": "Compatible / ผสมร่วมได้",
-        "I": "Incompatible / ห้ามผสม",
-        "U": "Uncertain / ไม่ชัดเจน",
-        "ND": "No data / ไม่มีข้อมูล"
-      };
-      sCodeEl.textContent = status;
-      sLabelEl.textContent = map[status] || "Unknown";
+  const sCodeEl  = document.querySelector("[data-status-code]");
+  const sLabelEl = document.querySelector("[data-status-label]");
+  const noteMain = document.querySelector("[data-note-main]");
+  const noteRef  = document.querySelector("[data-note-ref]");
+
+  const STATUS_LABEL = {
+    C:  "Compatible / ผสมร่วมได้",
+    I:  "Incompatible / ห้ามผสม",
+    U:  "Uncertain / ไม่ชัดเจน",
+    ND: "No data / ไม่มีข้อมูล"
+  };
+
+  function paint(code, main, ref) {
+    const c = (code || "ND").toUpperCase();
+    if (sCodeEl) {
+      sCodeEl.textContent = c;
+      sCodeEl.classList.remove("status-C","status-I","status-U","status-ND");
+      sCodeEl.classList.add("status-" + c);
     }
-  })();
+    if (sLabelEl) sLabelEl.textContent = STATUS_LABEL[c] || "Unknown";
+    if (noteMain) noteMain.textContent = main || "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)";
+    if (noteRef)  noteRef.textContent  = ref || "";
+  }
+
+  // canonicalize ให้ key ตรงกับฐานข้อมูลมากขึ้น
+  function canon(s) {
+    return String(s || "")
+      .replace(/\+/g, " ")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+  }
+
+  function buildIndex(data) {
+    // รองรับหลายรูปแบบ: array, {pairs:[]}, {lookup:{}}, หรือ keymap ตรงๆ
+    let arr = null;
+    if (Array.isArray(data)) arr = data;
+    else if (data && Array.isArray(data.pairs)) arr = data.pairs;
+
+    const idx = new Map();
+
+    if (arr) {
+      for (const it of arr) {
+        const a = canon(it.drug_a || it.a || it.drugA);
+        const b = canon(it.drug_b || it.b || it.drugB);
+        if (!a || !b) continue;
+        idx.set(a + "|" + b, it);
+      }
+      return { kind: "flat", idx };
+    }
+
+    if (data && data.lookup && typeof data.lookup === "object") {
+      // keymap อยู่ใน data.lookup
+      return { kind: "keymap", map: data.lookup };
+    }
+
+    if (data && typeof data === "object") {
+      return { kind: "object", obj: data };
+    }
+
+    return { kind: "none" };
+  }
+
+  function readPair(source, a, b) {
+    const A = canon(a), B = canon(b);
+
+    // 1) flat index
+    if (source.kind === "flat") {
+      return source.idx.get(A + "|" + B) || source.idx.get(B + "|" + A) || null;
+    }
+
+    // 2) keymap แบบ "a|b" -> {...}
+    if (source.kind === "keymap") {
+      const m = source.map;
+      const keys = [
+        A + "|" + B, B + "|" + A,
+        A + "||" + B, B + "||" + A,
+        A + "::" + B, B + "::" + A
+      ];
+      for (const k of keys) {
+        if (m[k]) return m[k];
+      }
+      return null;
+    }
+
+    // 3) object: อาจเป็น nested หรือ keymap ตรงๆ
+    if (source.kind === "object") {
+      const o = source.obj;
+
+      // 3.1) nested: o[A][B]
+      if (o[A] && typeof o[A] === "object" && o[A][B]) return o[A][B];
+      if (o[B] && typeof o[B] === "object" && o[B][A]) return o[B][A];
+
+      // 3.2) keymap ตรง: o["a|b"]
+      const k1 = A + "|" + B, k2 = B + "|" + A;
+      if (o[k1]) return o[k1];
+      if (o[k2]) return o[k2];
+    }
+
+    return null;
+  }
+
+  // โหลดฐานข้อมูล
+  try {
+    const url = "./static/compat_lookup.json?v=" + Date.now();
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("fetch compat_lookup.json failed: " + res.status);
+    const data = await res.json();
+
+    const src = buildIndex(data);
+    const hit = readPair(src, rawA, rawB);
+
+    if (!hit) {
+      paint("ND", "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)", "");
+      return;
+    }
+
+    const code =
+      (hit.status || hit.code || hit.result || "ND").toUpperCase();
+
+    const main =
+      hit.note_main || hit.note || hit.detail_th || hit.detail || hit.message || "";
+
+    const ref =
+      hit.note_ref || hit.ref || hit.reference || hit.source || "";
+
+    paint(code, main, ref);
+
+  } catch (e) {
+    console.error(e);
+    paint("ND", "โหลดฐานข้อมูลไม่สำเร็จ (ตรวจสอบว่า compat_lookup.json อยู่ที่ ./static/ และเปิดได้แบบ 200)", "");
+  }
+})();
 </script>
 
   </div>
@@ -219,20 +336,13 @@
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-  <script>
-    (function () {
-      if (!("serviceWorker" in navigator)) return;
+<script>
+(function () {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("./service-worker.js?v=2025-11-30-07", { scope: "./" })
+    .catch(console.error);
+})();
+</script>
 
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
-
-      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
-        }
-      }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
-      });
-    })();
-  </script>
 </body>
 </html>

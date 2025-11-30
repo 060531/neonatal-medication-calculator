@@ -203,48 +203,22 @@ th { background-color: #f2f2f2; }
   <div class="page-wrap">
     <h1>Acyclovir Dosage Information</h1>
     <!-- Display the calculated PMA and Postnatal Age -->
-    <p><strong>PMA:</strong>
-        
-            -
-        
-    </p>
-    <p><strong>Calc.:</strong>
-        
-             weeks
-        
-    </p>
-    <p><strong>Postnatal Age:</strong>
-        
-            -
-        
-    </p>
+<p><strong>PMA:</strong> <span id="pma_txt">-</span></p>
+<p><strong>Calc.:</strong> <span id="calc_txt">-</span> weeks</p>
+<p><strong>Postnatal Age:</strong> <span id="pna_txt">-</span> days</p>
 
 
    <!-- ส่วนแสดงผลลัพธ์การคำนวณ -->
 <div class="section-title">Calculated Dosage</div>
 
 <p>Birth Weight (BW):
-  <span class="highlight-dose">
-    
-  - kg
-
-  </span>
-</p>
+<span class="highlight-dose"><span id="bw_txt">-</span> kg</span>
 
 <p>Recommended Dose (20 mg/kg/dose):
-  <span class="highlight-dose">
-    
-  - mg / dose
-
-  </span>
-</p>
+<span class="highlight-dose"><span id="dose_txt">-</span> mg / dose</span>
 
 <p>Interval:
-  <span class="highlight-dose">
-    
-  </span>
-</p>
-
+<span class="highlight-dose"><span id="int_txt">-</span></span>
 
 
     <br>
@@ -460,6 +434,52 @@ th { background-color: #f2f2f2; }
     <a href="./index.html" class="back-btn">🏠 Back to Home</a>
   </div>
 
+<script>
+(function () {
+  const p = new URLSearchParams(location.search);
+
+  const pmaWeeks = parseInt(p.get("pma_weeks") || "", 10);
+  const pmaDays  = parseInt(p.get("pma_days") || "", 10);
+  const calc     = parseFloat(p.get("calc") || "");
+  const pna      = parseInt(p.get("postnatal_days") || "", 10);
+  const bw       = parseFloat(p.get("bw") || "");
+
+  // PMA text
+  const hasPMA = Number.isFinite(pmaWeeks) && Number.isFinite(pmaDays);
+  const pmaTxt = hasPMA ? `${pmaWeeks} weeks ${pmaDays} days` : "-";
+  document.getElementById("pma_txt").textContent  = pmaTxt;
+
+  // calc weeks
+  document.getElementById("calc_txt").textContent =
+    Number.isFinite(calc) ? calc.toFixed(1) : "-";
+
+  // PNA
+  document.getElementById("pna_txt").textContent =
+    Number.isFinite(pna) ? String(pna) : "-";
+
+  // BW + Dose
+  document.getElementById("bw_txt").textContent =
+    Number.isFinite(bw) ? bw.toFixed(3) : "-";
+
+  if (Number.isFinite(bw)) {
+    const dose = 20 * bw; // 20 mg/kg/dose
+    document.getElementById("dose_txt").textContent = dose.toFixed(2);
+  }
+
+  // Interval rule (ตามที่หน้าแสดง 2 กลุ่ม)
+  let interval = "-";
+  let wk = Number.isFinite(pmaWeeks) ? pmaWeeks : (Number.isFinite(calc) ? Math.floor(calc) : null);
+
+  if (wk !== null) {
+    interval = (wk < 30) ? "IV every 8 to 12 hours" : "IV every 8 hours";
+  }
+  document.getElementById("int_txt").textContent = interval;
+
+  // highlight rule line (ถ้าจะสลับไฮไลต์)
+  const rules = document.querySelectorAll(".section-title + p, p.highlight-green");
+  // (ถ้าคุณอยากให้สลับ highlight จริง บอกผม เดี๋ยวผมปรับให้แบบระบุ id ชัด ๆ)
+})();
+</script>
 
 </body>
 </html>
