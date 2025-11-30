@@ -208,23 +208,7 @@
     <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
   </footer>
 
-  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-  <script>
-    (function () {
-      if (!("serviceWorker" in navigator)) return;
-
-      var swPath = "./static/service-worker.js?v=2025-11-12-01";
-
-      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
-        if (!reg) {
-          return navigator.serviceWorker.register(swPath).catch(console.error);
-        }
-      }).catch(function () {
-        navigator.serviceWorker.register(swPath).catch(console.error);
-      });
-    })();
-  </script>
-  <script>
+<script>
 (async () => {
   const p = new URLSearchParams(location.search);
   if (p.get("reset_sw") !== "1") return;
@@ -237,11 +221,24 @@
     const keys = await caches.keys();
     await Promise.all(keys.map(k => caches.delete(k)));
   }
+
   p.delete("reset_sw");
   alert("ล้าง Service Worker + Cache แล้ว กด OK เพื่อรีโหลด");
   location.replace(location.pathname + (p.toString() ? "?" + p.toString() : ""));
 })();
 </script>
+
+  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
+<script>
+(function () {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("./service-worker.js?v=2025-11-30-03", { scope: "./" })
+    .catch(console.error);
+})();
+</script>
+
+<link rel="stylesheet" href="./static/style.css?v=2025-11-30-02">
+<script defer src="./static/app.js?v=2025-11-30-02"></script>
 
 </body>
 </html>
