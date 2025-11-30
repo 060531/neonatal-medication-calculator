@@ -184,58 +184,33 @@
 
 
 <script>
-  (async function () {
+  (function () {
     var params = new URLSearchParams(window.location.search);
+
     var drugA = params.get("drug_a") || "Drug A";
     var drugB = params.get("drug_b") || "Drug B";
 
-    // --- normalize key to match compat_lookup.json keys (lowercase) ---
-    function normDrug(s){
-      return String(s || "")
-        .replace(/\+/g, " ")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ");
-    }
+    var elA = document.querySelector("[data-drug-a]");
+    var elB = document.querySelector("[data-drug-b]");
+    if (elA) elA.textContent = drugA;
+    if (elB) elB.textContent = drugB;
 
-    var a = normDrug(drugA);
-    var b = normDrug(drugB);
-    var k1 = a + "|" + b;
-    var k2 = b + "|" + a;
-
+    // ถ้าในอนาคตใส่ status= C/I/U/ND มาด้วย ก็จะ map ให้ด้วย
+    var status = params.get("status");
     var sCodeEl = document.querySelector("[data-status-code]");
     var sLabelEl = document.querySelector("[data-status-label]");
-
-    var map = { C:"Compatible", I:"Incompatible", U:"Uncertain", ND:"Unknown" };
-
-    // 1) ถ้ามี status ส่งมาใน URL ให้ใช้ก่อน (รองรับอนาคต)
-    var status = params.get("status");
-    if (status) {
-      status = String(status).toUpperCase();
-      if (sCodeEl) sCodeEl.textContent = status;
-      if (sLabelEl) sLabelEl.textContent = map[status] || "Unknown";
-      return;
-    }
-
-    // 2) ถ้าไม่มี status ให้ไปอ่าน compat_lookup.json
-    try{
-      var res = await fetch("./static/compat_lookup.json?x=" + Date.now(), { cache: "no-store" });
-      var lookup = await res.json();
-      var row = lookup[k1] || lookup[k2];
-
-      var code = (row && row.status ? String(row.status).toUpperCase() : "ND");
-      if (sCodeEl) sCodeEl.textContent = code;
-      if (sLabelEl) sLabelEl.textContent = map[code] || "Unknown";
-
-      // ถ้าคุณมีช่องแสดง reference/note ในหน้า สามารถเติมเพิ่มได้ตรงนี้
-      // เช่น document.querySelector("[data-ref]").textContent = row?.reference || "";
-    }catch(e){
-      if (sCodeEl) sCodeEl.textContent = "ND";
-      if (sLabelEl) sLabelEl.textContent = "Unknown";
+    if (status && sCodeEl && sLabelEl) {
+      var map = {
+        "C": "Compatible / ผสมร่วมได้",
+        "I": "Incompatible / ห้ามผสม",
+        "U": "Uncertain / ไม่ชัดเจน",
+        "ND": "No data / ไม่มีข้อมูล"
+      };
+      sCodeEl.textContent = status;
+      sLabelEl.textContent = map[status] || "Unknown";
     }
   })();
 </script>
-
 
   </div>
 
