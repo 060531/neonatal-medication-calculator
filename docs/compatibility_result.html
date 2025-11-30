@@ -184,7 +184,6 @@
 
 
 <script>
-<<<<<<< Updated upstream
   (function () {
     var params = new URLSearchParams(window.location.search);
 
@@ -235,81 +234,5 @@
       });
     })();
   </script>
-=======
-(() => {
-  const qs = new URLSearchParams(location.search);
-
-  const rawA = qs.get("drug_a") || "";
-  const rawB = qs.get("drug_b") || "";
-
-  const elA = document.querySelector("[data-drug-a]");
-  const elB = document.querySelector("[data-drug-b]");
-  if (elA) elA.textContent = rawA || "Drug A";
-  if (elB) elB.textContent = rawB || "Drug B";
-
-  function canon(s) {
-    return String(s || "")
-      .normalize("NFKC")
-      .replace(/[’‘]/g, "'")
-      .replace(/\s*\/\s*/g, " / ")
-      .replace(/\s*\+\s*/g, " + ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-  }
-
-  function paint(code, note, source) {
-    const sCodeEl = document.querySelector("[data-status-code]");
-    const sLabelEl = document.querySelector("[data-status-label]");
-    const noteMain = document.querySelector("[data-note-main]");
-    const noteRef  = document.querySelector("[data-note-ref]");
-
-    const map = {
-      C: "Compatible / ผสมร่วมได้",
-      I: "Incompatible / ห้ามผสม",
-      U: "Uncertain / ไม่ชัดเจน",
-      ND: "No data / ไม่มีข้อมูล"
-    };
-
-    if (sCodeEl) sCodeEl.textContent = code || "ND";
-    if (sLabelEl) sLabelEl.textContent = map[code] || "Unknown";
-    if (noteMain) noteMain.textContent = note || "ยังไม่พบรายละเอียดคู่นี้ในระบบ";
-    if (noteRef) noteRef.textContent = source ? `Source: ${source}` : "";
-  }
-
-  async function run() {
-    // ✅ แก้ปัญหา cache: บังคับไม่ใช้ cache
-    const url = `./static/compat_lookup.json?ts=${Date.now()}`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("fetch compat_lookup.json failed: " + res.status);
-
-    const db = await res.json();
-
-    const a = canon(rawA);
-    const b = canon(rawB);
-    const k1 = `${a}|${b}`;
-    const k2 = `${b}|${a}`;
-
-    const hit = db[k1] || db[k2];
-
-    if (!hit) {
-      paint("ND", "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)", "");
-      return;
-    }
-    paint(hit.status || "ND", hit.note || "", hit.source || "");
-  }
-
-  run().catch(err => {
-    console.error(err);
-    paint("ND", "โหลดฐานข้อมูลไม่สำเร็จ (ตรวจว่า ./static/compat_lookup.json เปิดได้ 200)", "");
-  });
-})();
-</script>
-
-<footer>
-  <p>Developed by Sukhontha Boonsookchan | <span data-build></span></p>
-</footer>
-
->>>>>>> Stashed changes
 </body>
 </html>
