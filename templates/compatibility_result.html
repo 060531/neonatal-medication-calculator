@@ -3,24 +3,38 @@
 
 {% block extra_head %}
 <style>
-  .compat-wrap{max-width:920px;margin:0 auto;padding:16px 12px 160px;}
+  /* ขยายพื้นที่รวม */
+  .compat-wrap{
+    max-width: 1100px;              /* ✅ กว้างขึ้น */
+    margin: 0 auto;
+    padding: 18px 12px 170px;
+  }
+
+  /* ✅ ขยายกรอบขาวให้ใหญ่ขึ้น และสูงขั้นต่ำ */
   .compat-card{
-    background: rgba(255,255,255,.88);
+    background: rgba(255,255,255,.92);
     backdrop-filter: blur(6px);
     border: 1px solid rgba(15,23,42,.12);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 10px 28px rgba(15,23,42,.18);
+    border-radius: 22px;
+    padding: 18px 18px 20px;
+    box-shadow: 0 12px 34px rgba(15,23,42,.20);
     text-align:left;
+
+    min-height: 320px;              /* ✅ สูงขั้นต่ำ */
   }
-  .compat-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-  .compat-title{font-weight:800;font-size:18px;line-height:1.2}
+
+  .compat-top{
+    display:flex; gap:12px; flex-wrap:wrap;
+    align-items:center; justify-content:space-between
+  }
+  .compat-title{font-weight:900;font-size:20px;line-height:1.25}
   .compat-sub{font-size:13px;opacity:.85}
+
   .pill{
     display:inline-flex;align-items:center;gap:8px;
-    padding:8px 12px;border-radius:999px;font-weight:800;
+    padding:9px 14px;border-radius:999px;font-weight:900;
     border:1px solid rgba(15,23,42,.14);
-    background: rgba(255,255,255,.75);
+    background: rgba(255,255,255,.86);
     user-select:none;
   }
   .pill .dot{width:10px;height:10px;border-radius:50%;}
@@ -30,10 +44,24 @@
   .pill.nd  .dot{background:#64748b;}
 
   .hr{border:none;border-top:1px solid rgba(15,23,42,.12);margin:14px 0}
-  .note-box{white-space:pre-wrap;line-height:1.55;font-size:14px}
+
+  .note-box{
+    white-space:pre-wrap;
+    line-height:1.65;
+    font-size:15px;                 /* ✅ อ่านง่ายขึ้น */
+    min-height: 120px;              /* ✅ พื้นที่ผลลัพธ์สูงขึ้น */
+  }
+
+  .meta{
+    margin-top:10px;
+    font-size:12px;
+    opacity:.78;
+    line-height:1.45;
+  }
+
   .hint{
     margin-top:12px;
-    background: rgba(255,255,255,.78);
+    background: rgba(255,255,255,.80);
     border:1px dashed rgba(15,23,42,.25);
     border-radius: 14px;
     padding: 12px;
@@ -41,19 +69,17 @@
     font-size:14px;
   }
 
-  /* ปุ่มด้านล่าง: ให้ “แสดงเสมอ” ไม่ผูกกับ JS */
   .btn-row{
-    margin-top:14px;
+    margin-top:16px;
     display:flex;
     gap:10px;
     justify-content:center;
     flex-wrap:wrap;
   }
   .btn{
-    border:0;
-    border-radius:999px;
+    border:0;border-radius:999px;
     padding:10px 16px;
-    font-weight:800;
+    font-weight:900;
     cursor:pointer;
     text-decoration:none;
     display:inline-flex;
@@ -85,11 +111,11 @@
 
     <div class="hr"></div>
 
-    <div style="font-weight:800;margin-bottom:6px">Note</div>
+    <div style="font-weight:900;margin-bottom:6px">Note</div>
     <div class="note-box" id="noteText">กำลังโหลดข้อมูล…</div>
-    <div id="srcText" style="margin-top:10px;font-size:12px;opacity:.75"></div>
 
-    <!-- ✅ ปุ่มต้องอยู่ใน HTML ตรงนี้เลย: ต่อให้ JS พัง ปุ่มก็ไม่หาย -->
+    <div class="meta" id="metaText"></div>
+
     <div class="btn-row">
       <a class="btn primary" href="./compatibility.html">↻ New check</a>
       <a class="btn ghost" href="./index.html">🏠 Home</a>
@@ -113,7 +139,7 @@
   const pillEl  = $("statusPill");
   const statusEl= $("statusText");
   const noteEl  = $("noteText");
-  const srcEl   = $("srcText");
+  const metaEl  = $("metaText");
   const noQuery = $("noQueryHint");
 
   const setPill = (kind, text) => {
@@ -122,17 +148,23 @@
     statusEl.textContent = text;
   };
 
-  const norm = (s) => (s || "").trim();
-  const normKey = (a,b) => `${norm(a)}||${norm(b)}`.toLowerCase();
+  // ✅ ทำ normalization ให้โอกาส match สูงขึ้น
+  const norm = (s) => (s || "")
+    .toString()
+    .trim()
+    .replace(/\s+/g, " ");
+
+  const keyLower = (a,b) => `${norm(a)}||${norm(b)}`.toLowerCase();
+  const keyLowerAlt = (a,b) => `${norm(a)}|${norm(b)}`.toLowerCase(); // กันกรณี build ใช้ |
 
   async function fetchFirst(urls){
     for (const url of urls){
       try{
-        // ✅ กัน cache
-        const r = await fetch(url + (url.includes("?") ? "&" : "?") + "v=" + Date.now(), {cache:"no-store"});
+        const bust = (url.includes("?") ? "&" : "?") + "v=" + Date.now();
+        const r = await fetch(url + bust, {cache:"no-store"});
         if (!r.ok) continue;
         return {data: await r.json(), used:url};
-      }catch(e){ /* try next */ }
+      }catch(e){ }
     }
     return null;
   }
@@ -140,37 +172,55 @@
   function extractRecord(data, a, b){
     if (!data) return null;
 
-    // mapping object { "a||b": {...} }
+    // 1) mapping object
     if (typeof data === "object" && !Array.isArray(data)) {
-      const k1 = normKey(a,b);
-      const k2 = normKey(b,a);
-      return data[k1] || data[k2] || null;
+      const k1 = keyLower(a,b);
+      const k2 = keyLower(b,a);
+      const k1b= keyLowerAlt(a,b);
+      const k2b= keyLowerAlt(b,a);
+      return data[k1] || data[k2] || data[k1b] || data[k2b] || null;
     }
 
-    // array [{drug_a, drug_b, status, note...}]
+    // 2) array records
     if (Array.isArray(data)) {
       const aL = norm(a).toLowerCase();
       const bL = norm(b).toLowerCase();
       return data.find(x => {
-        const da = (x.drug_a || x.a || "").toLowerCase();
-        const db = (x.drug_b || x.b || "").toLowerCase();
+        const da = norm(x.drug_a || x.a || "").toLowerCase();
+        const db = norm(x.drug_b || x.b || "").toLowerCase();
         return (da===aL && db===bL) || (da===bL && db===aL);
       }) || null;
     }
+
     return null;
   }
 
   function interpretStatus(rec){
-    const raw = (rec?.status ?? rec?.result ?? rec?.code ?? "").toString().toLowerCase();
-    if (raw.includes("compatible") || raw === "c" || raw === "1") return {kind:"ok", text:"Compatible"};
-    if (raw.includes("incompatible") || raw === "i" || raw === "0") return {kind:"bad", text:"Incompatible"};
-    if (raw.includes("uncertain") || raw.includes("caution") || raw === "u" || raw === "2") return {kind:"warn", text:"Uncertain"};
-    if (raw.includes("unknown") || raw === "unknown" || raw === "3") return {kind:"nd", text:"Unknown"};
+    const raw = (rec?.status ?? rec?.result ?? rec?.code ?? "").toString().toUpperCase();
+
+    // รองรับทั้ง C/I/U/ND และข้อความเต็ม
+    if (raw === "C" || raw.includes("COMPAT")) return {kind:"ok", text:"Compatible"};
+    if (raw === "I" || raw.includes("INCOMPAT")) return {kind:"bad", text:"Incompatible"};
+    if (raw === "U" || raw.includes("UNCERTAIN") || raw.includes("CAUTION")) return {kind:"warn", text:"Uncertain"};
+    if (raw === "ND" || raw.includes("NO DATA") || raw.includes("UNKNOWN")) return {kind:"nd", text:"ND"};
     return {kind:"nd", text:"ND"};
   }
 
   function pickNote(rec){
-    return rec?.note_th || rec?.note || rec?.detail || rec?.details || "";
+    // ✅ รองรับ field จาก seed_compatibility.json
+    return (
+      rec?.summary_th ||
+      rec?.note_th ||
+      rec?.summary_en ||
+      rec?.note ||
+      rec?.detail ||
+      rec?.details ||
+      ""
+    );
+  }
+
+  function pickRef(rec){
+    return rec?.reference || rec?.ref || rec?.source || "";
   }
 
   async function main(){
@@ -184,20 +234,20 @@
     if (!norm(drugA) || !norm(drugB)) {
       setPill("nd","ND");
       noteEl.textContent = "กรุณาเลือก Drug A และ Drug B จากหน้าก่อนหน้า";
+      metaEl.textContent = "No query params";
       noQuery.style.display = "block";
-      srcEl.textContent = "No query params";
       return;
     }
 
-    // ✅ Flask จะ render ค่านี้เป็น /static/compat_lookup.json
+    // ✅ ใช้ได้ทั้ง Flask และ Pages
     const flaskUrl = "{{ url_for('static', filename='compat_lookup.json') }}";
-    // ✅ Pages ใช้ relative
     const pagesUrl = "./static/compat_lookup.json";
 
     const candidates = [
       pagesUrl,
       flaskUrl,
-      "/static/compat_lookup.json"
+      "/static/compat_lookup.json",
+      "./static/compat_lookup.min.json",
     ].filter(Boolean);
 
     const got = await fetchFirst(candidates);
@@ -206,9 +256,9 @@
       setPill("nd","ND");
       noteEl.textContent =
         "ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json)\n" +
-        "• GitHub Pages: ตรวจว่าไฟล์อยู่ที่ docs/static/compat_lookup.json และถูก deploy แล้ว\n" +
+        "• GitHub Pages: ตรวจว่าไฟล์อยู่ที่ docs/static/compat_lookup.json และ deploy แล้ว\n" +
         "• Flask: ตรวจว่า /static/compat_lookup.json เข้าถึงได้";
-      srcEl.textContent = "Data source: not available";
+      metaEl.textContent = "Data source: not available";
       return;
     }
 
@@ -219,23 +269,29 @@
       setPill("nd","ND");
       noteEl.textContent =
         "ไม่พบคู่ยาในฐานข้อมูล\n" +
-        "ข้อเสนอเชิงความปลอดภัย: ถือเป็น 'ไม่มีข้อมูล' และหลีกเลี่ยงการผสม/ต่อ Y-site จนกว่าจะมีหลักฐาน";
-      srcEl.textContent = "Data source: " + used + " (no match)";
+        "ข้อเสนอเชิงความปลอดภัย: ถือเป็น 'ไม่มีข้อมูล (ND)' และหลีกเลี่ยงการให้ร่วมสาย (Y-site) จนกว่าจะมีหลักฐาน";
+      metaEl.textContent =
+        "Data source: " + used + " | lookup_key=" + keyLower(drugA,drugB);
       return;
     }
 
     const st = interpretStatus(rec);
     setPill(st.kind, st.text);
-    noteEl.textContent = pickNote(rec) || "—";
-    srcEl.textContent = "Data source: " + used;
+
+    const note = pickNote(rec);
+    noteEl.textContent = note || "—";
+
+    const ref = pickRef(rec);
+    metaEl.textContent = "Reference: " + (ref || "—") + " | Source: " + used;
   }
 
   main().catch(err => {
     console.error(err);
     setPill("nd","ND");
     noteEl.textContent = "เกิดข้อผิดพลาดระหว่างประมวลผล กรุณารีเฟรช/ล้างแคช แล้วลองใหม่";
-    srcEl.textContent = "Runtime error (see console)";
+    metaEl.textContent = "Runtime error (see console)";
   });
+
 })();
 </script>
 {% endblock %}
