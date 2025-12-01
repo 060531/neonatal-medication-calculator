@@ -94,7 +94,7 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="">
+                 value="0">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -104,21 +104,52 @@
 
     <!-- กล่องแสดงผลรอบที่ 1 (แสดงวิธีละเอียด) -->
     <div id="result"
-         class="result hidden">
+         class="result ">
+      
+        
+        
+        
+        
+        <p class="order-line"><b>Order:</b> Cefotaxime 0.00 mg</p>
+
+        <div class="left-align muted">
+          <p><b>Step 1: เตรียมยา (Reconstitution)</b></p>
+          <p>- ผงยาในขวด = <b>1000 mg</b></p>
+          <p>- เติม Sterile water <b>9.5 mL</b> → ได้สารละลายรวมประมาณ <b>10 mL</b></p>
+          <p>- ความเข้มข้นหลังเตรียม: 
+            <span class="mono">1000 mg ÷ 10 mL = 100 mg/mL</span>
+          </p>
+
+          <p style="margin-top:10px;"><b>Step 2: คำนวณปริมาตรจากขนาดยาที่ต้องการ</b></p>
+          <p>- ต้องการขนาดยา (Dose) = <b>0.00 mg</b></p>
+          <p>- ใช้สูตร:
+            <span class="mono">ปริมาตรที่ต้องการ (mL) = ขนาดยา (mg) ÷ ความเข้มข้น (mg/mL)</span>
+          </p>
+          <p>
+            - แทนค่า:
+            <span class="mono">0.00 ÷ 100</span>
+            = <span class="pill"></span> mL
+          </p>
+
+          <p style="margin-top:10px;">
+            <b>สรุป:</b> ต้องดึงยาออกจากขวดปริมาตร
+            <span class="pill"></span> mL
+          </p>
+        </div>
       
     </div>
 
     <!-- ฟอร์มรอบที่ 2: เลือกเงื่อนไขการคูณ -->
     <div class="calc-box
-                hidden"
+                "
          id="step2-box">
       <form action="./cefotaxime.html" method="post" class="calc-row">
         <input type="hidden" name="step" value="condition">
-        <input type="hidden" name="dose" value="">
+        <input type="hidden" name="dose" value="0">
         <input type="hidden" name="result_ml" value="">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required>
-          <option value="" disabled selected>— เลือก —</option>
+          <option value="" disabled >— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 mL)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 mL)</option>
         </select>
@@ -126,6 +157,52 @@
       </form>
     </div>
 
+    
+      
+      
+        
+        
+        
+      
+      <div class="result">
+        <p class="order-line">
+          <b>ผลลัพธ์หลังจากคูณ  เท่า = 0.00 mL</b>
+        </p>
+        <div class="left-align muted">
+          <p><b>Step 3: คูณปริมาตรยาตามเงื่อนไข</b></p>
+          <p>- ปริมาตรยาจากรอบแรก = <span class="pill"></span> mL</p>
+          <p>- เงื่อนไขที่เลือก = คูณ <b></b> เท่า</p>
+          <p>
+            - แทนค่า:
+            <span class="mono"> × </span>
+            = <span class="pill">0.00</span> mL
+          </p>
+
+          <p style="margin-top:10px;"><b>Step 4: เปรียบเทียบกับปริมาตรรวมที่ต้องการ</b></p>
+          <p>- เป้าหมายปริมาตรรวม = <b>6.00 mL</b></p>
+
+          
+            
+            <p>
+              - ต้องเติมสารละลายเพิ่ม =
+              <span class="mono">6.00 − 0.00</span>
+              = <span class="pill">6.00</span> mL
+            </p>
+            <p>
+              → ผสม “ยาที่เตรียมได้ (0.00 mL)”
+              + “สารละลายเจือจาง 6.00 mL”
+              รวมเป็น <b>6.00 mL</b>
+            </p>
+          
+
+          <p style="margin-top:10px;background:#f1b81b;padding:5px;border-radius:5px;">
+            <b>
+              ปริมาณยาที่บริหารเข้าทารก = 1 mL
+              → ตั้งอัตรา ~2 mL/hr (≈ 30–60 mins)
+            </b>
+          </p>
+        </div>
+      </div>
     
 
     
@@ -167,7 +244,7 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <div class="float-actions">

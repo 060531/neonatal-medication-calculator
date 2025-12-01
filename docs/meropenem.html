@@ -169,7 +169,7 @@
           <label for="dose">กรอกขนาดยา (mg):</label>
           <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)"
                  required step="0.01"
-                 value="">
+                 value="0">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -180,27 +180,38 @@
     <!-- ผลลัพธ์รอบแรก -->
     <div id="dose-result"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        
+        <p class="order-line"><b>Order:</b> Meropenem 0.00 mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังผสม:</b> เติม Sterile water 19 ml → ได้สารละลาย 20 ml ⇒ <b>50 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 50</span></p>
+          <p>แทนค่า: <span class="mono">0.00 ÷ 50</span> =
+            <span class="pill">0.0 ml</span></p>
+          <p><b>ดังนั้น:</b> 0.00 mg =
+            <span class="pill">0.0 ml</span></p>
+        </div>
       
     </div>
 
     <!-- รอบที่ 2: เลือกเงื่อนไข -->
     <div id="meropenem-cond-box"
-         class="calc-box hidden">
+         class="calc-box ">
       <form id="meropenem-mult-form"
             class="calc-row"
             action="./meropenem.html"
             method="post">
         <input type="hidden" name="action" value="condition" />
         <input type="hidden" id="dose_hidden" name="dose_hidden"
-               value="">
+               value="0">
         <input type="hidden" id="result_ml_hidden" name="result_ml_hidden"
                value="">
 
         <div class="form-row">
           <label for="multiplication">เลือกเงื่อนไข:</label>
           <select id="multiplication" name="multiplication" required>
-            <option value="" disabled selected>— เลือก —</option>
+            <option value="" disabled >— เลือก —</option>
             <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
             <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
           </select>
@@ -212,7 +223,15 @@
     <!-- ผลลัพธ์รอบที่ 2 -->
     <div id="mult-result"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        
+        
+        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ  เท่า = 0.00 ml</b></p>
+        <div class="left-align">
+          
+          
+        </div>
       
     </div>
 
@@ -261,7 +280,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <div class="float-actions">

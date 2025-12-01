@@ -192,7 +192,7 @@
           <input type="number"
                  id="dose" name="dose"
                  placeholder="ขนาดยา (mg)" required step="0.01"
-                 value="">
+                 value="0">
         </div>
 
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -202,24 +202,37 @@
     
 
     
+      <div class="result">
+        <p class="order-line"><b>Order:</b> Unasyn 0.00 mg</p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิงหลังเตรียม:</b>
+            เติม Sterile water 6.4 ml → ได้สารละลาย 8 ml ⇒ <b>375 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b>
+            <span class="mono">ml = mg × 8 ÷ 3000</span></p>
+          <p>แทนค่า:
+            <span class="mono">0.00 × 8 ÷ 3000</span> =
+            <span class="pill">0.0 ml</span></p>
+          <p><b>ดังนั้น:</b> 0.00 mg =
+            <span class="pill">0.0 ml</span></p>
+        </div>
+      </div>
+    
 
     <!-- รอบที่ 2: เลือกเงื่อนไข (ซ่อนก่อน แล้วค่อยโชว์หลังคำนวณรอบแรก) -->
     <div class="calc-box"
          id="unasyn-step2-box"
-         
-           style="display:none; opacity:.55; pointer-events:none"
          >
       <form id="unasyn-cond-form"
             action="./unasyn.html"
             method="post"
             class="calc-row">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="">
+        <input type="hidden" name="dose_hidden" value="0">
         <input type="hidden" name="result_ml_hidden" value="">
 
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required>
-          <option value="" disabled selected>— เลือก —</option>
+          <option value="" disabled >— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
         </select>
@@ -228,6 +241,18 @@
       </form>
     </div>
 
+    
+      
+      <div class="result">
+        <p class="order-line">
+          <b>ผลลัพธ์หลังจากคูณ  เท่า =  ml</b>
+        </p>
+        <div class="left-align">
+          
+
+          
+        </div>
+      </div>
     
 
     
@@ -246,7 +271,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <div class="float-actions">

@@ -420,9 +420,24 @@
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
+
+      var swPath = "./static/service-worker.js?v=2025-11-12-01";
+
+      navigator.serviceWorker.getRegistration(swPath).then(function (reg) {
+        if (!reg) {
+          return navigator.serviceWorker.register(swPath).catch(console.error);
+        }
+      }).catch(function () {
+        navigator.serviceWorker.register(swPath).catch(console.error);
+      });
+    })();
+  </script>
 </body>
 </html>

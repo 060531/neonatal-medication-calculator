@@ -195,7 +195,7 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="">
+                 value="0">
         </div>
 
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -207,20 +207,35 @@
     <!-- ผลลัพธ์รอบที่ 1: ปริมาณยา (5 mg/ml) -->
     <div id="dose-result-1"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        <p class="order-line"><b>Order:</b> Remdesivir 0.00 mg</p>
+        <div class="left-align muted">
+          <p><b>ขั้นตอนที่ 1 — คำนวณปริมาณยา (หลังละลาย 100 mg → 20 ml = 5 mg/ml):</b></p>
+          <p>สูตร: <span class="mono">ml = (mg × 20) ÷ 100</span></p>
+          <p>แทนค่า: <span class="mono">0.00 × 20 ÷ 100</span>
+             = <span class="pill"> ml</span></p>
+        </div>
       
     </div>
 
     <!-- ผลลัพธ์รอบที่ 1: ปริมาณสารละลาย ≤ 1.25 mg/ml -->
     <div id="dose-result-2"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        <div class="left-align muted">
+          <p><b>ขั้นตอนที่ 2 — คำนวณปริมาณสารละลาย (ต้องไม่เกิน 1.25 mg/ml):</b></p>
+          <p>สูตร: <span class="mono">ml = mg ÷ 1.25</span></p>
+          <p>แทนค่า: <span class="mono">0.00 ÷ 1.25</span>
+             = <span class="pill"> ml</span></p>
+        </div>
       
     </div>
 
     <!-- รอบที่ 2: เลือกเงื่อนไขคูณ (เปิดใช้เมื่อมีผลรอบแรก) -->
     <div id="remde-cond-box"
-         class="calc-box hidden">
+         class="calc-box ">
       <form id="remde-mult-form"
             class="calc-row"
             action="./remdesivir.html"
@@ -228,7 +243,7 @@
         <input type="hidden" name="action" value="condition" />
 
         <input type="hidden" id="dose_hidden" name="dose_hidden"
-               value="">
+               value="0">
         <input type="hidden" id="result_ml_1_hidden" name="result_ml_1_hidden"
                value="">
         <input type="hidden" id="result_ml_2_hidden" name="result_ml_2_hidden"
@@ -236,7 +251,7 @@
 
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select id="multiplication" name="multiplication" required>
-          <option value="" disabled selected>— เลือก —</option>
+          <option value="" disabled >— เลือก —</option>
           <option value="1.5" >1.5 เท่า</option>
           <option value="2"   >2 เท่า</option>
           <option value="2.5" >2.5 เท่า</option>
@@ -254,7 +269,27 @@
     <!-- ผลลัพธ์รอบที่ 2 -->
     <div id="mult-result"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        
+        <p class="order-line"><b>ผลลัพธ์หลังคูณ  เท่า</b></p>
+        <div class="left-align">
+          <p> ×  ml
+             = <b>0.00</b> ml
+             <span class="muted">(จากขั้นตอนที่ 1)</span></p>
+          <p> ×  ml
+             = <b>0.00</b> ml
+             <span class="muted">(จากขั้นตอนที่ 2)</span></p>
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+          <p><b>ปริมาณยา:</b>
+             <span class="pill">0.00 ml</span></p>
+          <p><b>ปริมาณสารละลาย:</b>
+             <span class="pill">0.00 ml</span>
+             <span class="muted">( 0.00 − 0.00 )</span></p>
+          <p style="background:#fde047; padding:6px; border-radius:6px;">
+            <b>ปริมาณยาที่บริหารเข้าทารก =  ml → drip in 2 hr.</b>
+          </p>
+        </div>
       
     </div>
 
@@ -295,7 +330,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <div class="float-actions">

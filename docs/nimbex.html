@@ -191,7 +191,7 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="">
+                 value="0">
         </div>
 
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -207,7 +207,34 @@
     <!-- กล่องผลลัพธ์ -->
     <div id="result-box"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        
+        
+        <p class="order-line">
+          <b>Order:</b> Cisatracurium (Nimbex) 0.00 mg
+        </p>
+        <div class="left-align muted">
+          <p><b>ความแรงอ้างอิง:</b> 10 mg / 5 ml ⇒ <b>2 mg/ml</b></p>
+          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = mg ÷ 2</span></p>
+          <p>
+            แทนค่า:
+            <span class="mono">
+              0.00 ÷ 2
+              = <span class="pill">0.0 ml</span>
+            </span>
+          </p>
+
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+
+          <p><b>ทำแบบ Small dose (Up to 10 ml):</b></p>
+          <p>
+            เติม D5W / 0.9% NSS ให้มีปริมาตรรวม 10 ml<br>
+            ตัวทำละลายที่ต้องเติม =
+            <span class="mono">10 − 0.0</span>
+            = <span class="pill">10.0 ml</span>
+          </p>
+        </div>
       
     </div>
 
@@ -243,7 +270,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <div class="float-actions">

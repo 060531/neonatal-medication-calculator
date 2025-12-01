@@ -142,7 +142,7 @@
           placeholder="ขนาดยา (mg)"
           required
           step="0.01"
-          value="">
+          value="0.00">
       </div>
       <div class="btn-wrap">
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -154,7 +154,17 @@
 
     <!-- กล่องผลลัพธ์ฝั่ง Flask (Render) -->
     <div id="result"
-         class="result hidden">
+         class="result ">
+      
+        <p class="order-line">
+          <b>Order :</b> Aminophylline 0.0 mg
+        </p>
+        <p><b>วิธีเตรียม :</b> 5% Dextrose in water 60 u + ยา 40 u (10 mg)</p>
+        <p>
+          <b>ขนาดยาที่ใช้ :</b>
+          0.0 mg =
+          <span class="pill-yellow">0 u</span>
+        </p>
       
     </div>
 
@@ -191,7 +201,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update </p>
   </footer>
 
   <div class="float-actions">

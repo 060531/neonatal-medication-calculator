@@ -186,14 +186,25 @@
     <!-- ผลลัพธ์รอบแรก (Flask / GitHub จะใช้ box เดียวกัน) -->
     <div id="result"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        <p class="order-line"><b>Order:</b> Dobutamine  mg</p>
+        <div class="left-align">
+          <p><b>คำนวณจากสต็อก 250 mg/5 ml (50 mg/ml):</b></p>
+          <p>ใช้สูตร <span class="mono">ml = mg ÷ 50</span> ⇒
+             <span class="mono"> ÷ 50 =  ml</span></p>
+          <p><b>ปริมาตรรวมเป้าหมาย:</b>  ml</p>
+          <p><b>ส่วนผสมรอบแรก:</b> ยา
+             <span class="pill"> ml</span> +
+             ตัวทำละลาย <span class="pill"> ml</span></p>
+        </div>
       
     </div>
 
     <!-- รอบ 2: เลือกตัวคูณ (Flask จะโพสต์, GitHub ใช้ JS ดัก) -->
     <div id="multiplier-container"
          class="calc-box"
-         style="display:none; opacity:.55; pointer-events:none">
+         >
       <form id="multiplier-form"
             class="calc-row"
             action="./dobutamine.html"
@@ -224,7 +235,18 @@
     <!-- ผลลัพธ์รอบสอง -->
     <div id="final-result"
          class="result"
-         style="display:none">
+         style="display:block">
+      
+        <p><b>ผลลัพธ์หลังคูณ  เท่า</b></p>
+        <div class="left-align">
+          <p>ยา: <span class="pill"> ml</span> × 
+             = <b> ml</b></p>
+          <p>ปริมาตรรวม: <span class="pill"> ml</span> × 
+             = <b> ml</b></p>
+          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:8px 0">
+          <p><b>ดังนั้น ตัวทำละลาย:</b>  − 
+             = <b> ml</b></p>
+        </div>
       
     </div>
 
@@ -239,7 +261,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <div class="float-actions">

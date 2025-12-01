@@ -158,7 +158,7 @@
                name="dose"
                placeholder="ขนาดยา (ยูนิต)"
                required
-               value="">
+               value="0">
         <button type="submit" class="btn btn-blue" name="calculate_dose">คำนวณ</button>
       </form>
     </div>
@@ -168,7 +168,43 @@
     <!-- กล่องผลลัพธ์ (Flask mode ใช้ Jinja, GitHub mode JS เขียนทับ) -->
     <div id="insulin-result"
          class="result"
-         style="display:none">
+         >
+      
+        <p class="order-line"><b>Order:</b> Insulin 0.00 units</p>
+
+        <div class="left-align" style="margin-top:8px">
+          <p class="item section-head">
+            แนวทางเตรียมแบบ Small dose (ทำให้ <span class="mono">1 unit = 1 ml</span>)
+          </p>
+          <ol class="muted" style="margin-top:4px">
+            <li>
+              <b>ขั้นตอนที่ 1:</b>
+              ดูดยา <b>10 units (0.1 ml)</b> จากขวดความแรง <b>100 U/ml</b> และเจือจางด้วย
+              <b>Sterile water</b> จนครบ <b>1 ml</b> → ได้ความแรง <b>10 U/ml</b>.
+            </li>
+            <li>
+              <b>ขั้นตอนที่ 2:</b>
+              ดันออกให้เหลือปริมาตร <b>0.1 ml</b> ซึ่งมีตัวยา <b>1 unit</b>
+              แล้วเติม <b>Sterile water</b> จนครบ <b>1 ml</b> →
+              ได้ความแรง <b><span class="pill-red">1 U/ml</span></b>.
+            </li>
+          </ol>
+
+          <p class="item section-head">คำนวณปริมาตรให้ยา</p>
+          <ul class="muted">
+            <li>
+              <b>Small dose (1 U/ml):</b>
+              <span class="mono">ml = units ÷ 1</span> →
+              <span class="pill">0.0</span> ml
+              <i>(แนะนำในทารก/ขนาดเล็กเพื่อลด error)</i>
+            </li>
+            <li>
+              <b>หน่วยยูนิต:</b>
+              0.00 units =
+              <span class="pill-red">0.0</span> u
+            </li>
+          </ul>
+        </div>
       
     </div>
 
@@ -192,7 +228,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <div class="float-actions">

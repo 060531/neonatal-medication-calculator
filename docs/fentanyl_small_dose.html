@@ -170,7 +170,7 @@
     <div class="calc-box">
       <form id="fentanyl-smalldose-form"
             class="calc-row"
-            action="./fentanyl_small_dose_route.html"
+            action="./fentanyl_small_dose.html"
             method="post">
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
@@ -178,7 +178,7 @@
           <input type="number" id="dose" name="dose"
                  placeholder="ขนาดยา (mcg)"
                  required step="0.01"
-                 value="">
+                 value="0">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -189,7 +189,22 @@
     <!-- บล็อกผลลัพธ์ -->
     <div id="fentanyl-smalldose-result"
          class="result"
-         style="display:none">
+         >
+      
+        <p class="order-line">
+          <b>Order :</b> Fentanyl 0.00 mcg
+        </p>
+
+        <div class="left-align muted" style="margin-top:8px">
+          <p>
+            <b>วิธีเตรียม :</b>
+            5% dextrose in water 80 u + ยา 10 mcg (20 u)
+          </p>
+          <p>
+            ขนาดยา : 0.00 mcg =
+            <span class="pill-red">0</span> u
+          </p>
+        </div>
       
     </div>
 
@@ -206,7 +221,7 @@
 
   <!-- Footer -->
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-11-15</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-01 18:10</p>
   </footer>
 
   <!-- ปุ่มลอย -->
