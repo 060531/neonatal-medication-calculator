@@ -143,7 +143,7 @@
     <span>Drug Compatibility</span>
   </h1>
 
-  <div class="compat-card compat-card-wide" id="compatCard">
+  <div class="compat-card compat-card-wide">
     <h2 class="compat-subtitle">Result analyze</h2>
 
     <!-- ชื่อยา A / B -->
@@ -153,18 +153,18 @@
       <span class="compat-pill" data-drug-b>Drug B</span>
     </div>
 
-    <!-- สถานะ -->
+    <!-- สถานะหลัก (ค่าเริ่มต้น ND / Unknown) -->
     <div class="compat-status-line">
-      <span class="compat-status-pill" data-status-code data-status="ND">ND</span>
+      <span class="compat-status-pill" data-status-code>ND</span>
       <span class="compat-status-text" data-status-label>Unknown</span>
     </div>
 
     <hr>
 
-    <!-- หมายเหตุ -->
+    <!-- บล็อกหมายเหตุ (จะถูกเติมโดย patch lookup + สคริปต์เสริม) -->
     <div class="compat-note-block">
       <p class="compat-note-main" data-note-main>
-        กำลังตรวจสอบข้อมูล... (Loading)
+        ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
       </p>
       <p class="compat-note-ref" data-note-ref></p>
     </div>
@@ -180,171 +180,69 @@
       <a href="compatibility.html" class="btn-check">↺ New check</a>
       <a href="index.html" class="btn-home">Home</a>
     </div>
-
-    <div class="compat-debug" id="compatDebug"></div>
   </div>
 </div>
 
-<script>
-/* =========================================================
-   Compatibility Result (GitHub Pages + Flask static build)
-   - อ่าน drug_a/drug_b จาก query string
-   - fetch ./static/compat_lookup.json
-   - map status + note + reference ลง UI
-   - กันกล่องหาย (visibility guard + observer)
-========================================================= */
-(() => {
-  const $  = (sel) => document.querySelector(sel);
-  const $$ = (sel) => document.querySelectorAll(sel);
 
-  const elA = $("[data-drug-a]");
-  const elB = $("[data-drug-b]");
-  const sCodeEl  = $("[data-status-code]");
-  const sLabelEl = $("[data-status-label]");
-  const noteMain = $("[data-note-main]");
-  const noteRef  = $("[data-note-ref]");
-  const debugBox = $("#compatDebug");
-
-  const params = new URLSearchParams(window.location.search);
-  const debug = params.get("debug") === "1";
-
-  const STATUS_LABEL = {
-    C: "Compatible / ผสมร่วมได้",
-    I: "Incompatible / ห้ามผสม",
-    U: "Uncertain / ไม่ชัดเจน",
-    ND:"No data / ไม่มีข้อมูล"
-  };
-
-  function normDrug(s){
-    return String(s || "")
-      .replace(/\\+/g, " ")
-      .replace(/\+/g, " ")
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, " ");
-  }
-
-  function setStatus(code){
-    const c = (code || "ND").toUpperCase();
-    if (sCodeEl){
-      sCodeEl.textContent = c;
-      sCodeEl.setAttribute("data-status", STATUS_LABEL[c] ? c : "ND");
-    }
-    if (sLabelEl){
-      sLabelEl.textContent = STATUS_LABEL[c] || "Unknown";
-    }
-  }
-
-  function setNote(mainText, refText){
-    if (noteMain) noteMain.textContent = mainText || "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)";
-    if (noteRef)  noteRef.textContent  = refText  || "";
-  }
-
-  function keepVisible(){
-    const sels = [
-      ".compat-shell",".compat-card",".compat-title",".compat-subtitle",
-      ".compat-result-header",".compat-status-line",".compat-note-block",
+<script id="compat-guard">
+(function () {
+  function keepVisible() {
+    var sels = [
       ".page-wrap",".wrap",".container","main",
-      ".result",".result-box",".result-card",".compat-result","#result","#resultBox"
+      ".result",".result-box",".result-card",
+      ".compat-result","#result","#resultBox"
     ];
-    $$(sels.join(",")).forEach(el => {
+    var nodes = document.querySelectorAll(sels.join(","));
+    nodes.forEach(function (el) {
+      if (!el) return;
       el.classList.remove("hidden","is-hidden");
       el.style.opacity = "1";
       el.style.visibility = "visible";
       el.style.transform = "none";
-      el.style.animation = "none";
-      el.style.transition = "none";
-      if (getComputedStyle(el).display === "none") el.style.display = "block";
+      el.style.animationFillMode = "both";
+      if (getComputedStyle(el).display === "none") {
+        el.style.display = "block";
+      }
     });
   }
 
-  function logDebug(obj){
-    if (!debugBox) return;
-    if (debug){
-      debugBox.classList.add("show");
-      debugBox.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
-    } else {
-      debugBox.classList.remove("show");
-    }
-  }
-
-  async function loadLookup(){
-    // 1) read query
-    const drugA = params.get("drug_a") || "Drug A";
-    const drugB = params.get("drug_b") || "Drug B";
-    if (elA) elA.textContent = drugA;
-    if (elB) elB.textContent = drugB;
-
-    // 2) if URL gives explicit status (manual override)
-    const statusParam = (params.get("status") || "").toUpperCase();
-    if (statusParam){
-      setStatus(statusParam);
-    } else {
-      setStatus("ND");
-    }
-
-    // 3) fetch lookup json
-    const key1 = `${normDrug(drugA)}|${normDrug(drugB)}`;
-    const key2 = `${normDrug(drugB)}|${normDrug(drugA)}`;
-
-    const url = `./static/compat_lookup.json?x=${Date.now()}`;
-    try{
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
-      const db = await res.json();
-
-      const hit = db[key1] || db[key2] || null;
-
-      if (hit){
-        // expected fields: status, summary_th, summary_en, reference
-        const st = (hit.status || "ND").toUpperCase();
-        setStatus(st);
-
-        const mainText =
-          (hit.summary_th && hit.summary_th.trim()) ||
-          (hit.summary_en && hit.summary_en.trim()) ||
-          "ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)";
-
-        const refText = (hit.reference && hit.reference.trim()) ? `Reference: ${hit.reference.trim()}` : "";
-        setNote(mainText, refText);
-
-        logDebug({ url, key1, key2, foundKey: db[key1] ? key1 : (db[key2] ? key2 : null), hit });
-      } else {
-        // Not found
-        setStatus(statusParam || "ND");
-        setNote("ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)", "");
-        logDebug({ url, key1, key2, foundKey: null });
-      }
-    } catch (err){
-      // fetch error → show ND with message
-      setStatus(statusParam || "ND");
-      setNote("ไม่สามารถโหลดฐานข้อมูล compat_lookup.json ได้ (ตรวจ path / GitHub Pages cache / ไฟล์หาย)", "");
-      logDebug({ url, error: String(err) });
-    } finally {
-      // enforce visibility after everything
-      keepVisible();
-      requestAnimationFrame(keepVisible);
-      setTimeout(keepVisible, 300);
-      setTimeout(keepVisible, 900);
-      setTimeout(keepVisible, 1500);
-    }
-  }
-
-  function start(){
-    keepVisible();
-
-    // เผื่อมี JS/CSS อื่นมาเปลี่ยน class/style ภายหลัง → ดักไว้
-    const obs = new MutationObserver(() => keepVisible());
-    obs.observe(document.documentElement, { attributes:true, childList:true, subtree:true });
-
-    loadLookup();
-  }
-
-  document.addEventListener("DOMContentLoaded", start);
-  window.addEventListener("load", () => {
-    keepVisible();
-    setTimeout(keepVisible, 600);
+  document.addEventListener("DOMContentLoaded", function () {
+    keepVisible();           // ทำทันทีหลัง DOM พร้อม
+    setTimeout(keepVisible, 500);   // เผื่อ animation ช้า
+    setTimeout(keepVisible, 1200);  // ย้ำอีกครั้งกันหาย
   });
+})();
+</script>
+
+
+<script id="compat-init-from-query">
+(function () {
+  var params = new URLSearchParams(window.location.search);
+
+  var drugA = params.get("drug_a") || "Drug A";
+  var drugB = params.get("drug_b") || "Drug B";
+
+  var elA = document.querySelector("[data-drug-a]");
+  var elB = document.querySelector("[data-drug-b]");
+  if (elA) elA.textContent = drugA;
+  if (elB) elB.textContent = drugB;
+
+  // ถ้ามี status= ใน query ก็ map ให้เบื้องต้น (C/I/U/ND)
+  var status = (params.get("status") || "").toUpperCase();
+  var sCodeEl = document.querySelector("[data-status-code]");
+  var sLabelEl = document.querySelector("[data-status-label]");
+
+  if (status && sCodeEl && sLabelEl) {
+    var map = {
+      "C": "Compatible / ผสมร่วมได้",
+      "I": "Incompatible / ห้ามผสม",
+      "U": "Uncertain / ไม่ชัดเจน",
+      "ND": "No data / ไม่มีข้อมูล"
+    };
+    sCodeEl.textContent = status;
+    sCodeEl.setAttribute("data-status", status);
+    sLabelEl.textContent = map[status] || "Unknown";
+  }
 })();
 </script>
 
