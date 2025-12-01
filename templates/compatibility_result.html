@@ -3,58 +3,68 @@
 
 {% block extra_head %}
 <style>
-  /* กันพื้นที่เผื่อ legend fixed + safe area */
-  body{ padding-bottom: 160px; }
+  /* กัน legend fixed ทับ footer/ปุ่ม */
+  body{ padding-bottom: 140px; }
 
-  /* ---------- Theme variables (default/loading) ---------- */
+  /* ===============================
+     Status-driven theme variables
+     =============================== */
   #compatResultRoot{
-    --accent:#0ea5a6;
-    --tint: rgba(14,165,166,.12);
-    --tint2: rgba(14,165,166,.06);
+    --accent:#0ea5a6;                 /* default */
+    --tint: rgba(14,165,166,.14);
+    --tint2: rgba(14,165,166,.08);
   }
-
-  /* เปลี่ยนพื้นหลังตามเงื่อนไข (ต้องมี data-status จาก JS) */
   #compatResultRoot[data-status="C"]{
-    --accent:#16a34a; --tint:rgba(22,163,74,.14); --tint2:rgba(22,163,74,.07);
+    --accent:#16a34a;
+    --tint: rgba(22,163,74,.14);
+    --tint2: rgba(22,163,74,.08);
   }
   #compatResultRoot[data-status="I"]{
-    --accent:#ef4444; --tint:rgba(239,68,68,.14); --tint2:rgba(239,68,68,.07);
+    --accent:#ef4444;
+    --tint: rgba(239,68,68,.14);
+    --tint2: rgba(239,68,68,.08);
   }
   #compatResultRoot[data-status="U"]{
-    --accent:#f59e0b; --tint:rgba(245,158,11,.16); --tint2:rgba(245,158,11,.08);
+    --accent:#f59e0b;
+    --tint: rgba(245,158,11,.16);
+    --tint2: rgba(245,158,11,.09);
   }
   #compatResultRoot[data-status="ND"]{
-    --accent:#3b82f6; --tint:rgba(59,130,246,.14); --tint2:rgba(59,130,246,.07);
+    --accent:#3b82f6;
+    --tint: rgba(59,130,246,.14);
+    --tint2: rgba(59,130,246,.08);
   }
 
-  /* layout */
+  /* ===============================
+     Layout / Card
+     =============================== */
   .compat-wrap{
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 18px 12px 40px;
+    padding: 18px 12px 170px;
   }
+
   .compat-title{
     text-align:center;
-    font-weight:800;
-    letter-spacing:.2px;
+    font-weight: 900;
+    letter-spacing: .2px;
     margin: 6px 0 18px;
-    display:inline-block;
-    padding: 10px 22px;
-    border-radius: 999px;
-    color: #fff;
-    background: linear-gradient(90deg, #0ea5a6, #0b67c2);
-    box-shadow: 0 10px 24px rgba(2,132,199,.20);
+    color: #ffffff;
+    padding: 12px 18px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0));
+    text-shadow: 0 8px 18px rgba(15,23,42,.25);
   }
 
-  /* main card (สำคัญ: ต้องเหลือก้อนเดียว ไม่ให้ทับกัน) */
   .compat-card{
     width:100%;
-    background: linear-gradient(180deg, var(--tint), rgba(255,255,255,.92));
-    border: 1px solid rgba(15,23,42,.08);
     border-radius: 22px;
+    border: 1px solid rgba(15,23,42,.10);
     box-shadow: 0 14px 36px rgba(15,23,42,.16);
     backdrop-filter: blur(8px);
-    overflow: visible; /* กัน legend/เงาโดนตัด */
+    -webkit-backdrop-filter: blur(8px);
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--tint), rgba(255,255,255,.94));
   }
 
   .compat-head{
@@ -65,20 +75,16 @@
     justify-content:space-between;
   }
 
-  .pair-box{
-    display:flex;
-    gap: 14px;
-    align-items:flex-start;
-    min-width: 240px;
-  }
+  .pair-box{ display:flex; gap: 14px; align-items:flex-start; }
   .pair-label{
-    color:#0b67c2;
-    font-weight:800;
+    color: #0b67c2;
+    font-weight: 900;
     font-size: 13px;
     margin-bottom: 6px;
   }
+
   .pair-pill{
-    width: 120px;
+    width: 130px;
     border-radius: 18px;
     padding: 12px 10px;
     background: linear-gradient(180deg, #0ea5a6, #0b67c2);
@@ -88,72 +94,77 @@
     user-select:none;
   }
   .pair-pill .drug{
-    font-weight:800;
+    font-weight: 900;
     line-height: 1.15;
     font-size: 13px;
     word-break: break-word;
   }
   .pair-pill .x{
-    font-weight:900;
+    font-weight: 900;
     font-size: 18px;
     margin: 6px 0;
-    opacity:.95;
+    opacity: .95;
   }
 
-  /* status pill */
   .status-pill{
     display:inline-flex;
     align-items:center;
     gap:10px;
     padding: 12px 18px;
     border-radius: 999px;
-    font-weight:900;
+    font-weight: 900;
     border: 1px solid rgba(15,23,42,.10);
-    background: rgba(255,255,255,.70);
+    background: rgba(255,255,255,.78);
     min-width: 220px;
     justify-content:center;
-    box-shadow: 0 10px 24px rgba(15,23,42,.10);
+    color:#0f172a;
   }
-  .status-pill .dot{
+  .status-dot{
     width: 10px;
     height: 10px;
     border-radius: 999px;
     background: #94a3b8;
   }
-  .st-loading .dot{ background:#64748b; }
-  .st-c .dot{ background:#16a34a; }
-  .st-i .dot{ background:#ef4444; }
-  .st-u .dot{ background:#f59e0b; }
-  .st-nd .dot{ background:#2563eb; }
+  .st-loading .status-dot{ background:#64748b; }
+  .st-c .status-dot{ background:#16a34a; }
+  .st-i .status-dot{ background:#ef4444; }
+  .st-u .status-dot{ background:#f59e0b; }
+  .st-nd .status-dot{ background:#2563eb; }
 
   .compat-body{ padding: 0 18px 16px; }
-  .sep{ height:1px; background: rgba(15,23,42,.12); margin: 8px 0 14px; }
+  .sep{
+    height:1px;
+    background: rgba(15,23,42,.12);
+    margin: 8px 0 14px;
+  }
 
-  /* Note area: ให้ tint ตาม status (ภาพที่ 2) */
-  .note-area{
-    text-align:center;
-    padding: 10px 10px 0;
-    background: linear-gradient(180deg, var(--tint2), rgba(255,255,255,0));
-    border-radius: 16px;
-    padding: 14px 14px 10px;
-    border: 1px solid rgba(15,23,42,.08);
-  }
+  .note-area{ text-align:center; padding: 10px 10px 0; }
   .note-title{
-    font-weight:900;
-    color:#0b67c2;
-    margin-bottom: 6px;
-    font-size: 22px;
+    font-weight: 900;
+    color: #0b67c2;
+    margin-bottom: 8px;
   }
+
+  .note-box{
+    display: inline-block;
+    width: min(640px, 100%);
+    padding: 14px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, var(--tint2), rgba(255,255,255,.65));
+    border: 1px solid rgba(15,23,42,.10);
+    box-shadow: 0 10px 20px rgba(15,23,42,.08);
+  }
+
   .note-text{
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     color:#0f172a;
     line-height: 1.6;
   }
   .ref{
     margin-top: 10px;
-    font-size: 14px;
-    color: rgba(15,23,42,.65);
+    font-size: 13px;
+    color: rgba(15,23,42,.70);
   }
 
   .compat-foot{
@@ -162,6 +173,7 @@
     justify-content:center;
     padding: 14px 18px 18px;
   }
+
   .btnx{
     border:0;
     border-radius: 999px;
@@ -180,263 +192,95 @@
     padding: 0 18px 10px;
     font-size: 12px;
     color: rgba(15,23,42,.55);
-    word-break: break-word;
   }
 
-  /* ---------- Legend fixed bottom (แบบภาพสุดท้าย) ---------- */
+  /* ===============================
+     Legend (fixed bottom) - Mobile friendly
+     =============================== */
   .compat-legend{
     position: fixed;
     left: 50%;
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
-    z-index: 2147483647;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 999;
 
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    justify-content: center;
+    width: min(940px, calc(100vw - 18px));
+    padding: 10px 12px;
 
-    padding: 10px 14px;
-    border-radius: 999px;
     background: rgba(255,255,255,.92);
+    border: 1px solid rgba(15,23,42,.10);
+    box-shadow: 0 10px 24px rgba(15,23,42,.18);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
-    border: 1px solid rgba(15,23,42,.10);
-    box-shadow: 0 10px 24px rgba(15,23,42,.18);
-    color: #0f172a;
-    font-size: 15px;
+    border-radius: 18px; /* สำคัญ: ไม่ใช้ 999px เพื่อกัน “กลมเป็นลูกบอล” ตอน wrap */
+    color:#0f172a;
   }
-  .leg-item{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
-  .leg-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+
+  .legend-grid{
+    display:flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .leg-item{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .leg-dot{
+    width:10px; height:10px; border-radius:50%;
+    display:inline-block;
+    flex: 0 0 auto;
+  }
   .leg-dot.c{ background:#16a34a; }
   .leg-dot.i{ background:#ef4444; }
   .leg-dot.u{ background:#f59e0b; }
   .leg-dot.nd{ background:#3b82f6; }
 
   @media (max-width: 560px){
+    body{ padding-bottom: 170px; }
     .compat-head{ flex-direction:column; align-items:stretch; }
-    .pair-box{ min-width: unset; }
     .status-pill{ width:100%; }
     .pair-pill{ width: 100%; }
-    .compat-legend{ font-size: 13px; padding: 10px 12px; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
-    .note-title{ font-size: 20px; }
-    .note-text{ font-size: 16px; }
+
+    .compat-legend{
+      width: calc(100vw - 16px);
+      padding: 10px 10px;
+      border-radius: 16px;
+    }
+    .legend-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 10px;
+      justify-content: stretch;
+    }
+    .leg-item{
+      white-space: normal;
+      font-size: 12.5px;
+      line-height: 1.25;
+    }
   }
 </style>
 
 <script>
-  // URL map (ใช้ได้ทั้ง Flask และ Pages)
+  // URL map ใช้ได้ทั้ง Flask และ GitHub Pages
   window.__URLS = {
-    // lookup json
-    lookup_json: (
-      {% if url_for is defined %}
-        "{{ url_for('static', filename='compat_lookup.json') }}"
-      {% else %}
-        "./static/compat_lookup.json"
-      {% endif %}
-    ),
-    lookup_json_min: (
-      {% if url_for is defined %}
-        "{{ url_for('static', filename='compat_lookup.min.json') }}"
-      {% else %}
-        "./static/compat_lookup.min.json"
-      {% endif %}
-    ),
-    new_check: (
-      {% if url_for is defined %}
-        "{{ url_for('compat.compat_index') }}"
-      {% else %}
-        "./compatibility.html"
-      {% endif %}
-    ),
-    home: (
-      {% if url_for is defined %}
-        "{{ url_for('main.index') }}"
-      {% else %}
-        "./index.html"
-      {% endif %}
-    )
+    lookup: ({% if url_for is defined %}"{{ url_for('static', filename='compat_lookup.json') }}"{% else %}"./static/compat_lookup.json"{% endif %}),
+    newCheck: ({% if url_for is defined %}"{{ url_for('compat.compat_index') }}"{% else %}"./compatibility.html"{% endif %}),
+    home: ({% if url_for is defined %}"{{ url_for('main.index') }}"{% else %}"./index.html"{% endif %})
   };
-</script>
-
-<script>
-/* ===============================
-   Compatibility Result (Flask + Pages)
-   =============================== */
-(function () {
-  const STATUS_MAP = {
-    C: { en: "Compatible", th: "ผสมร่วมได้", cls: "st-c" },
-    I: { en: "Incompatible", th: "ห้ามผสม", cls: "st-i" },
-    U: { en: "Uncertain", th: "ไม่ชัดเจน", cls: "st-u" },
-    ND:{ en: "No data", th: "ไม่มีข้อมูล", cls: "st-nd" },
-  };
-
-  const $ = (id) => document.getElementById(id);
-
-  function normDrug(s) {
-    s = (s || "").trim().toLowerCase();
-    s = s.replace(/&/g, " and ");
-    s = s.replace(/[^\w]+/g, " "); // keep a-z0-9_
-    s = s.replace(/_/g, " ");
-    s = s.replace(/\s+/g, " ").trim();
-    return s;
-  }
-
-  function asRecord(v) {
-    if (!v) return null;
-    if (typeof v === "string") return { status: v };
-    if (typeof v === "object") return v;
-    return null;
-  }
-
-  function defaultNoteTH(code) {
-    switch (code) {
-      case "C":  return "สามารถให้ร่วมสาย (Y-site) ได้ ภายใต้เงื่อนไขตามแหล่งอ้างอิง";
-      case "I":  return "ไม่เข้ากัน/ห้ามผสมร่วมสาย (Y-site) แนะนำแยก line หรือ flush ก่อน-หลัง";
-      case "U":  return "ข้อมูลยังไม่ชัดเจน แนะนำหลีกเลี่ยงการให้ร่วมสาย ใช้แยก line หรือ flush ก่อน-หลัง";
-      case "ND": return "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง";
-      default:   return "ไม่มีข้อมูลที่เพียงพอ";
-    }
-  }
-
-  async function fetchJsonFallback(urls) {
-    let lastErr = null;
-    for (const url of urls) {
-      try {
-        const r = await fetch(url, { cache: "no-store" });
-        if (!r.ok) continue;
-        return await r.json();
-      } catch (e) {
-        lastErr = e;
-      }
-    }
-    if (lastErr) throw lastErr;
-    throw new Error("Cannot fetch compat_lookup.json from all candidates.");
-  }
-
-  function uniq(arr){
-    const s = new Set();
-    const out = [];
-    for (const x of arr) {
-      if (!x) continue;
-      if (s.has(x)) continue;
-      s.add(x);
-      out.push(x);
-    }
-    return out;
-  }
-
-  async function runCompatResult() {
-    const root = $("compatResultRoot");
-    if (!root) return;
-
-    const qs = new URLSearchParams(location.search);
-    const drugA = qs.get("drug_a") || "";
-    const drugB = qs.get("drug_b") || "";
-    const debug = qs.get("debug") === "1";
-
-    $("drugA").textContent = drugA || "—";
-    $("drugB").textContent = drugB || "—";
-
-    // initial UI
-    root.dataset.status = "ND";
-    const pill = $("statusPill");
-    pill.className = "status-pill st-loading";
-    $("statusText").textContent = "Loading";
-    $("noteText").textContent = "กำลังโหลดข้อมูล...";
-    $("refWrap").hidden = true;
-
-    const v = qs.get("v") || Date.now();
-
-    // candidates: (รองรับทั้ง Pages และ Flask)
-    const base1 = window.__URLS?.lookup_json || "./static/compat_lookup.json";
-    const base2 = window.__URLS?.lookup_json_min || "./static/compat_lookup.min.json";
-
-    // ทำ URL แบบ absolute/relative เพิ่มเติม
-    const rel1 = new URL(base1, location.href).href;
-    const rel2 = new URL(base2, location.href).href;
-    const abs1 = new URL("/static/compat_lookup.json", location.origin).href;
-    const abs2 = new URL("/static/compat_lookup.min.json", location.origin).href;
-
-    const candidates = uniq([
-      rel1 + "?v=" + v,
-      rel2 + "?v=" + v,
-      abs1 + "?v=" + v,
-      abs2 + "?v=" + v,
-      "./static/compat_lookup.json?v=" + v,
-      "./static/compat_lookup.min.json?v=" + v,
-      "static/compat_lookup.json?v=" + v,
-      "static/compat_lookup.min.json?v=" + v,
-    ]);
-
-    const data = await fetchJsonFallback(candidates);
-
-    const key1 = `${normDrug(drugA)}||${normDrug(drugB)}`;
-    const key2 = `${normDrug(drugB)}||${normDrug(drugA)}`; // fallback สลับคู่
-
-    const rec = asRecord(data[key1]) || asRecord(data[key2]);
-
-    const statusCode = (rec?.status || "ND").toUpperCase();
-    const meta = STATUS_MAP[statusCode] || STATUS_MAP.ND;
-
-    // ✅ ทำให้ CSS เปลี่ยนสีตามเงื่อนไข
-    root.dataset.status = statusCode;
-
-    pill.className = `status-pill ${meta.cls}`;
-    $("statusText").textContent = `${meta.en} (${meta.th})`.replace(" (undefined)", "");
-
-    // ✅ ใช้ note_th ก่อน (ข้อมูลคุณอยู่ note_th)
-    const noteTH = (rec?.note_th || rec?.summary_th || "").trim();
-    const noteEN = (rec?.note_en || rec?.summary_en || "").trim();
-    const note = noteTH || (noteEN ? noteEN : defaultNoteTH(statusCode));
-    $("noteText").textContent = note;
-
-    const ref = (rec?.reference || "").trim();
-    if (ref) {
-      $("refWrap").hidden = false;
-      $("refText").textContent = ref;
-    } else {
-      $("refWrap").hidden = true;
-    }
-
-    if (debug) {
-      $("debugLine").hidden = false;
-      $("debugLine").textContent =
-        `keys: ${Object.keys(data).length} | key1=${key1} | key2=${key2} | hit=${rec ? "YES" : "NO"}`;
-    } else {
-      $("debugLine").hidden = true;
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    runCompatResult().catch((e) => {
-      const root = $("compatResultRoot");
-      const pill = $("statusPill");
-      if (root) root.dataset.status = "ND";
-      if (pill) pill.className = "status-pill st-nd";
-      if ($("statusText")) $("statusText").textContent = "No data (ไม่มีข้อมูล)";
-      if ($("noteText")) {
-        $("noteText").textContent =
-          "โหลดข้อมูลไม่สำเร็จ (อาจติด cache/service worker) กรุณา Hard Reload หรือ Clear site data แล้วลองใหม่";
-      }
-      if ($("refWrap")) $("refWrap").hidden = true;
-      if ($("debugLine")) {
-        $("debugLine").hidden = false;
-        $("debugLine").textContent = String(e);
-      }
-      console.error(e);
-    });
-  });
-})();
 </script>
 {% endblock %}
 
 {% block content %}
-<div class="compat-wrap" id="compatResultRoot" data-status="ND">
-  <div style="text-align:center;margin-bottom:14px;">
-    <h2 class="compat-title">Result analyze (Compatibility)</h2>
-  </div>
+<div class="compat-wrap" id="compatResultRoot" data-status="LD">
+  <h2 class="compat-title">Result analyze (Compatibility)</h2>
 
   <div class="compat-card">
     <div class="compat-head">
@@ -452,7 +296,7 @@
       </div>
 
       <div class="status-pill st-loading" id="statusPill">
-        <span class="dot"></span>
+        <span class="status-dot"></span>
         <span id="statusText">Loading</span>
       </div>
     </div>
@@ -462,10 +306,12 @@
 
       <div class="note-area">
         <div class="note-title">Note</div>
-        <div class="note-text" id="noteText">กำลังโหลดข้อมูล...</div>
 
-        <div class="ref" id="refWrap" hidden>
-          Reference: <span id="refText"></span>
+        <div class="note-box">
+          <div class="note-text" id="noteText">กำลังโหลดข้อมูล...</div>
+          <div class="ref" id="refWrap" hidden>
+            Reference: <span id="refText"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -473,17 +319,19 @@
     <div class="debug" id="debugLine" hidden></div>
 
     <div class="compat-foot">
-      <a class="btnx btn-green" href="{% if url_for is defined %}{{ url_for('compat.compat_index') }}{% else %}./compatibility.html{% endif %}">↻ New check</a>
-      <a class="btnx btn-gray"  href="{% if url_for is defined %}{{ url_for('main.index') }}{% else %}./index.html{% endif %}">🏠 Home</a>
+      <a class="btnx btn-green" id="btnNewCheck" href="./compatibility.html">↻ New check</a>
+      <a class="btnx btn-gray" id="btnHome" href="./index.html">🏠 Home</a>
     </div>
   </div>
-</div>
 
-<!-- Legend (แสดงแบบภาพสุดท้าย) -->
-<div class="compat-legend" id="compatLegend" aria-label="Compatibility Legend">
-  <span class="leg-item"><span class="leg-dot c"></span> C = Compatible / ผสมร่วมได้</span>
-  <span class="leg-item"><span class="leg-dot i"></span> I = Incompatible / ห้ามผสม</span>
-  <span class="leg-item"><span class="leg-dot u"></span> U = Uncertain / ไม่ชัดเจน</span>
-  <span class="leg-item"><span class="leg-dot nd"></span> ND = No data / ไม่มีข้อมูล</span>
+  <!-- Legend fixed bottom -->
+  <div class="compat-legend" id="compatLegend" aria-label="Compatibility Legend">
+    <div class="legend-grid">
+      <span class="leg-item"><span class="leg-dot c"></span> C = Compatible / ผสมร่วมได้</span>
+      <span class="leg-item"><span class="leg-dot i"></span> I = Incompatible / ห้ามผสม</span>
+      <span class="leg-item"><span class="leg-dot u"></span> U = Uncertain / ไม่ชัดเจน</span>
+      <span class="leg-item"><span class="leg-dot nd"></span> ND = No data / ไม่มีข้อมูล</span>
+    </div>
+  </div>
 </div>
 {% endblock %}
