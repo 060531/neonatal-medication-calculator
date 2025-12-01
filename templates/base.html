@@ -6,32 +6,29 @@
 
   <title>{% block title %}Neonatal Medication Calculator{% endblock %}</title>
 
+  {# ใช้โหมด static build (GitHub Pages) หรือ Flask #}
   {% set use_static = static_build if static_build is defined else False %}
+
+  {# เวอร์ชันสำหรับ cache-bust (กัน JS/CSS เก่า) #}
+  {% set _ud = (update_date or UPDATE_DATE or 'dev') %}
+  {% set v = (_ud|string)|replace(' ','_')|replace(':','')|replace('-','') %}
 
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="{{ './static/manifest.webmanifest'
-                if use_static
-                else url_for('static', filename='manifest.webmanifest') }}">
+        href="{% if use_static %}./static/manifest.webmanifest?v={{ v }}{% else %}{{ url_for('static', filename='manifest.webmanifest') }}?v={{ v }}{% endif %}">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="{{ './static/icons/icon-192.png'
-                if use_static
-                else url_for('static', filename='icons/icon-192.png') }}">
+        href="{% if use_static %}./static/icons/icon-192.png?v={{ v }}{% else %}{{ url_for('static', filename='icons/icon-192.png') }}?v={{ v }}{% endif %}">
 
-  <!-- App CSS/JS (dual path) -->
+  <!-- App CSS/JS (dual path + cache bust) -->
   <link rel="stylesheet"
-        href="{{ './static/style.css'
-                if use_static
-                else url_for('static', filename='style.css') }}">
+        href="{% if use_static %}./static/style.css?v={{ v }}{% else %}{{ url_for('static', filename='style.css') }}?v={{ v }}{% endif %}">
   <script defer
-          src="{{ './static/app.js'
-                if use_static
-                else url_for('static', filename='app.js') }}"></script>
+          src="{% if use_static %}./static/app.js?v={{ v }}{% else %}{{ url_for('static', filename='app.js') }}?v={{ v }}{% endif %}"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -97,8 +94,6 @@
       max-width:1000px; box-sizing:border-box;
     }
 
-    
-
     .hidden{ display:none !important; }
 
     /* Mobile: หน้า Home → 2 คอลัมน์ */
@@ -133,13 +128,14 @@
         font-size:11px;
       }
       footer{
-        font-size: 11px;     /* เล็กลง */
-        padding: 6px 4px;    /* เว้นขอบน้อยลง */
-        line-height: 1.3;
+        font-size:11px;
+        padding:6px 4px;
+        line-height:1.3;
       }
-
     }
   </style>
+
+  {% block extra_head %}{% endblock %}
 </head>
 
 <body class="{{ 'home-page' if home_page else '' }} {% block body_class %}{% endblock %}">
@@ -147,28 +143,27 @@
     {% block content %}{% endblock %}
   </div>
 
-<footer>
-  Developed by Sukhontha Boonsoockchan |
-  {% set _ud = update_date or UPDATE_DATE or '' %}
-  {% if _ud %}
-    update {{ _ud }}
-  {% else %}
-    update
-  {% endif %}
-</footer>
+  <footer>
+    Developed by Sukhontha Boonsoockchan |
+    {% if _ud %}update {{ _ud }}{% else %}update{% endif %}
+  </footer>
 
-  <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
-<script>
-  (function () {
-    if (!("serviceWorker" in navigator)) return;
+  <!-- Service Worker (คุมให้ปลอดภัยต่อ cache) -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
 
-    // ✅ กัน SW บน GitHub Pages (ลดปัญหา cache หน้าเพี้ยน/ว่าง)
-    if (location.hostname.endsWith("github.io")) return;
+      // ✅ แนะนำ: ปิด SW ตอน dev ที่ localhost (กันหน้าเพี้ยน/ว่างจาก cache)
+      var host = location.hostname;
+      if (host === "localhost" || host === "127.0.0.1") return;
 
-    var swPath = "./static/service-worker.js?v={{ update_date|replace(' ','_')|replace(':','') }}";
-    navigator.serviceWorker.register(swPath).catch(console.error);
-  })();
-</script>
+      // ใช้ version เดียวกับ css/js เพื่อบังคับ SW ใหม่เมื่อมีอัปเดต
+      var swPath = "./static/service-worker.js?v={{ v }}";
 
+      navigator.serviceWorker.register(swPath).catch(console.error);
+    })();
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>
