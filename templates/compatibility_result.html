@@ -50,13 +50,12 @@
   .compat-note-title{ font-weight:800;color:#0f172a;margin:0 0 8px; }
   .compat-note-main{
     margin:0 0 6px;
-    white-space: pre-line; /* ✅ ให้ \n ขึ้นบรรทัดใหม่ */
+    white-space: pre-line; /* ให้ \n ขึ้นบรรทัดใหม่ */
     color:#0f172a;
     line-height:1.5;
   }
   .compat-note-ref{ margin:0;font-size:14px;color:#4b5563; }
 
-  /* ซ่อน/แสดง */
   .hidden{ display:none !important; }
 </style>
 {% endblock %}
@@ -93,7 +92,7 @@
       <p class="compat-note-ref" data-note-ref></p>
     </div>
 
-    <!-- ✅ fallback แยกก้อน และซ่อนเมื่อมีผลลัพธ์ -->
+    <!-- fallback ขึ้นเมื่อไม่เจอข้อมูล -->
     <p class="compat-fallback" data-no-data-hint
        style="margin-top:14px;font-weight:700;color:#0b5aa3;text-align:center;">
       ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
@@ -121,7 +120,7 @@
     .toString()
     .trim()
     .toLowerCase()
-    .replace(/\+/g, " ")         // กันกรณีมี + ติดมา
+    .replace(/\+/g, " ")
     .replace(/\s+/g, " ");
 
   const keyOf = (a,b) => `${norm(a)}||${norm(b)}`;
@@ -171,7 +170,6 @@
     if (noteMain) noteMain.textContent = hasMain ? main : "";
     if (noteRef)  noteRef.textContent  = hasRef ? `Reference: ${ref}` : "";
 
-    // ✅ ซ่อน note block ถ้าไม่มี note/ref จริง
     if (noteBlock){
       if (hasMain || hasRef) noteBlock.classList.remove("hidden");
       else noteBlock.classList.add("hidden");
@@ -191,7 +189,7 @@
     return db[k1] || db[k2] || null;
   };
 
-  // init
+  // default UI
   setStatus("ND");
   setNote("", "");
 
@@ -209,12 +207,8 @@
           : (hit.note_th || hit.note_en || "");
 
         setNote(mainTxt, hit.reference || hit.ref || "");
-
-        // ✅ มีผลลัพธ์แล้ว -> ซ่อน fallback
         if (noDataHint) noDataHint.classList.add("hidden");
-
       } else {
-        // ไม่พบ
         setStatus("ND");
         setNote("", "");
         if (noDataHint) noDataHint.classList.remove("hidden");
@@ -223,7 +217,10 @@
     } catch (e) {
       console.error(e);
       setStatus("ND");
-      setNote("ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json) กรุณารีเฟรช/ตรวจการ deploy", "");
+      setNote(
+        "ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json) กรุณารีเฟรชหรือตรวจการ deploy",
+        ""
+      );
       if (noDataHint) noDataHint.classList.remove("hidden");
     }
   });
