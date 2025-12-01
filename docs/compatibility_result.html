@@ -16,19 +16,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="./static/manifest.webmanifest?v=20251201_2018">
+        href="./static/manifest.webmanifest?v=20251201_2032">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png?v=20251201_2018">
+        href="./static/icons/icon-192.png?v=20251201_2032">
 
   <!-- App CSS/JS (dual path + cache bust) -->
   <link rel="stylesheet"
-        href="./static/style.css?v=20251201_2018">
+        href="./static/style.css?v=20251201_2032">
   <script defer
-          src="./static/app.js?v=20251201_2018"></script>
+          src="./static/app.js?v=20251201_2032"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -137,68 +137,50 @@
 
   
 <style>
-  /* กัน legend fixed ทับ footer/ปุ่ม */
-  body{ padding-bottom: 140px; }
+  /* กันพื้นที่ให้แถบปุ่มลอยไม่ทับเนื้อหา */
+  body{ padding-bottom: 120px; }
 
-  /* ===============================
-     Status-driven theme variables
-     =============================== */
+  /* ---------- Theme variables (default/loading) ---------- */
   #compatResultRoot{
-    --accent:#0ea5a6;                 /* default */
-    --tint: rgba(14,165,166,.14);
-    --tint2: rgba(14,165,166,.08);
+    --accent:#0ea5a6;
+    --tint: rgba(14,165,166,.12);
+    --tint2: rgba(14,165,166,.06);
   }
-  #compatResultRoot[data-status="C"]{
-    --accent:#16a34a;
-    --tint: rgba(22,163,74,.14);
-    --tint2: rgba(22,163,74,.08);
-  }
-  #compatResultRoot[data-status="I"]{
-    --accent:#ef4444;
-    --tint: rgba(239,68,68,.14);
-    --tint2: rgba(239,68,68,.08);
-  }
-  #compatResultRoot[data-status="U"]{
-    --accent:#f59e0b;
-    --tint: rgba(245,158,11,.16);
-    --tint2: rgba(245,158,11,.09);
-  }
-  #compatResultRoot[data-status="ND"]{
-    --accent:#3b82f6;
-    --tint: rgba(59,130,246,.14);
-    --tint2: rgba(59,130,246,.08);
-  }
+  /* เปลี่ยนสีตาม status */
+  #compatResultRoot[data-status="C"]{ --accent:#16a34a; --tint:rgba(22,163,74,.14); --tint2:rgba(22,163,74,.07); }
+  #compatResultRoot[data-status="I"]{ --accent:#ef4444; --tint:rgba(239,68,68,.14); --tint2:rgba(239,68,68,.07); }
+  #compatResultRoot[data-status="U"]{ --accent:#f59e0b; --tint:rgba(245,158,11,.16); --tint2:rgba(245,158,11,.08); }
+  #compatResultRoot[data-status="ND"]{ --accent:#3b82f6; --tint:rgba(59,130,246,.14); --tint2:rgba(59,130,246,.07); }
 
-  /* ===============================
-     Layout / Card
-     =============================== */
   .compat-wrap{
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 18px 12px 170px;
+    padding: 18px 12px 24px;
   }
 
   .compat-title{
     text-align:center;
-    font-weight: 900;
-    letter-spacing: .2px;
     margin: 6px 0 18px;
-    color: #ffffff;
+  }
+  .compat-title .badge{
+    display:inline-block;
     padding: 12px 18px;
-    border-radius: 16px;
+    border-radius: 999px;
+    font-weight: 900;
+    color:#fff;
     background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0));
-    text-shadow: 0 8px 18px rgba(15,23,42,.25);
+    box-shadow: 0 10px 22px rgba(15,23,42,.18);
   }
 
+  /* ตัวการ์ดหลักให้ tint ตาม status */
   .compat-card{
     width:100%;
-    border-radius: 22px;
+    background: linear-gradient(180deg, var(--tint), rgba(255,255,255,.92));
     border: 1px solid rgba(15,23,42,.10);
+    border-radius: 22px;
     box-shadow: 0 14px 36px rgba(15,23,42,.16);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     overflow: hidden;
-    background: linear-gradient(180deg, var(--tint), rgba(255,255,255,.94));
   }
 
   .compat-head{
@@ -209,16 +191,22 @@
     justify-content:space-between;
   }
 
-  .pair-box{ display:flex; gap: 14px; align-items:flex-start; }
+  .pair-box{
+    display:flex;
+    gap: 14px;
+    align-items:flex-start;
+    min-width: 240px;
+  }
+
   .pair-label{
-    color: #0b67c2;
-    font-weight: 900;
+    color:#0b67c2;
+    font-weight:800;
     font-size: 13px;
     margin-bottom: 6px;
   }
 
   .pair-pill{
-    width: 130px;
+    width: 120px;
     border-radius: 18px;
     padding: 12px 10px;
     background: linear-gradient(180deg, #0ea5a6, #0b67c2);
@@ -228,16 +216,16 @@
     user-select:none;
   }
   .pair-pill .drug{
-    font-weight: 900;
+    font-weight:800;
     line-height: 1.15;
     font-size: 13px;
     word-break: break-word;
   }
   .pair-pill .x{
-    font-weight: 900;
+    font-weight:900;
     font-size: 18px;
     margin: 6px 0;
-    opacity: .95;
+    opacity:.95;
   }
 
   .status-pill{
@@ -246,52 +234,52 @@
     gap:10px;
     padding: 12px 18px;
     border-radius: 999px;
-    font-weight: 900;
+    font-weight:900;
     border: 1px solid rgba(15,23,42,.10);
-    background: rgba(255,255,255,.78);
+    background: rgba(255,255,255,.70);
     min-width: 220px;
     justify-content:center;
-    color:#0f172a;
   }
-  .status-dot{
+  .status-pill .dot{
     width: 10px;
     height: 10px;
     border-radius: 999px;
     background: #94a3b8;
   }
-  .st-loading .status-dot{ background:#64748b; }
-  .st-c .status-dot{ background:#16a34a; }
-  .st-i .status-dot{ background:#ef4444; }
-  .st-u .status-dot{ background:#f59e0b; }
-  .st-nd .status-dot{ background:#2563eb; }
+  .st-loading .dot{ background:#64748b; }
+  .st-c .dot{ background:#16a34a; }
+  .st-i .dot{ background:#ef4444; }
+  .st-u .dot{ background:#f59e0b; }
+  .st-nd .dot{ background:#2563eb; }
 
-  .compat-body{ padding: 0 18px 16px; }
+  .compat-body{ padding: 0 18px 10px; }
   .sep{
     height:1px;
     background: rgba(15,23,42,.12);
     margin: 8px 0 14px;
   }
 
-  .note-area{ text-align:center; padding: 10px 10px 0; }
+  .note-area{
+    text-align:center;
+    padding: 10px 10px 0;
+  }
   .note-title{
-    font-weight: 900;
-    color: #0b67c2;
+    font-weight:900;
+    color:#0b67c2;
     margin-bottom: 8px;
   }
-
+  /* กล่อง Note ให้ tint ตาม status */
   .note-box{
-    display: inline-block;
-    width: min(640px, 100%);
-    padding: 14px 14px;
+    margin: 0 auto;
+    max-width: 720px;
+    padding: 12px 14px;
     border-radius: 16px;
     background: linear-gradient(180deg, var(--tint2), rgba(255,255,255,.65));
     border: 1px solid rgba(15,23,42,.10);
-    box-shadow: 0 10px 20px rgba(15,23,42,.08);
   }
-
   .note-text{
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 700;
     color:#0f172a;
     line-height: 1.6;
   }
@@ -301,109 +289,107 @@
     color: rgba(15,23,42,.70);
   }
 
-  .compat-foot{
-    display:flex;
-    gap: 10px;
-    justify-content:center;
-    padding: 14px 18px 18px;
-  }
-
-  .btnx{
-    border:0;
-    border-radius: 999px;
-    padding: 12px 18px;
-    font-weight: 900;
-    cursor:pointer;
-    display:inline-flex;
-    gap: 8px;
-    align-items:center;
-    text-decoration:none;
-  }
-  .btn-green{ background:#16a34a; color:#fff; }
-  .btn-gray{ background:#f1f5f9; color:#0f172a; border:1px solid rgba(15,23,42,.12); }
-
-  .debug{
-    padding: 0 18px 10px;
-    font-size: 12px;
-    color: rgba(15,23,42,.55);
-  }
-
-  /* ===============================
-     Legend (fixed bottom) - Mobile friendly
-     =============================== */
+  /* ---------- Legend (อยู่แทนที่ตำแหน่งปุ่มเดิม) ---------- */
   .compat-legend{
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(12px + env(safe-area-inset-bottom));
-    z-index: 999;
-
-    width: min(940px, calc(100vw - 18px));
-    padding: 10px 12px;
-
-    background: rgba(255,255,255,.92);
+    margin: 14px 18px 18px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.78);
     border: 1px solid rgba(15,23,42,.10);
-    box-shadow: 0 10px 24px rgba(15,23,42,.18);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-
-    border-radius: 18px; /* สำคัญ: ไม่ใช้ 999px เพื่อกัน “กลมเป็นลูกบอล” ตอน wrap */
-    color:#0f172a;
+    box-shadow: 0 10px 22px rgba(15,23,42,.10);
   }
-
   .legend-grid{
-    display:flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px 14px;
+    align-items:center;
   }
-
   .leg-item{
-    display:inline-flex;
+    display:flex;
     align-items:center;
     gap: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color:#0f172a;
     white-space: nowrap;
-    font-size: 14px;
-    font-weight: 700;
   }
-
   .leg-dot{
-    width:10px; height:10px; border-radius:50%;
-    display:inline-block;
-    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex: 0 0 10px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.95);
   }
   .leg-dot.c{ background:#16a34a; }
   .leg-dot.i{ background:#ef4444; }
   .leg-dot.u{ background:#f59e0b; }
   .leg-dot.nd{ background:#3b82f6; }
 
+  /* ---------- Floating buttons (ปุ่มลอยแทน) ---------- */
+  .fabbar{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 999;
+
+    width: min(520px, calc(100% - 16px));
+    display:flex;
+    gap: 10px;
+    justify-content:center;
+
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(15,23,42,.10);
+    box-shadow: 0 12px 28px rgba(15,23,42,.22);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .fab-btn{
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 16px;
+    font-weight: 900;
+    cursor: pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap: 8px;
+    text-decoration:none;
+    min-width: 150px;
+  }
+  .fab-primary{
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(15,23,42,.12);
+  }
+  .fab-ghost{
+    background:#f1f5f9;
+    color:#0f172a;
+    border:1px solid rgba(15,23,42,.12);
+  }
+
+  .debug{
+    padding: 0 18px 12px;
+    font-size: 12px;
+    color: rgba(15,23,42,.55);
+  }
+
   @media (max-width: 560px){
-    body{ padding-bottom: 170px; }
     .compat-head{ flex-direction:column; align-items:stretch; }
-    .status-pill{ width:100%; }
+    .pair-box{ min-width: unset; }
+    .status-pill{ width:100%; min-width: unset; }
     .pair-pill{ width: 100%; }
 
-    .compat-legend{
-      width: calc(100vw - 16px);
-      padding: 10px 10px;
-      border-radius: 16px;
-    }
-    .legend-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px 10px;
-      justify-content: stretch;
-    }
-    .leg-item{
-      white-space: normal;
-      font-size: 12.5px;
-      line-height: 1.25;
-    }
+    .legend-grid{ grid-template-columns: 1fr 1fr; }
+    .leg-item{ font-size: 12px; white-space: normal; }
+    .fab-btn{ min-width: 0; width: 50%; padding: 12px 10px; }
   }
 </style>
 
 <script>
-  // URL map ใช้ได้ทั้ง Flask และ GitHub Pages
+  // ใช้ได้ทั้ง Flask และ Pages
   window.__URLS = {
     lookup: ("./static/compat_lookup.json"),
     newCheck: ("./compat_index.html"),
@@ -416,8 +402,8 @@
 <body class=" ">
   <div class="container">
     
-<div class="compat-wrap" id="compatResultRoot" data-status="LD">
-  <h2 class="compat-title">Result analyze (Compatibility)</h2>
+<div class="compat-wrap" id="compatResultRoot" data-status="ND">
+  <h2 class="compat-title"><span class="badge">Result analyze (Compatibility)</span></h2>
 
   <div class="compat-card">
     <div class="compat-head">
@@ -433,7 +419,7 @@
       </div>
 
       <div class="status-pill st-loading" id="statusPill">
-        <span class="status-dot"></span>
+        <span class="dot"></span>
         <span id="statusText">Loading</span>
       </div>
     </div>
@@ -443,9 +429,9 @@
 
       <div class="note-area">
         <div class="note-title">Note</div>
-
         <div class="note-box">
           <div class="note-text" id="noteText">กำลังโหลดข้อมูล...</div>
+
           <div class="ref" id="refWrap" hidden>
             Reference: <span id="refText"></span>
           </div>
@@ -455,28 +441,29 @@
 
     <div class="debug" id="debugLine" hidden></div>
 
-    <div class="compat-foot">
-      <a class="btnx btn-green" id="btnNewCheck" href="./compatibility.html">↻ New check</a>
-      <a class="btnx btn-gray" id="btnHome" href="./index.html">🏠 Home</a>
+    <!-- Legend (อยู่แทนที่ตำแหน่งปุ่มเดิม) -->
+    <div class="compat-legend" id="compatLegend" aria-label="Compatibility Legend">
+      <div class="legend-grid">
+        <span class="leg-item"><span class="leg-dot c"></span> C = Compatible / ผสมร่วมได้</span>
+        <span class="leg-item"><span class="leg-dot i"></span> I = Incompatible / ห้ามผสม</span>
+        <span class="leg-item"><span class="leg-dot u"></span> U = Uncertain / ไม่ชัดเจน</span>
+        <span class="leg-item"><span class="leg-dot nd"></span> ND = No data / ไม่มีข้อมูล</span>
+      </div>
     </div>
   </div>
 
-  <!-- Legend fixed bottom -->
-  <div class="compat-legend" id="compatLegend" aria-label="Compatibility Legend">
-    <div class="legend-grid">
-      <span class="leg-item"><span class="leg-dot c"></span> C = Compatible / ผสมร่วมได้</span>
-      <span class="leg-item"><span class="leg-dot i"></span> I = Incompatible / ห้ามผสม</span>
-      <span class="leg-item"><span class="leg-dot u"></span> U = Uncertain / ไม่ชัดเจน</span>
-      <span class="leg-item"><span class="leg-dot nd"></span> ND = No data / ไม่มีข้อมูล</span>
-    </div>
-  </div>
+  <!-- ปุ่มลอย -->
+  <nav class="fabbar" aria-label="Quick actions">
+    <a class="fab-btn fab-primary" id="btnNewCheck" href="./compatibility.html">↻ New check</a>
+    <a class="fab-btn fab-ghost" id="btnHome" href="./index.html">🏠 Home</a>
+  </nav>
 </div>
 
   </div>
 
   <footer>
     Developed by Sukhontha Boonsoockchan |
-    update 2025-12-01 20:18
+    update 2025-12-01 20:32
   </footer>
 
   <!-- Service Worker (คุมให้ปลอดภัยต่อ cache) -->
@@ -489,7 +476,7 @@
       if (host === "localhost" || host === "127.0.0.1") return;
 
       // ใช้ version เดียวกับ css/js เพื่อบังคับ SW ใหม่เมื่อมีอัปเดต
-      var swPath = "./static/service-worker.js?v=20251201_2018";
+      var swPath = "./static/service-worker.js?v=20251201_2032";
 
       navigator.serviceWorker.register(swPath).catch(console.error);
     })();
