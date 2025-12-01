@@ -4,16 +4,24 @@ set -euo pipefail
 F="docs/compatibility_result.html"
 [ -f "$F" ] || exit 0
 
-python3 - <<'PY'
+python - <<'PY'
 from pathlib import Path
 import re
 
 F = Path("docs/compatibility_result.html")
 html = F.read_text(encoding="utf-8")
 
-# ลบของเดิมที่เคย inject (กันซ้ำ)
-html = re.sub(r'<style[^>]*id="compat-theme-style"[^>]*>.*?</style>\s*', "", html, flags=re.S)
-html = re.sub(r'<script[^>]*id="compat-lookup-patch"[^>]*>.*?</script>\s*', "", html, flags=re.S)
+# 1) ลบของเก่าที่เคย inject (กันซ้ำ)
+html = re.sub(r'<style[^>]*id="compat-theme-style"[^>]*>.*?</style>\s*', '', html, flags=re.S|re.I)
+html = re.sub(r'<script[^>]*id="compat-lookup-patch"[^>]*>.*?</script>\s*', '', html, flags=re.S|re.I)
+
+# 2) ย้อน/ลบ patch เก่าที่เคย "return;" ตัด legacy (เพราะทำให้การ์ดไม่ถูกโชว์)
+html = re.sub(
+    r'\s*//\s*PATCH:\s*disable legacy status mapping\s*\(use compat-lookup-patch\)\s*return;\s*',
+    '\n',
+    html,
+    flags=re.I
+)
 
 inject = r'''
 <style id="compat-theme-style">
@@ -46,7 +54,14 @@ inject = r'''
 </style>
 
 <script id="compat-lookup-patch">
-(async function () {
+(function(){
+  const label = {
+    C: "Compatible / ผสมร่วมได้",
+    I: "Incompatible / ห้ามผสม",
+    U: "Uncertain / ไม่ชัดเจน",
+    ND:"No data / ไม่มีข้อมูล",
+  };
+
   function normDrug(s){
     return String(s || "")
       .replace(/\\+/g, " ")
@@ -55,33 +70,20 @@ inject = r'''
       .replace(/\\s+/g, " ");
   }
 
-  const params = new URLSearchParams(location.search);
-  const drugA = params.get("drug_a") || "";
-  const drugB = params.get("drug_b") || "";
-
-  const a = normDrug(drugA);
-  const b = normDrug(drugB);
-  const k1 = a + "|" + b;
-  const k2 = b + "|" + a;
-
-  const sCodeEl  = document.querySelector("[data-status-code]");
-  const sLabelEl = document.querySelector("[data-status-label]");
-  if (!sCodeEl || !sLabelEl) return;
-
-  const label = {
-    C: "Compatible / ผสมร่วมได้",
-    I: "Incompatible / ห้ามผสม",
-    U: "Uncertain / ไม่ชัดเจน",
-    ND: "No data / ไม่มีข้อมูล"
-  };
-
-  function splitCombinedNote(note){
-    // รองรับ note แบบ "EN / TH"
-    const s = String(note || "").trim();
-    if (!s) return { en:"", th:"" };
-    const parts = s.split(" / ");
-    if (parts.length >= 2) return { en: parts[0].trim(), th: parts.slice(1).join(" / ").trim() };
-    return { en: s, th: "" };
+  // สำคัญ: บังคับโชว์ element ที่ถูกซ่อน (แก้หน้าโล่ง)
+  function forceUnhide(fromEl){
+    let el = fromEl;
+    while (el && el !== document.body){
+      try{
+        el.hidden = false;
+        el.classList && el.classList.remove("hidden");
+        const cs = getComputedStyle(el);
+        if (cs.display === "none") el.style.display = "block";
+        if (cs.visibility === "hidden") el.style.visibility = "visible";
+        if (cs.opacity === "0") el.style.opacity = "1";
+      }catch(e){}
+      el = el.parentElement;
+    }
   }
 
   function hideFallbackIfAny(){
@@ -90,7 +92,7 @@ inject = r'''
     if (cand) cand.style.display = "none";
   }
 
-  function ensureNoteBox(){
+  function ensureNoteBox(anchorEl){
     let box = document.querySelector("[data-compat-note]");
     if (box) return box;
 
@@ -98,16 +100,19 @@ inject = r'''
     box.className = "compat-note";
     box.setAttribute("data-compat-note", "1");
 
+    // วางต่อจากบรรทัดสถานะ ถ้ามี
     const anchor =
       document.querySelector(".compat-status-line") ||
-      sLabelEl.parentElement || sLabelEl;
+      anchorEl?.parentElement ||
+      anchorEl ||
+      document.body;
 
     anchor.insertAdjacentElement("afterend", box);
     return box;
   }
 
-  function renderNote(row, code){
-    const box = ensureNoteBox();
+  function renderNote(row, code, sLabelEl){
+    const box = ensureNoteBox(sLabelEl);
     box.dataset.code = code;
     box.replaceChildren();
 
@@ -116,14 +121,9 @@ inject = r'''
     hd.textContent = "Notes / ข้อสรุปเชิงปฏิบัติ";
     box.appendChild(hd);
 
-    let en = (row && (row.summary_en || row.note_en)) || "";
-    let th = (row && (row.summary_th || row.note_th)) || "";
-    const ref = (row && (row.reference || row.source)) || "";
-
-    if (!en && !th && row && row.note){
-      const s = splitCombinedNote(row.note);
-      en = s.en; th = s.th;
-    }
+    const en = (row && row.summary_en) || "";
+    const th = (row && row.summary_th) || "";
+    const ref = (row && row.reference) || "";
 
     if (en){
       const d = document.createElement("div");
@@ -152,32 +152,75 @@ inject = r'''
     }
   }
 
-  try {
-    const res = await fetch("./static/compat_lookup.json?x=" + Date.now(), { cache: "no-store" });
-    const lookup = await res.json();
-    const row = lookup[k1] || lookup[k2];
+  async function run(){
+    const sCodeEl  = document.querySelector("[data-status-code]");
+    const sLabelEl = document.querySelector("[data-status-label]");
 
-    const code = (row && row.status ? String(row.status).toUpperCase() : "ND");
-    sCodeEl.textContent = code;
-    sCodeEl.setAttribute("data-status", code);
-    sLabelEl.textContent = label[code] || label.ND;
+    // ถ้าหน้าไม่พบ element เหล่านี้ แปลว่า template เปลี่ยน/ถูกซ่อนหนักมาก
+    if (!sCodeEl || !sLabelEl) return;
 
-    if (row) hideFallbackIfAny();
-    renderNote(row, code);
-  } catch (e) {
-    sCodeEl.textContent = "ND";
-    sCodeEl.setAttribute("data-status", "ND");
-    sLabelEl.textContent = label.ND;
-    renderNote(null, "ND");
+    // บังคับโชว์การ์ดที่ครอบ status pill
+    forceUnhide(sCodeEl);
+
+    const params = new URLSearchParams(location.search);
+    const drugA = params.get("drug_a") || "";
+    const drugB = params.get("drug_b") || "";
+    const a = normDrug(drugA);
+    const b = normDrug(drugB);
+    const k1 = a + "|" + b;
+    const k2 = b + "|" + a;
+
+    try{
+      const res = await fetch("./static/compat_lookup.json?x=" + Date.now(), { cache: "no-store" });
+      const lookup = await res.json();
+      const row = lookup[k1] || lookup[k2];
+
+      const code = (row && row.status ? String(row.status).toUpperCase() : "ND");
+
+      // เก็บไว้เผื่อ legacy มาเขียนทับทีหลัง แล้วเราจะ apply ซ้ำ
+      window.__compatLookupLast = { row, code };
+
+      sCodeEl.textContent = code;
+      sCodeEl.setAttribute("data-status", code);
+      sLabelEl.textContent = label[code] || label.ND;
+
+      if (row) hideFallbackIfAny();
+      renderNote(row, code, sLabelEl);
+
+      // กัน legacy มาเขียนทับหลังโหลด: เฝ้า mutation แล้ว apply ซ้ำ
+      const obs = new MutationObserver(() => {
+        const last = window.__compatLookupLast;
+        if (!last) return;
+        sCodeEl.textContent = last.code;
+        sCodeEl.setAttribute("data-status", last.code);
+        sLabelEl.textContent = label[last.code] || label.ND;
+      });
+      obs.observe(sCodeEl, { childList: true, subtree: true, characterData: true });
+      obs.observe(sLabelEl, { childList: true, subtree: true, characterData: true });
+
+    }catch(e){
+      // ถ้าโหลด lookup ไม่ได้ อย่างน้อยต้องไม่หน้าโล่ง
+      sCodeEl.textContent = "ND";
+      sCodeEl.setAttribute("data-status", "ND");
+      sLabelEl.textContent = label.ND;
+      forceUnhide(sCodeEl);
+    }
+  }
+
+  if (document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", run, { once:true });
+  } else {
+    run();
   }
 })();
 </script>
-'''.strip()
+'''
 
-if "</body>" in html:
-    html = html.replace("</body>", inject + "\n\n</body>")
-else:
-    html += "\n\n" + inject + "\n"
+# 3) Inject ก่อน </body>
+if not re.search(r'</body\s*>', html, flags=re.I):
+    raise SystemExit("ERROR: </body> not found in docs/compatibility_result.html")
+
+html = re.sub(r'</body\s*>', inject + '\n</body>', html, flags=re.I, count=1)
 
 F.write_text(html, encoding="utf-8")
 print("patched:", F)
