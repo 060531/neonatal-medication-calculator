@@ -1,6 +1,10 @@
 from pathlib import Path
-from datetime import datetime
-import shutil, json
+from datetime import datetime, date
+import os
+import argparse
+import shutil
+import json
+
 from jinja2 import Environment, FileSystemLoader, Undefined
 
 # ---------- PATHS ----------
@@ -15,6 +19,7 @@ class ZeroUndefined(Undefined):
     def __int__(self): return 0
     def __float__(self): return 0.0
     def __str__(self): return ""
+
     # arithmetic fallbacks
     def __add__(self, other): return other
     def __radd__(self, other): return other
@@ -29,10 +34,7 @@ class ZeroUndefined(Undefined):
     def __pow__(self, other): return 0
     def __rpow__(self, other): return 0
     def __round__(self, n=0):
-        try:
-            return round(float(0.0), n)
-        except Exception:
-            return 0
+        return 0
 
 # ---------- Jinja env ----------
 env = Environment(
@@ -43,12 +45,7 @@ env = Environment(
 
 # ---------- Filters / Helpers ----------
 def nz(x, default=0.0):
-    """
-    Null-safe numeric convert:
-    - nz(None) -> default
-    - nz("1.2") -> 1.2
-    - nz(value, default) supports templates that call nz(x, 0)
-    """
+    """Null-safe numeric convert; supports nz(x, 0)"""
     if isinstance(x, ZeroUndefined):
         return default
     if x is None or x == "":
@@ -59,14 +56,12 @@ def nz(x, default=0.0):
         return default
 
 def safe_round(value, ndigits=0):
-    # override Jinja round เพื่อกัน None/Undefined
     try:
         return round(float(nz(value, 0.0)), int(ndigits))
     except Exception:
         return 0
 
 def fmt(value, ndigits=2, default=""):
-    """format float with fixed decimals; safe for None/Undefined/empty"""
     if isinstance(value, ZeroUndefined) or value is None or value == "":
         return default
     try:
@@ -75,7 +70,6 @@ def fmt(value, ndigits=2, default=""):
         return str(value)
 
 def fmt_int(value, default=""):
-    """format int; safe for None/Undefined/empty"""
     if isinstance(value, ZeroUndefined) or value is None or value == "":
         return default
     try:
@@ -97,10 +91,10 @@ def tojson_safe(value):
     return json.dumps(value, ensure_ascii=False, default=default)
 
 env.filters["nz"] = nz
-env.filters["round"] = safe_round          # override round
-env.filters["tojson"] = tojson_safe        # override tojson
-env.filters["fmt"] = fmt                   # add fmt
-env.filters["fmt_int"] = fmt_int           # add fmt_int
+env.filters["round"] = safe_round
+env.filters["tojson"] = tojson_safe
+env.filters["fmt"] = fmt
+env.filters["fmt_int"] = fmt_int
 
 # ---------- url_for / u / resolve_endpoint (offline build) ----------
 ROUTE_MAP = {
@@ -112,11 +106,9 @@ ROUTE_MAP = {
     "time_management_route": "time_management.html",
     "scan": "scan.html",
     "scan_server": "scan_server.html",
-    # เติมแบบเฉพาะกิจได้ แต่มี heuristic กันพังอยู่แล้ว
 }
 
 def _normalize_endpoint_name(endpoint: str) -> str:
-    # รองรับ blueprint.endpoint -> endpoint
     if not isinstance(endpoint, str):
         return "index"
     if "." in endpoint:
@@ -124,33 +116,20 @@ def _normalize_endpoint_name(endpoint: str) -> str:
     return endpoint.strip()
 
 def resolve_endpoint(endpoint: str, **values) -> str:
-    """
-    Resolve flask-like endpoint to html path for GitHub Pages.
-    Heuristics:
-    - static -> ./static/filename
-    - endpoint in ROUTE_MAP -> ./<mapped>
-    - already *.html -> as-is
-    - endswith _route -> ./<name>.html
-    - otherwise -> ./<endpoint>.html
-    """
     ep = _normalize_endpoint_name(endpoint)
 
     if ep == "static":
         return f"./static/{values.get('filename','')}".rstrip("/")
 
-    # ตรงแมพ
     if ep in ROUTE_MAP:
         return f"./{ROUTE_MAP[ep]}"
 
-    # ถ้าเป็นไฟล์อยู่แล้ว
     if ep.endswith(".html"):
         return f"./{ep}"
 
-    # pattern: xxx_route -> xxx.html
     if ep.endswith("_route"):
         return f"./{ep[:-6]}.html"
 
-    # เผื่อชื่อที่ลงท้ายด้วย _page -> .html
     if ep.endswith("_page"):
         return f"./{ep[:-5]}.html"
 
@@ -160,15 +139,14 @@ def url_for_stub(endpoint, **values):
     return resolve_endpoint(endpoint, **values)
 
 def u(endpoint, **values):
-    # ให้ templates ใช้ {{ u('amikin_route') }} ได้
     return resolve_endpoint(endpoint, **values)
 
 env.globals["url_for"] = url_for_stub
 env.globals["u"] = u
 env.globals["resolve_endpoint"] = resolve_endpoint
-env.globals["nz"] = nz  # เผื่อบางที่เรียกเป็น function ไม่ผ่าน filter
+env.globals["nz"] = nz
 
-# ---------- ค่า default สำหรับ template ที่ต้องมีตัวเลขใช้คำนวณ ----------
+# ---------- default context ----------
 default_context = {
     "bw": 0, "age_days": 0, "ga_weeks": 0, "pma_weeks": 0, "pma_days": 0,
     "dose": 0, "dose_mgkg": 0, "volume": 0, "rate": 0,
@@ -176,12 +154,30 @@ default_context = {
     "result": 0, "result2": 0, "infusion_rate": 0, "dilution": 0,
 }
 
+# ---------- update date picker ----------
+from typing import Optional
+
+def pick_update_date(cli_value: Optional[str] = None) -> str:
+    """
+    priority:
+    1) --update-date "..."
+    2) ENV UPDATE_DATE
+    3) now "YYYY-MM-DD HH:MM"
+    """
+    if cli_value and cli_value.strip():
+        return cli_value.strip()
+    env_v = os.getenv("UPDATE_DATE")
+    if env_v and env_v.strip():
+        return env_v.strip()
+    return datetime.now().strftime("%Y-%m-%d %H:%M")
+
 # ---------- build steps ----------
-def render_one(template_name: str):
+def render_one(template_name: str, update_date_str: str):
     tpl = env.get_template(template_name)
     html = tpl.render(
         static_build=True,
-        update_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        update_date=update_date_str,
+        UPDATE_DATE=update_date_str,
         **default_context,
     )
     out = DOCS / template_name
@@ -192,6 +188,7 @@ def render_one(template_name: str):
 def copy_static():
     dst = DOCS / "static"
     dst.mkdir(parents=True, exist_ok=True)
+
     if STATIC.exists():
         for p in STATIC.rglob("*"):
             to = dst / p.relative_to(STATIC)
@@ -200,19 +197,28 @@ def copy_static():
             else:
                 to.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(p, to)
+
     print("✓ static/ -> docs/static/")
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--update-date", dest="update_date", default=None,
+                        help='Override update date shown in footer, e.g. "2025-12-01" or "2025-12-01 18:30"')
+    args = parser.parse_args()
+
+    update_date_str = pick_update_date(args.update_date)
+
     for p in sorted(TPL.glob("*.html")):
         name = p.name
         if name == "base.html" or name.startswith("_"):
             continue
         try:
-            render_one(name)
+            render_one(name, update_date_str)
         except Exception as e:
             print(f"✗ skip {name} : {e!r}")
+
     copy_static()
-    print("Built docs/ from templates ✅")
+    print(f"Built docs/ from templates ✅ (update_date={update_date_str})")
 
 if __name__ == "__main__":
     main()

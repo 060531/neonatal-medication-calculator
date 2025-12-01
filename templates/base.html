@@ -147,9 +147,15 @@
     {% block content %}{% endblock %}
   </div>
 
-  <footer>
-    <p>Developed by Sukhontha Boonsookchan | update {{ UPDATE_DATE }}</p>
-  </footer>
+<footer>
+  Developed by Sukhontha Boonsoockchan |
+  {% set _ud = update_date or UPDATE_DATE or '' %}
+  {% if _ud %}
+    update {{ _ud }}
+  {% else %}
+    update
+  {% endif %}
+</footer>
 
   <!-- สมัคร Service Worker แบบใช้ได้ทั้ง Flask และ GitHub Pages -->
   <script>
