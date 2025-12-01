@@ -1,363 +1,211 @@
 {% extends "base.html" %}
-
 {% block title %}Result analyze (Compatibility){% endblock %}
-{% block body_class %}compat-page{% endblock %}
 
 {% block extra_head %}
 <style>
-  /* ===== Layout หลักของหน้านี้ (บังคับให้โชว์) ===== */
-  body.compat-page{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-  }
-
-  .compat-shell{
-    display:block !important;              /* ✅ บังคับ override ของของเก่า */
-    position:relative;
-    flex:1;
-    max-width:980px;
-    margin:0 auto;
-    padding:96px 12px 32px;
-    box-sizing:border-box;
-  }
-  @media (max-width:768px){
-    .compat-shell{
-      padding:88px 10px 28px;
-    }
-  }
-
-  .compat-title{
-    text-align:center;
-    margin:0 0 18px;
-    font-size:26px;
-    font-weight:800;
-    color:#0f172a;
-    text-shadow:0 1px 4px rgba(15,23,42,.45);
-  }
-  .compat-title span{
-    display:block;
-    font-size:16px;
-    font-weight:600;
-    opacity:.9;
-  }
-
+  .compat-wrap{max-width:920px;margin:0 auto;padding:16px 12px 140px;}
   .compat-card{
-    background:rgba(255,255,255,.88);
-    border-radius:18px;
-    box-shadow:0 12px 28px rgba(15,23,42,.25);
-    padding:20px 18px 22px;
-    margin:0 auto;
-  }
-  .compat-card-wide{ max-width:980px; }
-  @media (max-width:992px){ .compat-card-wide{ max-width:100%; } }
-
-  .compat-subtitle{
-    margin:0 0 10px;
-    text-align:center;
-    font-size:20px;
-    font-weight:700;
-    color:#0f172a;
-  }
-
-  .compat-result-header{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-    margin:18px auto 10px;
-    flex-wrap:wrap;
-  }
-  .compat-pill{
-    padding:6px 14px;
-    border-radius:999px;
-    background:#0f766e;
-    color:#fff;
-    font-weight:600;
-    min-width:120px;
-    text-align:center;
-  }
-  .compat-with{
-    font-weight:600;
-    color:#0f172a;
-  }
-
-  .compat-status-line{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    margin-bottom:12px;
-    flex-wrap:wrap;
-  }
-
-  /* base pill */
-  .compat-status-pill{
-    padding:4px 12px;
-    border-radius:999px;
-    background:#64748b; /* ND default */
-    color:#fff;
-    font-weight:700;
-    font-size:14px;
-    letter-spacing:.2px;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-  }
-  /* ✅ สีตามสถานะ */
-  .compat-status-pill.is-c{ background:#16a34a; }  /* green */
-  .compat-status-pill.is-i{ background:#dc2626; }  /* red */
-  .compat-status-pill.is-u{ background:#f59e0b; }  /* orange */
-  .compat-status-pill.is-nd{ background:#64748b; } /* gray */
-
-  .compat-status-text{
-    font-weight:600;
-    color:#0f172a;
-  }
-
-  /* Note block */
-  .compat-note-block{
-    background:#fff7ed;
-    border:1px solid #fed7aa;
-    border-radius:12px;
-    padding:14px 16px;
-    margin-top:14px;
+    background: rgba(255,255,255,.88);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(15,23,42,.12);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 10px 28px rgba(15,23,42,.18);
     text-align:left;
   }
-  .compat-note-title{
-    font-weight:800;
-    color:#0f172a;
-    margin:0 0 8px;
+  .compat-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .compat-title{font-weight:800;font-size:18px;line-height:1.2}
+  .compat-sub{font-size:13px;opacity:.8}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 12px;border-radius:999px;font-weight:800;
+    border:1px solid rgba(15,23,42,.14);
+    background: rgba(255,255,255,.75);
   }
-  .compat-note-main{
-    margin:0 0 6px;
-    white-space:pre-line; /* ✅ ให้ \n ขึ้นบรรทัดใหม่ */
-    color:#0f172a;
-    line-height:1.5;
-  }
-  .compat-note-ref{
-    margin:0;
+  .pill .dot{width:10px;height:10px;border-radius:50%;}
+  .pill.ok  { }
+  .pill.bad { }
+  .pill.warn{ }
+  .pill.nd  { }
+  /* ให้ต่างกันด้วยสี dot (ไม่พึ่งธีมเดิมก็ยังอ่านได้) */
+  .pill.ok  .dot{background:#16a34a;}
+  .pill.bad .dot{background:#dc2626;}
+  .pill.warn .dot{background:#f59e0b;}
+  .pill.nd  .dot{background:#64748b;}
+
+  .hr{border:none;border-top:1px solid rgba(15,23,42,.12);margin:14px 0}
+  .note-box{white-space:pre-wrap;line-height:1.55;font-size:14px}
+  .hint{
+    margin-top:12px;
+    background: rgba(255,255,255,.78);
+    border:1px dashed rgba(15,23,42,.25);
+    border-radius: 14px;
+    padding: 12px;
+    text-align:left;
     font-size:14px;
-    color:#4b5563;
   }
-
-  .compat-fallback{
-    margin-top:14px;
-    font-weight:700;
-    color:#0b5aa3;
-    text-align:center;
-  }
-
-  .compat-legend{
-    margin-top:18px;
-    font-size:14px;
-    text-align:center;
-    color:#0f172a;
-  }
-  .dot{
-    display:inline-block;
-    width:10px;
-    height:10px;
-    border-radius:999px;
-    vertical-align:middle;
-    margin-right:4px;
-  }
-  .dot-c{ background:#16a34a; }
-  .dot-i{ background:#dc2626; }
-  .dot-u{ background:#f59e0b; }
-  .dot-nd{ background:#64748b; }
-
-  .compat-actions{
-    margin-top:20px;
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:10px;
-  }
-  .compat-actions a{
-    text-decoration:none;
-    padding:8px 16px;
-    border-radius:999px;
-    font-weight:700;
-    font-size:14px;
-    box-shadow:0 6px 14px rgba(15,23,42,.22);
-    border:1px solid rgba(255,255,255,.7);
-  }
-  .btn-check{
-    background:#0ea5e9;
-    color:#f9fafb;
-  }
-  .btn-home{
-    background:#059669;
-    color:#ecfdf5;
-  }
-
-  /* ซ่อน/แสดง */
-  .hidden{ display:none !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="compat-shell">
-  <h1 class="compat-title">
-    ตรวจสอบความเข้ากันได้ของยา<br>
-    <span>Drug Compatibility</span>
-  </h1>
+<div class="compat-wrap">
 
-  <div class="compat-card compat-card-wide" id="compatCard">
-    <h2 class="compat-subtitle">Result analyze</h2>
+  <h2 class="title-badge">Result analyze (Compatibility)</h2>
 
-    <div class="compat-result-header">
-      <span class="compat-pill" data-drug-a>Drug A</span>
-      <span class="compat-with">with</span>
-      <span class="compat-pill" data-drug-b>Drug B</span>
+  <!-- การ์ดต้องแสดงเสมอ: ต่อให้ JS/JSON พังก็ยังเห็นโครง -->
+  <div class="compat-card" id="resultCard">
+    <div class="compat-top">
+      <div>
+        <div class="compat-sub">Drug pair</div>
+        <div class="compat-title"><span id="drugA">—</span> × <span id="drugB">—</span></div>
+      </div>
+      <div>
+        <span class="pill nd" id="statusPill"><span class="dot"></span><span id="statusText">Loading</span></span>
+      </div>
     </div>
 
-    <div class="compat-status-line">
-      <span class="compat-status-pill is-nd" data-status-pill>
-        <span data-status-code>ND</span>
-      </span>
-      <span class="compat-status-text" data-status-label>No data / ไม่มีข้อมูล</span>
-    </div>
+    <div class="hr"></div>
 
-    <hr>
+    <div style="font-weight:800;margin-bottom:6px">Note</div>
+    <div class="note-box" id="noteText">กำลังโหลดข้อมูล…</div>
 
-    <!-- Note (ซ่อนเมื่อไม่มี note จริง) -->
-    <div class="compat-note-block hidden" data-note-block>
-      <p class="compat-note-title">Notes / ข้อสรุปเชิงปฏิบัติ</p>
-      <p class="compat-note-main" data-note-main></p>
-      <p class="compat-note-ref" data-note-ref></p>
-    </div>
-
-    <!-- ✅ fallback แยกก้อน และซ่อนเมื่อมีผลลัพธ์ -->
-    <p class="compat-fallback" data-no-data-hint>
-      ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
-    </p>
-
-    <div class="compat-legend">
-      <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
-      • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
-      • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
-      • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
-    </div>
-
-    <div class="compat-actions">
-      <a href="compatibility.html" class="btn-check">↺ New check</a>
-      <a href="index.html" class="btn-home">Home</a>
-    </div>
+    <div id="srcText" style="margin-top:10px;font-size:12px;opacity:.75"></div>
   </div>
+
+  <div class="hint" id="noQueryHint" style="display:none">
+    ไม่พบพารามิเตอร์ <b>drug_a</b> และ <b>drug_b</b> ใน URL<br>
+    ให้ย้อนกลับไปหน้าเลือกยา แล้วค่อยกด “Analyze/Result” อีกครั้ง
+  </div>
+
 </div>
 
 <script>
 (() => {
-  const $ = (sel) => document.querySelector(sel);
+  const $ = (id) => document.getElementById(id);
 
-  const norm = (s) => (s || "")
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/\+/g, " ")         // กันกรณีมี + ติดมา
-    .replace(/\s+/g, " ");
+  const drugAEl = $("drugA");
+  const drugBEl = $("drugB");
+  const pillEl  = $("statusPill");
+  const statusEl= $("statusText");
+  const noteEl  = $("noteText");
+  const srcEl   = $("srcText");
+  const noQuery = $("noQueryHint");
 
-  const keyOf = (a,b) => `${norm(a)}||${norm(b)}`;
-
-  const params = new URLSearchParams(location.search);
-  const drugA = params.get("drug_a") || "Drug A";
-  const drugB = params.get("drug_b") || "Drug B";
-
-  const elA = $("[data-drug-a]");
-  const elB = $("[data-drug-b]");
-  if (elA) elA.textContent = drugA;
-  if (elB) elB.textContent = drugB;
-
-  const noDataHint = $("[data-no-data-hint]");
-  const noteBlock = $("[data-note-block]");
-  const noteMain  = $("[data-note-main]");
-  const noteRef   = $("[data-note-ref]");
-
-  const pill = $("[data-status-pill]");
-  const sCodeEl  = $("[data-status-code]");
-  const sLabelEl = $("[data-status-label]");
-
-  const LABEL = {
-    C: "Compatible / ผสมร่วมได้",
-    I: "Incompatible / ห้ามผสม",
-    U: "Uncertain / ไม่ชัดเจน",
-    ND:"No data / ไม่มีข้อมูล",
+  const setPill = (kind, text) => {
+    pillEl.classList.remove("ok","bad","warn","nd");
+    pillEl.classList.add(kind);
+    statusEl.textContent = text;
   };
 
-  const setStatus = (code) => {
-    const c = (code || "ND").toString().toUpperCase();
-    if (sCodeEl)  sCodeEl.textContent = c;
-    if (sLabelEl) sLabelEl.textContent = LABEL[c] || "Unknown";
+  const norm = (s) => (s || "").trim();
+  const normKey = (a,b) => `${norm(a)}||${norm(b)}`.toLowerCase();
 
-    if (pill){
-      pill.classList.remove("is-c","is-i","is-u","is-nd");
-      if (c === "C") pill.classList.add("is-c");
-      else if (c === "I") pill.classList.add("is-i");
-      else if (c === "U") pill.classList.add("is-u");
-      else pill.classList.add("is-nd");
+  async function fetchFirst(urls){
+    for (const url of urls){
+      try{
+        const r = await fetch(url, {cache:"no-store"});
+        if (!r.ok) continue;
+        return await r.json();
+      }catch(e){ /* try next */ }
     }
-  };
+    return null;
+  }
 
-  const setNote = (main, ref) => {
-    const hasMain = !!(main && main.trim());
-    const hasRef  = !!(ref && ref.trim());
-    if (noteMain) noteMain.textContent = hasMain ? main : "";
-    if (noteRef)  noteRef.textContent  = hasRef ? `Reference: ${ref}` : "";
+  function extractRecord(data, a, b){
+    if (!data) return null;
 
-    if (noteBlock){
-      if (hasMain || hasRef) noteBlock.classList.remove("hidden");
-      else noteBlock.classList.add("hidden");
+    // case 1: mapping object { "a||b": {...} }
+    if (typeof data === "object" && !Array.isArray(data)) {
+      const k1 = normKey(a,b);
+      const k2 = normKey(b,a);
+      return data[k1] || data[k2] || null;
     }
-  };
 
-  const fetchLookup = async () => {
-    const url = `./static/compat_lookup.json?x=${Date.now()}`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("compat_lookup.json load failed");
-    return res.json();
-  };
-
-  const pickHit = (db) => {
-    const k1 = keyOf(drugA, drugB);
-    const k2 = keyOf(drugB, drugA);
-    return db[k1] || db[k2] || null;
-  };
-
-  // init
-  setStatus("ND");
-  setNote("", "");
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      const db = await fetchLookup();
-      const hit = pickHit(db);
-
-      if (hit) {
-        const code = hit.code || hit.status || "ND";
-        setStatus(code);
-
-        const mainTxt =
-          (hit.note_th && hit.note_en) ? `${hit.note_en}\n${hit.note_th}`
-          : (hit.note_th || hit.note_en || "");
-
-        setNote(mainTxt, hit.reference || hit.ref || "");
-
-        if (noDataHint) noDataHint.classList.add("hidden");
-      } else {
-        setStatus("ND");
-        setNote("", "");
-        if (noDataHint) noDataHint.classList.remove("hidden");
-      }
-
-    } catch (e) {
-      console.error(e);
-      setStatus("ND");
-      setNote("ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json) กรุณารีเฟรช/ตรวจการ deploy", "");
-      if (noDataHint) noDataHint.classList.remove("hidden");
+    // case 2: array [{drug_a, drug_b, status, note...}]
+    if (Array.isArray(data)) {
+      const aL = norm(a).toLowerCase();
+      const bL = norm(b).toLowerCase();
+      return data.find(x => {
+        const da = (x.drug_a || x.a || "").toLowerCase();
+        const db = (x.drug_b || x.b || "").toLowerCase();
+        return (da===aL && db===bL) || (da===bL && db===aL);
+      }) || null;
     }
+
+    return null;
+  }
+
+  function interpretStatus(rec){
+    const raw = (rec?.status ?? rec?.result ?? rec?.code ?? "").toString().toLowerCase();
+
+    // รองรับหลายรูปแบบ
+    if (raw.includes("compatible") || raw === "c" || raw === "1") return {kind:"ok", text:"Compatible"};
+    if (raw.includes("incompatible") || raw === "i" || raw === "0") return {kind:"bad", text:"Incompatible"};
+    if (raw.includes("uncertain") || raw.includes("caution") || raw === "u" || raw === "2") return {kind:"warn", text:"Uncertain"};
+    if (raw.includes("unknown") || raw === "unknown" || raw === "3") return {kind:"nd", text:"Unknown"};
+    return {kind:"nd", text:"ND"};
+  }
+
+  function pickNote(rec){
+    return rec?.note_th || rec?.note || rec?.detail || rec?.details || "";
+  }
+
+  async function main(){
+    const qs = new URLSearchParams(location.search);
+    const drugA = qs.get("drug_a") || qs.get("a") || "";
+    const drugB = qs.get("drug_b") || qs.get("b") || "";
+
+    drugAEl.textContent = norm(drugA) || "—";
+    drugBEl.textContent = norm(drugB) || "—";
+
+    if (!norm(drugA) || !norm(drugB)) {
+      setPill("nd","ND");
+      noteEl.textContent = "กรุณาเลือก Drug A และ Drug B จากหน้าก่อนหน้า";
+      noQuery.style.display = "block";
+      return;
+    }
+
+    // ใช้ได้ทั้ง GitHub Pages และ Flask โดย “ลองหลาย path”
+    const candidates = [
+      "./static/compat_lookup.json",
+      "./static/compat_lookup.min.json",
+      "/static/compat_lookup.json",
+      "/static/compat_lookup.min.json"
+    ];
+
+    const data = await fetchFirst(candidates);
+
+    if (!data){
+      setPill("nd","ND");
+      noteEl.textContent =
+        "ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json)\n" +
+        "• GitHub Pages: ตรวจว่าไฟล์อยู่ที่ docs/static/compat_lookup.json และถูก deploy แล้ว\n" +
+        "• Flask: ตรวจว่า /static/compat_lookup.json เข้าถึงได้";
+      srcEl.textContent = "Data source: not available";
+      return;
+    }
+
+    const rec = extractRecord(data, drugA, drugB);
+
+    if (!rec){
+      setPill("nd","ND");
+      noteEl.textContent =
+        "ไม่พบคู่ยาในฐานข้อมูล\n" +
+        "ข้อเสนอเชิงความปลอดภัย: ให้ถือเป็น 'ไม่มีข้อมูล' และหลีกเลี่ยงการผสม/ต่อ Y-site จนกว่าจะมีหลักฐาน";
+      srcEl.textContent = "Data source: compat_lookup.json (no match)";
+      return;
+    }
+
+    const st = interpretStatus(rec);
+    setPill(st.kind, st.text);
+    noteEl.textContent = pickNote(rec) || "—";
+    srcEl.textContent = "Data source: compat_lookup.json";
+  }
+
+  main().catch(err => {
+    console.error(err);
+    setPill("nd","ND");
+    noteEl.textContent = "เกิดข้อผิดพลาดระหว่างประมวลผล กรุณารีเฟรช/ล้างแคช แล้วลองใหม่";
   });
 })();
 </script>
