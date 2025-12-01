@@ -3,8 +3,13 @@
 
 {% block extra_head %}
 <style>
-  /* กันแถบปุ่มลอยทับเนื้อหา */
-  body { padding-bottom: 128px; }
+  html, body { width:100%; overflow-x:hidden; }
+  body{
+    margin:0;
+    padding-bottom: 120px; /* กันปุ่มลอยทับเนื้อหา */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 
   /* ---------- Theme variables (default/loading) ---------- */
   #compatResultRoot{
@@ -12,38 +17,29 @@
     --tint: rgba(14,165,166,.12);
     --tint2: rgba(14,165,166,.06);
   }
+  #compatResultRoot[data-status="C"] { --accent:#16a34a; --tint:rgba(22,163,74,.14); --tint2:rgba(22,163,74,.07); }
+  #compatResultRoot[data-status="I"] { --accent:#ef4444; --tint:rgba(239,68,68,.14); --tint2:rgba(239,68,68,.07); }
+  #compatResultRoot[data-status="U"] { --accent:#f59e0b; --tint:rgba(245,158,11,.16); --tint2:rgba(245,158,11,.08); }
+  #compatResultRoot[data-status="ND"]{ --accent:#3b82f6; --tint:rgba(59,130,246,.14); --tint2:rgba(59,130,246,.07); }
 
-  /* เปลี่ยนสีตามสถานะ */
-  #compatResultRoot[data-status="C"]  { --accent:#16a34a; --tint:rgba(22,163,74,.14);  --tint2:rgba(22,163,74,.07); }
-  #compatResultRoot[data-status="I"]  { --accent:#ef4444; --tint:rgba(239,68,68,.14); --tint2:rgba(239,68,68,.07); }
-  #compatResultRoot[data-status="U"]  { --accent:#f59e0b; --tint:rgba(245,158,11,.16); --tint2:rgba(245,158,11,.08); }
-  #compatResultRoot[data-status="ND"] { --accent:#3b82f6; --tint:rgba(59,130,246,.14); --tint2:rgba(59,130,246,.07); }
-
-  /* ---------- Layout: จัดกลาง “จริง” ---------- */
+  /* ---------- Layout: center จริง ---------- */
   .compat-wrap{
     width: 100%;
+    max-width: 980px;          /* ช่วยกัน “ชิดขวา” บนบาง viewport */
     margin: 0 auto;
-    padding: 18px 12px 164px;
+    padding: 18px 12px 160px;
     display: flex;
     flex-direction: column;
-    align-items: center;      /* กันอาการดูชิดขวา */
-  }
-
-  /* การ์ดและองค์ประกอบหลักให้คุมความกว้างเดียวกัน */
-  .compat-title,
-  .compat-card,
-  .compat-fabbar{
-    width: min(720px, 100%);
+    align-items: center;       /* ให้ทุกอย่างอยู่กลาง */
   }
 
   .compat-title{
-    margin: 6px 0 16px;
     text-align:center;
-    font-weight: 900;
-    letter-spacing: .2px;
-    display:block;
-
-    padding: 12px 18px;
+    font-weight:800;
+    letter-spacing:.2px;
+    margin: 6px 0 18px;
+    display:inline-block;
+    padding: 12px 22px;
     border-radius: 16px;
     color: #fff;
     background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0));
@@ -51,6 +47,8 @@
   }
 
   .compat-card{
+    width: min(720px, 100%);
+    margin: 0 auto;            /* บังคับกลาง */
     background: linear-gradient(180deg, var(--tint), rgba(255,255,255,.92));
     border: 1px solid rgba(15,23,42,.10);
     border-radius: 22px;
@@ -59,26 +57,28 @@
     overflow: hidden;
   }
 
+  /* ---------- FIX: หัวไม่ให้ทับกัน + อยู่กลาง ---------- */
   .compat-head{
     padding: 18px 18px 12px;
     display:flex;
-    gap: 14px;
-    align-items:flex-start;
-    justify-content:space-between;
+    flex-direction:column;     /* สำคัญ: ไม่ทับแน่นอน */
+    align-items:center;
+    gap: 12px;
+    text-align:center;
   }
 
-  /* ---------- Drug pair: กว้าง + บรรทัดเดียว ---------- */
-  .pair-box { display:flex; gap: 14px; align-items:flex-start; width: 100%; max-width: 420px; }
+  /* ---------- Drug pair: กว้างขึ้น + งดแตกบรรทัด ---------- */
+  .pair-box{ width: 100%; display:flex; justify-content:center; }
 
   .pair-label{
     color:#0b67c2;
-    font-weight: 900;
+    font-weight:800;
     font-size: 13px;
     margin-bottom: 6px;
   }
 
   .pair-pill{
-    width: 100%;
+    width: min(520px, 100%);   /* กว้างขึ้น แต่ไม่เกินการ์ด */
     border-radius: 18px;
     padding: 12px 12px;
     background: linear-gradient(180deg, #0ea5a6, #0b67c2);
@@ -89,38 +89,35 @@
   }
 
   .pair-pill .drug{
-    font-weight: 900;
+    font-weight:800;
     font-size: 14px;
     line-height: 1.2;
-
-    /* 1 บรรทัดเท่านั้น */
-    white-space: nowrap;
+    white-space: nowrap;       /* บังคับบรรทัดเดียว */
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;   /* ยาวเกินให้ ... */
+    padding: 0 6px;
   }
-
   .pair-pill .x{
-    font-weight: 900;
+    font-weight:900;
     font-size: 18px;
     margin: 6px 0;
-    opacity: .95;
+    opacity:.95;
   }
 
-  /* ---------- Status pill ---------- */
+  /* ---------- Status pill (อยู่กลาง ไม่ไปทับ) ---------- */
   .status-pill{
+    width: min(520px, 100%);
     display:inline-flex;
     align-items:center;
     gap:10px;
     padding: 12px 18px;
     border-radius: 999px;
-    font-weight: 900;
+    font-weight:900;
     border: 1px solid rgba(15,23,42,.10);
     background: rgba(255,255,255,.70);
-    min-width: 220px;
     justify-content:center;
     white-space: nowrap;
   }
-
   .status-pill .st-dot{
     width: 10px;
     height: 10px;
@@ -137,11 +134,10 @@
   .sep{ height:1px; background: rgba(15,23,42,.12); margin: 8px 0 14px; }
 
   .note-area{ text-align:center; padding: 10px 10px 0; }
-  .note-title{ font-weight: 900; color:#0b67c2; margin-bottom: 6px; }
-
+  .note-title{ font-weight:900; color:#0b67c2; margin-bottom: 6px; }
   .note-text{
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 700;
     color:#0f172a;
     line-height: 1.6;
     background: linear-gradient(180deg, var(--tint2), rgba(255,255,255,.0));
@@ -150,23 +146,27 @@
     border: 1px solid rgba(15,23,42,.08);
   }
   .ref{ margin-top: 10px; font-size: 13px; color: rgba(15,23,42,.65); }
-
   .debug{ padding: 8px 18px 14px; font-size: 12px; color: rgba(15,23,42,.55); }
 
-  /* ---------- Legend: อยู่แทนตำแหน่งปุ่มเดิม ---------- */
+  /* ---------- Legend: อยู่กลางจริง ---------- */
   .compat-legend{
-    margin: 14px 18px 18px;
-    background: rgba(255,255,255,.88);
+    margin: 14px auto 18px;
+    width: min(560px, 100%);
+    background: rgba(255,255,255,.86);
     border: 1px solid rgba(15,23,42,.10);
     box-shadow: 0 10px 24px rgba(15,23,42,.10);
     border-radius: 16px;
     padding: 10px 12px;
     color: #0f172a;
+
+    display:flex;              /* center กล่องด้านใน */
+    justify-content:center;
   }
 
   .legend-grid{
+    width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;   /* จอปกติ 2 คอลัมน์ */
+    grid-template-columns: 1fr 1fr; /* จอปกติ 2 คอลัมน์ */
     gap: 8px 12px;
     align-items: start;
   }
@@ -174,25 +174,23 @@
   .leg-item{
     display:flex;
     align-items:flex-start;
-    gap: 8px;
-    font-weight: 900;
+    gap:8px;
+    font-weight: 800;
     font-size: 13px;
     line-height: 1.25;
     white-space: normal;
   }
 
   .leg-dot{
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-top: 3px;
-    flex: 0 0 10px;
+    width: 10px; height: 10px; border-radius: 50%;
+    margin-top: 3px; flex: 0 0 10px;
   }
   .leg-dot.c{ background:#16a34a; }
   .leg-dot.i{ background:#ef4444; }
   .leg-dot.u{ background:#f59e0b; }
   .leg-dot.nd{ background:#3b82f6; }
 
-  /* ---------- FAB bar (ปุ่มลอย) ---------- */
+  /* ---------- FAB bar ---------- */
   .compat-fabbar{
     position: fixed;
     left: 50%;
@@ -200,6 +198,7 @@
     transform: translateX(-50%);
     z-index: 1000;
 
+    width: min(720px, calc(100% - 24px));
     display:flex;
     gap: 10px;
     padding: 10px;
@@ -218,7 +217,7 @@
     padding: 12px 14px;
     font-weight: 900;
     cursor: pointer;
-    display:inline-flex;
+    display:flex;
     gap: 8px;
     align-items:center;
     justify-content:center;
@@ -230,30 +229,27 @@
 
   /* ---------- Mobile tweaks ---------- */
   @media (max-width: 560px){
-    body { padding-bottom: 132px; }
-
-    .compat-head{ flex-direction: column; align-items: stretch; }
-    .pair-box{ max-width: none; }
-    .pair-pill{ width: 100%; }
-    .status-pill{ width: 100%; min-width: 0; }
-
-    /* Legend: จอเล็ก = 1 คอลัมน์, ตัวเล็กลง, ไม่ล้น */
-    .legend-grid{ grid-template-columns: 1fr; }
+    .legend-grid{ grid-template-columns: 1fr; } /* จอเล็กคนละบรรทัด */
     .leg-item{ font-size: 12px; }
-
-    /* ทำให้แถบปุ่มลอยเต็มจอแบบสวย ๆ */
-    .compat-fabbar{ width: calc(100% - 20px); }
     .fab-btn{ padding: 12px 12px; font-size: 14px; }
   }
 </style>
 
 <script>
-  // สำหรับ app.js: ให้ URL ที่ถูกต้องทั้ง Pages + Flask
+  // ให้ app.js ใช้ได้ทั้ง Pages + Flask
   window.__URLS = {
-    lookup: ({% if url_for is defined %}"{{ url_for('static', filename='compat_lookup.json') }}"{% else %}"./static/compat_lookup.json"{% endif %}),
-    newCheck: ({% if url_for is defined %}"{{ url_for('compat.compat_index') }}"{% else %}"./compatibility.html"{% endif %}),
-    home: ({% if url_for is defined %}"{{ url_for('main.index') }}"{% else %}"./index.html"{% endif %})
+    lookup: "./static/compat_lookup.json",
+    newCheck: "./compatibility.html",
+    home: "./index.html"
   };
+  // ถ้าเป็น Flask (มี url_for) ให้ทับค่าด้วย route จริง
+  {% if url_for is defined %}
+  window.__URLS = {
+    lookup: "{{ url_for('static', filename='compat_lookup.json') }}",
+    newCheck: "{{ url_for('compat.compat_index') }}",
+    home: "{{ url_for('main.index') }}"
+  };
+  {% endif %}
 </script>
 {% endblock %}
 
@@ -264,9 +260,9 @@
   <div class="compat-card">
     <div class="compat-head">
       <div class="pair-box">
-        <div style="width:100%">
+        <div style="width:min(520px,100%)">
           <div class="pair-label">Drug pair</div>
-          <div class="pair-pill">
+          <div class="pair-pill" id="pairPill" title="">
             <div class="drug" id="drugA">—</div>
             <div class="x">×</div>
             <div class="drug" id="drugB">—</div>
@@ -295,7 +291,6 @@
 
     <div class="debug" id="debugLine" hidden></div>
 
-    <!-- Legend (อยู่แทนที่ตำแหน่งปุ่มเดิม) -->
     <div class="compat-legend" id="compatLegend" aria-label="Compatibility Legend">
       <div class="legend-grid">
         <span class="leg-item"><span class="leg-dot c"></span> C = Compatible / ผสมร่วมได้</span>
@@ -306,18 +301,9 @@
     </div>
   </div>
 
-  <!-- ปุ่มลอย (app.js จะ patch href + hard navigate ให้เอง) -->
   <div class="compat-fabbar" role="navigation" aria-label="Actions">
-    <a class="fab-btn fab-primary" id="fabNewCheck"
-       href="./compatibility.html"
-       data-flask-href="{% if url_for is defined %}{{ url_for('compat.compat_index') }}{% endif %}">
-      ↻ New check
-    </a>
-    <a class="fab-btn fab-secondary" id="fabHome"
-       href="./index.html"
-       data-flask-href="{% if url_for is defined %}{{ url_for('main.index') }}{% endif %}">
-      🏠 Home
-    </a>
+    <a class="fab-btn fab-primary" id="fabNewCheck" href="./compatibility.html">↻ New check</a>
+    <a class="fab-btn fab-secondary" id="fabHome" href="./index.html">🏠 Home</a>
   </div>
 </div>
 {% endblock %}
