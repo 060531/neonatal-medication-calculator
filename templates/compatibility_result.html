@@ -1,297 +1,374 @@
 {% extends "base.html" %}
+
 {% block title %}Result analyze (Compatibility){% endblock %}
 
 {% block extra_head %}
 <style>
-  /* ขยายพื้นที่รวม */
+  /* ===== WIDEN: กัน base ที่ล็อคความกว้าง ===== */
   .compat-wrap{
-    max-width: 1100px;              /* ✅ กว้างขึ้น */
+    /* ออกแบบให้เดสก์ท็อปกว้างขึ้น แต่ยัง responsive */
+    width: min(980px, calc(100vw - 24px));
     margin: 0 auto;
-    padding: 18px 12px 170px;
+    padding: 16px 12px 160px;
+    position: relative;
+
+    /* ถ้า base มี container แคบ: “ดันออกจากกรอบ” อย่างปลอดภัย */
+    left: 50%;
+    transform: translateX(-50%);
   }
 
-  /* ✅ ขยายกรอบขาวให้ใหญ่ขึ้น และสูงขั้นต่ำ */
   .compat-card{
+    width: 100%;
     background: rgba(255,255,255,.92);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(15,23,42,.12);
-    border-radius: 22px;
-    padding: 18px 18px 20px;
-    box-shadow: 0 12px 34px rgba(15,23,42,.20);
-    text-align:left;
-
-    min-height: 320px;              /* ✅ สูงขั้นต่ำ */
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 18px 18px 16px;
   }
 
   .compat-top{
-    display:flex; gap:12px; flex-wrap:wrap;
-    align-items:center; justify-content:space-between
-  }
-  .compat-title{font-weight:900;font-size:20px;line-height:1.25}
-  .compat-sub{font-size:13px;opacity:.85}
-
-  .pill{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:9px 14px;border-radius:999px;font-weight:900;
-    border:1px solid rgba(15,23,42,.14);
-    background: rgba(255,255,255,.86);
-    user-select:none;
-  }
-  .pill .dot{width:10px;height:10px;border-radius:50%;}
-  .pill.ok  .dot{background:#16a34a;}
-  .pill.bad .dot{background:#dc2626;}
-  .pill.warn .dot{background:#f59e0b;}
-  .pill.nd  .dot{background:#64748b;}
-
-  .hr{border:none;border-top:1px solid rgba(15,23,42,.12);margin:14px 0}
-
-  .note-box{
-    white-space:pre-wrap;
-    line-height:1.65;
-    font-size:15px;                 /* ✅ อ่านง่ายขึ้น */
-    min-height: 120px;              /* ✅ พื้นที่ผลลัพธ์สูงขึ้น */
-  }
-
-  .meta{
-    margin-top:10px;
-    font-size:12px;
-    opacity:.78;
-    line-height:1.45;
-  }
-
-  .hint{
-    margin-top:12px;
-    background: rgba(255,255,255,.80);
-    border:1px dashed rgba(15,23,42,.25);
-    border-radius: 14px;
-    padding: 12px;
-    text-align:left;
-    font-size:14px;
-  }
-
-  .btn-row{
-    margin-top:16px;
     display:flex;
-    gap:10px;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+  }
+
+  .label{
+    font-size: 14px;
+    color:#0b6aa9;
+    margin-bottom:6px;
+  }
+
+  /* กล่อง Drug pair สไตล์เดียวกับที่คุณใช้อยู่ */
+  .pair-pill{
+    width: 92px;
+    min-height: 118px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #0ea5a6, #0284c7);
+    box-shadow: 0 12px 18px rgba(2, 132, 199, .25);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
     justify-content:center;
-    flex-wrap:wrap;
+    gap: 10px;
+    padding: 10px 8px;
+  }
+  .pair-pill .drug{
+    color:#fff;
+    font-weight:700;
+    font-size: 12px;
+    line-height: 1.15;
+    text-align:center;
+    word-break: break-word;
+    max-width: 76px;
+  }
+  .pair-pill .sep{
+    color:#fff;
+    font-weight:900;
+    font-size: 20px;
+    line-height: 1;
+    opacity: .95;
+  }
+
+  .status-pill{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(15,23,42,.14);
+    background: rgba(255,255,255,.8);
+    min-width: 160px;
+    justify-content:center;
+    height: 42px;
+  }
+  .dot{
+    width:10px; height:10px; border-radius:999px;
+    background:#64748b; /* default */
+  }
+  .status-text{
+    font-weight:800;
+    color:#0b6aa9;
+    letter-spacing:.2px;
+  }
+
+  .divider{ border:none; border-top:1px solid rgba(15,23,42,.12); margin: 14px 0; }
+
+  .note-title{
+    font-size: 18px;
+    font-weight: 900;
+    color:#0b6aa9;
+    margin-bottom:6px;
+  }
+  .note-text{
+    color:#0f172a;
+    font-size: 15px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    min-height: 84px;
+  }
+  .meta-text{
+    margin-top: 10px;
+    color:#64748b;
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .actions{
+    display:flex;
+    gap: 10px;
+    justify-content:center;
+    margin-top: 18px;
+    flex-wrap: wrap;
   }
   .btn{
-    border:0;border-radius:999px;
-    padding:10px 16px;
-    font-weight:900;
-    cursor:pointer;
-    text-decoration:none;
     display:inline-flex;
     align-items:center;
     gap:8px;
-    box-shadow:0 10px 20px rgba(15,23,42,.12);
+    padding: 11px 16px;
+    border-radius: 999px;
+    text-decoration:none;
+    font-weight: 900;
+    border: 1px solid rgba(15,23,42,.12);
   }
-  .btn.primary{background:#16a34a;color:#fff;}
-  .btn.ghost{background:rgba(15,23,42,.06);color:#0f172a;}
+  .btn-primary{
+    background: #16a34a;
+    color: #fff;
+    border-color: rgba(22,163,74,.2);
+  }
+  .btn-ghost{
+    background: rgba(255,255,255,.75);
+    color:#0f172a;
+  }
+
+  /* มือถือ */
+  @media (max-width: 520px){
+    .compat-wrap{ width: calc(100vw - 16px); }
+    .pair-pill{ width: 86px; min-height: 112px; }
+    .status-pill{ min-width: 140px; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="compat-wrap">
-  <h2 class="title-badge">Result analyze (Compatibility)</h2>
+  <div class="compat-wrap">
+    <h2 class="title-badge">Result analyze (Compatibility)</h2>
 
-  <div class="compat-card" id="resultCard">
-    <div class="compat-top">
-      <div>
-        <div class="compat-sub">Drug pair</div>
-        <div class="compat-title"><span id="drugA">—</span> × <span id="drugB">—</span></div>
+    <section class="compat-card" id="resultCard" aria-live="polite">
+      <div class="compat-top">
+        <div>
+          <div class="label">Drug pair</div>
+          <div class="pair-pill" aria-label="drug pair">
+            <div class="drug" id="drugA">—</div>
+            <div class="sep">×</div>
+            <div class="drug" id="drugB">—</div>
+          </div>
+        </div>
+
+        <div class="status-pill" id="statusPill">
+          <span class="dot" id="statusDot"></span>
+          <span class="status-text" id="statusText">Loading</span>
+        </div>
       </div>
-      <div>
-        <span class="pill nd" id="statusPill">
-          <span class="dot"></span><span id="statusText">Loading</span>
-        </span>
+
+      <hr class="divider" />
+
+      <div class="note-title">Note</div>
+      <div class="note-text" id="noteText">กำลังโหลดข้อมูล...</div>
+      <div class="meta-text" id="metaText"></div>
+
+      <div class="actions">
+        <a class="btn btn-primary" id="btnNew" href="./compatibility.html">↻ New check</a>
+        <a class="btn btn-ghost" id="btnHome" href="./index.html">🏠 Home</a>
       </div>
-    </div>
-
-    <div class="hr"></div>
-
-    <div style="font-weight:900;margin-bottom:6px">Note</div>
-    <div class="note-box" id="noteText">กำลังโหลดข้อมูล…</div>
-
-    <div class="meta" id="metaText"></div>
-
-    <div class="btn-row">
-      <a class="btn primary" href="./compatibility.html">↻ New check</a>
-      <a class="btn ghost" href="./index.html">🏠 Home</a>
-    </div>
+    </section>
   </div>
 
-  <div class="hint" id="noQueryHint" style="display:none">
-    ไม่พบพารามิเตอร์ <b>drug_a</b> และ <b>drug_b</b> ใน URL<br>
-    ให้ย้อนกลับไปหน้าเลือกยา แล้วค่อยกด “Analyze/Result” อีกครั้ง
-  </div>
-</div>
-{% endblock %}
+  <!-- ✅ วาง script ไว้ท้าย content เพื่อให้ “แน่ใจว่ารัน” ทั้ง Flask + Pages -->
+  <script>
+  (() => {
+    const $ = (id) => document.getElementById(id);
 
-{% block extra_js %}
-<script>
-(() => {
-  const $ = (id) => document.getElementById(id);
+    const elDrugA = $("drugA");
+    const elDrugB = $("drugB");
+    const elStatusText = $("statusText");
+    const elDot = $("statusDot");
+    const elNote = $("noteText");
+    const elMeta = $("metaText");
+    const elBtnHome = $("btnHome");
+    const elBtnNew = $("btnNew");
 
-  const drugAEl = $("drugA");
-  const drugBEl = $("drugB");
-  const pillEl  = $("statusPill");
-  const statusEl= $("statusText");
-  const noteEl  = $("noteText");
-  const metaEl  = $("metaText");
-  const noQuery = $("noQueryHint");
-
-  const setPill = (kind, text) => {
-    pillEl.classList.remove("ok","bad","warn","nd");
-    pillEl.classList.add(kind);
-    statusEl.textContent = text;
-  };
-
-  // ✅ ทำ normalization ให้โอกาส match สูงขึ้น
-  const norm = (s) => (s || "")
-    .toString()
-    .trim()
-    .replace(/\s+/g, " ");
-
-  const keyLower = (a,b) => `${norm(a)}||${norm(b)}`.toLowerCase();
-  const keyLowerAlt = (a,b) => `${norm(a)}|${norm(b)}`.toLowerCase(); // กันกรณี build ใช้ |
-
-  async function fetchFirst(urls){
-    for (const url of urls){
-      try{
-        const bust = (url.includes("?") ? "&" : "?") + "v=" + Date.now();
-        const r = await fetch(url + bust, {cache:"no-store"});
-        if (!r.ok) continue;
-        return {data: await r.json(), used:url};
-      }catch(e){ }
-    }
-    return null;
-  }
-
-  function extractRecord(data, a, b){
-    if (!data) return null;
-
-    // 1) mapping object
-    if (typeof data === "object" && !Array.isArray(data)) {
-      const k1 = keyLower(a,b);
-      const k2 = keyLower(b,a);
-      const k1b= keyLowerAlt(a,b);
-      const k2b= keyLowerAlt(b,a);
-      return data[k1] || data[k2] || data[k1b] || data[k2b] || null;
+    const isStaticHtml = /\.html(\?|$)/i.test(location.pathname); // Pages: .../compatibility_result.html
+    // Link ให้ถูกทั้ง 2 โหมด
+    if (!isStaticHtml) {
+      // Flask mode (สมมติ route มาตรฐาน)
+      elBtnHome.href = "/";
+      elBtnNew.href  = "/compatibility";
     }
 
-    // 2) array records
-    if (Array.isArray(data)) {
-      const aL = norm(a).toLowerCase();
-      const bL = norm(b).toLowerCase();
-      return data.find(x => {
-        const da = norm(x.drug_a || x.a || "").toLowerCase();
-        const db = norm(x.drug_b || x.b || "").toLowerCase();
-        return (da===aL && db===bL) || (da===bL && db===aL);
-      }) || null;
-    }
-
-    return null;
-  }
-
-  function interpretStatus(rec){
-    const raw = (rec?.status ?? rec?.result ?? rec?.code ?? "").toString().toUpperCase();
-
-    // รองรับทั้ง C/I/U/ND และข้อความเต็ม
-    if (raw === "C" || raw.includes("COMPAT")) return {kind:"ok", text:"Compatible"};
-    if (raw === "I" || raw.includes("INCOMPAT")) return {kind:"bad", text:"Incompatible"};
-    if (raw === "U" || raw.includes("UNCERTAIN") || raw.includes("CAUTION")) return {kind:"warn", text:"Uncertain"};
-    if (raw === "ND" || raw.includes("NO DATA") || raw.includes("UNKNOWN")) return {kind:"nd", text:"ND"};
-    return {kind:"nd", text:"ND"};
-  }
-
-  function pickNote(rec){
-    // ✅ รองรับ field จาก seed_compatibility.json
-    return (
-      rec?.summary_th ||
-      rec?.note_th ||
-      rec?.summary_en ||
-      rec?.note ||
-      rec?.detail ||
-      rec?.details ||
-      ""
-    );
-  }
-
-  function pickRef(rec){
-    return rec?.reference || rec?.ref || rec?.source || "";
-  }
-
-  async function main(){
     const qs = new URLSearchParams(location.search);
-    const drugA = qs.get("drug_a") || qs.get("a") || "";
-    const drugB = qs.get("drug_b") || qs.get("b") || "";
+    const rawA = (qs.get("drug_a") || "").trim();
+    const rawB = (qs.get("drug_b") || "").trim();
 
-    drugAEl.textContent = norm(drugA) || "—";
-    drugBEl.textContent = norm(drugB) || "—";
+    elDrugA.textContent = rawA || "—";
+    elDrugB.textContent = rawB || "—";
 
-    if (!norm(drugA) || !norm(drugB)) {
-      setPill("nd","ND");
-      noteEl.textContent = "กรุณาเลือก Drug A และ Drug B จากหน้าก่อนหน้า";
-      metaEl.textContent = "No query params";
-      noQuery.style.display = "block";
-      return;
-    }
+    const norm = (s) =>
+      String(s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .replace(/_/g, " ")
+        .replace(/\./g, "")
+        .replace(/\(.*?\)/g, "")   // ตัดวงเล็บ
+        .trim();
 
-    // ✅ ใช้ได้ทั้ง Flask และ Pages
-    const flaskUrl = "{{ url_for('static', filename='compat_lookup.json') }}";
-    const pagesUrl = "./static/compat_lookup.json";
+    const mkKey = (a, b, delim="|") => {
+      const x = norm(a), y = norm(b);
+      if (!x || !y) return "";
+      return (x < y) ? `${x}${delim}${y}` : `${y}${delim}${x}`;
+    };
 
-    const candidates = [
-      pagesUrl,
-      flaskUrl,
-      "/static/compat_lookup.json",
-      "./static/compat_lookup.min.json",
-    ].filter(Boolean);
+    const setStatus = (code, text) => {
+      elStatusText.textContent = text;
 
-    const got = await fetchFirst(candidates);
+      // สีจุด (ไม่ใช้ class เยอะ เพื่อไม่ชน css เดิม)
+      const map = {
+        good: "#16a34a",
+        bad:  "#dc2626",
+        warn: "#f59e0b",
+        info: "#0ea5a6",
+        none: "#64748b",
+      };
+      elDot.style.background = map[code] || map.none;
+    };
 
-    if (!got){
-      setPill("nd","ND");
-      noteEl.textContent =
-        "ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json)\n" +
-        "• GitHub Pages: ตรวจว่าไฟล์อยู่ที่ docs/static/compat_lookup.json และ deploy แล้ว\n" +
-        "• Flask: ตรวจว่า /static/compat_lookup.json เข้าถึงได้";
-      metaEl.textContent = "Data source: not available";
-      return;
-    }
+    const pickNote = (rec) => {
+      // รองรับ field หลายแบบ (เผื่อ json เปลี่ยนชื่อ)
+      return (
+        rec.summary_th ||
+        rec.note_th ||
+        rec.summary ||
+        rec.note ||
+        rec.detail ||
+        rec.details ||
+        ""
+      );
+    };
 
-    const {data, used} = got;
-    const rec = extractRecord(data, drugA, drugB);
+    const pickRef = (rec) => {
+      return rec.reference || rec.ref || rec.source || rec.citation || "";
+    };
 
-    if (!rec){
-      setPill("nd","ND");
-      noteEl.textContent =
-        "ไม่พบคู่ยาในฐานข้อมูล\n" +
-        "ข้อเสนอเชิงความปลอดภัย: ถือเป็น 'ไม่มีข้อมูล (ND)' และหลีกเลี่ยงการให้ร่วมสาย (Y-site) จนกว่าจะมีหลักฐาน";
-      metaEl.textContent =
-        "Data source: " + used + " | lookup_key=" + keyLower(drugA,drugB);
-      return;
-    }
+    const normStatus = (v) => {
+      const s = String(v ?? "").trim().toLowerCase();
+      // รองรับทั้งตัวอักษร/คำเต็ม/ตัวเลข
+      if (s === "1" || s === "c" || s.includes("compat")) return {code:"good", text:"Compatible"};
+      if (s === "0" || s === "i" || s.includes("incompat")) return {code:"bad", text:"Incompatible"};
+      if (s === "u" || s.includes("uncertain")) return {code:"warn", text:"Uncertain"};
+      if (s === "nd" || s.includes("no") || s.includes("unknown") || s.includes("data")) return {code:"none", text:"No data"};
+      return {code:"info", text: (v ? String(v) : "Unknown")};
+    };
 
-    const st = interpretStatus(rec);
-    setPill(st.kind, st.text);
+    const candidates = (() => {
+      const base = new URL(".", location.href);
 
-    const note = pickNote(rec);
-    noteEl.textContent = note || "—";
+      // Pages: ./static/compat_lookup.json
+      const pagesUrl = new URL("static/compat_lookup.json", base).toString();
 
-    const ref = pickRef(rec);
-    metaEl.textContent = "Reference: " + (ref || "—") + " | Source: " + used;
-  }
+      // Flask: /static/compat_lookup.json
+      const flaskUrl = new URL("/static/compat_lookup.json", location.origin).toString();
 
-  main().catch(err => {
-    console.error(err);
-    setPill("nd","ND");
-    noteEl.textContent = "เกิดข้อผิดพลาดระหว่างประมวลผล กรุณารีเฟรช/ล้างแคช แล้วลองใหม่";
-    metaEl.textContent = "Runtime error (see console)";
-  });
+      // กัน cache
+      const bust = `v=${Date.now()}`;
+      return [
+        `${pagesUrl}?${bust}`,
+        `${flaskUrl}?${bust}`,
+      ];
+    })();
 
-})();
-</script>
+    const findRecord = (lookup, a, b) => {
+      const tries = [
+        mkKey(a,b,"|"),
+        mkKey(a,b,"||"),
+        mkKey(a,b,"::"),
+        // เผื่อ json เก็บ key แบบไม่ normalize
+        (a && b) ? ((a < b) ? `${a}|${b}` : `${b}|${a}`) : "",
+        (a && b) ? ((a < b) ? `${a}||${b}` : `${b}||${a}`) : "",
+      ].filter(Boolean);
+
+      for (const k of tries) {
+        if (lookup[k]) return { key:k, rec: lookup[k] };
+        if (lookup[k.toLowerCase()]) return { key:k.toLowerCase(), rec: lookup[k.toLowerCase()] };
+      }
+      return null;
+    };
+
+    (async () => {
+      try {
+        if (!rawA || !rawB) {
+          setStatus("none", "No data");
+          elNote.textContent = "ไม่พบค่า drug_a / drug_b ใน URL";
+          elMeta.textContent = "Debug: ต้องมี ?drug_a=...&drug_b=...";
+          return;
+        }
+
+        let lookup = null;
+        let usedUrl = null;
+        let lastErr = null;
+
+        for (const url of candidates) {
+          try {
+            const r = await fetch(url, { cache: "no-store" });
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            lookup = await r.json();
+            usedUrl = url;
+            break;
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+
+        if (!lookup) {
+          setStatus("none", "No data");
+          elNote.textContent = "โหลดฐานข้อมูลไม่สำเร็จ";
+          elMeta.textContent = `Debug: fetch failed | ${String(lastErr)} | tried: ${candidates.join(" , ")}`;
+          return;
+        }
+
+        const hit = findRecord(lookup, rawA, rawB);
+
+        if (!hit) {
+          setStatus("none", "No data");
+          elNote.textContent = "ไม่พบคู่ยานี้ใน compat_lookup.json";
+          // ช่วย debug: แนะนำ key ที่ใกล้เคียง (ค้นแบบ contains)
+          const na = norm(rawA), nb = norm(rawB);
+          const keys = Object.keys(lookup || {});
+          const near = keys.filter(k => k.includes(na) || k.includes(nb)).slice(0, 8);
+          elMeta.textContent =
+            `Source: ${usedUrl}\nDebug: keys=${keys.length} | suggested=${near.join(" , ") || "(none)"}`;
+          return;
+        }
+
+        const rec = hit.rec || {};
+        const st = normStatus(rec.status ?? rec.code ?? rec.result);
+
+        setStatus(st.code, st.text);
+
+        const note = pickNote(rec);
+        elNote.textContent = note || "ไม่มีหมายเหตุ (note) ในข้อมูล";
+
+        const ref = pickRef(rec);
+        elMeta.textContent =
+          `Source: ${usedUrl}\nKey: ${hit.key}` + (ref ? `\nReference: ${ref}` : "");
+
+      } catch (e) {
+        setStatus("none", "No data");
+        elNote.textContent = "เกิดข้อผิดพลาดระหว่างประมวลผล";
+        elMeta.textContent = `Debug: ${String(e)}`;
+      }
+    })();
+  })();
+  </script>
 {% endblock %}
