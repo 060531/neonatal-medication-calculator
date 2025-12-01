@@ -1,128 +1,129 @@
 /* =========================
-   Compat Result Page Module
-   ========================= */
-(function () {
-  function el(id) { return document.getElementById(id); }
+ * Compat Result Page (Pages + Flask)
+ * ========================= */
+(function initCompatResultPage() {
+  const root = document.getElementById("compatResultRoot");
+  if (!root) return;
 
-  function keyVariants(s) {
-    const raw = (s || "").toString().trim().toLowerCase();
-    if (!raw) return [];
-    const plusToSpace = raw.replace(/\+/g, " ");
-    const cleaned = plusToSpace.replace(/\s+/g, " ").trim();
-    const alnumSpace = cleaned.replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
-    const noSpace = alnumSpace.replace(/ /g, "");
-    const underscore = alnumSpace.replace(/ /g, "_");
-    const out = [alnumSpace, noSpace, underscore].filter(Boolean);
-    return Array.from(new Set(out));
+  const $ = (id) => document.getElementById(id);
+
+  const elDrugA = $("drugA");
+  const elDrugB = $("drugB");
+  const pill = $("statusPill");
+  const statusText = $("statusText");
+  const noteText = $("noteText");
+  const refWrap = $("refWrap");
+  const refText = $("refText");
+  const debugLine = $("debugLine");
+
+  const btnNew = $("btnNewCheck");
+  const btnHome = $("btnHome");
+
+  // --- Fix links (กันหลุดไป compat_index.html) ---
+  const URLS = window.__URLS || {};
+  const safeNew = URLS.newCheck || "./compatibility.html";
+  const safeHome = URLS.home || "./index.html";
+  if (btnNew) btnNew.setAttribute("href", safeNew);
+  if (btnHome) btnHome.setAttribute("href", safeHome);
+
+  // บังคับนำทางแบบชัดเจน (กันโค้ดอื่น intercept)
+  function hardNav(href) {
+    if (!href) return;
+    window.location.assign(href);
+  }
+  if (btnNew) btnNew.addEventListener("click", (e) => { e.preventDefault(); hardNav(btnNew.getAttribute("href")); });
+  if (btnHome) btnHome.addEventListener("click", (e) => { e.preventDefault(); hardNav(btnHome.getAttribute("href")); });
+
+  // --- helpers ---
+  const STATUS_MAP = {
+    C: { cls: "st-c", text: "Compatible (ผสมร่วมได้)", fallbackNote: "ยาสามารถผสมร่วมกันได้" },
+    I: { cls: "st-i", text: "Incompatible (ห้ามผสม)", fallbackNote: "ไม่ควรให้ร่วมกันใน line เดียวกัน (เสี่ยงไม่เข้ากัน/ความคงตัว)" },
+    U: { cls: "st-u", text: "Uncertain (ไม่ชัดเจน)", fallbackNote: "ข้อมูลยังไม่ชัดเจน ควรหลีกเลี่ยงการผสมร่วมกัน" },
+    ND:{ cls: "st-nd", text: "No data (ไม่มีข้อมูล)", fallbackNote: "ไม่พบข้อมูลความเข้ากันได้ของคู่นี้" }
+  };
+
+  function normalizeName(x) {
+    return String(x || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
   }
 
-  function findRecord(db, a, b) {
-    const av = keyVariants(a);
-    const bv = keyVariants(b);
-    for (const x of av) for (const y of bv) {
-      const k1 = `${x}||${y}`;
-      if (db[k1]) return { rec: db[k1], key: k1, swapped: false };
-      const k2 = `${y}||${x}`;
-      if (db[k2]) return { rec: db[k2], key: k2, swapped: true };
-    }
-    return null;
+  function getQueryParam(name) {
+    const u = new URL(window.location.href);
+    return u.searchParams.get(name) || "";
   }
 
-  function statusMeta(code) {
-    switch ((code || "").toUpperCase()) {
-      case "C": return { cls: "st-c",  text: "Compatible (ผสมร่วมได้)",   status: "C"  };
-      case "I": return { cls: "st-i",  text: "Incompatible (ห้ามผสม)",    status: "I"  };
-      case "U": return { cls: "st-u",  text: "Uncertain (ไม่ชัดเจน)",      status: "U"  };
-      default:  return { cls: "st-nd", text: "No data (ไม่มีข้อมูล)",      status: "ND" };
-    }
+  function setStatus(code) {
+    const s = STATUS_MAP[code] || STATUS_MAP.ND;
+    root.dataset.status = code || "ND";
+
+    pill.classList.remove("st-loading", "st-c", "st-i", "st-u", "st-nd");
+    pill.classList.add(s.cls);
+
+    statusText.textContent = s.text;
   }
 
-  async function initCompatResultPage() {
-    const root = el("compatResultRoot");
-    if (!root) return;
+  async function loadJson(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+    return await res.json();
+  }
 
-    // เซ็ตลิงก์ปุ่มให้ “ชัวร์” ทั้ง Pages/Flask (แก้ปัญหาไป compat_index.html แล้ว 404)
-    const urls = (window.__URLS || {});
-    const btnNew = el("btnNewCheck");
-    const btnHome = el("btnHome");
-    if (btnNew) btnNew.href = urls.newCheck || "./compatibility.html";
-    if (btnHome) btnHome.href = urls.home || "./index.html";
-
-    // Querystring
-    const qs = new URLSearchParams(window.location.search);
-    const drugA = qs.get("drug_a") || qs.get("drugA") || "";
-    const drugB = qs.get("drug_b") || qs.get("drugB") || "";
-
-    el("drugA").textContent = drugA || "—";
-    el("drugB").textContent = drugB || "—";
-
-    // Loading state
-    root.dataset.status = "LD";
-    const statusPill = el("statusPill");
-    const statusText = el("statusText");
-    const noteText = el("noteText");
-    const refWrap = el("refWrap");
-    const refText = el("refText");
-    const debugLine = el("debugLine");
-
-    if (statusPill) statusPill.className = "status-pill st-loading";
-    if (statusText) statusText.textContent = "Loading...";
-    if (noteText) noteText.textContent = "กำลังโหลดข้อมูล...";
-    if (refWrap) refWrap.hidden = true;
-    if (debugLine) debugLine.hidden = true;
-
-    // Fetch lookup db
-    const lookupUrl = urls.lookup || "./static/compat_lookup.json";
-
+  // --- main ---
+  (async () => {
     try {
-      const res = await fetch(lookupUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`lookup fetch failed: ${res.status}`);
-      const db = await res.json();
+      const aRaw = getQueryParam("drug_a");
+      const bRaw = getQueryParam("drug_b");
 
-      const found = findRecord(db, drugA, drugB);
-      const rec = found ? found.rec : null;
+      const aKey = normalizeName(aRaw);
+      const bKey = normalizeName(bRaw);
 
-      const code = rec && rec.status ? rec.status : "ND";
-      const meta = statusMeta(code);
+      // แสดงชื่อจาก query ก่อน
+      if (elDrugA) elDrugA.textContent = aRaw || "—";
+      if (elDrugB) elDrugB.textContent = bRaw || "—";
 
-      // IMPORTANT: ตั้งค่า data-status เพื่อให้ CSS เปลี่ยนสีตามเงื่อนไข
-      root.dataset.status = meta.status;
+      const lookupUrl = (window.__URLS && window.__URLS.lookup) ? window.__URLS.lookup : "./static/compat_lookup.json";
+      const db = await loadJson(lookupUrl);
 
-      if (statusPill) statusPill.className = `status-pill ${meta.cls}`;
-      if (statusText) statusText.textContent = meta.text;
-
-      // Note priority: summary_th > note_th > fallback
-      const summaryTh = (rec && rec.summary_th) ? String(rec.summary_th).trim() : "";
-      const noteTh = (rec && rec.note_th) ? String(rec.note_th).trim() : "";
-      const note = summaryTh || noteTh || "ไม่พบข้อมูลความเข้ากันได้ของยาคู่นี้ (No data).";
-
-      if (noteText) noteText.textContent = note;
-
-      const ref = (rec && rec.reference) ? String(rec.reference).trim() : "";
-      if (refWrap) {
-        refWrap.hidden = !ref;
-        if (refText) refText.textContent = ref;
-      }
-
-      // Debug (ถ้าต้องการดู key ที่เจอ)
-      if (debugLine && found) {
-        debugLine.hidden = false;
-        debugLine.textContent = `lookup key = ${found.key}${found.swapped ? " (swapped)" : ""}`;
-      }
-    } catch (err) {
-      // Fail-safe
-      root.dataset.status = "ND";
-      if (statusPill) statusPill.className = "status-pill st-nd";
-      if (statusText) statusText.textContent = "No data (ไม่มีข้อมูล)";
-      if (noteText) noteText.textContent = "โหลดฐานข้อมูลความเข้ากันได้ไม่สำเร็จ กรุณาลองใหม่";
-      if (refWrap) refWrap.hidden = true;
+      const key1 = `${aKey}||${bKey}`;
+      const key2 = `${bKey}||${aKey}`;
+      const rec = db[key1] || db[key2] || null;
 
       if (debugLine) {
         debugLine.hidden = false;
-        debugLine.textContent = `error: ${err && err.message ? err.message : err}`;
+        debugLine.textContent = `lookup key = ${rec ? (db[key1] ? key1 : key2) : key1}`;
       }
-    }
-  }
 
-  document.addEventListener("DOMContentLoaded", initCompatResultPage);
+      if (!rec) {
+        setStatus("ND");
+        noteText.textContent = STATUS_MAP.ND.fallbackNote;
+        refWrap.hidden = true;
+        return;
+      }
+
+      // ใช้ชื่อมาตรฐานจากฐานข้อมูล ถ้ามี
+      if (elDrugA) elDrugA.textContent = rec.drug_a || aRaw || "—";
+      if (elDrugB) elDrugB.textContent = rec.drug_b || bRaw || "—";
+
+      const code = (rec.status || "ND").toUpperCase();
+      setStatus(code);
+
+      const note = (rec.note_th || rec.summary_th || "").trim() || (STATUS_MAP[code] || STATUS_MAP.ND).fallbackNote;
+      noteText.textContent = note;
+
+      const ref = (rec.reference || "").trim();
+      if (ref) {
+        refText.textContent = ref;
+        refWrap.hidden = false;
+      } else {
+        refWrap.hidden = true;
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("ND");
+      noteText.textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง";
+      if (refWrap) refWrap.hidden = true;
+    }
+  })();
 })();
