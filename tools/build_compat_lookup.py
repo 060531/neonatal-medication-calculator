@@ -1,85 +1,66 @@
-#!/usr/bin/env python3
-import json
+# tools/build_compat_lookup.py
+from __future__ import annotations
+import json, re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "data" / "seed_compatibility.json"
+OUT = ROOT / "static" / "compat_lookup.json"
+OUT_MIN = ROOT / "static" / "compat_lookup.min.json"
 
-SRC = ROOT / "data" / "seed_compatibility.json"
-OUT_DIR = ROOT / "static"
-OUT_JSON = OUT_DIR / "compat_lookup.json"
-OUT_MIN = OUT_DIR / "compat_lookup.min.json"
+def canon(s: str) -> str:
+    s = (s or "").strip().lower()
+    s = s.replace("&", " and ")
+    s = re.sub(r"\s+", " ", s)
+    return s
 
-def norm(s):
-    return (s or "").strip()
+def pair_key(a: str, b: str) -> str:
+    a2, b2 = canon(a), canon(b)
+    return "||".join(sorted([a2, b2]))
 
-def get(d, *keys, default=""):
-    for k in keys:
-        if isinstance(d, dict) and k in d and d[k] is not None:
-            return d[k]
-    return default
+def merge_pref(old: dict, new: dict) -> dict:
+    # keep old but fill missing with new (or override if new has stronger note)
+    merged = dict(old)
+    for k, v in new.items():
+        if merged.get(k) in (None, "", []):
+            merged[k] = v
+    # ถ้า new มี note_th ให้ override เพื่อให้ข้อความล่าสุดชนะ
+    if new.get("note_th"):
+        merged["note_th"] = new["note_th"]
+    if new.get("note_en"):
+        merged["note_en"] = new["note_en"]
+    return merged
 
-def main():
-    if not SRC.exists():
-        raise SystemExit(f"❌ Missing source: {SRC}")
+def main() -> None:
+    rows = json.loads(DATA.read_text(encoding="utf-8"))
 
-    raw = json.loads(SRC.read_text(encoding="utf-8"))
-
-    # รองรับทั้ง: list / dict{pairs:[...]} / dict mapping
-    if isinstance(raw, list):
-        pairs = raw
-    elif isinstance(raw, dict):
-        # ถ้าเป็น dict mapping อยู่แล้ว
-        if all(isinstance(k, str) for k in raw.keys()) and not any(k in raw for k in ("pairs","items","data","records","compatibilities")):
-            OUT_DIR.mkdir(parents=True, exist_ok=True)
-            out_obj = {str(k).strip().lower(): v for k, v in raw.items()}
-            OUT_JSON.write_text(json.dumps(out_obj, ensure_ascii=False, indent=2), encoding="utf-8")
-            OUT_MIN.write_text(json.dumps(out_obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-            print(f"✅ wrote: {OUT_JSON}")
-            print(f"✅ wrote: {OUT_MIN}")
-            return
-
-        for key in ("pairs", "compatibilities", "items", "data", "records"):
-            if key in raw and isinstance(raw[key], list):
-                pairs = raw[key]
-                break
-        else:
-            # fallback: ถ้า dict แต่ไม่เจอ list ให้ถือเป็นว่าง
-            pairs = []
-    else:
-        raise SystemExit("❌ Unsupported JSON format")
-
-    out_obj = {}
-
-    for r in pairs:
-        a = norm(get(r, "drug_a", "a", "drugA", "DrugA"))
-        b = norm(get(r, "drug_b", "b", "drugB", "DrugB"))
+    lookup: dict[str, dict] = {}
+    for r in rows:
+        a = r.get("drug_a", "")
+        b = r.get("drug_b", "")
         if not a or not b:
             continue
 
-        status = get(r, "status", "code", "result", default="ND")
-        note_th = get(r, "note_th", "noteTH", "note_thai", default="")
-        note_en = get(r, "note_en", "noteEN", "note_english", default="")
-        detail  = get(r, "detail", "details", default="")
-
-        rec = {
+        payload = {
             "drug_a": a,
             "drug_b": b,
-            "status": status,
-            "note_th": note_th,
-            "note_en": note_en,
-            "detail": detail,
+            "status": (r.get("status") or "ND").upper(),
+            "reference": r.get("reference", ""),
+            "summary_th": r.get("summary_th", ""),
+            "summary_en": r.get("summary_en", ""),
+            "note_th": r.get("note_th", "") or r.get("note", ""),  # เผื่อเคยใช้ note เดิม
+            "note_en": r.get("note_en", ""),
         }
 
-        k1 = f"{a}||{b}".lower()
-        k2 = f"{b}||{a}".lower()
-        out_obj[k1] = rec
-        out_obj[k2] = rec
+        k = pair_key(a, b)
+        if k in lookup:
+            lookup[k] = merge_pref(lookup[k], payload)
+        else:
+            lookup[k] = payload
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    OUT_JSON.write_text(json.dumps(out_obj, ensure_ascii=False, indent=2), encoding="utf-8")
-    OUT_MIN.write_text(json.dumps(out_obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-
-    print(f"✅ wrote: {OUT_JSON}  (keys={len(out_obj)})")
+    OUT.write_text(json.dumps(lookup, ensure_ascii=False, indent=2), encoding="utf-8")
+    OUT_MIN.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"✅ wrote: {OUT}  (keys={len(lookup)})")
     print(f"✅ wrote: {OUT_MIN}")
 
 if __name__ == "__main__":

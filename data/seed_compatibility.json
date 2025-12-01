@@ -2,81 +2,71 @@
   {
     "drug_a": "Acyclovir",
     "drug_b": "Amikacin",
-    "status": "ND",
-    "reference": "Trissel's 2022",
-    "summary_en": "No data found; avoid mixing. Use separate line or flush before/after.",
-    "summary_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง"
+    "status": "C",
+    "note_th": "ยาสามารถผสมร่วมกันได้",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Aminophylline",
-    "status": "ND",
-    "reference": "Trissel's 2022",
-    "summary_en": "No data found; avoid mixing. Use separate line or flush before/after.",
-    "summary_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง"
+    "status": "C",
+    "note_th": "ยาสามารถผสมร่วมกันได้",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Ampicillin",
     "status": "C",
-    "reference": "Trissel's Handbook 2024",
-    "summary_en": "Compatible for Y-site in D5W under recommended concentrations/conditions.",
-    "summary_th": "สามารถให้ร่วมสาย (Y-site) ใน D5W ได้ ภายใต้เงื่อนไขความเข้มข้น/ตัวทำละลายตามแหล่งอ้างอิง"
+    "note_th": "ยาสามารถผสมร่วมกันได้",
+    "reference": "Trissel's Handbook 2024"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Calcium gluconate",
     "status": "I",
-    "reference": "Pediatric Injectable Drugs",
-    "summary_en": "Incompatible; precipitation risk. Do not Y-site.",
-    "summary_th": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน ไม่ควรให้ร่วมสาย"
+    "note_th": "ไม่เข้ากัน มีความเสี่ยงเกิดตะกอน ไม่ควรให้ร่วมสาย",
+    "reference": "Pediatric Injectable Drugs"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Colistin",
     "status": "ND",
-    "reference": "Trissel's 2022",
-    "summary_en": "No data found; avoid mixing. Use separate line or flush before/after.",
-    "summary_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง"
+    "note_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Amphotericin B",
     "status": "I",
-    "reference": "Trissel's 2022",
-    "summary_en": "Incompatible; avoid same line/Y-site.",
-    "summary_th": "ไม่ควรให้ร่วมกันใน line เดียวกัน (เสี่ยงไม่เข้ากัน/ความคงตัว)"
+    "note_th": "ไม่ควรให้ร่วมกันใน line เดียวกัน (เสี่ยงไม่เข้ากัน/ความคงตัว)",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Cefotaxime",
-    "status": "ND",
-    "reference": "Trissel's 2022",
-    "summary_en": "No data found; avoid mixing. Use separate line or flush before/after.",
-    "summary_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง"
+    "status": "C",
+    "note_th": "ยาสามารถผสมร่วมกันได้",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Acyclovir",
     "drug_b": "Cloxacillin",
-    "status": "ND",
-    "reference": "Trissel's 2022",
-    "summary_en": "No data found; avoid mixing. Use separate line or flush before/after.",
-    "summary_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง"
+    "status": "C",
+    "note_th": "ยาสามารถผสมร่วมกันได้",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Cefotaxime",
     "drug_b": "Cloxacillin",
-    "status": "ND",
-    "reference": "Trissel's 2022",
-    "summary_en": "No data found; avoid mixing. Use separate line or flush before/after.",
-    "summary_th": "ไม่มีข้อมูลที่เชื่อถือได้ แนะนำหลีกเลี่ยงการให้ร่วมสาย (Y-site) ใช้แยก line หรือ flush ก่อน-หลัง"
+    "status": "C",
+    "note_th": "ยาสามารถผสมร่วมกันได้",
+    "reference": "Trissel's 2022"
   },
   {
     "drug_a": "Cefotaxime",
     "drug_b": "Levofloxacin",
     "status": "U",
-    "reference": "Trissel's 2022",
-    "summary_en": "Uncertain; avoid Y-site. Use separate line or flush before/after.",
-    "summary_th": "ไม่แน่ชัด แนะนำหลีกเลี่ยงการให้ร่วมสาย ใช้แยก line หรือ flush ก่อน-หลัง"
+    "note_th": "ไม่แน่ชัด แนะนำหลีกเลี่ยงการให้ร่วมสาย ใช้แยก line หรือ flush ก่อน-หลัง",
+    "reference": "Trissel's 2022"
   }
 ]
