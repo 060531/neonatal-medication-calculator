@@ -3,7 +3,7 @@
 
 {% block extra_head %}
 <style>
-  .compat-wrap{max-width:920px;margin:0 auto;padding:16px 12px 140px;}
+  .compat-wrap{max-width:920px;margin:0 auto;padding:16px 12px 160px;}
   .compat-card{
     background: rgba(255,255,255,.88);
     backdrop-filter: blur(6px);
@@ -15,19 +15,15 @@
   }
   .compat-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
   .compat-title{font-weight:800;font-size:18px;line-height:1.2}
-  .compat-sub{font-size:13px;opacity:.8}
+  .compat-sub{font-size:13px;opacity:.85}
   .pill{
     display:inline-flex;align-items:center;gap:8px;
     padding:8px 12px;border-radius:999px;font-weight:800;
     border:1px solid rgba(15,23,42,.14);
     background: rgba(255,255,255,.75);
+    user-select:none;
   }
   .pill .dot{width:10px;height:10px;border-radius:50%;}
-  .pill.ok  { }
-  .pill.bad { }
-  .pill.warn{ }
-  .pill.nd  { }
-  /* ให้ต่างกันด้วยสี dot (ไม่พึ่งธีมเดิมก็ยังอ่านได้) */
   .pill.ok  .dot{background:#16a34a;}
   .pill.bad .dot{background:#dc2626;}
   .pill.warn .dot{background:#f59e0b;}
@@ -44,15 +40,36 @@
     text-align:left;
     font-size:14px;
   }
+
+  /* ปุ่มด้านล่าง: ให้ “แสดงเสมอ” ไม่ผูกกับ JS */
+  .btn-row{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .btn{
+    border:0;
+    border-radius:999px;
+    padding:10px 16px;
+    font-weight:800;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 10px 20px rgba(15,23,42,.12);
+  }
+  .btn.primary{background:#16a34a;color:#fff;}
+  .btn.ghost{background:rgba(15,23,42,.06);color:#0f172a;}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="compat-wrap">
-
   <h2 class="title-badge">Result analyze (Compatibility)</h2>
 
-  <!-- การ์ดต้องแสดงเสมอ: ต่อให้ JS/JSON พังก็ยังเห็นโครง -->
   <div class="compat-card" id="resultCard">
     <div class="compat-top">
       <div>
@@ -60,7 +77,9 @@
         <div class="compat-title"><span id="drugA">—</span> × <span id="drugB">—</span></div>
       </div>
       <div>
-        <span class="pill nd" id="statusPill"><span class="dot"></span><span id="statusText">Loading</span></span>
+        <span class="pill nd" id="statusPill">
+          <span class="dot"></span><span id="statusText">Loading</span>
+        </span>
       </div>
     </div>
 
@@ -68,17 +87,23 @@
 
     <div style="font-weight:800;margin-bottom:6px">Note</div>
     <div class="note-box" id="noteText">กำลังโหลดข้อมูล…</div>
-
     <div id="srcText" style="margin-top:10px;font-size:12px;opacity:.75"></div>
+
+    <!-- ✅ ปุ่มต้องอยู่ใน HTML ตรงนี้เลย: ต่อให้ JS พัง ปุ่มก็ไม่หาย -->
+    <div class="btn-row">
+      <a class="btn primary" href="./compatibility.html">↻ New check</a>
+      <a class="btn ghost" href="./index.html">🏠 Home</a>
+    </div>
   </div>
 
   <div class="hint" id="noQueryHint" style="display:none">
     ไม่พบพารามิเตอร์ <b>drug_a</b> และ <b>drug_b</b> ใน URL<br>
     ให้ย้อนกลับไปหน้าเลือกยา แล้วค่อยกด “Analyze/Result” อีกครั้ง
   </div>
-
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -103,9 +128,10 @@
   async function fetchFirst(urls){
     for (const url of urls){
       try{
-        const r = await fetch(url, {cache:"no-store"});
+        // ✅ กัน cache
+        const r = await fetch(url + (url.includes("?") ? "&" : "?") + "v=" + Date.now(), {cache:"no-store"});
         if (!r.ok) continue;
-        return await r.json();
+        return {data: await r.json(), used:url};
       }catch(e){ /* try next */ }
     }
     return null;
@@ -114,14 +140,14 @@
   function extractRecord(data, a, b){
     if (!data) return null;
 
-    // case 1: mapping object { "a||b": {...} }
+    // mapping object { "a||b": {...} }
     if (typeof data === "object" && !Array.isArray(data)) {
       const k1 = normKey(a,b);
       const k2 = normKey(b,a);
       return data[k1] || data[k2] || null;
     }
 
-    // case 2: array [{drug_a, drug_b, status, note...}]
+    // array [{drug_a, drug_b, status, note...}]
     if (Array.isArray(data)) {
       const aL = norm(a).toLowerCase();
       const bL = norm(b).toLowerCase();
@@ -131,14 +157,11 @@
         return (da===aL && db===bL) || (da===bL && db===aL);
       }) || null;
     }
-
     return null;
   }
 
   function interpretStatus(rec){
     const raw = (rec?.status ?? rec?.result ?? rec?.code ?? "").toString().toLowerCase();
-
-    // รองรับหลายรูปแบบ
     if (raw.includes("compatible") || raw === "c" || raw === "1") return {kind:"ok", text:"Compatible"};
     if (raw.includes("incompatible") || raw === "i" || raw === "0") return {kind:"bad", text:"Incompatible"};
     if (raw.includes("uncertain") || raw.includes("caution") || raw === "u" || raw === "2") return {kind:"warn", text:"Uncertain"};
@@ -162,20 +185,24 @@
       setPill("nd","ND");
       noteEl.textContent = "กรุณาเลือก Drug A และ Drug B จากหน้าก่อนหน้า";
       noQuery.style.display = "block";
+      srcEl.textContent = "No query params";
       return;
     }
 
-    // ใช้ได้ทั้ง GitHub Pages และ Flask โดย “ลองหลาย path”
+    // ✅ Flask จะ render ค่านี้เป็น /static/compat_lookup.json
+    const flaskUrl = "{{ url_for('static', filename='compat_lookup.json') }}";
+    // ✅ Pages ใช้ relative
+    const pagesUrl = "./static/compat_lookup.json";
+
     const candidates = [
-      "./static/compat_lookup.json",
-      "./static/compat_lookup.min.json",
-      "/static/compat_lookup.json",
-      "/static/compat_lookup.min.json"
-    ];
+      pagesUrl,
+      flaskUrl,
+      "/static/compat_lookup.json"
+    ].filter(Boolean);
 
-    const data = await fetchFirst(candidates);
+    const got = await fetchFirst(candidates);
 
-    if (!data){
+    if (!got){
       setPill("nd","ND");
       noteEl.textContent =
         "ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json)\n" +
@@ -185,27 +212,29 @@
       return;
     }
 
+    const {data, used} = got;
     const rec = extractRecord(data, drugA, drugB);
 
     if (!rec){
       setPill("nd","ND");
       noteEl.textContent =
         "ไม่พบคู่ยาในฐานข้อมูล\n" +
-        "ข้อเสนอเชิงความปลอดภัย: ให้ถือเป็น 'ไม่มีข้อมูล' และหลีกเลี่ยงการผสม/ต่อ Y-site จนกว่าจะมีหลักฐาน";
-      srcEl.textContent = "Data source: compat_lookup.json (no match)";
+        "ข้อเสนอเชิงความปลอดภัย: ถือเป็น 'ไม่มีข้อมูล' และหลีกเลี่ยงการผสม/ต่อ Y-site จนกว่าจะมีหลักฐาน";
+      srcEl.textContent = "Data source: " + used + " (no match)";
       return;
     }
 
     const st = interpretStatus(rec);
     setPill(st.kind, st.text);
     noteEl.textContent = pickNote(rec) || "—";
-    srcEl.textContent = "Data source: compat_lookup.json";
+    srcEl.textContent = "Data source: " + used;
   }
 
   main().catch(err => {
     console.error(err);
     setPill("nd","ND");
     noteEl.textContent = "เกิดข้อผิดพลาดระหว่างประมวลผล กรุณารีเฟรช/ล้างแคช แล้วลองใหม่";
+    srcEl.textContent = "Runtime error (see console)";
   });
 })();
 </script>
