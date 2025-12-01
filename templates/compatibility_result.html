@@ -1,34 +1,109 @@
 {% extends "base.html" %}
 
 {% block title %}Result analyze (Compatibility){% endblock %}
+{% block body_class %}compat-page{% endblock %}
 
 {% block extra_head %}
 <style>
-  .compat-card-wide{ max-width: 980px; }
-  @media (max-width: 992px){ .compat-card-wide{ max-width: 100%; } }
+  /* ===== Layout หลักของหน้านี้ (บังคับให้โชว์) ===== */
+  body.compat-page{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .compat-shell{
+    display:block !important;              /* ✅ บังคับ override ของของเก่า */
+    position:relative;
+    flex:1;
+    max-width:980px;
+    margin:0 auto;
+    padding:96px 12px 32px;
+    box-sizing:border-box;
+  }
+  @media (max-width:768px){
+    .compat-shell{
+      padding:88px 10px 28px;
+    }
+  }
+
+  .compat-title{
+    text-align:center;
+    margin:0 0 18px;
+    font-size:26px;
+    font-weight:800;
+    color:#0f172a;
+    text-shadow:0 1px 4px rgba(15,23,42,.45);
+  }
+  .compat-title span{
+    display:block;
+    font-size:16px;
+    font-weight:600;
+    opacity:.9;
+  }
+
+  .compat-card{
+    background:rgba(255,255,255,.88);
+    border-radius:18px;
+    box-shadow:0 12px 28px rgba(15,23,42,.25);
+    padding:20px 18px 22px;
+    margin:0 auto;
+  }
+  .compat-card-wide{ max-width:980px; }
+  @media (max-width:992px){ .compat-card-wide{ max-width:100%; } }
+
+  .compat-subtitle{
+    margin:0 0 10px;
+    text-align:center;
+    font-size:20px;
+    font-weight:700;
+    color:#0f172a;
+  }
 
   .compat-result-header{
-    display:flex;align-items:center;justify-content:center;gap:12px;
-    margin:20px auto 8px;flex-wrap:wrap;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin:18px auto 10px;
+    flex-wrap:wrap;
   }
   .compat-pill{
-    padding:6px 14px;border-radius:999px;background:#0f766e;color:#fff;
-    font-weight:600;min-width:120px;text-align:center;
+    padding:6px 14px;
+    border-radius:999px;
+    background:#0f766e;
+    color:#fff;
+    font-weight:600;
+    min-width:120px;
+    text-align:center;
   }
-  .compat-with{ font-weight:600;color:#0f172a; }
+  .compat-with{
+    font-weight:600;
+    color:#0f172a;
+  }
 
   .compat-status-line{
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    margin-bottom:12px;flex-wrap:wrap;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
   }
 
   /* base pill */
   .compat-status-pill{
-    padding:4px 12px;border-radius:999px;
+    padding:4px 12px;
+    border-radius:999px;
     background:#64748b; /* ND default */
-    color:#fff;font-weight:700;font-size:14px;
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
     letter-spacing:.2px;
-    display:inline-flex;align-items:center;gap:6px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
   }
   /* ✅ สีตามสถานะ */
   .compat-status-pill.is-c{ background:#16a34a; }  /* green */
@@ -36,7 +111,10 @@
   .compat-status-pill.is-u{ background:#f59e0b; }  /* orange */
   .compat-status-pill.is-nd{ background:#64748b; } /* gray */
 
-  .compat-status-text{ font-weight:600;color:#0f172a; }
+  .compat-status-text{
+    font-weight:600;
+    color:#0f172a;
+  }
 
   /* Note block */
   .compat-note-block{
@@ -47,15 +125,75 @@
     margin-top:14px;
     text-align:left;
   }
-  .compat-note-title{ font-weight:800;color:#0f172a;margin:0 0 8px; }
+  .compat-note-title{
+    font-weight:800;
+    color:#0f172a;
+    margin:0 0 8px;
+  }
   .compat-note-main{
     margin:0 0 6px;
-    white-space: pre-line; /* ให้ \n ขึ้นบรรทัดใหม่ */
+    white-space:pre-line; /* ✅ ให้ \n ขึ้นบรรทัดใหม่ */
     color:#0f172a;
     line-height:1.5;
   }
-  .compat-note-ref{ margin:0;font-size:14px;color:#4b5563; }
+  .compat-note-ref{
+    margin:0;
+    font-size:14px;
+    color:#4b5563;
+  }
 
+  .compat-fallback{
+    margin-top:14px;
+    font-weight:700;
+    color:#0b5aa3;
+    text-align:center;
+  }
+
+  .compat-legend{
+    margin-top:18px;
+    font-size:14px;
+    text-align:center;
+    color:#0f172a;
+  }
+  .dot{
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    vertical-align:middle;
+    margin-right:4px;
+  }
+  .dot-c{ background:#16a34a; }
+  .dot-i{ background:#dc2626; }
+  .dot-u{ background:#f59e0b; }
+  .dot-nd{ background:#64748b; }
+
+  .compat-actions{
+    margin-top:20px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+  }
+  .compat-actions a{
+    text-decoration:none;
+    padding:8px 16px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:14px;
+    box-shadow:0 6px 14px rgba(15,23,42,.22);
+    border:1px solid rgba(255,255,255,.7);
+  }
+  .btn-check{
+    background:#0ea5e9;
+    color:#f9fafb;
+  }
+  .btn-home{
+    background:#059669;
+    color:#ecfdf5;
+  }
+
+  /* ซ่อน/แสดง */
   .hidden{ display:none !important; }
 </style>
 {% endblock %}
@@ -92,20 +230,19 @@
       <p class="compat-note-ref" data-note-ref></p>
     </div>
 
-    <!-- fallback ขึ้นเมื่อไม่เจอข้อมูล -->
-    <p class="compat-fallback" data-no-data-hint
-       style="margin-top:14px;font-weight:700;color:#0b5aa3;text-align:center;">
+    <!-- ✅ fallback แยกก้อน และซ่อนเมื่อมีผลลัพธ์ -->
+    <p class="compat-fallback" data-no-data-hint>
       ยังไม่พบรายละเอียดคู่นี้ในระบบ (ตรวจคู่มืออีกครั้ง / สืบค้นเพิ่มเติม)
     </p>
 
-    <div class="compat-legend" style="margin-top:18px">
+    <div class="compat-legend">
       <span class="dot dot-c"></span> C = Compatible / ผสมร่วมได้
       • <span class="dot dot-i"></span> I = Incompatible / ห้ามผสม
       • <span class="dot dot-u"></span> U = Uncertain / ไม่ชัดเจน
       • <span class="dot dot-nd"></span> ND = No data / ไม่มีข้อมูล
     </div>
 
-    <div class="compat-actions" style="margin-top:20px">
+    <div class="compat-actions">
       <a href="compatibility.html" class="btn-check">↺ New check</a>
       <a href="index.html" class="btn-home">Home</a>
     </div>
@@ -120,7 +257,7 @@
     .toString()
     .trim()
     .toLowerCase()
-    .replace(/\+/g, " ")
+    .replace(/\+/g, " ")         // กันกรณีมี + ติดมา
     .replace(/\s+/g, " ");
 
   const keyOf = (a,b) => `${norm(a)}||${norm(b)}`;
@@ -189,7 +326,7 @@
     return db[k1] || db[k2] || null;
   };
 
-  // default UI
+  // init
   setStatus("ND");
   setNote("", "");
 
@@ -207,6 +344,7 @@
           : (hit.note_th || hit.note_en || "");
 
         setNote(mainTxt, hit.reference || hit.ref || "");
+
         if (noDataHint) noDataHint.classList.add("hidden");
       } else {
         setStatus("ND");
@@ -217,10 +355,7 @@
     } catch (e) {
       console.error(e);
       setStatus("ND");
-      setNote(
-        "ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json) กรุณารีเฟรชหรือตรวจการ deploy",
-        ""
-      );
+      setNote("ไม่สามารถโหลดฐานข้อมูลความเข้ากันได้ (compat_lookup.json) กรุณารีเฟรช/ตรวจการ deploy", "");
       if (noDataHint) noDataHint.classList.remove("hidden");
     }
   });
