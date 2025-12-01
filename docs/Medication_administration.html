@@ -16,19 +16,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="./static/manifest.webmanifest?v=20251201_2000">
+        href="./static/manifest.webmanifest?v=20251202_0301">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png?v=20251201_2000">
+        href="./static/icons/icon-192.png?v=20251202_0301">
 
   <!-- App CSS/JS (dual path + cache bust) -->
   <link rel="stylesheet"
-        href="./static/style.css?v=20251201_2000">
+        href="./static/style.css?v=20251202_0301">
   <script defer
-          src="./static/app.js?v=20251201_2000"></script>
+          src="./static/app.js?v=20251202_0301"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -385,7 +385,7 @@
 
   <footer>
     Developed by Sukhontha Boonsoockchan |
-    update 2025-12-01 20:00
+    update 2025-12-02 03:01
   </footer>
 
   <!-- Service Worker (คุมให้ปลอดภัยต่อ cache) -->
@@ -398,7 +398,7 @@
       if (host === "localhost" || host === "127.0.0.1") return;
 
       // ใช้ version เดียวกับ css/js เพื่อบังคับ SW ใหม่เมื่อมีอัปเดต
-      var swPath = "./static/service-worker.js?v=20251201_2000";
+      var swPath = "./static/service-worker.js?v=20251202_0301";
 
       navigator.serviceWorker.register(swPath).catch(console.error);
     })();
