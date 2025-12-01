@@ -1,12 +1,12 @@
 // ===============================
-// Compatibility Result (Flask + Pages)
+// Compatibility Result (Flask + Pages) - v2 (note_th first + reverse key)
 // ===============================
 (function () {
   const STATUS_MAP = {
-    C: { en: "Compatible", th: "ผสมร่วมได้", cls: "st-c" },
-    I: { en: "Incompatible", th: "ห้ามผสม", cls: "st-i" },
-    U: { en: "Uncertain", th: "ไม่ชัดเจน", cls: "st-u" },
-    ND:{ en: "No data", th: "ไม่มีข้อมูล", cls: "st-nd" },
+    C:  { en: "Compatible",   th: "ผสมร่วมได้",  cls: "st-c"  },
+    I:  { en: "Incompatible", th: "ห้ามผสม",     cls: "st-i"  },
+    U:  { en: "Uncertain",    th: "ไม่ชัดเจน",   cls: "st-u"  },
+    ND: { en: "No data",      th: "ไม่มีข้อมูล", cls: "st-nd" },
   };
 
   const $ = (id) => document.getElementById(id);
@@ -14,7 +14,7 @@
   function normDrug(s) {
     s = (s || "").trim().toLowerCase();
     s = s.replace(/&/g, " and ");
-    s = s.replace(/[^\w]+/g, " "); // word chars -> a-z0-9_
+    s = s.replace(/[^\w]+/g, " ");   // keep a-z0-9_
     s = s.replace(/_/g, " ");
     s = s.replace(/\s+/g, " ").trim();
     return s;
@@ -24,7 +24,10 @@
     let lastErr = null;
     for (const url of urls) {
       try {
-        const r = await fetch(url, { cache: "no-store" });
+        const r = await fetch(url, {
+          cache: "no-store",
+          headers: { "cache-control": "no-cache" },
+        });
         if (!r.ok) continue;
         return await r.json();
       } catch (e) {
@@ -52,74 +55,104 @@
     }
   }
 
+  function setSafeText(id, text) {
+    const el = $(id);
+    if (el) el.textContent = text;
+  }
+
+  function setHidden(id, hidden) {
+    const el = $(id);
+    if (el) el.hidden = !!hidden;
+  }
+
   async function runCompatResult() {
     const root = $("compatResultRoot");
     if (!root) return; // not on this page
 
+    const drugAEl = $("drugA");
+    const drugBEl = $("drugB");
+    const pill = $("statusPill");
+    const statusTextEl = $("statusText");
+    const noteTextEl = $("noteText");
+    const refTextEl = $("refText");
+
+    if (!pill || !statusTextEl || !noteTextEl || !drugAEl || !drugBEl) return;
+
     const qs = new URLSearchParams(location.search);
-    const drugA = qs.get("drug_a") || "";
-    const drugB = qs.get("drug_b") || "";
+    const drugA = (qs.get("drug_a") || "").trim();
+    const drugB = (qs.get("drug_b") || "").trim();
     const debug = qs.get("debug") === "1";
 
-    $("drugA").textContent = drugA || "—";
-    $("drugB").textContent = drugB || "—";
+    drugAEl.textContent = drugA || "—";
+    drugBEl.textContent = drugB || "—";
 
-    // status pill initial
-    const pill = $("statusPill");
+    // initial state
     pill.className = "status-pill st-loading";
-    $("statusText").textContent = "Loading";
-    $("noteText").textContent = "กำลังโหลดข้อมูล...";
-    $("refWrap").hidden = true;
+    statusTextEl.textContent = "Loading";
+    noteTextEl.textContent = "กำลังโหลดข้อมูล...";
+    setHidden("refWrap", true);
 
-    const v = qs.get("v") || Date.now();
-    const rel = new URL("./static/compat_lookup.json?v=" + v, location.href).href;
+    // cache-bust
+    const v = qs.get("v") || String(Date.now());
 
-    // Flask fallback: /static/compat_lookup.json (absolute root)
-    const abs = new URL("/static/compat_lookup.json?v=" + v, location.origin).href;
+    // Pages: ./static/compat_lookup.json
+    const rel = new URL("./static/compat_lookup.json?v=" + encodeURIComponent(v), location.href).href;
+    // Flask: /static/compat_lookup.json
+    const abs = new URL("/static/compat_lookup.json?v=" + encodeURIComponent(v), location.origin).href;
 
     const data = await fetchJsonFallback([rel, abs]);
 
-    const key = `${normDrug(drugA)}||${normDrug(drugB)}`;
-    const rec = asRecord(data[key]);
+    // try forward + reverse
+    const key1 = `${normDrug(drugA)}||${normDrug(drugB)}`;
+    const key2 = `${normDrug(drugB)}||${normDrug(drugA)}`;
 
+    const rec = asRecord(data[key1]) || asRecord(data[key2]);
+
+    // debug line
     if (debug) {
-      $("debugLine").hidden = false;
-      $("debugLine").textContent = `Source: ${rel}  Key: ${key}`;
+      setHidden("debugLine", false);
+      setSafeText(
+        "debugLine",
+        `Source tried: [${rel}] then [${abs}] | Keys tried: ${k1} , ${k2} | Found: ${foundKey || "none"}`
+      );
     } else {
-      $("debugLine").hidden = true;
+      setHidden("debugLine", true);
     }
 
-    const statusCode = (rec?.status || "ND").toUpperCase();
+    const statusCode = String((rec && rec.status) ? rec.status : "ND").toUpperCase();
     const meta = STATUS_MAP[statusCode] || STATUS_MAP.ND;
 
     pill.className = `status-pill ${meta.cls}`;
-    $("statusText").textContent = meta.en;
+    // จะโชว์อังกฤษหรือไทยก็ได้—เวอร์ชันนี้โชว์อังกฤษ + ไทยในวงเล็บ
+    statusTextEl.textContent = `${meta.en} (${meta.th})`;
 
-    const noteTH = (rec?.summary_th || "").trim();
-    const noteEN = (rec?.summary_en || "").trim();
+    // IMPORTANT: note_th/note_en มาก่อน summary_th/summary_en
+    const noteTH = (rec?.note_th || rec?.summary_th || "").trim();
+    const noteEN = (rec?.note_en || rec?.summary_en || "").trim();
     const note = noteTH || (noteEN ? noteEN : defaultNoteTH(statusCode));
     $("noteText").textContent = note;
 
-    const ref = (rec?.reference || "").trim();
-    if (ref) {
-      $("refWrap").hidden = false;
-      $("refText").textContent = ref;
+    const ref = String((rec && rec.reference) || "").trim();
+    if (ref && refTextEl) {
+      setHidden("refWrap", false);
+      refTextEl.textContent = ref;
     } else {
-      $("refWrap").hidden = true;
+      setHidden("refWrap", true);
     }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     runCompatResult().catch((e) => {
       const pill = $("statusPill");
-      if (pill) {
-        pill.className = "status-pill st-nd";
-        $("statusText").textContent = "No data";
-        $("noteText").textContent = "โหลดข้อมูลไม่สำเร็จ (อาจติด cache/service worker) กรุณารีเฟรชแบบ hard reload หรือ clear site data";
-        $("refWrap").hidden = true;
-        $("debugLine").hidden = false;
-        $("debugLine").textContent = String(e);
-      }
+      if (pill) pill.className = "status-pill st-nd";
+      setSafeText("statusText", "No data (ไม่มีข้อมูล)");
+      setSafeText(
+        "noteText",
+        "โหลดข้อมูลไม่สำเร็จ: อาจติด cache / service worker ให้ลอง Hard Reload หรือ Clear site data"
+      );
+      setHidden("refWrap", true);
+      setHidden("debugLine", false);
+      setSafeText("debugLine", String(e));
       console.error(e);
     });
   });

@@ -16,19 +16,19 @@
   <!-- PWA meta -->
   <meta name="theme-color" content="#0ea5a6" />
   <link rel="manifest"
-        href="./static/manifest.webmanifest?v=20251201_1831">
+        href="./static/manifest.webmanifest?v=20251202_0229">
 
   <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon"
-        href="./static/icons/icon-192.png?v=20251201_1831">
+        href="./static/icons/icon-192.png?v=20251202_0229">
 
   <!-- App CSS/JS (dual path + cache bust) -->
   <link rel="stylesheet"
-        href="./static/style.css?v=20251201_1831">
+        href="./static/style.css?v=20251202_0229">
   <script defer
-          src="./static/app.js?v=20251201_1831"></script>
+          src="./static/app.js?v=20251202_0229"></script>
 
   <style>
     /* ---------- Global ---------- */
@@ -137,382 +137,225 @@
 
   
 <style>
-  /* ===== WIDEN: กัน base ที่ล็อคความกว้าง ===== */
   .compat-wrap{
-    /* ออกแบบให้เดสก์ท็อปกว้างขึ้น แต่ยัง responsive */
-    width: min(980px, calc(100vw - 24px));
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 12px 160px;
-    position: relative;
-
-    /* ถ้า base มี container แคบ: “ดันออกจากกรอบ” อย่างปลอดภัย */
-    left: 50%;
-    transform: translateX(-50%);
+    padding: 18px 12px 160px;
+  }
+  .compat-title{
+    text-align:center;
+    font-weight:800;
+    letter-spacing:.2px;
+    margin: 6px 0 18px;
   }
 
   .compat-card{
-    width: 100%;
+    width:100%;
     background: rgba(255,255,255,.92);
-    border-radius: 18px;
-    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    padding: 18px 18px 16px;
+    border: 1px solid rgba(15,23,42,.08);
+    border-radius: 22px;
+    box-shadow: 0 14px 36px rgba(15,23,42,.16);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
   }
 
-  .compat-top{
+  .compat-head{
+    padding: 18px 18px 12px;
     display:flex;
+    gap: 14px;
     align-items:flex-start;
     justify-content:space-between;
-    gap: 14px;
   }
 
-  .label{
-    font-size: 14px;
-    color:#0b6aa9;
-    margin-bottom:6px;
-  }
-
-  /* กล่อง Drug pair สไตล์เดียวกับที่คุณใช้อยู่ */
-  .pair-pill{
-    width: 92px;
-    min-height: 118px;
-    border-radius: 22px;
-    background: linear-gradient(180deg, #0ea5a6, #0284c7);
-    box-shadow: 0 12px 18px rgba(2, 132, 199, .25);
+  .pair-box{
     display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap: 10px;
-    padding: 10px 8px;
+    gap: 14px;
+    align-items:flex-start;
+    min-width: 240px;
+  }
+
+  .pair-pill{
+    width: 120px;
+    border-radius: 18px;
+    padding: 12px 10px;
+    background: linear-gradient(180deg, #0ea5a6, #0b67c2);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(2,132,199,.25);
+    text-align:center;
+    user-select:none;
   }
   .pair-pill .drug{
-    color:#fff;
-    font-weight:700;
-    font-size: 12px;
+    font-weight:800;
     line-height: 1.15;
-    text-align:center;
+    font-size: 13px;
     word-break: break-word;
-    max-width: 76px;
   }
-  .pair-pill .sep{
-    color:#fff;
+  .pair-pill .x{
     font-weight:900;
-    font-size: 20px;
-    line-height: 1;
-    opacity: .95;
+    font-size: 18px;
+    margin: 6px 0;
+    opacity:.95;
+  }
+
+  .pair-label{
+    color:#0b67c2;
+    font-weight:800;
+    font-size: 13px;
+    margin-bottom: 6px;
   }
 
   .status-pill{
-    display:flex;
+    display:inline-flex;
     align-items:center;
     gap:10px;
-    padding: 10px 14px;
+    padding: 12px 18px;
     border-radius: 999px;
-    border: 1px solid rgba(15,23,42,.14);
-    background: rgba(255,255,255,.8);
-    min-width: 160px;
+    font-weight:900;
+    border: 1px solid rgba(15,23,42,.10);
+    background: rgba(255,255,255,.70);
+    min-width: 200px;
     justify-content:center;
-    height: 42px;
   }
-  .dot{
-    width:10px; height:10px; border-radius:999px;
-    background:#64748b; /* default */
-  }
-  .status-text{
-    font-weight:800;
-    color:#0b6aa9;
-    letter-spacing:.2px;
+  .status-pill .dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #94a3b8;
   }
 
-  .divider{ border:none; border-top:1px solid rgba(15,23,42,.12); margin: 14px 0; }
+  .st-loading .dot{ background:#64748b; }
+  .st-c .dot{ background:#16a34a; }
+  .st-i .dot{ background:#ef4444; }
+  .st-u .dot{ background:#f59e0b; }
+  .st-nd .dot{ background:#2563eb; }
 
+  .compat-body{
+    padding: 0 18px 16px;
+  }
+  .sep{
+    height:1px;
+    background: rgba(15,23,42,.12);
+    margin: 8px 0 14px;
+  }
+
+  .note-area{
+    text-align:center;
+    padding: 10px 10px 0;
+  }
   .note-title{
-    font-size: 18px;
-    font-weight: 900;
-    color:#0b6aa9;
-    margin-bottom:6px;
+    font-weight:900;
+    color:#0b67c2;
+    margin-bottom: 6px;
   }
   .note-text{
+    font-size: 16px;
+    font-weight: 700;
     color:#0f172a;
-    font-size: 15px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    min-height: 84px;
+    line-height: 1.6;
   }
-  .meta-text{
+  .ref{
     margin-top: 10px;
-    color:#64748b;
-    font-size: 12px;
-    line-height: 1.4;
-    word-break: break-word;
+    font-size: 13px;
+    color: rgba(15,23,42,.65);
   }
 
-  .actions{
+  .compat-foot{
     display:flex;
     gap: 10px;
     justify-content:center;
-    margin-top: 18px;
-    flex-wrap: wrap;
+    padding: 14px 18px 18px;
   }
-  .btn{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding: 11px 16px;
+  .btnx{
+    border:0;
     border-radius: 999px;
-    text-decoration:none;
+    padding: 12px 18px;
     font-weight: 900;
-    border: 1px solid rgba(15,23,42,.12);
+    cursor:pointer;
+    display:inline-flex;
+    gap: 8px;
+    align-items:center;
+    text-decoration:none;
   }
-  .btn-primary{
-    background: #16a34a;
-    color: #fff;
-    border-color: rgba(22,163,74,.2);
-  }
-  .btn-ghost{
-    background: rgba(255,255,255,.75);
-    color:#0f172a;
+  .btn-green{ background:#16a34a; color:#fff; }
+  .btn-gray{ background:#f1f5f9; color:#0f172a; border:1px solid rgba(15,23,42,.12); }
+
+  .debug{
+    padding: 0 18px 10px;
+    font-size: 12px;
+    color: rgba(15,23,42,.55);
   }
 
-  /* มือถือ */
-  @media (max-width: 520px){
-    .compat-wrap{ width: calc(100vw - 16px); }
-    .pair-pill{ width: 86px; min-height: 112px; }
-    .status-pill{ min-width: 140px; }
+  @media (max-width: 560px){
+    .compat-head{ flex-direction:column; align-items:stretch; }
+    .pair-box{ min-width: unset; }
+    .status-pill{ width:100%; }
+    .pair-pill{ width: 100%; }
   }
 </style>
+
+<script>
+  // ใช้ได้ทั้ง Flask และ Pages
+  window.__URLS = {
+    lookup: ("./static/compat_lookup.json"),
+    newCheck: ("./compat_index.html"),
+    home: ("./index.html")
+  };
+</script>
 
 </head>
 
 <body class=" ">
   <div class="container">
     
-  <div class="compat-wrap">
-    <h2 class="title-badge">Result analyze (Compatibility)</h2>
+<div class="compat-wrap" id="compatResultRoot">
+  <h2 class="compat-title">Result analyze (Compatibility)</h2>
 
-    <section class="compat-card" id="resultCard" aria-live="polite">
-      <div class="compat-top">
+  <div class="compat-card">
+    <div class="compat-head">
+      <div class="pair-box">
         <div>
-          <div class="label">Drug pair</div>
-          <div class="pair-pill" aria-label="drug pair">
+          <div class="pair-label">Drug pair</div>
+          <div class="pair-pill">
             <div class="drug" id="drugA">—</div>
-            <div class="sep">×</div>
+            <div class="x">×</div>
             <div class="drug" id="drugB">—</div>
           </div>
         </div>
+      </div>
 
-        <div class="status-pill" id="statusPill">
-          <span class="dot" id="statusDot"></span>
-          <span class="status-text" id="statusText">Loading</span>
+      <div class="status-pill st-loading" id="statusPill">
+        <span class="dot"></span>
+        <span id="statusText">Loading</span>
+      </div>
+    </div>
+
+    <div class="compat-body">
+      <div class="sep"></div>
+
+      <div class="note-area">
+        <div class="note-title">Note</div>
+        <div class="note-text" id="noteText">กำลังโหลดข้อมูล...</div>
+
+        <div class="ref" id="refWrap" hidden>
+          Reference: <span id="refText"></span>
         </div>
       </div>
+    </div>
 
-      <hr class="divider" />
+    <div class="debug" id="debugLine" hidden></div>
 
-      <div class="note-title">Note</div>
-      <div class="note-text" id="noteText">กำลังโหลดข้อมูล...</div>
-      <div class="meta-text" id="metaText"></div>
-
-      <div class="actions">
-        <a class="btn btn-primary" id="btnNew" href="./compatibility.html">↻ New check</a>
-        <a class="btn btn-ghost" id="btnHome" href="./index.html">🏠 Home</a>
-      </div>
-    </section>
+    <div class="compat-foot">
+      <a class="btnx btn-green" href="./compatibility.html">↻ New check</a>
+      <a class="btnx btn-gray" href="./index.html">🏠 Home</a>
+    </div>
   </div>
-
-  <!-- ✅ วาง script ไว้ท้าย content เพื่อให้ “แน่ใจว่ารัน” ทั้ง Flask + Pages -->
-  <script>
-  (() => {
-    const $ = (id) => document.getElementById(id);
-
-    const elDrugA = $("drugA");
-    const elDrugB = $("drugB");
-    const elStatusText = $("statusText");
-    const elDot = $("statusDot");
-    const elNote = $("noteText");
-    const elMeta = $("metaText");
-    const elBtnHome = $("btnHome");
-    const elBtnNew = $("btnNew");
-
-    const isStaticHtml = /\.html(\?|$)/i.test(location.pathname); // Pages: .../compatibility_result.html
-    // Link ให้ถูกทั้ง 2 โหมด
-    if (!isStaticHtml) {
-      // Flask mode (สมมติ route มาตรฐาน)
-      elBtnHome.href = "/";
-      elBtnNew.href  = "/compatibility";
-    }
-
-    const qs = new URLSearchParams(location.search);
-    const rawA = (qs.get("drug_a") || "").trim();
-    const rawB = (qs.get("drug_b") || "").trim();
-
-    elDrugA.textContent = rawA || "—";
-    elDrugB.textContent = rawB || "—";
-
-    const norm = (s) =>
-      String(s || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .replace(/_/g, " ")
-        .replace(/\./g, "")
-        .replace(/\(.*?\)/g, "")   // ตัดวงเล็บ
-        .trim();
-
-    const mkKey = (a, b, delim="|") => {
-      const x = norm(a), y = norm(b);
-      if (!x || !y) return "";
-      return (x < y) ? `${x}${delim}${y}` : `${y}${delim}${x}`;
-    };
-
-    const setStatus = (code, text) => {
-      elStatusText.textContent = text;
-
-      // สีจุด (ไม่ใช้ class เยอะ เพื่อไม่ชน css เดิม)
-      const map = {
-        good: "#16a34a",
-        bad:  "#dc2626",
-        warn: "#f59e0b",
-        info: "#0ea5a6",
-        none: "#64748b",
-      };
-      elDot.style.background = map[code] || map.none;
-    };
-
-    const pickNote = (rec) => {
-      // รองรับ field หลายแบบ (เผื่อ json เปลี่ยนชื่อ)
-      return (
-        rec.summary_th ||
-        rec.note_th ||
-        rec.summary ||
-        rec.note ||
-        rec.detail ||
-        rec.details ||
-        ""
-      );
-    };
-
-    const pickRef = (rec) => {
-      return rec.reference || rec.ref || rec.source || rec.citation || "";
-    };
-
-    const normStatus = (v) => {
-      const s = String(v ?? "").trim().toLowerCase();
-      // รองรับทั้งตัวอักษร/คำเต็ม/ตัวเลข
-      if (s === "1" || s === "c" || s.includes("compat")) return {code:"good", text:"Compatible"};
-      if (s === "0" || s === "i" || s.includes("incompat")) return {code:"bad", text:"Incompatible"};
-      if (s === "u" || s.includes("uncertain")) return {code:"warn", text:"Uncertain"};
-      if (s === "nd" || s.includes("no") || s.includes("unknown") || s.includes("data")) return {code:"none", text:"No data"};
-      return {code:"info", text: (v ? String(v) : "Unknown")};
-    };
-
-    const candidates = (() => {
-      const base = new URL(".", location.href);
-
-      // Pages: ./static/compat_lookup.json
-      const pagesUrl = new URL("static/compat_lookup.json", base).toString();
-
-      // Flask: /static/compat_lookup.json
-      const flaskUrl = new URL("/static/compat_lookup.json", location.origin).toString();
-
-      // กัน cache
-      const bust = `v=${Date.now()}`;
-      return [
-        `${pagesUrl}?${bust}`,
-        `${flaskUrl}?${bust}`,
-      ];
-    })();
-
-    const findRecord = (lookup, a, b) => {
-      const tries = [
-        mkKey(a,b,"|"),
-        mkKey(a,b,"||"),
-        mkKey(a,b,"::"),
-        // เผื่อ json เก็บ key แบบไม่ normalize
-        (a && b) ? ((a < b) ? `${a}|${b}` : `${b}|${a}`) : "",
-        (a && b) ? ((a < b) ? `${a}||${b}` : `${b}||${a}`) : "",
-      ].filter(Boolean);
-
-      for (const k of tries) {
-        if (lookup[k]) return { key:k, rec: lookup[k] };
-        if (lookup[k.toLowerCase()]) return { key:k.toLowerCase(), rec: lookup[k.toLowerCase()] };
-      }
-      return null;
-    };
-
-    (async () => {
-      try {
-        if (!rawA || !rawB) {
-          setStatus("none", "No data");
-          elNote.textContent = "ไม่พบค่า drug_a / drug_b ใน URL";
-          elMeta.textContent = "Debug: ต้องมี ?drug_a=...&drug_b=...";
-          return;
-        }
-
-        let lookup = null;
-        let usedUrl = null;
-        let lastErr = null;
-
-        for (const url of candidates) {
-          try {
-            const r = await fetch(url, { cache: "no-store" });
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            lookup = await r.json();
-            usedUrl = url;
-            break;
-          } catch (e) {
-            lastErr = e;
-          }
-        }
-
-        if (!lookup) {
-          setStatus("none", "No data");
-          elNote.textContent = "โหลดฐานข้อมูลไม่สำเร็จ";
-          elMeta.textContent = `Debug: fetch failed | ${String(lastErr)} | tried: ${candidates.join(" , ")}`;
-          return;
-        }
-
-        const hit = findRecord(lookup, rawA, rawB);
-
-        if (!hit) {
-          setStatus("none", "No data");
-          elNote.textContent = "ไม่พบคู่ยานี้ใน compat_lookup.json";
-          // ช่วย debug: แนะนำ key ที่ใกล้เคียง (ค้นแบบ contains)
-          const na = norm(rawA), nb = norm(rawB);
-          const keys = Object.keys(lookup || {});
-          const near = keys.filter(k => k.includes(na) || k.includes(nb)).slice(0, 8);
-          elMeta.textContent =
-            `Source: ${usedUrl}\nDebug: keys=${keys.length} | suggested=${near.join(" , ") || "(none)"}`;
-          return;
-        }
-
-        const rec = hit.rec || {};
-        const st = normStatus(rec.status ?? rec.code ?? rec.result);
-
-        setStatus(st.code, st.text);
-
-        const note = pickNote(rec);
-        elNote.textContent = note || "ไม่มีหมายเหตุ (note) ในข้อมูล";
-
-        const ref = pickRef(rec);
-        elMeta.textContent =
-          `Source: ${usedUrl}\nKey: ${hit.key}` + (ref ? `\nReference: ${ref}` : "");
-
-      } catch (e) {
-        setStatus("none", "No data");
-        elNote.textContent = "เกิดข้อผิดพลาดระหว่างประมวลผล";
-        elMeta.textContent = `Debug: ${String(e)}`;
-      }
-    })();
-  })();
-  </script>
+</div>
 
   </div>
 
   <footer>
     Developed by Sukhontha Boonsoockchan |
-    update 2025-12-01 18:31
+    update 2025-12-02 02:29
   </footer>
 
   <!-- Service Worker (คุมให้ปลอดภัยต่อ cache) -->
@@ -525,204 +368,12 @@
       if (host === "localhost" || host === "127.0.0.1") return;
 
       // ใช้ version เดียวกับ css/js เพื่อบังคับ SW ใหม่เมื่อมีอัปเดต
-      var swPath = "./static/service-worker.js?v=20251201_1831";
+      var swPath = "./static/service-worker.js?v=20251202_0229";
 
       navigator.serviceWorker.register(swPath).catch(console.error);
     })();
   </script>
 
   
-
-<style id="compat-theme-style">
-/* ===== Compatibility theme ===== */
-.compat-note{
-  margin: 14px auto 0;
-  max-width: 760px;
-  text-align: left;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(15,23,42,.18);
-  background: rgba(255,255,255,.88);
-  line-height: 1.5;
-  font-size: 15px;
-}
-.compat-note .hd{ font-weight: 700; margin-bottom: 6px; }
-.compat-note .en{ opacity: .95; }
-.compat-note .th{ margin-top: 6px; }
-.compat-note .ref{ margin-top: 10px; font-size: 13px; opacity: .85; }
-
-.compat-status-pill[data-status="C"]{ background:#16a34a; color:#fff; }
-.compat-status-pill[data-status="I"]{ background:#dc2626; color:#fff; }
-.compat-status-pill[data-status="U"]{ background:#f59e0b; color:#111827; }
-.compat-status-pill[data-status="ND"]{ background:#64748b; color:#fff; }
-
-.compat-note[data-code="C"]{ border-color: rgba(22,163,74,.45); background: rgba(22,163,74,.10); }
-.compat-note[data-code="I"]{ border-color: rgba(220,38,38,.45); background: rgba(220,38,38,.10); }
-.compat-note[data-code="U"]{ border-color: rgba(245,158,11,.55); background: rgba(245,158,11,.12); }
-.compat-note[data-code="ND"]{ border-color: rgba(100,116,139,.45); background: rgba(100,116,139,.10); }
-</style>
-
-<script id="compat-lookup-patch">
-(function(){
-  const label = {
-    C: "Compatible / ผสมร่วมได้",
-    I: "Incompatible / ห้ามผสม",
-    U: "Uncertain / ไม่ชัดเจน",
-    ND:"No data / ไม่มีข้อมูล",
-  };
-
-  function normDrug(s){
-    return String(s || "")
-      .replace(/\+/g, " ")
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, " ");
-  }
-
-  // สำคัญ: บังคับโชว์ element ที่ถูกซ่อน (แก้หน้าโล่ง)
-  function forceUnhide(fromEl){
-    let el = fromEl;
-    while (el && el !== document.body){
-      try{
-        el.hidden = false;
-        el.classList && el.classList.remove("hidden");
-        const cs = getComputedStyle(el);
-        if (cs.display === "none") el.style.display = "block";
-        if (cs.visibility === "hidden") el.style.visibility = "visible";
-        if (cs.opacity === "0") el.style.opacity = "1";
-      }catch(e){}
-      el = el.parentElement;
-    }
-  }
-
-  function hideFallbackIfAny(){
-    const cand = Array.from(document.querySelectorAll("p,div,span"))
-      .find(el => (el.textContent || "").includes("ยังไม่พบรายละเอียดคู่นี้ในระบบ"));
-    if (cand) cand.style.display = "none";
-  }
-
-  function ensureNoteBox(anchorEl){
-    let box = document.querySelector("[data-compat-note]");
-    if (box) return box;
-
-    box = document.createElement("div");
-    box.className = "compat-note";
-    box.setAttribute("data-compat-note", "1");
-
-    // วางต่อจากบรรทัดสถานะ ถ้ามี
-    const anchor =
-      document.querySelector(".compat-status-line") ||
-      anchorEl?.parentElement ||
-      anchorEl ||
-      document.body;
-
-    anchor.insertAdjacentElement("afterend", box);
-    return box;
-  }
-
-  function renderNote(row, code, sLabelEl){
-    const box = ensureNoteBox(sLabelEl);
-    box.dataset.code = code;
-    box.replaceChildren();
-
-    const hd = document.createElement("div");
-    hd.className = "hd";
-    hd.textContent = "Notes / ข้อสรุปเชิงปฏิบัติ";
-    box.appendChild(hd);
-
-    const en = (row && row.summary_en) || "";
-    const th = (row && row.summary_th) || "";
-    const ref = (row && row.reference) || "";
-
-    if (en){
-      const d = document.createElement("div");
-      d.className = "en";
-      d.textContent = en;
-      box.appendChild(d);
-    }
-    if (th){
-      const d = document.createElement("div");
-      d.className = "th";
-      d.textContent = th;
-      box.appendChild(d);
-    }
-    if (ref){
-      const d = document.createElement("div");
-      d.className = "ref";
-      d.textContent = "Reference: " + ref;
-      box.appendChild(d);
-    }
-
-    if (!en && !th && !ref){
-      const d = document.createElement("div");
-      d.className = "th";
-      d.textContent = "พบสถานะในระบบแล้ว แต่ยังไม่มีรายละเอียดเงื่อนไข (กำลังทยอยเติมข้อมูล)";
-      box.appendChild(d);
-    }
-  }
-
-  async function run(){
-    const sCodeEl  = document.querySelector("[data-status-code]");
-    const sLabelEl = document.querySelector("[data-status-label]");
-
-    // ถ้าหน้าไม่พบ element เหล่านี้ แปลว่า template เปลี่ยน/ถูกซ่อนหนักมาก
-    if (!sCodeEl || !sLabelEl) return;
-
-    // บังคับโชว์การ์ดที่ครอบ status pill
-    forceUnhide(sCodeEl);
-
-    const params = new URLSearchParams(location.search);
-    const drugA = params.get("drug_a") || "";
-    const drugB = params.get("drug_b") || "";
-    const a = normDrug(drugA);
-    const b = normDrug(drugB);
-    const k1 = a + "|" + b;
-    const k2 = b + "|" + a;
-
-    try{
-      const res = await fetch("./static/compat_lookup.json?x=" + Date.now(), { cache: "no-store" });
-      const lookup = await res.json();
-      const row = lookup[k1] || lookup[k2];
-
-      const code = (row && row.status ? String(row.status).toUpperCase() : "ND");
-
-      // เก็บไว้เผื่อ legacy มาเขียนทับทีหลัง แล้วเราจะ apply ซ้ำ
-      window.__compatLookupLast = { row, code };
-
-      sCodeEl.textContent = code;
-      sCodeEl.setAttribute("data-status", code);
-      sLabelEl.textContent = label[code] || label.ND;
-
-      if (row) hideFallbackIfAny();
-      renderNote(row, code, sLabelEl);
-
-      // กัน legacy มาเขียนทับหลังโหลด: เฝ้า mutation แล้ว apply ซ้ำ
-      const obs = new MutationObserver(() => {
-        const last = window.__compatLookupLast;
-        if (!last) return;
-        sCodeEl.textContent = last.code;
-        sCodeEl.setAttribute("data-status", last.code);
-        sLabelEl.textContent = label[last.code] || label.ND;
-      });
-      obs.observe(sCodeEl, { childList: true, subtree: true, characterData: true });
-      obs.observe(sLabelEl, { childList: true, subtree: true, characterData: true });
-
-    }catch(e){
-      // ถ้าโหลด lookup ไม่ได้ อย่างน้อยต้องไม่หน้าโล่ง
-      sCodeEl.textContent = "ND";
-      sCodeEl.setAttribute("data-status", "ND");
-      sLabelEl.textContent = label.ND;
-      forceUnhide(sCodeEl);
-    }
-  }
-
-  if (document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", run, { once:true });
-  } else {
-    run();
-  }
-})();
-</script>
-
 </body>
 </html>
