@@ -1,5 +1,5 @@
 /* =========================
- * Compat Result Page (Pages + Flask)
+ * Compat Result Page (Pages + Flask) - COMPLETE
  * ========================= */
 (function initCompatResultPage() {
   const root = document.getElementById("compatResultRoot");
@@ -7,6 +7,7 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // UI nodes
   const elDrugA = $("drugA");
   const elDrugB = $("drugB");
   const pill = $("statusPill");
@@ -16,23 +17,84 @@
   const refText = $("refText");
   const debugLine = $("debugLine");
 
-  const btnNew = $("btnNewCheck");
-  const btnHome = $("btnHome");
+  // Support both old buttons + new floating buttons
+  const btnNew =
+    $("btnNewCheck") || $("fabNewCheck") || document.querySelector('[data-role="new-check"]');
+  const btnHome =
+    $("btnHome") || $("fabHome") || document.querySelector('[data-role="home"]');
 
-  // --- Fix links (กันหลุดไป compat_index.html) ---
-  const URLS = window.__URLS || {};
-  const safeNew = URLS.newCheck || "./compatibility.html";
-  const safeHome = URLS.home || "./index.html";
-  if (btnNew) btnNew.setAttribute("href", safeNew);
-  if (btnHome) btnHome.setAttribute("href", safeHome);
+  // Detect Pages vs Flask
+  const isPages = () =>
+    location.hostname.endsWith("github.io") || /\.html(\?|#|$)/.test(location.pathname);
 
-  // บังคับนำทางแบบชัดเจน (กันโค้ดอื่น intercept)
+  // URL resolver (safe, works both Pages + Flask)
+  function resolveNavUrls() {
+    const URLS = window.__URLS || window.URLS || {};
+    const nav = {
+      newCheck: URLS.newCheck || "./compatibility.html",
+      home: URLS.home || "./index.html",
+      lookup: URLS.lookup || "./static/compat_lookup.json",
+    };
+
+    // If Flask: allow per-element dataset override (best practice)
+    // <a id="btnNewCheck" data-flask-href="{{ url_for('compat.compat_index') }}">
+    if (!isPages()) {
+      if (btnNew && btnNew.dataset && btnNew.dataset.flaskHref) nav.newCheck = btnNew.dataset.flaskHref;
+      if (btnHome && btnHome.dataset && btnHome.dataset.flaskHref) nav.home = btnHome.dataset.flaskHref;
+      if (URLS.lookup) nav.lookup = URLS.lookup; // typically url_for('static', filename='compat_lookup.json')
+    }
+
+    return nav;
+  }
+
+  function setHref(el, href) {
+    if (!el || !href) return;
+    el.setAttribute("href", href);
+  }
+
   function hardNav(href) {
     if (!href) return;
     window.location.assign(href);
   }
-  if (btnNew) btnNew.addEventListener("click", (e) => { e.preventDefault(); hardNav(btnNew.getAttribute("href")); });
-  if (btnHome) btnHome.addEventListener("click", (e) => { e.preventDefault(); hardNav(btnHome.getAttribute("href")); });
+
+  function bindHardNav(el) {
+    if (!el) return;
+    el.addEventListener(
+      "click",
+      (e) => {
+        // allow open in new tab, etc
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        hardNav(el.getAttribute("href"));
+      },
+      { passive: false }
+    );
+  }
+
+  // Patch links robustly (prevents compat_index.html leaks)
+  function patchLinks() {
+    const nav = resolveNavUrls();
+
+    // set href on the available buttons
+    setHref(btnNew, nav.newCheck);
+    setHref(btnHome, nav.home);
+
+    // bind hard navigation
+    bindHardNav(btnNew);
+    bindHardNav(btnHome);
+
+    // if any anchor accidentally points to compat_index.html, rewrite it
+    document.querySelectorAll('a[href*="compat_index.html"]').forEach((a) => {
+      a.setAttribute("href", nav.newCheck);
+    });
+  }
+
+  // run link patch after DOM ready just in case other scripts mutate href
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", patchLinks);
+  } else {
+    patchLinks();
+  }
 
   // --- helpers ---
   const STATUS_MAP = {
@@ -55,19 +117,47 @@
   }
 
   function setStatus(code) {
-    const s = STATUS_MAP[code] || STATUS_MAP.ND;
-    root.dataset.status = code || "ND";
+    const c = (code || "ND").toUpperCase();
+    const s = STATUS_MAP[c] || STATUS_MAP.ND;
 
-    pill.classList.remove("st-loading", "st-c", "st-i", "st-u", "st-nd");
-    pill.classList.add(s.cls);
+    // for CSS theming
+    root.dataset.status = c;
 
-    statusText.textContent = s.text;
+    if (pill) {
+      pill.classList.remove("st-loading", "st-c", "st-i", "st-u", "st-nd");
+      pill.classList.add(s.cls);
+    }
+    if (statusText) statusText.textContent = s.text;
   }
 
   async function loadJson(url) {
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+    if (!res.ok) throw new Error(`fetch failed: ${res.status} (${url})`);
     return await res.json();
+  }
+
+  async function loadLookupDb() {
+    const nav = resolveNavUrls();
+
+    // Try multiple paths (GitHub Pages sometimes needs ./docs/static if mislinked)
+    const candidates = [];
+    if (nav.lookup) candidates.push(nav.lookup);
+
+    // common fallbacks
+    candidates.push("./static/compat_lookup.json");
+    candidates.push("static/compat_lookup.json");
+    candidates.push("./docs/static/compat_lookup.json");
+    candidates.push("docs/static/compat_lookup.json");
+
+    let lastErr = null;
+    for (const u of candidates) {
+      try {
+        return await loadJson(u);
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error("lookup db not found");
   }
 
   // --- main ---
@@ -75,16 +165,15 @@
     try {
       const aRaw = getQueryParam("drug_a");
       const bRaw = getQueryParam("drug_b");
-
       const aKey = normalizeName(aRaw);
       const bKey = normalizeName(bRaw);
 
-      // แสดงชื่อจาก query ก่อน
+      // Show names from query first
       if (elDrugA) elDrugA.textContent = aRaw || "—";
       if (elDrugB) elDrugB.textContent = bRaw || "—";
 
-      const lookupUrl = (window.__URLS && window.__URLS.lookup) ? window.__URLS.lookup : "./static/compat_lookup.json";
-      const db = await loadJson(lookupUrl);
+      // Load db
+      const db = await loadLookupDb();
 
       const key1 = `${aKey}||${bKey}`;
       const key2 = `${bKey}||${aKey}`;
@@ -97,33 +186,39 @@
 
       if (!rec) {
         setStatus("ND");
-        noteText.textContent = STATUS_MAP.ND.fallbackNote;
-        refWrap.hidden = true;
+        if (noteText) noteText.textContent = STATUS_MAP.ND.fallbackNote;
+        if (refWrap) refWrap.hidden = true;
         return;
       }
 
-      // ใช้ชื่อมาตรฐานจากฐานข้อมูล ถ้ามี
+      // Prefer canonical drug names from db
       if (elDrugA) elDrugA.textContent = rec.drug_a || aRaw || "—";
       if (elDrugB) elDrugB.textContent = rec.drug_b || bRaw || "—";
 
-      const code = (rec.status || "ND").toUpperCase();
+      const code = String(rec.status || "ND").toUpperCase();
       setStatus(code);
 
-      const note = (rec.note_th || rec.summary_th || "").trim() || (STATUS_MAP[code] || STATUS_MAP.ND).fallbackNote;
-      noteText.textContent = note;
+      const fallback = (STATUS_MAP[code] || STATUS_MAP.ND).fallbackNote;
+      const note = String(rec.note_th || rec.summary_th || "").trim() || fallback;
+      if (noteText) noteText.textContent = note;
 
-      const ref = (rec.reference || "").trim();
-      if (ref) {
+      const ref = String(rec.reference || "").trim();
+      if (ref && refWrap && refText) {
         refText.textContent = ref;
         refWrap.hidden = false;
-      } else {
+      } else if (refWrap) {
         refWrap.hidden = true;
       }
+
     } catch (err) {
       console.error(err);
       setStatus("ND");
-      noteText.textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง";
+      if (noteText) noteText.textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง";
       if (refWrap) refWrap.hidden = true;
+      if (debugLine) {
+        debugLine.hidden = false;
+        debugLine.textContent = `error: ${err && err.message ? err.message : String(err)}`;
+      }
     }
   })();
 })();
