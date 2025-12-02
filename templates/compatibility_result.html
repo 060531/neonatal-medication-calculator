@@ -264,16 +264,15 @@
 
 <script>
   // ให้ app.js ใช้ได้ทั้ง Pages + Flask
-  window.__URLS = {
-    lookup: "./static/compat_lookup.json",
-    newCheck: "./compatibility.html",
-    home: "./index.html"
-  };
+window.__URLS = {
+  lookup: "./static/compat_lookup.json",
+  newCheck: "{{ './compatibility.html' if static_build else url_for('compat.compat_index') }}",
+  home: "./index.html"
+};
   // ถ้าเป็น Flask (มี url_for) ให้ทับค่าด้วย route จริง
   {% if url_for is defined %}
   window.__URLS = {
     lookup: "{{ url_for('static', filename='compat_lookup.json') }}",
-    newCheck: "{{ url_for('compat.compat_index') }}",
     home: "{{ url_for('main.index') }}"
   };
   {% endif %}
@@ -329,7 +328,10 @@
   </div>
 
   <div class="compat-fabbar" role="navigation" aria-label="Actions">
-    <a class="fab-btn fab-primary" id="fabNewCheck" href="./compatibility.html">↻ New check</a>
+    <a class="fab-btn fab-primary" id="fabNewCheck"
+   href="{{ './compatibility.html' if static_build else url_for('compat.compat_index') }}">
+  ↻ New check
+</a>
     <a class="fab-btn fab-secondary" id="fabHome" href="./index.html">🏠 Home</a>
   </div>
 </div>
