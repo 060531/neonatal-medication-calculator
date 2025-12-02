@@ -14,6 +14,46 @@ DOCS   = ROOT / "docs"
 STATIC = ROOT / "static"
 DOCS.mkdir(exist_ok=True)
 
+# ---------- meds catalog (single source of truth) ----------
+MEDS_CATALOG = ROOT / "data" / "meds_catalog.json"
+
+def load_meds_catalog():
+    if not MEDS_CATALOG.exists():
+        raise FileNotFoundError(f"Missing {MEDS_CATALOG} (create meds_catalog.json first)")
+    meds = json.loads(MEDS_CATALOG.read_text(encoding="utf-8"))
+
+    # validation กันพังเงียบ ๆ เวลาเพิ่มข้อมูล
+    seen = set()
+    for i, m in enumerate(meds, start=1):
+        label = (m.get("label") or "").strip()
+        ep = (m.get("endpoint") or "").strip()
+        if not label or not ep:
+            raise ValueError(f"[meds_catalog] item#{i} ต้องมี label และ endpoint")
+        if ep in seen:
+            raise ValueError(f"[meds_catalog] endpoint ซ้ำ: {ep}")
+        seen.add(ep)
+        # ensure danger exists
+        if "danger" not in m:
+            m["danger"] = False
+    return meds
+
+def group_meds_by_letter(meds):
+    groups = {}
+    for m in meds:
+        label = (m.get("label") or "").strip()
+        ch = (label[0].upper() if label else "#")
+        if not ("A" <= ch <= "Z"):
+            ch = "#"
+        groups.setdefault(ch, []).append(m)
+
+    for ch, items in groups.items():
+        items.sort(key=lambda x: (x.get("label") or "").lower())
+
+    ordered = {ch: groups[ch] for ch in sorted(k for k in groups.keys() if k != "#")}
+    if "#" in groups:
+        ordered["#"] = groups["#"]
+    return ordered
+
 # ---------- Undefined -> 0 (safe math/str/round) ----------
 class ZeroUndefined(Undefined):
     def __int__(self): return 0
@@ -174,12 +214,24 @@ def pick_update_date(cli_value: Optional[str] = None) -> str:
 # ---------- build steps ----------
 def render_one(template_name: str, update_date_str: str):
     tpl = env.get_template(template_name)
-    html = tpl.render(
+
+    # base ctx (ของเดิม)
+    ctx = dict(
         static_build=True,
         update_date=update_date_str,
         UPDATE_DATE=update_date_str,
         **default_context,
     )
+
+    # ✅ inject เฉพาะหน้าที่ต้องใช้ข้อมูล dynamic ตอน build
+    if template_name in ("Medication_administration.html", "medication_administration.html"):
+        meds = load_meds_catalog()
+        groups = group_meds_by_letter(meds)
+        letters = list(groups.keys())
+        ctx.update({"meds": meds, "groups": groups, "letters": letters})
+
+    html = tpl.render(**ctx)
+
     out = DOCS / template_name
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")

@@ -1,0 +1,60 @@
+[
+  { "label": "Acyclovir", "endpoint": "acyclovir_route", "danger": false },
+  { "label": "Amikacin", "endpoint": "amikin_route", "danger": false },
+  { "label": "Aminophylline", "endpoint": "aminophylline_route", "danger": true },
+  { "label": "Amoxicillin / Clavimoxy", "endpoint": "amoxicillin_clavimoxy_route", "danger": false },
+  { "label": "Amphotericin B", "endpoint": "amphotericinB_route", "danger": false },
+  { "label": "Ampicillin", "endpoint": "ampicillin_route", "danger": false },
+
+  { "label": "Benzathine_penicillin_g", "endpoint": "benzathine_penicillin_g_route", "danger": false },
+
+  { "label": "Cefazolin", "endpoint": "cefazolin_dose", "danger": false },
+  { "label": "Cefotaxime", "endpoint": "cefotaxime_route", "danger": false },
+  { "label": "Ceftazidime", "endpoint": "ceftazidime_route", "danger": false },
+  { "label": "Ciprofloxacin", "endpoint": "ciprofloxacin_route", "danger": false },
+  { "label": "Clindamycin", "endpoint": "clindamycin_route", "danger": false },
+  { "label": "Cloxacillin", "endpoint": "cloxacillin_route", "danger": false },
+  { "label": "Colistin", "endpoint": "colistin_route", "danger": false },
+
+  { "label": "Dexamethasone", "endpoint": "dexamethasone_route", "danger": false },
+  { "label": "Dobutamine", "endpoint": "dobutamine_route", "danger": true },
+  { "label": "Dopamine", "endpoint": "dopamine_route", "danger": true },
+
+  { "label": "Fentanyl", "endpoint": "fentanyl_route", "danger": true },
+  { "label": "Furosemide", "endpoint": "furosemide_route", "danger": false },
+
+  { "label": "Gentamicin", "endpoint": "gentamicin_route", "danger": false },
+
+  { "label": "Hydrocortisone", "endpoint": "hydrocortisone_route", "danger": false },
+
+  { "label": "Insulin Human Regular", "endpoint": "insulin_route", "danger": false },
+
+  { "label": "Levofloxacin", "endpoint": "levofloxacin_route", "danger": false },
+
+  { "label": "Meropenem", "endpoint": "meropenem_route", "danger": false },
+  { "label": "Metronidazole (Flagyl)", "endpoint": "metronidazole", "danger": false },
+
+  { "label": "Midazolam", "endpoint": "midazolam_route", "danger": true },
+  { "label": "Midazolam + Fentanyl", "endpoint": "midazolam_fentanyl_route", "danger": true },
+  { "label": "Morphine", "endpoint": "morphine_route", "danger": true },
+
+  { "label": "Nimbex (Cisatracurium)", "endpoint": "nimbex_route", "danger": false },
+
+  { "label": "Omeprazole", "endpoint": "omeprazole_route", "danger": false },
+
+  { "label": "Penicillin G sodium", "endpoint": "penicillin_g_sodium_route", "danger": false },
+  { "label": "Phenobarbital", "endpoint": "phenobarbital_route", "danger": false },
+  { "label": "Phenytoin (Dilantin)", "endpoint": "phenytoin_route", "danger": false },
+
+  { "label": "Remdesivir", "endpoint": "remdesivir_route", "danger": false },
+
+  { "label": "Sul-am®", "endpoint": "sul_am_route", "danger": false },
+  { "label": "Sulbactam", "endpoint": "sulbactam_route", "danger": false },
+  { "label": "Sulperazone", "endpoint": "sulperazone_route", "danger": false },
+
+  { "label": "Tazocin", "endpoint": "tazocin_route", "danger": false },
+
+  { "label": "Unasyn", "endpoint": "unasyn_route", "danger": false },
+
+  { "label": "Vancomycin", "endpoint": "vancomycin_route", "danger": false }
+]
