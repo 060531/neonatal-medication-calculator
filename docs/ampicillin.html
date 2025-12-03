@@ -107,7 +107,7 @@
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
           <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
-                 value="0">
+                 value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -116,22 +116,6 @@
     
 
     <!-- แสดงผลลัพธ์เมื่อคำนวณได้ (รองรับค่า 0 ด้วย is not none) -->
-    
-      <div class="result" id="server-ampicillin-result">
-        <p class="order-line">
-          <b>Order:</b> Ampicillin 0.00 mg
-        </p>
-        <p>
-          <b>สูตรจากสต็อก 1000 mg / 5 mL</b>
-          → <span class="mono">mL = (mg × 5) / 1000</span>
-        </p>
-        <p>
-          แทนค่า:
-          <span class="mono">
-            0.00 × 5 / 1000 </span> =
-            <span class="pill"></span> mL
-        </p>
-      </div>
     
 
     <!-- วิชาการ/แนวปฏิบัติ -->
@@ -172,7 +156,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">

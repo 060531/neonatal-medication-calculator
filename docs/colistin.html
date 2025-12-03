@@ -183,7 +183,7 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="0">
+                 value="">
         </div>
 
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -193,31 +193,21 @@
     
 
     
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Colistin 0.00 mg</p>
-        <p><b>สูตรจากสต็อก 150 mg / 2 ml</b> → <span class="mono">ml = (mg × 2) / 150</span></p>
-        <p>
-          แทนค่า:
-          <span class="mono">0.00 × 2 / 150 = </span>
-          <span class="pill"> ml</span>
-        </p>
-      </div>
-    
 
     <!-- รอบที่ 2 -->
-    <div class="calc-box "
+    <div class="calc-box hidden"
          id="step2-box">
       <form id="colistin-cond-form"
             action="./colistin.html"
             method="post"
             class="calc-row">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="0">
+        <input type="hidden" name="dose_hidden" value="">
         <input type="hidden" name="result_ml_hidden" value="">
 
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select id="multiplication" name="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
         </select>
@@ -225,16 +215,6 @@
       </form>
     </div>
 
-    
-      
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ  เท่า = <span class="pill">0.00</span> ml</b></p>
-        <div class="left-align">
-          
-
-          
-        </div>
-      </div>
     
 
     
@@ -277,7 +257,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">

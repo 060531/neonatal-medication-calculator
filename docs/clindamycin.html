@@ -202,29 +202,12 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="0">
+                 value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
     </div>
 
-    
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Clindamycin 0.00 mg</p>
-        <div class="left-align muted">
-          <p><b>ขั้นตอนที่ 1: ปริมาณยา (600 mg / 4 ml)</b></p>
-          <p>ใช้สูตร <span class="mono">(mg × 4) / 600</span> ⇒
-            <span class="mono">0.00 × 4 / 600 = </span>
-            <span class="pill"> ml</span>
-          </p>
-
-          <p style="margin-top:10px"><b>ขั้นตอนที่ 2: ปริมาณสารละลายเป้าหมาย (6 mg/ml)</b></p>
-          <p>ใช้สูตร <span class="mono">(mg × 1) / 6</span> ⇒
-            <span class="mono">0.00 × 1 / 6 = </span>
-            <span class="pill"> ml</span>
-          </p>
-        </div>
-      </div>
     
 
         <!-- รอบ 2: เลือกตัวคูณ -->
@@ -236,13 +219,13 @@
             method="post"
             class="calc-row">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="0">
+        <input type="hidden" name="dose_hidden" value="">
         <input type="hidden" name="result_ml_1_hidden" value="">
         <input type="hidden" name="result_ml_2_hidden" value="">
 
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="1.5" >1.5 เท่า</option>
           <option value="2"   >2 เท่า</option>
           <option value="2.5" >2.5 เท่า</option>
@@ -257,29 +240,6 @@
     </div>
 
 
-    
-      
-      
-      <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ  เท่า</b></p>
-        <div class="left-align" style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p> ×  ml =
-             <b>0.00</b> ml
-             <span class="muted">(จากสูตร: (mg × 4) / 600)</span></p>
-          <p> ×  ml =
-             <b>0.00</b> ml
-             <span class="muted">(จากสูตร: (mg × 1) / 6)</span></p>
-
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-          <p><b>ดูดยา :</b>
-             <span class="pill">0.00 ml</span></p>
-          <p><b>ดูดน้ำ (ตัวทำละลาย):</b>
-             <span class="pill">0.00 ml</span>
-             <span class="muted">(0.00 − 0.00)</span></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b>
-             <span class="pill"> ml</span></p>
-        </div>
-      </div>
     
 
     <!-- สรุป/วิชาการ -->
@@ -313,7 +273,7 @@
 
   <!-- footer -->
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <!-- ปุ่มลอยติดล่าง -->

@@ -166,7 +166,7 @@
           <label for="dose">กรอกขนาดยา (mg):</label>
           <input type="number" id="dose" name="dose"
                  placeholder="ขนาดยา (mg)" required step="0.01"
-                 value="0">
+                 value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -176,12 +176,12 @@
 
     
       <div class="result">
-        <p class="order-line"><b>Order:</b> Amphotericin-B 0.00 mg</p>
+        <p class="order-line"><b>Order:</b> Amphotericin-B  mg</p>
         <p><b>ขั้นตอนที่ 1: ปริมาตรจากสต็อก (50 mg → ละลาย Sterile water 10 mL = 5 mg/mL)</b></p>
         <p>
           สูตร <span class="mono">mL = (mg × 10) / 50</span> ⇒
           <span class="mono">
-            0.00 × 10 / 50 =  mL
+             × 10 / 50 =  mL
           </span>
         </p>
         <p class="muted">หมายเหตุ: ใช้ <b>Sterile water 10 mL</b> → ความแรง <b>5 mg/mL</b></p>
@@ -194,7 +194,7 @@
         <p>
           สูตร <span class="mono">mL = mg / 0.1</span> ⇒
           <span class="mono">
-            0.00 / 0.1 =  mL
+             / 0.1 =  mL
           </span>
         </p>
         <p class="muted">
@@ -213,14 +213,14 @@
          >
       <form action="./amphotericinB.html" method="post" class="calc-row" style="gap:12px">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose" value="0">
+        <input type="hidden" name="dose" value="">
         <input type="hidden" name="result_ml_1" value="">
         <input type="hidden" name="result_ml_2" value="">
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required
                 
                 style="padding:10px 12px;border-radius:10px;border:1px solid #c7d9f9;background:#fff;min-width:200px">
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="1.5" >1.5 เท่า</option>
           <option value="2"   >2 เท่า</option>
           <option value="2.5" >2.5 เท่า</option>
@@ -237,46 +237,6 @@
       </form>
     </div>
 
-    
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ  เท่า</b></p>
-
-        <div style="background:#ffffff;border:1px solid #e5efff;border-radius:10px;padding:12px;">
-          <p>
-             ×  mL =
-            <b>0.00</b> mL
-            <span class="muted">(สูตร: (0.00 × 10) / 50)</span>
-          </p>
-
-          <p>
-             ×  mL =
-            <b>0.00</b> mL
-            <span class="muted">(สูตร: 0.00 / 0.1)</span>
-          </p>
-
-          <hr style="border:none;border-top:1px dashed #cfe3ff;margin:10px 0">
-
-          <p>
-            <b>ปริมาณ “ยา” (จากสต็อก 5 mg/mL):</b>
-            <span class="pill">0.00</span> mL
-          </p>
-
-          <p>
-            <b>ตัวทำละลายเพื่อให้ ≤ 0.1 mg/mL:</b>
-            <span class="pill">0.00</span> mL
-            <span class="muted">
-              (0.00 − 0.00)
-            </span>
-          </p>
-
-          <p>
-            <b>ปริมาณยาที่บริหารเข้าทารก:</b>
-            <span class="highlight"> mL → drip 4–6 hr.</span>
-          </p>
-
-          <p class="highlight">ผสมด้วย 5% D/W เท่านั้น</p>
-        </div>
-      </div>
     
 
     <!-- สรุป -->
@@ -316,7 +276,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">

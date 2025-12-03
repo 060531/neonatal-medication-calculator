@@ -60,7 +60,7 @@
       <div class="form-group">
         <label for="dose"><b>กรอกขนาดยา (mg):</b></label>
         <input type="number" id="dose" name="dose" placeholder="ขนาดยา (mg)" required step="0.01"
-               value="0">
+               value="">
       </div>
       <button type="submit" class="calculate-button">Calculate</button>
     </form>
@@ -83,7 +83,7 @@
       <!-- รอบที่ 2: คูณเงื่อนไข -->
       <form action="./amoxicillin_clavimoxy.html" method="post" style="margin-top:10px;">
         <input type="hidden" name="action" value="condition">
-        <input type="hidden" name="dose_hidden" value="0">
+        <input type="hidden" name="dose_hidden" value="None">
         <input type="hidden" name="result_ml_1_hidden" value="">
         <div class="form-group">
           <label for="multiplication">เลือกเงื่อนไข:</label>
@@ -103,14 +103,6 @@
     
 
     
-      <div class="result">
-        <p><b>ผลลัพธ์หลังจากคูณ  เท่า:</b></p>
-        <div class="left-align">
-          <p> ×  mL = <b>0.00} mL</b></p>
-          <p><b>ปริมาณยาที่บริหารเข้าทารก:</b>  mL → <b>drip within 30 min.</b></p>
-        </div>
-      </div>
-    
 
     <!-- ข้อมูลเตรียมยา -->
     <div class="left-align">
@@ -129,7 +121,7 @@
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 </body>
 </html>

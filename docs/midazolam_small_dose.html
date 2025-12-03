@@ -177,7 +177,7 @@
           <input type="number" id="dose" name="dose"
                  placeholder="ขนาดยา (mg)"
                  required step="0.01"
-                 value="0">
+                 value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -188,30 +188,7 @@
     <!-- บล็อกผลลัพธ์ -->
     <div id="midazolam-smalldose-result"
          class="result"
-         >
-      
-        <p class="order-line">
-          <b>Order:</b> Midazolam 0.00 mg
-        </p>
-
-        <div class="left-align muted" style="margin-top:8px">
-          <p class="item">
-            <b>วิธีเตรียม (small dose):</b>
-            5% Dextrose in water 80 u + ยา 1 mg (20 u)
-          </p>
-          <p class="item">
-            ความเข้มข้น: 1 mg ใน 100 u ⇒
-            <span class="mono">0.01 mg/u (10 mcg/u)</span>
-          </p>
-          <p class="item">
-            สูตรคิดเป็นยูนิต:
-            <span class="mono">u = mg × 100</span>
-          </p>
-          <p class="item">
-            แทนค่า: <span class="mono">0.00 × 100</span>
-            = <span class="pill-red">0 u</span>
-          </p>
-        </div>
+         style="display:none">
       
     </div>
 
@@ -227,7 +204,7 @@
   </div>
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">

@@ -188,7 +188,7 @@
       <input type="number"
              id="dose" name="dose"
              placeholder="ขนาดยา (mg)" required step="0.01"
-             value="0">
+             value="">
     </div>
 
     <!-- คู่ที่ 2: ความเข้มข้น -->
@@ -209,19 +209,6 @@
     
 
     
-      
-      
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Vancomycin 0.00 mg</p>
-        <div class="left-align muted">
-          <p><b>หลังละลาย:</b> เติม Sterile water 10 ml → ได้สารละลาย 10 ml ⇒ <b>50 mg/ml</b></p>
-          <p><b>ขั้นที่ 1 (คำนวณปริมาณยา : 50 mg/ml):</b> <span class="mono">ml = mg × 10 ÷ 500</span> ⇒
-            <span class="pill">0.0</span> ml</p>
-          <p><b>ขั้นที่ 2 (คำนวณปริมาณสารละลาย  mg/ml):</b> <span class="mono">ml = mg ÷ </span> ⇒
-            <span class="pill">0.0</span> ml</p>
-        </div>
-      </div>
-    
 
     <!-- รอบที่ 2: เลือกตัวคูณ -->
     <!-- รอบที่ 2: เลือกตัวคูณ -->
@@ -233,14 +220,14 @@
         method="post"
         class="calc-row">
     <input type="hidden" name="action" value="condition" />
-    <input type="hidden" name="dose_hidden" value="0">
+    <input type="hidden" name="dose_hidden" value="">
     <input type="hidden" name="concentration_hidden" value="">
     <input type="hidden" name="result_ml_1_hidden" value="">
     <input type="hidden" name="result_ml_2_hidden" value="">
 
     <label for="multiplication">เลือกเงื่อนไข (คูณปริมาตร):</label>
     <select name="multiplication" id="multiplication" required>
-      <option value="" disabled >— เลือก —</option>
+      <option value="" disabled selected>— เลือก —</option>
       <option value="1.5" >1.5 เท่า</option>
       <option value="2"   >2 เท่า</option>
       <option value="2.5" >2.5 เท่า</option>
@@ -255,21 +242,6 @@
 </div>
 
 
-    
-      <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ  เท่า</b></p>
-        <div class="left-align muted">
-          <p> × 0.0 ml =
-             <span class="pill">0.0</span> ml
-             <span class="muted">(จาก stock 50 mg/ml)</span></p>
-          <p> × 0.0 ml =
-             <span class="pill">0.0</span> ml
-             <span class="muted">(รวมปริมาตรตามความเข้มข้นเป้าหมาย)</span></p>
-          <p><b>ปริมาณยา (จาก stock):</b> 0.0 ml</p>
-          <p><b>สารละลายที่ต้องเติมเพิ่ม:</b> 0.0 ml</p>
-          <p class="highlight"><b>บริหารเข้าทารก:</b> 0.0 ml → drip ~ 2 hr</p>
-        </div>
-      </div>
     
 
     <!-- หมายเหตุ/วิชาการ -->
@@ -312,7 +284,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">

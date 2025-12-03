@@ -179,7 +179,7 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="0">
+                 value="">
         </div>
         <button type="submit" class="btn btn-blue">คำนวณ</button>
       </form>
@@ -190,23 +190,7 @@
     <!-- กล่องผลลัพธ์ (Flask mode) -->
     <div id="result-box"
          class="result"
-         style="display:block">
-      
-        <p class="order-line"><b>Order:</b> Morphine 0.00 mg</p>
-
-        <div class="left-align" style="margin-top:8px">
-          <p class="item"><b>แนวทางเตรียมแบบ Small dose:</b></p>
-          <ul class="muted" style="margin-top:4px">
-            <li>วิธีเตรียม: <b>0.9% NSS 90 u + ยา 10 u</b></li>
-            <li><b>ความเข้มข้น:</b> 1 mg ใน 100 u ⇒
-              <span class="mono">0.01 mg/u (10 mcg/u)</span></li>
-            <li><b>สูตรคิดเป็นยูนิต:</b> <span class="mono">u = mg × 100</span></li>
-            <li>แทนค่า:
-              <span class="mono">0.00 × 100</span>
-              = <span class="pill-red"> u</span>
-            </li>
-          </ul>
-        </div>
+         style="display:none">
       
     </div>
 
@@ -219,7 +203,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">

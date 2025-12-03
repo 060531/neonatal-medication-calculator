@@ -199,7 +199,7 @@
                  placeholder="ขนาดยา (mg)"
                  required
                  step="0.01"
-                 value="0">
+                 value="">
         </div>
 
         <button type="submit" class="btn btn-blue">คำนวณ</button>
@@ -209,36 +209,24 @@
     
 
     
-      <div class="result">
-        <p class="order-line"><b>Order:</b> Cloxacillin 0.00 mg</p>
-        <div class="left-align muted">
-          <p><b>ความแรงอ้างอิงจาก stock:</b> Cloxacillin 1000 mg + Sterile water 4.5 ml → ได้สารละลาย 5 ml ⇒ <b>200 mg/ml</b></p>
-          <p><b>สูตรคำนวณ:</b> <span class="mono">ml = (mg × 5) ÷ 1000</span></p>
-          <p>
-            แทนค่า:
-            <span class="mono">0.00 × 5 ÷ 1000</span> =
-            <span class="pill"> ml</span>
-          </p>
-          <p><b>ดังนั้น:</b> 0.00 mg = <span class="pill"> ml</span></p>
-        </div>
-      </div>
-    
 
     <!-- รอบที่ 2: เลือกเงื่อนไข -->
     <div class="calc-box"
          id="cloxa-step2-box"
+         
+           style="display:none; opacity:.55; pointer-events:none"
          >
       <form id="cloxa-cond-form"
             action="./cloxacillin.html"
             method="post"
             class="calc-row">
         <input type="hidden" name="action" value="condition" />
-        <input type="hidden" name="dose_hidden" value="0">
+        <input type="hidden" name="dose_hidden" value="">
         <input type="hidden" name="result_ml_hidden" value="">
 
         <label for="multiplication">เลือกเงื่อนไข:</label>
         <select name="multiplication" id="multiplication" required>
-          <option value="" disabled >— เลือก —</option>
+          <option value="" disabled selected>— เลือก —</option>
           <option value="3" >3 เท่า (รวมเป้าหมาย 9 ml)</option>
           <option value="6" >6 เท่า (รวมเป้าหมาย 6 ml)</option>
         </select>
@@ -246,16 +234,6 @@
       </form>
     </div>
 
-    
-      
-      <div class="result">
-        <p class="order-line"><b>ผลลัพธ์หลังจากคูณ  เท่า =<span class="pill">0.00</span> ml</b></p>
-        <div class="left-align">
-          
-
-          
-        </div>
-      </div>
     
 
     
@@ -295,7 +273,7 @@
   </div><!-- /container -->
 
   <footer class="page-footer">
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-02 12:52</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-03 07:26</p>
   </footer>
 
   <div class="float-actions">
