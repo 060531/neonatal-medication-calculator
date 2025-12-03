@@ -3,6 +3,7 @@
 import os
 import shutil
 import pathlib
+from datetime import datetime
 from collections import defaultdict
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -13,6 +14,7 @@ OUTPUT_DIR = "docs"
 OUTPUT_STATIC_DIR = f"{OUTPUT_DIR}/static"
 
 # ---------- URL mapping ----------
+# หมายเหตุ: เก็บเป็น "ชื่อไฟล์" (ไม่ต้องใส่ ./) จะนิ่งที่สุด
 URL_MAP = {
     # core pages
     "index": "index.html",
@@ -24,37 +26,26 @@ URL_MAP = {
     "run_time": "run_time.html",
     "run_time_stop": "run_time_stop.html",
     "verify_result": "verify_result.html",
-    "drug_base": "drug_base.html",
-    "drug_calculation": "drug_calculation.html",
-    "home": "home.html",
-    "compat_result": "compat_result.html",
 
-    # meds (บางตัวอาจถูกแม็ปเพิ่มด้านล่างโดยอัตโนมัติ)
+    # examples / specific pages
     "vancomycin": "vancomycin.html",
     "insulin": "insulin.html",
     "fentanyl_continuous": "fentanyl_continuous.html",
     "penicillin_g_sodium": "penicillin_g_sodium.html",
     "scan_server": "scan_server.html",
 
-    # static
+    # special
     "static": "static/",
 
-    # === เพิ่มใหม่สำหรับ static build (endpoint ฝั่ง Flask -> หน้าไฟล์) ===
-    "calculate_pma_page": "./pma_template.html",
-    "core.compatibility_page": "./compatibility.html",
-    "core.time_management_route": "./time_management.html",
-    "medication_administration": "./Medication_administration.html",
+    # === endpoints ที่เคยใช้ร่วมกับ Flask ===
+    "calculate_pma_page": "pma_template.html",
+    "core.compatibility_page": "compatibility.html",
+    "core.time_management_route": "time_management.html",
+    "medication_administration": "Medication_administration.html",
 
-    # ✅ สำคัญ: endpoint ของ compatibility index ใน Flask ให้ชี้ไป compatibility.html (Pages)
+    # ✅ สำคัญ: ปุ่ม New check จากหน้า result ให้กลับไปหน้า compatibility
     "compat.compat_index": "compatibility.html",
-
-    # (เผื่อมีที่ไหนเรียกชื่อสั้น ๆ)
-    "compat_index": "compatibility.html",
 }
-URL_MAP.update({
-    "compat.compat_index": "compatibility.html",
-    "compat_index": "compatibility.html",   # กันกรณีโค้ดตัด prefix "compat."
-})
 
 # >>> รายการยา (ให้แม็ป endpoint -> หน้า .html อัตโนมัติ)
 MEDS = [
@@ -100,7 +91,7 @@ MEDS = [
     {"label": "Vancomycin", "endpoint": "vancomycin_route"},
 ]
 
-# เติม URL_MAP อัตโนมัติตาม endpoint รายการยา
+# เติม endpoint->html ของยาทั้งหมด
 for m in MEDS:
     ep = m["endpoint"]
     if ep.endswith("_route"):
@@ -120,77 +111,62 @@ def _ensure_html_file(name_or_file: str) -> str:
     s = _strip_leading_dots(name_or_file)
     if not s:
         return "index.html"
-    if s.endswith("/") or s.endswith(".css") or s.endswith(".js") or s.endswith(".png") or s.endswith(".jpg") or s.endswith(".jpeg") or s.endswith(".svg") or s.endswith(".webmanifest"):
+    if s.endswith("/"):
         return s
-    if s.endswith(".html"):
-        return s
-    return f"{s}.html"
+    return s if s.endswith(".html") else f"{s}.html"
 
 def u(name: str, **kwargs) -> str:
     """
-    static-build url resolver
-    - u('static', filename='app.js') -> ./static/app.js
-    - u('compat.compat_index') -> ./compatibility.html (ตาม URL_MAP)
+    ใช้แทน url_for สำหรับ static build:
+    - u("index") -> ./index.html
+    - u("static", filename="style.css") -> ./static/style.css
+    - u("compat.compat_index") -> ./compatibility.html
     """
     if not name:
         return "./index.html"
 
-    # static endpoint แบบ Flask: url_for('static', filename='...')
     if name == "static":
-        fn = kwargs.get("filename", "") or kwargs.get("path", "")
-        if fn:
-            fn = _strip_leading_dots(fn).lstrip("/")
-            return f"./static/{fn}"
-        return "./static/"
+        fn = kwargs.get("filename", "") or ""
+        return f"./static/{fn}" if fn else "./static/"
 
     target = URL_MAP.get(name, f"{name}.html")
     target = _ensure_html_file(target)
     return f"./{_strip_leading_dots(target)}"
 
-def static_url(endpoint: str, **kwargs) -> str:
-    """
-    แทน url_for ใน static build ให้รับ kwargs ได้เหมือนของ Flask
-    """
-    return u(endpoint, **kwargs)
+def static_url(endpoint: str, filename: str = "") -> str:
+    # ให้ template ที่เคยเรียก url_for('static', filename='...') ยังทำงานได้
+    if endpoint == "static":
+        return u("static", filename=filename)
+    return u(endpoint)
 
 def resolve_endpoint(endpoint: str) -> str:
     if not endpoint:
         return "./index.html"
-    if endpoint.startswith(("http://", "https://", "#")):
+    if isinstance(endpoint, str) and endpoint.startswith(("http://", "https://", "#")):
         return endpoint
-
-    # ✅ 1) ลองชื่อเต็มก่อน
-    target = URL_MAP.get(endpoint)
-
-    # ✅ 2) ค่อย fallback แบบตัด prefix
-    if target is None and "." in endpoint:
-        target = URL_MAP.get(endpoint.split(".")[-1])
-
-    # ✅ 3) สุดท้ายค่อยเดาเป็น <name>.html
-    if target is None:
-        target = f"{endpoint.split('.')[-1]}.html"
-
-    target = _ensure_html_file(target)
-    return f"./{_strip_leading_dots(target)}"
+    return u(endpoint)
 
 # ---------- Safe numeric helpers & filters ----------
 def nz(v, default=0):
-    """None -> default; อย่างอื่นคืนค่าเดิม"""
-    return default if v is None else v
+    try:
+        return default if v is None else v
+    except Exception:
+        return default
 
 def fmt(v, nd=2):
-    """format ทศนิยมคงที่; รองรับ None/สตริง -> คืน '' """
     try:
         if v is None or v == "":
             return ""
         x = float(v)
-        nd = int(nd)
-        return f"{x:.{nd}f}"
     except Exception:
         return ""
+    try:
+        nd = int(nd)
+    except Exception:
+        nd = 2
+    return f"{x:.{nd}f}"
 
 def fmt_int(v):
-    """format เป็นจำนวนเต็ม; รองรับ None -> '' """
     try:
         if v is None or v == "":
             return ""
@@ -199,18 +175,19 @@ def fmt_int(v):
         return ""
 
 def sig(v, n=3):
-    """format ตัวเลขนัยสำคัญ; รองรับ None -> '' """
     try:
         if v is None or v == "":
             return ""
         x = float(v)
-        n = int(n)
-        return f"{x:.{n}g}"
     except Exception:
         return ""
+    try:
+        n = int(n)
+    except Exception:
+        n = 3
+    return f"{x:.{n}g}"
 
 def safe_fmt(value, fmt_pattern="%.2f"):
-    """รูปแบบเดิมแบบ '% .2f'|safe_fmt; รองรับ None -> ใช้ 0"""
     try:
         return fmt_pattern % (value,)
     except Exception:
@@ -225,73 +202,59 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"]),
 )
 
-# ลงทะเบียนฟิลเตอร์
 env.filters["nz"] = nz
-env.filters["fmt"] = fmt         # {{ val|fmt(2) }}
+env.filters["fmt"] = fmt
 env.filters["fmt2"] = lambda v: fmt(v, 2)
 env.filters["fmt_int"] = fmt_int
-env.filters["sig"] = sig         # {{ val|sig(3) }}
+env.filters["sig"] = sig
 env.filters["safe_fmt"] = safe_fmt
 
-# ลงทะเบียน globals
 env.globals.update({
     "u": u,
-    "url_for": static_url,          # ให้ template เดิมที่ใช้ url_for ใช้งานได้บน Pages
+    "url_for": static_url,       # ทำให้ template ที่ใช้ url_for ยังใช้งานได้ใน static
     "static_build": True,
     "resolve_endpoint": resolve_endpoint,
 })
 
+def build_med_ctx():
+    groups = defaultdict(list)
+    for m in MEDS:
+        groups[m["label"][0].upper()].append(m)
+    for k in list(groups.keys()):
+        groups[k].sort(key=lambda x: x["label"].lower())
+    groups = dict(sorted(groups.items()))
+    letters = list(groups.keys())
+    return {"meds": MEDS, "groups": groups, "letters": letters}
+
 # ---------- Base context ----------
+_NOW = datetime.now().strftime("%Y-%m-%d %H:%M")
 BASE_CTX = {
     "error": None,
     "content_extra": None,
+    "UPDATE_DATE": os.environ.get("UPDATE_DATE", _NOW),
+    "update_date": os.environ.get("update_date", _NOW),
 
-    # วันที่แสดงบนหน้าเว็บ
-    "UPDATE_DATE": "2025-11-15",
-    "update_date": "2025-11-15",
-
-    # jinja helpers
     "u": u,
     "static_build": True,
-
-    # mock flask-ish objects
     "request": {"path": "/"},
     "session": {},
     "order": {},
 
-    # compatibility index groups (จะถูกเติมจริงใน build_med_ctx() สำหรับบางหน้า)
+    # สำหรับ compatibility.html (+ result) ให้มี dropdown ได้
     "groups": {},
 
-    # defaults used in drug pages (ให้ None เพื่อไม่ให้โชว์ผลลัพธ์ตอน static build)
+    # defaults used in drug pages
     "bw": None,
     "pma_weeks": None,
     "pma_days": None,
     "postnatal_days": None,
-
     "dose": None,
     "dose_ml": None,
     "dose_mgkg": None,
     "result_ml": None,
-    "result_ml_1": None,
-    "result_ml_2": None,
-    "result_ml_3": None,
-    "final_result_1": None,
-    "final_result_2": None,
-    "final_result_3": None,
-    "calculated_ml": None,
-    "vol_ml": None,
     "multiplication": None,
-    "rate_ml_hr": None,
-    "concentration_mg_ml": None,
-    "target_conc": None,
-    "stock_conc": None,
-    "loading_dose_ml": None,
-    "maintenance_dose_ml": None,
-    "infusion_rate_ml_hr": None,
-    "total_volume_ml": None,
-    "dilution_volume_ml": None,
 
-    # ค่าคงที่สำหรับหน้า dose result ที่ใช้ "%.2f"|format(...)
+    # ตัวเลขที่บาง template format(...) ตรง ๆ
     "min_dose": 0.0,
     "max_dose": 0.0,
     "loading_dose": 0.0,
@@ -303,8 +266,8 @@ BASE_CTX = {
     "dose_max_per_kg": 0.0,
     "dose_per_kg": 0.0,
     "total_dose": 0.0,
-    "interval": "",
     "actual_dose": 0.0,
+    "interval": "",
 }
 
 def ensure_docs_dir():
@@ -324,22 +287,14 @@ def copy_static():
 def should_render(filename: str) -> bool:
     return filename.endswith(".html") and not filename.startswith("_")
 
-def build_med_ctx():
-    """
-    สร้าง groups A-Z สำหรับ:
-    - Medication_administration.html
-    - compatibility.html (หน้าเลือกยา A/B)
-    """
-    groups = defaultdict(list)
-    for m in MEDS:
-        groups[m["label"][0].upper()].append(m)
-
-    for k in list(groups.keys()):
-        groups[k].sort(key=lambda x: x["label"].lower())
-
-    groups = dict(sorted(groups.items()))
-    letters = list(groups.keys())
-    return {"meds": MEDS, "groups": groups, "letters": letters}
+def normalize_html(html: str) -> str:
+    # safety net กัน path พังจากการต่อสตริง
+    html = html.replace(".html.html", ".html")
+    html = html.replace('href="././', 'href="./')
+    html = html.replace('href=".//', 'href="./')
+    html = html.replace('src="././', 'src="./')
+    html = html.replace('src=".//', 'src="./')
+    return html
 
 def render_all():
     ensure_docs_dir()
@@ -352,18 +307,21 @@ def render_all():
 
             src_path = pathlib.Path(root) / fname
             rel_path = src_path.relative_to(TEMPLATES_DIR)
-
             out_path = pathlib.Path(OUTPUT_DIR) / rel_path
             out_path.parent.mkdir(parents=True, exist_ok=True)
 
             tmpl = env.get_template(str(rel_path))
             ctx = dict(BASE_CTX)
 
-            # เติม meds/groups ให้ 2 หน้าที่ต้องใช้
-            if str(rel_path) in ("Medication_administration.html", "compatibility.html"):
+            # หน้า list ยา
+            if str(rel_path) == "Medication_administration.html":
                 ctx.update(build_med_ctx())
 
-            # ✅ ใส่ default เฉพาะหน้า vancomycin_dose.html (กัน format error + ให้หน้าแสดงได้สวยตอน static)
+            # ✅ หน้า compatibility ต้องมี groups ด้วย
+            if str(rel_path) in ("compatibility.html", "compatibility_result.html"):
+                ctx.update(build_med_ctx())
+
+            # ✅ เฉพาะ vancomycin_dose.html ให้ไม่ error ตอน build static
             if str(rel_path) == "vancomycin_dose.html":
                 ctx.update(
                     pma_weeks=None,
@@ -380,17 +338,10 @@ def render_all():
                 )
 
             html = tmpl.render(**ctx)
-
-            # safety net: กัน path ซ้อน .html.html + href แปลก ๆ
-            html = html.replace(".html.html", ".html")
-            html = html.replace('href="././', 'href="./')
-            html = html.replace('href=".//', 'href="./')
-            html = html.replace('src="././', 'src="./')
-            html = html.replace('src=".//', 'src="./')
+            html = normalize_html(html)
 
             with open(out_path, "w", encoding="utf-8") as fp:
                 fp.write(html)
-
             print("rendered ->", out_path)
 
 if __name__ == "__main__":

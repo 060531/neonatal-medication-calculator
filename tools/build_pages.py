@@ -1,9 +1,10 @@
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime
 import os
 import argparse
 import shutil
 import json
+from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader, Undefined
 
@@ -16,6 +17,33 @@ DOCS.mkdir(exist_ok=True)
 
 # ---------- meds catalog (single source of truth) ----------
 MEDS_CATALOG = ROOT / "data" / "meds_catalog.json"
+
+# ✅ สำคัญ: บังคับ state เริ่มต้นให้ “ยังไม่คำนวณ” (None) เพื่อไม่ให้ template render ผลลัพธ์ออกมาใน GitHub Pages
+EMPTY_CALC_STATE = {
+    # common inputs/outputs across pages
+    "dose": None,
+    "dose_mgkg": None,
+    "volume": None,
+    "rate": None,
+    "infusion_rate": None,
+    "dilution": None,
+
+    "result": None,
+    "result2": None,
+    "result_ml": None,
+
+    "final_result": None,
+    "final_result_1": None,
+    "final_result_2": None,
+
+    "multiplication": None,
+    "target_total": None,
+    "diluent_to_add": None,
+
+    "msg_block": None,
+    "content_extra": None,
+    "error": None,
+}
 
 def load_meds_catalog():
     if not MEDS_CATALOG.exists():
@@ -187,16 +215,13 @@ env.globals["resolve_endpoint"] = resolve_endpoint
 env.globals["nz"] = nz
 
 # ---------- default context ----------
+# NOTE: ค่าพวก calc result/dose ไม่ควรถูกตั้งเป็น 0 ที่นี่ หากไม่อยากให้หน้า static แสดงผลลัพธ์ตั้งแต่แรก
+# แต่เรายังเก็บค่าพื้นฐานพวก BW/age ไว้ได้
 default_context = {
     "bw": 0, "age_days": 0, "ga_weeks": 0, "pma_weeks": 0, "pma_days": 0,
-    "dose": 0, "dose_mgkg": 0, "volume": 0, "rate": 0,
-    "final_result_1": 0, "final_result_2": 0,
-    "result": 0, "result2": 0, "infusion_rate": 0, "dilution": 0,
 }
 
 # ---------- update date picker ----------
-from typing import Optional
-
 def pick_update_date(cli_value: Optional[str] = None) -> str:
     """
     priority:
@@ -215,7 +240,7 @@ def pick_update_date(cli_value: Optional[str] = None) -> str:
 def render_one(template_name: str, update_date_str: str):
     tpl = env.get_template(template_name)
 
-    # base ctx (ของเดิม)
+    # base ctx
     ctx = dict(
         static_build=True,
         update_date=update_date_str,
@@ -223,12 +248,15 @@ def render_one(template_name: str, update_date_str: str):
         **default_context,
     )
 
-    # ✅ inject เฉพาะหน้าที่ต้องใช้ข้อมูล dynamic ตอน build
+    # inject เฉพาะหน้าที่ต้องใช้ข้อมูล dynamic ตอน build
     if template_name in ("Medication_administration.html", "medication_administration.html"):
         meds = load_meds_catalog()
         groups = group_meds_by_letter(meds)
         letters = list(groups.keys())
         ctx.update({"meds": meds, "groups": groups, "letters": letters})
+
+    # ✅ สำคัญที่สุด: บังคับให้ state คำนวณเป็น None ก่อน render (เหมือนเข้า Flask ครั้งแรก)
+    ctx.update(EMPTY_CALC_STATE)
 
     html = tpl.render(**ctx)
 

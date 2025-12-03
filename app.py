@@ -145,56 +145,14 @@ def create_app(testing: bool = False, update_date: str = None):
     def index():
         return render_template("index.html")
 
+    from app_shared.med_catalog import build_ctx_for_admin_page
+
     @app.route("/medication_administration")
     def medication_administration():
-        meds = [
-            {"label": "Acyclovir", "endpoint": "acyclovir_route"},
-            {"label": "Amikacin", "endpoint": "amikin_route"},
-            {"label": "Aminophylline", "endpoint": "aminophylline_route", "danger": True},
-            {"label": "Amoxicillin / Clavimoxy", "endpoint": "amoxicillin_clavimoxy_route"},
-            {"label": "Amphotericin B", "endpoint": "amphotericinB_route"},
-            {"label": "Ampicillin", "endpoint": "ampicillin_route"},
-            {"label": "Benzathine_penicillin_g", "endpoint": "benzathine_penicillin_g_route"},
-            {"label": "Cefazolin", "endpoint": "cefazolin_dose"},
-            {"label": "Cefotaxime", "endpoint": "cefotaxime_route"},
-            {"label": "Ceftazidime", "endpoint": "ceftazidime_route"},
-            {"label": "Ciprofloxacin", "endpoint": "ciprofloxacin_route"},
-            {"label": "Clindamycin", "endpoint": "clindamycin_route"},
-            {"label": "Cloxacillin", "endpoint": "cloxacillin_route"},
-            {"label": "Colistin", "endpoint": "colistin_route"},
-            {"label": "Dexamethasone", "endpoint": "dexamethasone_route"},
-            {"label": "Dobutamine", "endpoint": "dobutamine_route", "danger": True},
-            {"label": "Dopamine", "endpoint": "dopamine_route", "danger": True},
-            {"label": "Fentanyl", "endpoint": "fentanyl_route", "danger": True},
-            {"label": "Furosemide", "endpoint": "furosemide_route"},
-            {"label": "Gentamicin", "endpoint": "gentamicin_route"},
-            {"label": "Hydrocortisone", "endpoint": "hydrocortisone_route"},
-            {"label": "Insulin Human Regular", "endpoint": "insulin_route"},
-            {"label": "Levofloxacin", "endpoint": "levofloxacin_route"},
-            {"label": "Meropenem", "endpoint": "meropenem_route"},
-            {"label": "Metronidazole (Flagyl)", "endpoint": "metronidazole"},
-            {"label": "Midazolam", "endpoint": "midazolam_route", "danger": True},
-            {"label": "Midazolam + Fentanyl", "endpoint": "midazolam_fentanyl_route", "danger": True},
-            {"label": "Morphine", "endpoint": "morphine_route", "danger": True},
-            {"label": "Nimbex (Cisatracurium)", "endpoint": "nimbex_route"},
-            {"label": "Omeprazole", "endpoint": "omeprazole_route"},
-            {"label": "Penicillin G sodium", "endpoint": "penicillin_g_sodium_route"},
-            {"label": "Phenobarbital", "endpoint": "phenobarbital_route"},
-            {"label": "Phenytoin (Dilantin)", "endpoint": "phenytoin_route"},
-            {"label": "Remdesivir", "endpoint": "remdesivir_route"},
-            {"label": "Sul-am®", "endpoint": "sul_am_route"},
-            {"label": "Sulbactam", "endpoint": "sulbactam_route"},
-            {"label": "Sulperazone", "endpoint": "sulperazone_route"},
-            {"label": "Tazocin", "endpoint": "tazocin_route"},
-            {"label": "Unasyn", "endpoint": "unasyn_route"},
-            {"label": "Vancomycin", "endpoint": "vancomycin_route"},
-        ]
-        groups = group_meds_by_letter(meds)
-        letters = list(groups.keys())
-        return render_template(
-            "medication_administration.html",
-            groups=groups, letters=letters, meds=meds
-        )
+        ctx = build_ctx_for_admin_page()
+        # IMPORTANT: ให้ชื่อ template “ตรงกับตัวที่คุณใช้ build ลง docs”
+        return render_template("Medication_administration.html", **ctx)
+    
 
     # ✅ serve docs (สำหรับเปิด static html ตอน dev)
     @app.route("/docs/<path:filename>")
