@@ -6,6 +6,8 @@
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Amikacin (Amikin) Calculation</title>
   <style>
+    .hidden{display:none!important}
+
     :root{
       --blue-900:#0b2b7a; --blue-700:#1e57d2;
       --sky-50:#eef7ff; --sky-100:#d7ecff;
@@ -117,8 +119,6 @@
       margin:18px 0 6px;
       text-decoration:underline;
     }
-    .bullet{text-align:left;margin:0 0 10px 0}
-    .bullet ul{margin:6px 0 0 22px}
     .btn{
       appearance:none;
       border:none;
@@ -144,17 +144,19 @@
       color:#fff;
       font-weight:800;
     }
+
+    /* ===== Floating actions ===== */
     .float-actions{
-      position:fixed;
+      position:fixed!important;
       left:50%;
-      transform:translateX(-50%);
       bottom:calc(10px + env(safe-area-inset-bottom,0px));
-      z-index:1000;
+      transform:translateX(-50%);
+      z-index:9999;
       display:flex;
       gap:12px;
       align-items:center;
       justify-content:center;
-      flex-wrap:wrap;
+      width:min(380px, calc(100vw - 24px));
       padding:8px 10px;
       border-radius:14px;
       background:rgba(15,23,42,.35);
@@ -162,9 +164,43 @@
       box-shadow:0 8px 18px rgba(2,8,23,.28);
       backdrop-filter:blur(8px) saturate(120%);
       -webkit-backdrop-filter:blur(8px) saturate(120%);
-      width:min(540px,calc(100vw - calc(var(--page-gutter)*2)));
-      max-width:calc(100vw - calc(var(--page-gutter)*2));
     }
+    .float-actions .btn{
+      flex:1 1 0;
+      min-width:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+      min-height:40px;
+      font-weight:700;
+      border-radius:12px;
+    }
+    /* ===== Fix: bullet/list alignment (ให้เหมือนภาพที่ 2) ===== */
+.bullet{ 
+  text-align:left !important;
+}
+
+.bullet .muted,
+.bullet p,
+.bullet li,
+.bullet ul{
+  text-align:left !important;
+}
+
+.bullet ul{
+  margin:6px 0 0 0;          /* ไม่ดันซ้ายด้วย margin */
+  padding-left:22px;         /* คุมระยะเยื้อง bullet ให้สวย */
+  list-style-position:outside;
+}
+
+.bullet li{
+  margin:4px 0;              /* ระยะบรรทัด/ความโปร่ง */
+}
+
     footer.page-footer{
       text-align:center;
       color:#ffffff;
@@ -177,6 +213,11 @@
     }
 
     @media (max-width:640px){
+      .title-badge{font-size:22px;padding:8px 14px}
+      .container{padding:14px}
+      .calc-row{gap:8px}
+      .float-actions{width:min(360px, calc(100vw - 16px));gap:10px;padding:8px}
+      .float-actions .btn{font-size:14px;padding:10px 12px;min-height:38px}
       .dose-row,.conc-row{
         display:grid;
         grid-template-columns:auto 1fr;
@@ -204,23 +245,10 @@
       .calc-row>.btn{min-width:120px}
     }
     @media (max-width:360px){
-      .dose-row>label,.conc-row>label{
-        font-size:13px;
-        max-width:42vw;
-      }
+      .dose-row>label,.conc-row>label{font-size:13px;max-width:42vw}
       .dose-row>input[type="number"],.conc-row>select{
-        font-size:13px;
-        padding:7px 9px;
-        height:36px;
+        font-size:13px;padding:7px 9px;height:36px;
       }
-    }
-    @media (max-width:640px){
-      .title-badge{
-        font-size:22px;
-        padding:8px 14px;
-      }
-      .container{padding:14px}
-      .calc-row{gap:8px}
     }
   </style>
 </head>
@@ -230,8 +258,8 @@
 
   <div class="container">
     <!-- ฟอร์ม #1: คำนวณ mg -> mL -->
-    <div class="calc-box">
-      <form action="{{ u('amikin_route') }}" method="post" class="calc-row">
+    <div class="calc-box" id="calc-step1">
+      <form action="{{ u('amikin_route') }}" method="post" class="calc-row" id="form-dose">
         <input type="hidden" name="action" value="dose" />
         <div class="dose-row">
           <label for="dose">กรอกขนาดยา (mg):</label>
@@ -243,15 +271,17 @@
       </form>
     </div>
 
+    <!-- (Flask) error -->
     {% if error %}
-      <div class="result"
+      <div class="result" data-server="flask"
            style="background:#fff0f0;border-color:#f2b6b6;color:#9b1c1c">
         {{ error }}
       </div>
     {% endif %}
 
+    <!-- (Flask) ผลลัพธ์ขั้นที่ 1 -->
     {% if dose is not none and result_ml is not none %}
-      <div class="result">
+      <div class="result" data-server="flask">
         <p><b>Order:</b> Amikacin {{ '%.2f'|format(dose) }} mg</p>
         <p>
           <b>สูตรจากสต็อก 500 mg / 2 ml</b>
@@ -267,34 +297,35 @@
       </div>
     {% endif %}
 
-<!-- ฟอร์ม #2: เลือกเงื่อนไข -->
-<div class="calc-box"
-     {% if result_ml is none %}
-       style="display:none;opacity:.55;pointer-events:none"
-     {% endif %}>
-  <form action="{{ u('amikin_route') }}" method="post" class="calc-row">
-    <input type="hidden" name="action" value="condition" />
-    <input type="hidden" name="dose_hidden"
-           value="{{ dose if dose is not none else '' }}">
-    <input type="hidden" name="result_ml_hidden"
-           value="{{ result_ml if result_ml is not none else '' }}">
-    <label for="multiplication">เลือกเงื่อนไข:</label>
-    <select name="multiplication" id="multiplication" required>
-      <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
-      <option value="3" {% if multiplication == 3 %}selected{% endif %}>
-        3 เท่า (รวมเป้าหมาย ~ 9 ml)
-      </option>
-      <option value="6" {% if multiplication == 6 %}selected{% endif %}>
-        6 เท่า (รวมเป้าหมาย ~ 6 ml)
-      </option>
-    </select>
-    <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
-  </form>
-</div>
+    <!-- ฟอร์ม #2: เลือกเงื่อนไข (Flask จะแสดงเมื่อมี result_ml) -->
+    <div class="calc-box" id="calc-step2"
+         {% if result_ml is none %}
+           style="display:none;opacity:.55;pointer-events:none"
+         {% endif %}>
+      <form action="{{ u('amikin_route') }}" method="post" class="calc-row" id="form-cond">
+        <input type="hidden" name="action" value="condition" />
+        <input type="hidden" name="dose_hidden"
+               value="{{ dose if dose is not none else '' }}">
+        <input type="hidden" name="result_ml_hidden"
+               value="{{ result_ml if result_ml is not none else '' }}">
 
+        <label for="multiplication">เลือกเงื่อนไข:</label>
+        <select name="multiplication" id="multiplication" required>
+          <option value="" disabled {% if multiplication is none %}selected{% endif %}>— เลือก —</option>
+          <option value="3" {% if multiplication == 3 %}selected{% endif %}>
+            3 เท่า (รวมเป้าหมาย ~ 9 ml)
+          </option>
+          <option value="6" {% if multiplication == 6 %}selected{% endif %}>
+            6 เท่า (รวมเป้าหมาย ~ 6 ml)
+          </option>
+        </select>
+        <button type="submit" class="btn btn-blue">คำนวณต่อ</button>
+      </form>
+    </div>
 
+    <!-- (Flask) ผลลัพธ์ขั้นที่ 2 -->
     {% if multiplication is not none and final_result is not none %}
-      <div class="result">
+      <div class="result" data-server="flask">
         <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication }} เท่า</b></p>
         <p>
           ปริมาณยาหลังคูณ =
@@ -319,7 +350,7 @@
       </div>
 
       {% if content_extra %}
-        <div class="result"
+        <div class="result" data-server="flask"
              style="background:#ffffff;border-style:solid;border-color:#e5efff">
           <p style="font-weight:800;text-align:center;margin:6px 0">
             {{ content_extra.message }}
@@ -340,7 +371,7 @@
       {% endif %}
     {% endif %}
 
-    <!-- ข้อมูลคลินิก -->
+    <!-- ข้อมูลคลินิก (โชว์ตั้งแต่แรกทั้ง Flask/GitHub) -->
     <div class="bullet">
       <p class="muted">☞ <b>ขนาดยาแนะนำ:</b> 50 mg/kg/dose</p>
 
@@ -392,38 +423,51 @@
   <script>
   (function() {
     var host = window.location.hostname || "";
-    // ทำงานเฉพาะบน GitHub Pages (เช่น 060531.github.io)
     var isGithub = host.endsWith("github.io");
-    if (!isGithub) return;
+    if (!isGithub) return; // ✅ Flask ไม่โดนโค้ดนี้
 
     var doseInput = document.getElementById("dose");
     var multSelect = document.getElementById("multiplication");
-    if (!doseInput || !multSelect) return;
+    var step2Box = document.getElementById("calc-step2");
+    var formDose = document.getElementById("form-dose");
+    var formCond = document.getElementById("form-cond");
 
-    var doseActionInput = document.querySelector('input[name="action"][value="dose"]');
-    var condActionInput = document.querySelector('input[name="action"][value="condition"]');
-    if (!doseActionInput || !condActionInput) return;
+    if (!doseInput || !multSelect || !step2Box || !formDose || !formCond) return;
 
-    var formDose = doseActionInput.form;
-    var formCond = condActionInput.form;
-    if (!formDose || !formCond) return;
+    // ✅ 1) เข้า page ครั้งแรกบน GitHub: ซ่อนทุกผลลัพธ์แบบ Flask + ซ่อน step2
+    document.querySelectorAll('[data-server="flask"]').forEach(function(el){
+      el.classList.add("hidden");
+    });
+    step2Box.style.display = "none";
+    step2Box.style.opacity = ".55";
+    step2Box.style.pointerEvents = "none";
+
+    // ถ้าถูก build ออกมาเป็น 0.00 ให้เคลียร์ input (อยากให้เหมือนภาพที่ 2)
+    doseInput.value = "";
 
     var doseVal = null;
     var resultMlVal = null;
 
-    function createOrGetResultBox(id, refNode) {
-      var box = document.getElementById(id);
+    function byId(id){ return document.getElementById(id); }
+
+    function createOrGetResultBox(id, insertAfterEl) {
+      var box = byId(id);
       if (!box) {
         box = document.createElement("div");
         box.id = id;
         box.className = "result";
-        refNode.parentNode.insertBefore(box, refNode.nextSibling);
+        // insert หลัง element ที่ระบุ
+        insertAfterEl.parentNode.insertBefore(box, insertAfterEl.nextSibling);
       }
       return box;
     }
 
-    function format2(num) {
-      return Number(num).toFixed(2);
+    function format2(num) { return Number(num).toFixed(2); }
+
+    function clearStep2ResultsOnRecalc(){
+      var a = byId("gh-final-result"); if (a) a.remove();
+      var b = byId("gh-final-extra"); if (b) b.remove();
+      multSelect.selectedIndex = 0; // reset dropdown
     }
 
     // --------------------------
@@ -439,18 +483,20 @@
         return;
       }
 
+      clearStep2ResultsOnRecalc();
+
       doseVal = parseFloat(format2(d));
       resultMlVal = parseFloat(format2((d * 2.0) / 500.0));
 
-      // sync ไปใส่ hidden field ด้วย เผื่อใช้ใน step 2
+      // sync hidden fields (เผื่อ step2 ใช้)
       var hiddenDose = document.querySelector('input[name="dose_hidden"]');
-      var hiddenRes = document.querySelector('input[name="result_ml_hidden"]');
+      var hiddenRes  = document.querySelector('input[name="result_ml_hidden"]');
       if (hiddenDose) hiddenDose.value = format2(doseVal);
-      if (hiddenRes) hiddenRes.value = format2(resultMlVal);
+      if (hiddenRes)  hiddenRes.value  = format2(resultMlVal);
 
       // แสดงผลลัพธ์ step 1 ใต้กล่องคำนวณแรก
-      var box = createOrGetResultBox("gh-dose-result", formDose.closest(".calc-box"));
-      box.innerHTML =
+      var box1 = createOrGetResultBox("gh-dose-result", document.getElementById("calc-step1"));
+      box1.innerHTML =
         '<p><b>Order:</b> Amikacin ' + format2(doseVal) + ' mg</p>' +
         '<p><b>สูตรจากสต็อก 500 mg / 2 ml</b> → ' +
         '<span class="mono">ml = (mg × 2) / 500</span></p>' +
@@ -458,13 +504,13 @@
         ' × 2 / 500 = <span class="pill-red">' + format2(resultMlVal) +
         '</span> ml</span></p>';
 
-      // เปิดให้เลือก step 2 ได้ (ปลด opacity + pointer-events)
-      var calcBox2 = formCond.closest(".calc-box");
-      if (calcBox2) {
-        calcBox2.style.display = "block";      // ✅ เปิดให้มองเห็น
-        calcBox2.style.opacity = "1";          // ✅ เอาโปร่งให้ชัด
-        calcBox2.style.pointerEvents = "auto"; // ✅ กดเลือกเมนูได้
-      }
+      // เปิด step2
+      step2Box.style.display = "block";
+      step2Box.style.opacity = "1";
+      step2Box.style.pointerEvents = "auto";
+
+      // เลื่อนให้เห็นผลลัพธ์ (มือถือจะใช้งานง่ายขึ้น)
+      box1.scrollIntoView({behavior:"smooth", block:"start"});
     });
 
     // --------------------------
@@ -526,8 +572,7 @@
       var need = target - finalResult;
       var diluent = need > 0 ? parseFloat(format2(need)) : 0.0;
 
-      // กล่องผลลัพธ์หลัก
-      var boxMain = createOrGetResultBox("gh-final-result", formCond.closest(".calc-box"));
+      var boxMain = createOrGetResultBox("gh-final-result", step2Box);
       boxMain.innerHTML =
         "<p><b>ผลลัพธ์หลังจากคูณ " + m + " เท่า</b></p>" +
         "<p>ปริมาณยาหลังคูณ = <span class=\"pill-red\">" + format2(finalResult) + "</span> ml</p>" +
@@ -535,7 +580,6 @@
         "<p>ดังนั้น <b>ต้องเติมตัวทำละลาย</b> = <span class=\"mono\">" + format2(diluent) + "</span> ml</p>" +
         "<p style=\"background-color:#f1b81b;padding:5px;border-radius:5px;\"><b>" + config.msgBlock + "</b></p>";
 
-      // กล่องคำอธิบาย extra เหมือนฝั่ง Flask
       var boxExtra = createOrGetResultBox("gh-final-extra", boxMain);
       var html =
         '<p style="font-weight:800;text-align:center;margin:6px 0">' +
@@ -552,6 +596,8 @@
       });
       html += "</div>";
       boxExtra.innerHTML = html;
+
+      boxMain.scrollIntoView({behavior:"smooth", block:"start"});
     });
   })();
   </script>

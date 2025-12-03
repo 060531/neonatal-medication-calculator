@@ -82,21 +82,65 @@
     }
     .grid .btn{ width:100%; }
 
-    .float-actions{
-      position:fixed; left:50%;
-      bottom:calc(10px + env(safe-area-inset-bottom, 0px));
-      transform:translateX(-50%); z-index:9999;
+    /* ===== Floating actions (base) ===== */
+.float-actions{
+  position:fixed!important;
+  left:50%;
+  bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);
+  z-index:9999;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
 
-      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
-      padding:8px 10px; border-radius:14px;
-      background:rgba(15,23,42,.35);
-      border:1px solid rgba(255,255,255,.2);
-      box-shadow:0 8px 18px rgba(2,8,23,.28);
-      backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%);
-      width:min(540px, calc(100vw - (var(--gutter)*2)));
-      max-width:calc(100vw - (var(--gutter)*2));
-    }
-    .float-actions .btn{ min-width:130px; }
+  /* ✅ ทำให้แถบกว้างพอในจอเล็ก และไม่ชนขอบ */
+  width:min(380px, calc(100vw - 24px));
+
+  padding:8px 10px;
+  border-radius:14px;
+  background:rgba(15,23,42,.35);
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 8px 18px rgba(2,8,23,.28);
+  backdrop-filter:blur(8px) saturate(120%);
+  -webkit-backdrop-filter:blur(8px) saturate(120%);
+}
+
+.float-actions .btn{
+  /* ✅ ทำให้ปุ่ม 2 อัน “กว้างเท่ากัน” */
+  flex:1 1 0;
+  min-width:0;
+
+  /* ✅ กันข้อความแตกบรรทัด */
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+  /* ✅ จัดกลางสวยและสูงเท่ากัน */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  min-height:40px;
+
+  font-weight:700;
+  border-radius:12px;
+}
+
+/* ===== Mobile tweaks ===== */
+@media (max-width:640px){
+  .float-actions{
+    width:min(360px, calc(100vw - 16px));
+    gap:10px;
+    padding:8px;
+  }
+  .float-actions .btn{
+    font-size:14px;
+    padding:10px 12px;
+    min-height:38px;
+  }
+}
+
 
     footer.page-footer{
       text-align:center; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);
