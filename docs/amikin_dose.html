@@ -1,506 +1,490 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amikacin Dosage Information</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amikacin Dosage Information</title>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
 
-        h1 {
-            color: #fcf2f2;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 10px;
-            border: 2px solid #afaaaa;
-            border-radius: 10px;
-            background-color: #2c8ed0;
-            text-align: center; /* Center the text */
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .highlight {
-            background-color: #c3e6cb;
-        }
-
-        .dose-range {
-            color: red;
-            font-weight: bold;
-        }
-
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .highlight-dose {
-            color: #ff5733;
-            font-size: 24px;
-            font-weight: bold;
-            background-color: #fbe9e7;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .back-button, .back-button-secondary {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px #999;
-        }
-
-        .back-button {
-            background-color: #f44336;
-        }
-
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .back-button-secondary {
-            background-color: #008CBA;
-        }
-
-        .back-button-secondary:hover {
-            background-color: #007B9A;
-        }
-
-        footer {
-            text-align: center;
-            color: #00000035;
-            font-size: 13px;
-            padding: 10px;
-            width: 100%;
-        }
-
-        /* Mobile-Specific Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 20px; /* Reduce font size for mobile */
-                padding: 5px; /* Reduce padding */
-            }
-
-            .highlight-dose {
-                font-size: 20px; /* Adjust font size */
-            }
-
-            .section-title {
-                font-size: 14px;
-            }
-
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 15px;
-            }
-
-            table {
-                font-size: 14px; /* Reduce font size */
-            }
-
-            th, td {
-                padding: 8px; /* Reduce padding for smaller screens */
-            }
-
-        }
-
-        /* =========================
-   แถบปุ่มลอยด้านล่าง
-   ========================= */
-.top-fix-actions {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: max(8px, env(safe-area-inset-bottom, 0px));
-
-    width: min(100% - 32px, 560px);   /* จอใหญ่ไม่เต็มจอ, จอเล็กเผื่อขอบ 16px ซ้ายขวา */
-    box-sizing: border-box;
-
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-
-    padding: 8px 12px;
-    border-radius: 16px;
-    background: rgba(0, 0, 0, 0.18);
-    backdrop-filter: blur(6px);
-    z-index: 1000;
-}
-
-/* ปุ่ม */
-.back-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    font-size: 16px;
-    text-decoration: none;
-    border-radius: 10px;
-    border: none;
-    box-shadow: 0 4px #999;
-    color: #fff;
-    background-color: #f44336;   /* Home = แดง */
-    cursor: pointer;
-    text-align: center;
-    line-height: 1.2;
-}
-
-.back-btn.alt {
-    background-color: #008CBA;   /* Back = ฟ้า */
-}
-
-.back-btn:hover {
-    filter: brightness(1.05);
-}
-.back-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px #666;
-}
-        /* ===== จอเล็ก (มือถือ) ===== */
-@media (max-width: 600px) {
-
-    .page-wrap {
-        padding: 10px 10px 140px;   /* เว้นล่างเพิ่มให้ปุ่มไม่ทับข้อความ */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 20px 150px; /* เผื่อปุ่มลอยด้านล่าง */
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
     }
 
     h1 {
-        font-size: 20px;
-        padding: 6px;
+      color: #fcf2f2;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px;
+      border: 2px solid #afaaaa;
+      border-radius: 10px;
+      background-color: #2c8ed0;
+      text-align: center;
+      margin-top: 0;
     }
 
-    table {
-        font-size: 14px;
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
     }
-    th, td {
-        padding: 8px;
+
+    .highlight {
+      background-color: #c3e6cb;
+    }
+
+    .dose-range {
+      color: red;
+      font-weight: bold;
     }
 
     .highlight-dose {
-                font-size: 18px; /* Adjust font size */
-            }
+      color: #ff5733;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: #fbe9e7;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
 
-            .section-title {
-                font-size: 13px;
-            }
+    /* ===== table wrapper ให้เลื่อนแนวนอนในมือถือ ===== */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-bottom: 15px;
+      -webkit-overflow-scrolling: touch;
+    }
 
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 14px;
-            }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+      min-width: 680px; /* จอเล็กจะเลื่อนแทนการบีบ */
+    }
 
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+    }
+
+    th { background-color: #f2f2f2; }
+
+    footer {
+      text-align: center;
+      color: #00000035;
+      font-size: 13px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    /* =========================
+       แถบปุ่มลอยด้านล่าง
+       ========================= */
     .top-fix-actions {
-        width: min(100% - 20px, 420px);
-        bottom: max(10px, env(safe-area-inset-bottom, 0px));
-        gap: 8px;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
+
+      width: min(100% - 32px, 560px);
+      box-sizing: border-box;
+
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
     }
 
     .back-btn {
-        font-size: 13px;         /* ลดขนาดตัวอักษร */
-        padding: 8px 10px;       /* ปุ่มเตี้ยลง */
-        flex: 1 1 0;             /* แบ่งพื้นที่ 2 ปุ่มเท่าๆ กัน */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px #999;
+      color: #fff;
+      background-color: #f44336;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.2;
+      white-space: nowrap;
     }
-}
-    </style>
+
+    .back-btn.alt { background-color: #008CBA; }
+
+    .back-btn:hover { filter: brightness(1.05); }
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #666;
+    }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 600px) {
+      body { padding: 10px; margin: 10px; }
+
+      .container {
+        padding: 10px 10px 140px;
+      }
+
+      h1 {
+        font-size: 20px;
+        padding: 6px;
+      }
+
+      .highlight-dose { font-size: 18px; }
+      .section-title { font-size: 13px; }
+
+      table { font-size: 14px; }
+      th, td { padding: 8px; }
+
+      .top-fix-actions {
+        width: min(100% - 20px, 420px);
+        bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+        flex: 1 1 0;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
 
 
 
-    <h1>Amikacin Dosage Information</h1>
 
-    <!-- Display the calculated PMA and Postnatal Age -->
-    <p><strong>PMA:</strong>
-        
-            0 weeks and 0 days
-        
-    </p>
+<div class="container">
 
-    <p><strong>Calc.:</strong>  weeks</p>
+  <h1>Amikacin Dosage Information</h1>
 
-    <p><strong>Postnatal Age:</strong>
-        
-             days
-        
-    </p>
+  cat > templates/_dose_ctx_block.html <<'HTML'
+<!-- ===== Dose ctx runtime (Flask + GitHub Pages) ===== -->
+<script>
+(function () {
+  function loadScript(src){
+    return new Promise((resolve,reject)=>{
+      const s=document.createElement("script");
+      s.src=src; s.defer=true;
+      s.onload=()=>resolve(src);
+      s.onerror=reject;
+      document.head.appendChild(s);
+    });
+  }
+  async function loadAny(list){
+    for (const src of list){
+      try { return await loadScript(src); } catch(e) {}
+    }
+    throw new Error("Cannot load any: " + list.join(", "));
+  }
 
-    <p><strong>Birth Weight (BW):</strong>
-        
-            0.000 kg
-        
-    </p>
+  window.__loadDoseDeps = async function(){
+    // patient_ctx.js -> provides window.NMC
+    await loadAny(["/static/patient_ctx.js","./static/patient_ctx.js"]);
+    // dose_page.js -> provides window.DosePage
+    await loadAny(["/static/dose_page.js","./static/dose_page.js"]);
+  };
+})();
+</script>
 
-    <!-- Display the calculated dosage for neonates -->
-    <div class="section-title">Calculated Dosage for Neonates</div>
-    <p><strong>Recommended Dose:</strong>
-      <span class="highlight-dose">
-          mg/dose
-      </span>
-    </p>
+<script>
+(async function(){
+  try{
+    await window.__loadDoseDeps();
+    if (window.DosePage && typeof window.DosePage.runAuto === "function") {
+      window.DosePage.runAuto();
+    }
+  }catch(e){
+    console.warn("Dose deps not loaded / runAuto failed:", e);
+  }
+})();
+</script>
+HTML
 
-    <br>
-    <span style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
-    <hr>
-    <!-- ...ส่วน table ต่าง ๆ ด้านล่างใช้ต่อได้เลย... -->  
-        <div class="section-title">Dose</div>
-        <div class="section-title">Postnatal Age (Weight Dosing)</div>
-        <p>
-            These regimens were developed based on population pharmacokinetics, simulations, and subsequent prospective validations.
-            Target concentrations: peak (1 hour after completion of 20-minute infusion) greater than 24 mg/L, trough (just before dose)
-            less than 3 mg/L.
-        </p>
-        
-<table>
-    <thead>
-        <tr>
-            <th>Weight</th>
-            <th>Younger than 14 days</th>
-            <th>14 days or older</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class=" highlight ">
-            <td>800 g or less</td>
-            <td>16 mg/kg/dose every 48 hours</td>
-            <td>20 mg/kg/dose every 42 hours</td>
-        </tr>
-        <tr class="">
-            <td>801 to 1200 g</td>
-            <td>16 mg/kg/dose every 42 hours</td>
-            <td>20 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="">
-            <td>1201 to 2000 g</td>
-            <td>15 mg/kg/dose every 36 hours</td>
-            <td>18 mg/kg/dose every 30 hours</td>
-        </tr>
-        <tr class="">
-            <td>2001 to 2800 g</td>
-            <td>15 mg/kg/dose every 36 hours</td>
-            <td>18 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="">
-            <td>2800 g or greater</td>
-            <td>15 mg/kg/dose every 30 hours</td>
-            <td>18 mg/kg/dose every 20 hours</td>
-        </tr>
-        
-    </tbody>
-</table>
+  <!-- ===== Header summary (Flask render OR JS fill) ===== -->
+  <p><strong>PMA:</strong> <span id="pmaText">
+    
+      0 weeks and 0 days
+    
+  </span></p>
 
+  <p><strong>Calc.:</strong> <span id="calcText">
+     weeks
+  </span></p>
 
-        <div class="section-title">Postmenstrual Age - Postnatal Age Dosing</div>
-        <p>
-            These regimens were developed by a retrospective pharmacokinetic study (n=278). Target peak concentrations were attained in 84% of neonates (median interquartile range): gestational age 36.9 weeks (30.1 to 38.9), postnatal age 1 day (0 to 2), and postmenstrual age 37 weeks (33 to 39).Mean peak and trough concentrations were 28.5+/-5.8 mg/mL and 2+/-1.7 mg/L, respectively. Target concentrations: Peak of (30 minutes after completion of the infusion) 20 to 35 mg/L and trough (30 to 60 minutes before dose) less than 8 mg/L
-        </p>
-<table>
-    <thead>
-        <tr>
-            <th>Postmenstrual Age</th>
-            <th>Postnatal Age</th>
-            <th>Dosage</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class=" highlight ">
-            <td>29 weeks or less</td>
-            <td>0 to 7 days</td>
-            <td>14 mg/kg/dose every 48 hours</td>
-        </tr>
-        <tr class="">
-            <td>29 weeks or less</td>
-            <td>8 to 28 days</td>
-            <td>12 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="">
-            <td>29 weeks or less</td>
-            <td>29 days or older</td>
-            <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="">
-            <td>30 to 34 weeks</td>
-            <td>0 to 7 days</td>
-            <td>12 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="">
-            <td>30 to 34 weeks</td>
-            <td>8 days or older</td>
-            <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="">
-            <td>35 weeks or more</td>
-            <td>All ages</td>
-            <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-    </tbody>
-</table>
+  <p><strong>Postnatal Age:</strong> <span id="postText">
+     days
+  </span></p>
 
+  <p><strong>Birth Weight (BW):</strong>
+    <span class="highlight-dose" id="bwText">
+      - kg
+    </span>
+  </p>
 
-        <div class="section-title">Dosage Adjustments</div>
-        <p><strong>Coadministration with ibuprofen:</strong> Prolong the dosing interval by 10 hours when ibuprofen is administered.</p>
-        <p><strong>Hypothermia/Asphyxia:</strong> Dose interval was prolonged by 10 hours in neonates with asphyxia in a pharmacokinetic study. Alternatively, dose adjustment was suggested based on a population pharmacokinetic modeling and simulation of retrospectively collected data for near term neonates with perinatal asphyxia treated with therapeutic hypothermia (n=56) combined with published data of preterm and term neonates (n=874). Proposed regimen: 15 mg/kg/dose every 48 h for children between 1,200 g and 2,800 g and 15 mg/kg/ dose every 42 h for neonate above 2,800 g for the first 2 consecutive doses during hypothermia (33.5 degrees C) for target concentrations greater than 24 mg/L for peak and less than 5 mg/L for trough. Less than 17% of dose simulations had trough concentrations more than 5 mg/L </p>
-        <p><strong>Renal Impairment:</strong> Either prolong intervals or reduce dose.</p>
-<hr>
-        <div class="section-title">Uses</div>
-        <p>Amikacin was effective for infections caused by gram-negative bacilli that are resistant to other aminoglycosides. Usually used in combination with a B-lactam antibiotic for neonatal sepsis and other severe infections because of the possibility of infections due to gram-positive organisms such as streptococci or pneumococci</p>
-        <p><strong>Infective endocarditis:</strong>  The following recommendations are based on a consensus of experts. The full pediatric guidelines can be found here: https://doi.org/10.1161/CIR.0000000000000298</p>
+  <p><strong>Recommended Dose:</strong>
+    <span class="highlight-dose" id="doseText">
+      
+        - mg/dose
+      
+    </span>
+  </p>
 
+  <p><strong>Interval:</strong>
+    <span class="highlight-dose" id="intervalText">
+      -
+    </span>
+  </p>
 
+  <!-- ===== Calculated dose block (กันพังตอน static) ===== -->
+  <div class="section-title">Calculated Dosage for Neonates</div>
+  <p><strong>Recommended Dose:</strong>
+    <span class="highlight-dose">
+      
+        - mg/dose
+      
+    </span>
+  </p>
+
+  <br>
+  <span style="color:#a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
+  <hr>
+
+  <div class="section-title">Dose</div>
+  <div class="section-title">Postnatal Age (Weight Dosing)</div>
+  <p>
+    These regimens were developed based on population pharmacokinetics, simulations, and subsequent prospective validations.
+    Target concentrations: peak (1 hour after completion of 20-minute infusion) greater than 24 mg/L, trough (just before dose)
+    less than 3 mg/L.
+  </p>
+
+  <div class="table-wrapper">
     <table>
       <thead>
-            <tr>
-                <th colspan="3">Organism Directed Therapy</th>
-            </tr>
-        </thead>
-        <thead>
-            <tr>
-                <th>Organism</th>
-                <th>First-Choice</th>
-                <th>Alternative Choice</th>
-            </tr>
-        </thead>
-        <thead>
-            <tr>
-                <th>Streptococci</th>
-                <th colspan="2"></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    Highly susceptible to penicillin G (MBC 0.1 mcg/mL or less); includes most viridans streptococci, groups A, B, C, G nonenterococcal, group D streptococci (S bovis, S equinus)
-                </td>
-                <td>Penicillin G or CefTRIAXone</td>
-                <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
-            </tr>
-            <tr>
-                <td>
-                    Relatively resistant to penicillin (MBC 0.2 mcg/mL or more); less-susceptible viridans streptococci or enterococci
-                </td>
-                <td>
-                    Penicillin G or Ampicillin + Gentamicin (for first 2 weeks, or entire course for enterococci)
-                </td>
-                <td>
-                    Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone (for aminoglycoside (AMG)-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin (not for enterococcal endocarditis)
-                </td>
-            </tr>
-            <tr>
-                <td>Resistant to penicillin</td>
-                <td>Consult an infectious disease specialist.</td>
-                <td>---</td>
-            </tr>
-            <tr>
-                <td>
-                    Staphylococci (S aureus or coagulase-negative staphylococci) † <br>
-                    Penicillin G susceptible (1 mcg/mL or less) (rare)
-                </td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    Penicillin G susceptible (1 mcg/mL or less) (rare)
-                </td>
-                <td>Penicillin G</td>
-                <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
-            </tr>
-            <tr>
-                <td>
-                    Penicillin G resistant (0.1 mcg/mL)
-                </td>
-                <td>Oxacillin or Nafcillin with or without Gentamicin</td>
-                <td>
-                    Vancomycin (for those highly allergic to beta-lactam antibiotics) or First-generation cephalosporin
-                </td>
-            </tr>
-            <tr>
-                <td>Oxacillin (MRSA) resistant (4 mcg/mL)</td>
-                <td>Vancomycin</td>
-                <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
-            </tr>
-            <tr>
-                <td>Vancomycin resistant or intolerant</td>
-                <td>Daptomycin</td>
-                <td>Unknown</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td colspan="2">†When prosthetic material present add riFAMpin + gentamicin (for first 2 weeks) for all staphylococci</td>
-            </tr>
-            <tr>
-                <td>
-                    Gram-negative enteric bacilli
-                </td>
-                <td>
-                    CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone <br>
-                    Plus gentamicin (or tobramycin or amikacin, depending on susceptibility)
-                </td>
-                <td>
-                    Broad-spectrum penicillin Plus gentamicin (or tobramycin or amikacin)
-                </td>
-            </tr>
-            <tr>
-                <td>HACEK group</td>
-                <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
-                <td>Ampicillin (when susceptible) Plus aminoglycoside</td>
-            </tr>
-            <tr>
-                <td colspan="3">KEY: AMG = aminoglycosides; HACEK = Haemophilus species, Aggregatibacter species,Cardiobacterium hominis, Eikenella corrodens, and Kingella species; MBC = minimum bactericidal concentration, MRSA = methicillin-resistant Staphylococcus aureus (includes resistance to oxacillin, nafcillin, and cephalosporins)</td>
-            </tr>
-            <tr>
-                <td colspan="3">Baltimore, 2015</td>
-            </tr>
+        <tr>
+          <th>Weight</th>
+          <th>Younger than 14 days</th>
+          <th>14 days or older</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="">
+          <td>800 g or less</td>
+          <td>16 mg/kg/dose every 48 hours</td>
+          <td>20 mg/kg/dose every 42 hours</td>
+        </tr>
+        <tr class="">
+          <td>801 to 1200 g</td>
+          <td>16 mg/kg/dose every 42 hours</td>
+          <td>20 mg/kg/dose every 36 hours</td>
+        </tr>
+        <tr class="">
+          <td>1201 to 2000 g</td>
+          <td>15 mg/kg/dose every 36 hours</td>
+          <td>18 mg/kg/dose every 30 hours</td>
+        </tr>
+        <tr class="">
+          <td>2001 to 2800 g</td>
+          <td>15 mg/kg/dose every 36 hours</td>
+          <td>18 mg/kg/dose every 24 hours</td>
+        </tr>
+        <tr class="">
+          <td>2800 g or greater</td>
+          <td>15 mg/kg/dose every 30 hours</td>
+          <td>18 mg/kg/dose every 20 hours</td>
+        </tr>
+      </tbody>
     </table>
+  </div>
 
-    <div class="section-title">Sepsis</div>
-        <p>Optimal treatment for suspected, early-onset sepsis is broad-spectrum antimicrobial coverage
+  <div class="section-title">Postmenstrual Age - Postnatal Age Dosing</div>
+  <p>
+    These regimens were developed by a retrospective pharmacokinetic study (n=278). Target peak concentrations were attained in 84% of neonates (median interquartile range): gestational age 36.9 weeks (30.1 to 38.9), postnatal age 1 day (0 to 2), and postmenstrual age 37 weeks (33 to 39).Mean peak and trough concentrations were 28.5+/-5.8 mg/mL and 2+/-1.7 mg/L, respectively. Target concentrations: Peak of (30 minutes after completion of the infusion) 20 to 35 mg/L and trough (30 to 60 minutes before dose) less than 8 mg/L
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Postmenstrual Age</th>
+          <th>Postnatal Age</th>
+          <th>Dosage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="">
+          <td>29 weeks or less</td>
+          <td>0 to 7 days</td>
+          <td>14 mg/kg/dose every 48 hours</td>
+        </tr>
+        <tr class="">
+          <td>29 weeks or less</td>
+          <td>8 to 28 days</td>
+          <td>12 mg/kg/dose every 36 hours</td>
+        </tr>
+        <tr class="">
+          <td>29 weeks or less</td>
+          <td>29 days or older</td>
+          <td>12 mg/kg/dose every 24 hours</td>
+        </tr>
+        <tr class="">
+          <td>30 to 34 weeks</td>
+          <td>0 to 7 days</td>
+          <td>12 mg/kg/dose every 36 hours</td>
+        </tr>
+        <tr class="">
+          <td>30 to 34 weeks</td>
+          <td>8 days or older</td>
+          <td>12 mg/kg/dose every 24 hours</td>
+        </tr>
+        <tr class="">
+          <td>35 weeks or more</td>
+          <td>All ages</td>
+          <td>12 mg/kg/dose every 24 hours</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Dosage Adjustments</div>
+  <p><strong>Coadministration with ibuprofen:</strong> Prolong the dosing interval by 10 hours when ibuprofen is administered.</p>
+  <p><strong>Hypothermia/Asphyxia:</strong> Dose interval was prolonged by 10 hours in neonates with asphyxia in a pharmacokinetic study. Alternatively, dose adjustment was suggested based on a population pharmacokinetic modeling and simulation of retrospectively collected data for near term neonates with perinatal asphyxia treated with therapeutic hypothermia (n=56) combined with published data of preterm and term neonates (n=874). Proposed regimen: 15 mg/kg/dose every 48 h for children between 1,200 g and 2,800 g and 15 mg/kg/ dose every 42 h for neonate above 2,800 g for the first 2 consecutive doses during hypothermia (33.5 degrees C) for target concentrations greater than 24 mg/L for peak and less than 5 mg/L for trough. Less than 17% of dose simulations had trough concentrations more than 5 mg/L</p>
+  <p><strong>Renal Impairment:</strong> Either prolong intervals or reduce dose.</p>
+
+  <hr>
+
+  <div class="section-title">Uses</div>
+  <p>Amikacin was effective for infections caused by gram-negative bacilli that are resistant to other aminoglycosides. Usually used in combination with a B-lactam antibiotic for neonatal sepsis and other severe infections because of the possibility of infections due to gram-positive organisms such as streptococci or pneumococci</p>
+  <p><strong>Infective endocarditis:</strong> The following recommendations are based on a consensus of experts. The full pediatric guidelines can be found here: https://doi.org/10.1161/CIR.0000000000000298</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th colspan="3">Organism Directed Therapy</th></tr>
+      </thead>
+      <thead>
+        <tr>
+          <th>Organism</th>
+          <th>First-Choice</th>
+          <th>Alternative Choice</th>
+        </tr>
+      </thead>
+      <thead>
+        <tr>
+          <th>Streptococci</th>
+          <th colspan="2"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            Highly susceptible to penicillin G (MBC 0.1 mcg/mL or less); includes most viridans streptococci, groups A, B, C, G nonenterococcal, group D streptococci (S bovis, S equinus)
+          </td>
+          <td>Penicillin G or CefTRIAXone</td>
+          <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
+        </tr>
+        <tr>
+          <td>
+            Relatively resistant to penicillin (MBC 0.2 mcg/mL or more); less-susceptible viridans streptococci or enterococci
+          </td>
+          <td>
+            Penicillin G or Ampicillin + Gentamicin (for first 2 weeks, or entire course for enterococci)
+          </td>
+          <td>
+            Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone (for aminoglycoside (AMG)-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin (not for enterococcal endocarditis)
+          </td>
+        </tr>
+        <tr>
+          <td>Resistant to penicillin</td>
+          <td>Consult an infectious disease specialist.</td>
+          <td>---</td>
+        </tr>
+        <tr>
+          <td>
+            Staphylococci (S aureus or coagulase-negative staphylococci) † <br>
+            Penicillin G susceptible (1 mcg/mL or less) (rare)
+          </td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Penicillin G susceptible (1 mcg/mL or less) (rare)</td>
+          <td>Penicillin G</td>
+          <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
+        </tr>
+        <tr>
+          <td>Penicillin G resistant (0.1 mcg/mL)</td>
+          <td>Oxacillin or Nafcillin with or without Gentamicin</td>
+          <td>Vancomycin (for those highly allergic to beta-lactam antibiotics) or First-generation cephalosporin</td>
+        </tr>
+        <tr>
+          <td>Oxacillin (MRSA) resistant (4 mcg/mL)</td>
+          <td>Vancomycin</td>
+          <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
+        </tr>
+        <tr>
+          <td>Vancomycin resistant or intolerant</td>
+          <td>Daptomycin</td>
+          <td>Unknown</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan="2">†When prosthetic material present add riFAMpin + gentamicin (for first 2 weeks) for all staphylococci</td>
+        </tr>
+        <tr>
+          <td>Gram-negative enteric bacilli</td>
+          <td>
+            CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone <br>
+            Plus gentamicin (or tobramycin or amikacin, depending on susceptibility)
+          </td>
+          <td>
+            Broad-spectrum penicillin Plus gentamicin (or tobramycin or amikacin)
+          </td>
+        </tr>
+        <tr>
+          <td>HACEK group</td>
+          <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
+          <td>Ampicillin (when susceptible) Plus aminoglycoside</td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            KEY: AMG = aminoglycosides; HACEK = Haemophilus species, Aggregatibacter species,Cardiobacterium hominis, Eikenella corrodens, and Kingella species; MBC = minimum bactericidal concentration, MRSA = methicillin-resistant Staphylococcus aureus (includes resistance to oxacillin, nafcillin, and cephalosporins)
+          </td>
+        </tr>
+        <tr><td colspan="3">Baltimore, 2015</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Sepsis</div>
+  <p>Optimal treatment for suspected, early-onset sepsis is broad-spectrum antimicrobial coverage
 using a combination of ampicillin and an aminoglycoside (usually gentamicin); once a
 pathogen is identified, therapy should be narrowed unless synergism is required. Therapy
 should be discontinued at 48 hours if the probability of sepsis is low. Duration of treatment is
@@ -514,26 +498,28 @@ days (2 to 4 days) and 56.8% had early-onset sepsis. The majority of organisms i
 cultures were K/ebsiella spp. (40.9%), Staphylococcus aureus (22.7%), Enterobacter spp.
 (16.7%), and MRSA (7.6%).</p>
 
-<div class="section-title">Pediatric FDA-Approved Indications</div>
-        <p>Short-term treatment of serious infections caused by susceptible strains of Gram-negative
+  <div class="section-title">Pediatric FDA-Approved Indications</div>
+  <p>Short-term treatment of serious infections caused by susceptible strains of Gram-negative
 bacteria, including Pseudomonas species, F. coli, species of indole-positive and indole-
 negative Proteus, Providencia species, Klebsiella-Enterobacter-Serratia species, and
 Acinetobacter (Mima-Herellea) species.</p>
-<hr>
-<div class="section-title">Administration</div>
-        <p>Dilute to a final concentration of 2.5 to 10 mg/mL [8][9][10][11] and administer as IV
+
+  <hr>
+
+  <div class="section-title">Administration</div>
+  <p>Dilute to a final concentration of 2.5 to 10 mg/mL [8][9][10][11] and administer as IV
 infusion by syringe pump over 60 to 120 minutes; in neonatal studies amikacin was
 infused over 20 minutes and in neonatal pharmacokinetic modeling studies infusion rates
 of 20 to 30 minutes were applied.
 
 Administer as a separate infusion from penicillin-containing compounds. IM injection is associated with variable absorption, especially in the very small infant.</p>
 
-<span style="color: #a4a0a0;"><strong>MEDICATION SAFETY</strong></span>
+  <span style="color:#a4a0a0;"><strong>MEDICATION SAFETY</strong></span>
+  <hr>
 
-<hr>
-<div class="section-title">Contraindications/ Precautions</div>
-        <p><strong>Precautions</strong></p>
-        <p><strong>Administration:</strong> In vitro mixing of aminoglycosides with beta-lactam antibiotics (penicillin
+  <div class="section-title">Contraindications/ Precautions</div>
+  <p><strong>Precautions</strong></p>
+  <p><strong>Administration:</strong> In vitro mixing of aminoglycosides with beta-lactam antibiotics (penicillin
 or cephalosporins) may result in a significant mutual inactivation. A reduction in serum half-
 life or serum level may occur when an aminoglycoside or penicillin-type drug is administered
 by separate routes. Inactivation of the aminoglycoside is clinically significant only in patients
@@ -542,23 +528,27 @@ collected for assay, resulting in inaccurate aminoglycoside readings. Such speci
 be properly handled (assayed promptly, frozen or treated with betalactamase)
 Gastrointestinal: Clostridium difficile associated diarrhea has been reported and ranged
 from mild diarrhea to fatal colitis; discontinue use if suspected.</p>
-        <p><strong>Gastrointestinal:</strong> Clostridium difficile associated diarrhea has been reported and ranged
+  <p><strong>Gastrointestinal:</strong> Clostridium difficile associated diarrhea has been reported and ranged
 from mild diarrhea to fatal colitis; discontinue use if suspected.</p>
-        <p><strong>Immunologic:</strong> Allergic-type reactions, including anaphylaxis and life-threatening or less
+  <p><strong>Immunologic:</strong> Allergic-type reactions, including anaphylaxis and life-threatening or less
 severe asthmatic reactions, may occur in patients with sulfite sensitivity as preparation contains sodium metabisulfite.</p>
-        <p><strong>Neurologic:</strong> Use caution in patients with myasthenia gravis or parkinsonism; muscle
+  <p><strong>Neurologic:</strong> Use caution in patients with myasthenia gravis or parkinsonism; muscle
 weakness may be aggravated.</p>
-        <p><strong>Topical irrigation:</strong> Irreversible deafness, renal failure, and death due to neuromuscular
+  <p><strong>Topical irrigation:</strong> Irreversible deafness, renal failure, and death due to neuromuscular
 blockade have been reported following irrigation of both small and large surgical fields with aminoglycoside preparations.</p>
-<hr>
-<div class="section-title">Adverse Effects</div>
-        <p>Transient and reversible renal tubular dysfunction may occur, resulting in increased urinary
+
+  <hr>
+
+  <div class="section-title">Adverse Effects</div>
+  <p>Transient and reversible renal tubular dysfunction may occur, resulting in increased urinary
 losses of sodium, calcium, and magnesium. Vestibular and auditory ototoxicity may occur.
 The addition of other nephrotoxic and/or ototoxic medications (eg, furosemide, vancomycin) may increase these adverse effects. Increased neuromuscular blockade (ie, neuromuscular weakness and respiratory failure) may occur when used with pancuronium or other
 neuromuscular blocking agents and in patients with hypermagnesemia.</p>
-<hr>
-<div class="section-title">Black Box Warning</div>
-        <p>•Patients treated with parenteral aminoglycosides should be under close clinical observation
+
+  <hr>
+
+  <div class="section-title">Black Box Warning</div>
+  <p>•Patients treated with parenteral aminoglycosides should be under close clinical observation
 because of the potential ototoxicity and nephrotoxicity associated with their use. Safety for
 treatment periods which are longer than 14 days has not been established.
 •Neurotoxicity, manifested as vestibular and permanent bilateral auditory ototoxicity, can
@@ -601,160 +591,155 @@ Other factors that may increase risk of toxicity are advanced age and dehydratio
 be avoided since diuretics by themselves may cause ototoxicity. In addition, when
 administered intravenously, diuretics may enhance aminoglycoside toxicity by altering
 antibiotic concentrations in serum and tissue.</p>
-<hr>
-<div class="section-title">Solution Compatibility</div>
-        <p>D5W, D10W, D20W, and NS.</p>
-<hr>
-<div class="section-title">Terminal Injection Site Compatibilit</div>
-        <p>Acyclovir, aminophylline, amiodarone, aztreonam, caffeine citrate, calcium chloride, calcium
+
+  <hr>
+
+  <div class="section-title">Solution Compatibility</div>
+  <p>D5W, D10W, D20W, and NS.</p>
+
+  <hr>
+
+  <div class="section-title">Terminal Injection Site Compatibility</div>
+  <p>Acyclovir, aminophylline, amiodarone, aztreonam, caffeine citrate, calcium chloride, calcium
 gluconate, cefazolin, cefepime, cefotaxime, cefoxitin, ceftazidime, ceftriaxone,
 chloramphenicol, cimetidine, clindamycin, dexamethasone, enalaprilat, epinephrine, esmolol,
 fluconazole, furosemide, heparin (concentrations of 1 unit/mL or less), hydrocortisone
 succinate, hyaluronidase, linezolid, lorazepam, magnesium sulfate, metronidazole,
 midazolam, milrinone, morphine, nicardipine, penicillin g, pentobarbital, phenobarbital,
 potassium chloride, ranitidine, remifentanil, sodium bicarbonate, vancomycin, vitamin K1, and zidovudine.</p>
-<hr>
-<div class="section-title">Terminal Injection Site Incompatibility</div>
-        <p>Fat emulsion. Amphotericin B, ampicillin, azithromycin, heparin (concentrations greater than
+
+  <hr>
+
+  <div class="section-title">Terminal Injection Site Incompatibility</div>
+  <p>Fat emulsion. Amphotericin B, ampicillin, azithromycin, heparin (concentrations greater than
 1 unit/mL), imipenem/cilastatin, mezlocillin, nafcillin, oxacillin, phenytoin, propofol,
 thiopental, and ticarcillin/clavulanate.</p>
-<hr>
-<div class="section-title">Monitoring</div>
-        <p>Measure serum concentrations when treating for more than 48 hours. Obtain peak
+
+  <hr>
+
+  <div class="section-title">Monitoring</div>
+  <p>Measure serum concentrations when treating for more than 48 hours. Obtain peak
 concentration 30 minutes after end of infusion, and trough concentration just prior to the
 next dose. When treating patients with serious infections or significantly changing fluid or
 renal status consider measuring the serum concentration 24 hours after a dose, and use the
 chart below for the suggested dosing interval. Blood samples obtained to monitor serum drug
 concentrations should be spun and refrigerated or frozen as soon as possible.</p>
 
-<div class="section-title">Therapeutic serum concentrations</div>
-        <p><strong>Peak:</strong>20 to 30 mcg/mL (or Cmax /MIC ratio greater than 8:1)
+  <div class="section-title">Therapeutic serum concentrations</div>
+  <p><strong>Peak:</strong>20 to 30 mcg/mL (or Cmax /MIC ratio greater than 8:1)
 (Draw 30 minutes after end of infusion, 1 hour after IM injection.)</p>
-        <p><strong>Trough:</strong>2 to 5 mcg/mL</p>
+  <p><strong>Trough:</strong>2 to 5 mcg/mL</p>
 
-<table border="1" cellspacing="0" cellpadding="5">
-    <thead>
+  <div class="table-wrapper">
+    <table border="1" cellspacing="0" cellpadding="5">
+      <thead>
+        <tr><th colspan="3">Suggested Dosing Intervals</th></tr>
         <tr>
-            <th colspan="3">Suggested Dosing Intervals</th>
+          <th>Level at 24 hrs (mcg/mL)</th>
+          <th>Half-life (hours)</th>
+          <th>Suggested Dosing Interval (hours)</th>
         </tr>
-        <tr>
-            <th>Level at 24 hrs (mcg/mL)</th>
-            <th>Half-life (hours)</th>
-            <th>Suggested Dosing Interval (hours)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>&lt; 5</td>
-            <td>~9</td>
-            <td>24</td>
-        </tr>
-        <tr>
-            <td>5.1 to 8.0</td>
-            <td>~12</td>
-            <td>36</td>
-        </tr>
-        <tr>
-            <td>8.1 to 10.5</td>
-            <td>~16</td>
-            <td>48</td>
-        </tr>
-        <tr>
-            <td> &ge; 10.6</td>
-            <td></td>
-            <td>Measure level in 24 hours</td>
-        </tr>
-    </tbody>
-</table>
-<span style="color: #a4a0a0;"><strong>MECHANISM OF ACTION/PHARMACOKINETICS</strong></span>
-<hr>
-<div class="section-title">Pharmacology</div>
-        <p><strong>Mechanism of action: </strong>Amikacin, a semi-synthetic aminoglycoside [7] bactericidal antibiotic,
+      </thead>
+      <tbody>
+        <tr><td>&lt; 5</td><td>~9</td><td>24</td></tr>
+        <tr><td>5.1 to 8.0</td><td>~12</td><td>36</td></tr>
+        <tr><td>8.1 to 10.5</td><td>~16</td><td>48</td></tr>
+        <tr><td>&ge; 10.6</td><td></td><td>Measure level in 24 hours</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <span style="color:#a4a0a0;"><strong>MECHANISM OF ACTION/PHARMACOKINETICS</strong></span>
+  <hr>
+
+  <div class="section-title">Pharmacology</div>
+  <p><strong>Mechanism of action: </strong>Amikacin, a semi-synthetic aminoglycoside [7] bactericidal antibiotic,
 inhibits normal protein synthesis in susceptible microorganisms [16]. Amikacin resists degradation by most aminoglycosides inactivating enzymes known to affect gentamicin, tobramycin, and kanamycin.</p>
-        <p><strong>Pharmacokinetics</strong></p>
 
-<table border="1" cellspacing="0" cellpadding="5">
-    <thead>
-        <tr>
-            <th>Postmenstrual Age</th>
-            <th>Postnatal Age</th>
-            <th>Half-life</th>
-            <th>Volume of Distribution</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan="3">29 weeks or less</td>
-            <td>0 to 7 days (n=41)</td>
-            <td>11 hours</td>
-            <td>0.414 L/kg</td>
-        </tr>
-        <tr>
-            <td>8 to 28 days (n=9)</td>
-            <td>9.64 hours</td>
-            <td>0.472 L/kg</td>
-        </tr>
-        <tr>
-            <td>29 days or older(n=2)</td>
-            <td>4.93 hours</td>
-            <td>0.353 L/kg</td>
-        </tr>
-        <tr>
-            <td rowspan="2">30 to 34 weeks</td>
-            <td>0 to 7 days (n=49)</td>
-            <td>7.96 hours</td>
-            <td>0.462 L/kg</td>
-        </tr>
-        <tr>
-            <td>8 days or older (n=16)</td>
-            <td>6.20 hours</td>
-            <td>0.454 L/kg</td>
-        </tr>
-        <tr>
-            <td>35 weeks or more</td>
-            <td>All ages (n=170)</td>
-            <td>6.21 hours</td>
-            <td>0.433 L/kg</td>
-        </tr>
-        <tr>
-            <td colspan="4" style="text-align: left;">Comorbidity</td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: left;">Congenital heart disease (n=38)*</td>
-            <td>6.97 hours</td>
-            <td>0.449 L/kg</td>
-        </tr>
-        <tr>
-            <td colspan="4" style="text-align: left;">*Congenital heart disease = cyanotic heart defect or acyanotic heart defect requiring surgical intervention prior to or during amikacin therapy</td>
-        </tr>
-        <tr>
-            <td colspan="4" style="text-align: left;">Hughes et al, 2017</td>
-        </tr>
-    </tbody>
-</table>
+  <p><strong>Pharmacokinetics</strong></p>
 
-        <p><strong>Volume of distribution: </strong>0.833 L in 874 neonates (postnatal age 1 to 30; gestational age 24 to 43 weeks) </p>
-        <p><strong>Clearance: </strong>0.493 L/hr in 874 neonates (postnatal age range, 1 to 30; gestational age range, 24 to 43 weeks). Coadministration of ibuprofen reduced clearance. 0.84 L/hr/70 kg at 28 weeks postmenstrual age (PMA), 1.23 L/hr/70 kg at 34 weeks PMA, and 1.56 L/hr/70 kg at 40 weeks PMA in a pharmacokinetic study of 715 neonates (PMA 24 to 43 weeks; weight 0.385 to 4.78 kg). Clearance was affected the most by size (66%), PMA(17%), and renal function (9%)</p>
+  <div class="table-wrapper">
+    <table border="1" cellspacing="0" cellpadding="5">
+      <thead>
+        <tr>
+          <th>Postmenstrual Age</th>
+          <th>Postnatal Age</th>
+          <th>Half-life</th>
+          <th>Volume of Distribution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="3">29 weeks or less</td>
+          <td>0 to 7 days (n=41)</td>
+          <td>11 hours</td>
+          <td>0.414 L/kg</td>
+        </tr>
+        <tr>
+          <td>8 to 28 days (n=9)</td>
+          <td>9.64 hours</td>
+          <td>0.472 L/kg</td>
+        </tr>
+        <tr>
+          <td>29 days or older(n=2)</td>
+          <td>4.93 hours</td>
+          <td>0.353 L/kg</td>
+        </tr>
+        <tr>
+          <td rowspan="2">30 to 34 weeks</td>
+          <td>0 to 7 days (n=49)</td>
+          <td>7.96 hours</td>
+          <td>0.462 L/kg</td>
+        </tr>
+        <tr>
+          <td>8 days or older (n=16)</td>
+          <td>6.20 hours</td>
+          <td>0.454 L/kg</td>
+        </tr>
+        <tr>
+          <td>35 weeks or more</td>
+          <td>All ages (n=170)</td>
+          <td>6.21 hours</td>
+          <td>0.433 L/kg</td>
+        </tr>
+        <tr><td colspan="4" style="text-align:left;">Comorbidity</td></tr>
+        <tr>
+          <td colspan="2" style="text-align:left;">Congenital heart disease (n=38)*</td>
+          <td>6.97 hours</td>
+          <td>0.449 L/kg</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="text-align:left;">*Congenital heart disease = cyanotic heart defect or acyanotic heart defect requiring surgical intervention prior to or during amikacin therapy</td>
+        </tr>
+        <tr><td colspan="4" style="text-align:left;">Hughes et al, 2017</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-        <p><strong>Therapeutic Hypothermia for Asphyxia: </strong>Clearance was reduced by 40.6% in neonates with perinatal asphyxia treated with therapeutic hypothermia (PATH) compared with neonates without PATH in model-based approach pharmacokinetic study. Volume of distribution did not change</p>
+  <p><strong>Volume of distribution: </strong>0.833 L in 874 neonates (postnatal age 1 to 30; gestational age 24 to 43 weeks)</p>
+  <p><strong>Clearance: </strong>0.493 L/hr in 874 neonates (postnatal age range, 1 to 30; gestational age range, 24 to 43 weeks). Coadministration of ibuprofen reduced clearance. 0.84 L/hr/70 kg at 28 weeks postmenstrual age (PMA), 1.23 L/hr/70 kg at 34 weeks PMA, and 1.56 L/hr/70 kg at 40 weeks PMA in a pharmacokinetic study of 715 neonates (PMA 24 to 43 weeks; weight 0.385 to 4.78 kg). Clearance was affected the most by size (66%), PMA(17%), and renal function (9%)</p>
+  <p><strong>Therapeutic Hypothermia for Asphyxia: </strong>Clearance was reduced by 40.6% in neonates with perinatal asphyxia treated with therapeutic hypothermia (PATH) compared with neonates without PATH in model-based approach pharmacokinetic study. Volume of distribution did not change</p>
 
-<span style="color: #a4a0a0;"><strong>ABOUT</strong></span>
-<hr>
-        <div class="section-title">Special Considerations/Preparation</div>
-        <p><strong>Availability: </strong>250 mg/mL in 2-mL and 4-mL vials</p>
-        <p><strong>Stability: </strong>Solutions, 0.25 and 5 mg/mL, are stable for 24 hours at room temperature.
+  <span style="color:#a4a0a0;"><strong>ABOUT</strong></span>
+  <hr>
+
+  <div class="section-title">Special Considerations/Preparation</div>
+  <p><strong>Availability: </strong>250 mg/mL in 2-mL and 4-mL vials</p>
+  <p><strong>Stability: </strong>Solutions, 0.25 and 5 mg/mL, are stable for 24 hours at room temperature.
 Solutions stored for 60 days at 4 degrees C and then stored at 25 degrees C had utility times
 of 24 hours. At concentrations of 0.25 and 5 mg/mL, solutions frozen (-15 degrees C) for 30
 days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
-    
-        <footer>
-            <p>Developed by Sukhontha Boonsookchan | update 2025-12-04 13:08</p>
-        </footer>
 
-          <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
-    <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
-    <a href="./index.html" class="back-btn">🏠 Back to Home</a>
-  </div>
+  <footer>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-04 20:03</p>
+  </footer>
+
+</div><!-- /container -->
+
+<div class="top-fix-actions" role="navigation" aria-label="Quick actions">
+  <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
+  <a href="./index.html" class="back-btn">🏠 Back to Home</a>
+</div>
 
 </body>
 </html>
