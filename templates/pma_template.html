@@ -1,3 +1,4 @@
+{# templates/pma_template.html #}
 {% extends "base.html" %}
 {% block title %}Calculate PMA{% endblock %}
 {% block body_class %}pma-page{% endblock %}
@@ -33,9 +34,7 @@
     text-align:left;
     font-size: 14px;
   }
-  .pma-card label{
-    font-weight: 600;
-  }
+  .pma-card label{ font-weight: 600; }
   .pma-inline{
     display:flex;
     align-items:center;
@@ -104,10 +103,7 @@
     cursor:pointer;
   }
 
-  .button-group{
-    text-align:center;
-    margin-top:12px;
-  }
+  .button-group{ text-align:center; margin-top:12px; }
 
   .back-button {
     display: inline-block;
@@ -144,16 +140,20 @@
   }
   .back-button-secondary:hover { background-color: #007B9A; }
 
+  .err-box{
+    margin-top:10px;
+    padding:10px 10px;
+    border-radius:10px;
+    background:#fee2e2;
+    border:1px solid #fecaca;
+    color:#b91c1c;
+    font-size:14px;
+    text-align:left;
+  }
+
   @media (max-width:480px){
-    .pma-card{
-      margin-top:12px;
-      padding:14px 12px 16px;
-    }
-    .pma-title{
-      font-size:20px;
-      padding:8px 12px;
-      margin-bottom: 16px;
-    }
+    .pma-card{ margin-top:12px; padding:14px 12px 16px; }
+    .pma-title{ font-size:20px; padding:8px 12px; margin-bottom: 16px; }
   }
 </style>
 
@@ -168,9 +168,9 @@
       <div class="form-group">
         <label>Gestational Age:</label>
         <div class="pma-inline">
-          <input type="number" id="ga_weeks" placeholder="Weeks">
+          <input type="number" id="ga_weeks" placeholder="Weeks" min="0" inputmode="numeric">
           <span>wks</span>
-          <input type="number" id="ga_days" placeholder="Days">
+          <input type="number" id="ga_days" placeholder="Days" min="0" max="6" inputmode="numeric">
           <span>day</span>
         </div>
       </div>
@@ -178,7 +178,7 @@
       <div class="form-group">
         <label>Postnatal Age (Days):</label>
         <div class="pma-inline">
-          <input type="number" id="postnatal_days" placeholder="Days">
+          <input type="number" id="postnatal_days" placeholder="Days" min="0" inputmode="numeric">
           <span>day</span>
         </div>
       </div>
@@ -186,12 +186,14 @@
       <div class="form-group">
         <label>Birth Weight (kg):</label>
         <div class="pma-inline">
-          <input type="number" id="bw" placeholder="kg" step="0.001">
+          <input type="number" id="bw" placeholder="kg" step="0.001" min="0" inputmode="decimal">
           <span>kg</span>
         </div>
       </div>
 
-      <button type="button" class="pma-btn" onclick="calculatePMAStatic()">
+      <div id="pma-err-static" class="err-box" style="display:none"></div>
+
+      <button type="button" class="pma-btn" id="pma-calc-btn">
         Calculate PMA
       </button>
     </form>
@@ -220,11 +222,11 @@
       </p>
     </div>
 
-    {# ปุ่มคำนวณยา สำหรับ GitHub (static) #}
     <button id="drug-btn-static"
             type="button"
             class="drug-button"
-            style="display:none">
+            style="display:none"
+            disabled>
       คำนวณยา
     </button>
   </div>
@@ -235,50 +237,128 @@
   </div>
 
   <script>
-    // URL ปลายทางสำหรับหน้า drug calculation (จะถูก map เป็น .html ตอน build)
-    const DRUG_CALC_URL = "{{ u('drug_calculation') }}";
+    // =========================
+    // STATIC Navigation mapping
+    // =========================
+    // บังคับปลายทางเป็นไฟล์ .html สำหรับ GitHub Pages
+    const DRUG_CALC_URL = "./drug_calculation.html";
+
+    const KEY = "nmc_ctx_v1";
     let lastPMA = null;
 
-    function calculatePMAStatic() {
-      const gaWeeks = parseInt(document.getElementById('ga_weeks').value) || 0;
-      const gaDays  = parseInt(document.getElementById('ga_days').value) || 0;
-      const pna     = parseInt(document.getElementById('postnatal_days').value) || 0;
-      const bwVal   = parseFloat(document.getElementById('bw').value) || 0;
+    function showErr(msg){
+      const box = document.getElementById("pma-err-static");
+      box.textContent = msg || "";
+      box.style.display = msg ? "block" : "none";
+    }
 
-      const totalDays = gaWeeks * 7 + gaDays + pna;
+    function asInt(id){
+      const v = document.getElementById(id).value;
+      if (v === "" || v === null || v === undefined) return null;
+      const n = Number(v);
+      if (!Number.isFinite(n)) return null;
+      return Math.trunc(n);
+    }
+
+    function asFloat(id){
+      const v = document.getElementById(id).value;
+      if (v === "" || v === null || v === undefined) return null;
+      const n = Number(v);
+      if (!Number.isFinite(n)) return null;
+      return n;
+    }
+
+    function normalizeGA(weeks, days){
+      // days อาจเกิน 6 → แปลงเป็น weeks เพิ่ม
+      const w0 = Math.max(0, weeks || 0);
+      const d0 = Math.max(0, days  || 0);
+      const extraW = Math.floor(d0 / 7);
+      const d = d0 % 7;
+      const w = w0 + extraW;
+      return { w, d };
+    }
+
+    function calculatePMAStatic() {
+      showErr("");
+
+      const gaWeeksRaw = asInt("ga_weeks");
+      const gaDaysRaw  = asInt("ga_days");
+      const pnaRaw     = asInt("postnatal_days");
+      const bwRaw      = asFloat("bw");
+
+      // minimal validation
+      if (gaWeeksRaw === null) return showErr("กรุณากรอก Gestational Age (weeks)");
+      if (gaDaysRaw  === null) return showErr("กรุณากรอก Gestational Age (days)");
+      if (pnaRaw     === null) return showErr("กรุณากรอก Postnatal Age (days)");
+      if (bwRaw      === null) return showErr("กรุณากรอก Birth Weight (kg)");
+
+      if (gaWeeksRaw < 0 || gaDaysRaw < 0 || pnaRaw < 0 || bwRaw < 0) {
+        return showErr("ค่าที่กรอกต้องไม่ติดลบ");
+      }
+
+      const gaN = normalizeGA(gaWeeksRaw, gaDaysRaw);
+      // sync normalized back to inputs (กัน day เกิน 6)
+      document.getElementById("ga_weeks").value = gaN.w;
+      document.getElementById("ga_days").value  = gaN.d;
+
+      const totalDays = gaN.w * 7 + gaN.d + pnaRaw;
       const pmaWeeks  = Math.floor(totalDays / 7);
       const pmaDays   = totalDays % 7;
-      const calc      = (pmaWeeks + pmaDays / 7).toFixed(1);
+      const calc      = Number((pmaWeeks + pmaDays / 7).toFixed(2)); // เก็บละเอียดขึ้น
 
-      document.getElementById('pma_res_weeks').textContent = pmaWeeks;
-      document.getElementById('pma_res_days').textContent  = pmaDays;
-      document.getElementById('pma_res_calc').textContent  = calc;
-      document.getElementById('pma_res_pna').textContent   = pna;
-      document.getElementById('pma_res_bw').textContent    = bwVal ? bwVal.toFixed(2) : '-';
+      document.getElementById("pma_res_weeks").textContent = pmaWeeks;
+      document.getElementById("pma_res_days").textContent  = pmaDays;
+      document.getElementById("pma_res_calc").textContent  = calc.toFixed(2);
+      document.getElementById("pma_res_pna").textContent   = pnaRaw;
+      document.getElementById("pma_res_bw").textContent    = bwRaw.toFixed(3);
 
-      document.getElementById('pma-result-static').style.display = 'block';
+      document.getElementById("pma-result-static").style.display = "block";
 
       // เก็บค่าไว้ใช้ตอนกดปุ่มคำนวณยา
-      lastPMA = { pmaWeeks, pmaDays, pna, bwVal, calc };
+      lastPMA = {
+        pma_weeks: pmaWeeks,
+        pma_days:  pmaDays,
+        postnatal_days: pnaRaw,
+        bw: Number(bwRaw.toFixed(3)),
+        calc: calc
+      };
 
-      const btn = document.getElementById('drug-btn-static');
-      btn.style.display = 'block';
+      // เก็บลง sessionStorage กันค่าไหลต่อหน้า dose
+      try { sessionStorage.setItem(KEY, JSON.stringify(lastPMA)); } catch(e){}
+
+      const btn = document.getElementById("drug-btn-static");
+      btn.style.display = "block";
       btn.disabled = false;
     }
 
-    document.getElementById('drug-btn-static').addEventListener('click', function () {
+    document.getElementById("pma-calc-btn").addEventListener("click", calculatePMAStatic);
+
+    document.getElementById("drug-btn-static").addEventListener("click", function () {
       if (!lastPMA) return;
 
       const params = new URLSearchParams({
-        pma_weeks:      lastPMA.pmaWeeks,
-        pma_days:       lastPMA.pmaDays,
-        postnatal_days: lastPMA.pna,
-        bw:             lastPMA.bwVal ? lastPMA.bwVal.toFixed(3) : '',
-        calc:           lastPMA.calc
+        pma_weeks:      String(lastPMA.pma_weeks),
+        pma_days:       String(lastPMA.pma_days),
+        postnatal_days: String(lastPMA.postnatal_days),
+        bw:             String(lastPMA.bw),
+        calc:           String(lastPMA.calc)
       });
 
-      window.location.href = DRUG_CALC_URL + '?' + params.toString();
+      window.location.href = DRUG_CALC_URL + "?" + params.toString();
     });
+
+    // ถ้ามี ctx เดิมใน session → เติมค่าให้ฟอร์ม (ช่วย user กลับมาแล้วไม่ต้องกรอกใหม่)
+    (function hydrateFromSession(){
+      try{
+        const raw = sessionStorage.getItem(KEY);
+        if(!raw) return;
+        const ctx = JSON.parse(raw);
+        if(!ctx) return;
+        // ไม่บังคับใส่กลับทุกครั้ง แต่ช่วยเติม BW/PNA ถ้ามี
+        if (Number.isFinite(Number(ctx.postnatal_days))) document.getElementById("postnatal_days").value = ctx.postnatal_days;
+        if (Number.isFinite(Number(ctx.bw))) document.getElementById("bw").value = ctx.bw;
+      }catch(e){}
+    })();
   </script>
 
 {# =========================
@@ -292,12 +372,16 @@
       <div class="form-group">
         <label>Gestational Age:</label>
         <div class="pma-inline">
-          <input type="number" name="gestational_age_weeks"
-                 placeholder="Weeks" required
+          <input type="number"
+                 name="gestational_age_weeks"
+                 placeholder="Weeks"
+                 required min="0"
                  value="{{ ga_w_val|default('', true) }}">
           <span>wks</span>
-          <input type="number" name="gestational_age_days"
-                 placeholder="Days" required
+          <input type="number"
+                 name="gestational_age_days"
+                 placeholder="Days"
+                 required min="0"
                  value="{{ ga_d_val|default('', true) }}">
           <span>day</span>
         </div>
@@ -306,8 +390,10 @@
       <div class="form-group">
         <label>Postnatal Age (Days):</label>
         <div class="pma-inline">
-          <input type="number" name="postnatal_age_days"
-                 placeholder="Days" required
+          <input type="number"
+                 name="postnatal_age_days"
+                 placeholder="Days"
+                 required min="0"
                  value="{{ pna_d_val|default('', true) }}">
           <span>day</span>
         </div>
@@ -316,8 +402,11 @@
       <div class="form-group">
         <label>Birth Weight (kg):</label>
         <div class="pma-inline">
-          <input type="number" name="bw"
-                 placeholder="kg" step="0.001" required
+          <input type="number"
+                 name="bw"
+                 placeholder="kg"
+                 step="0.001"
+                 required min="0"
                  value="{{ bw|default('', true) }}">
           <span>kg</span>
         </div>
@@ -327,9 +416,7 @@
     </form>
 
     {% if error %}
-      <div class="pma-result" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c;margin-top:10px">
-        {{ error }}
-      </div>
+      <div class="err-box">{{ error }}</div>
     {% endif %}
 
     {% if pma_weeks is not none and pma_days is not none %}
@@ -339,32 +426,38 @@
             {{ pma_weeks }} weeks {{ pma_days }} days
           </span>
         </p>
+
+        {# calc_unit บางทีคุณเก็บเป็น "32.6" บางทีเก็บเป็น "weeks" → กันพลาดด้วย default #}
         <p>Calc.:
           <b style="color:#0f766e">
-            {{ calc_unit or 'weeks' }}
+            {{ calc_unit|default('-', true) }}
           </b>
         </p>
+
         <p>Postnatal Age:
           <b style="color:#0f766e">
             {{ postnatal_days if postnatal_days is not none else '-' }} days
           </b>
         </p>
+
         <p>Birth Weight (BW):
           <b style="color:#0f766e">
-          {% if bw is defined and bw is not none %}
-            {{ bw|fmt(3) }} kg
-          {% else %}
-            -
-          {% endif %}
+            {% if bw is defined and bw is not none %}
+              {{ bw|fmt(3) }} kg
+            {% else %}
+              -
+            {% endif %}
           </b>
         </p>
 
+        {# ส่งค่าไป drug_calculation route #}
         <form method="post" action="{{ u('drug_calculation') }}">
           <input type="hidden" name="pma_weeks" value="{{ pma_weeks }}">
           <input type="hidden" name="pma_days"  value="{{ pma_days }}">
-          <input type="hidden" name="postnatal_days" value="{{ postnatal_days }}">
-          <input type="hidden" name="bw" value="{{ bw }}">
-          <input type="hidden" name="calc" value="{{ calc_unit }}">
+          <input type="hidden" name="postnatal_days" value="{{ postnatal_days if postnatal_days is not none else '' }}">
+          <input type="hidden" name="bw" value="{{ bw if bw is defined and bw is not none else '' }}">
+          {# แนะนำให้ส่ง calc เป็น "ตัวเลขสัปดาห์ทศนิยม" ถ้าคุณมีตัวเลขนั้น #}
+          <input type="hidden" name="calc" value="{{ calc_unit|default('', true) }}">
           <button class="drug-button" type="submit">คำนวณยา</button>
         </form>
       </div>

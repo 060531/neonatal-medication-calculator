@@ -20,10 +20,7 @@
       min-height: 100vh;
     }
 
-    #top {
-      position: relative;
-      top: 0;
-    }
+    #top { position: relative; top: 0; }
 
     h1 {
       font-size: 2.3em;
@@ -55,7 +52,6 @@
       gap: 16px;
     }
 
-    /* แถบ A–Z ด้านบน */
     .az-nav {
       display: flex;
       flex-wrap: wrap;
@@ -63,7 +59,6 @@
       gap: 6px;
       margin-bottom: 10px;
     }
-
     .az-pill {
       min-width: 28px;
       padding: 4px 8px;
@@ -75,73 +70,59 @@
       font-weight: 600;
       box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
-
     .az-pill:hover {
       background: rgba(0, 123, 193, 0.35);
       color: #fff;
     }
 
-.letter-group {
-  text-align: center;   /* เดิมเป็น left */
-  margin-top: 4px;
-}
+    .letter-group { text-align: center; margin-top: 4px; }
+    .letter-heading {
+      font-weight: bold;
+      font-size: 18px;
+      color: #04558a;
+      margin: 8px 0;
+      border-bottom: 1px solid rgba(4, 85, 138, 0.25);
+      padding-bottom: 4px;
+    }
 
-.letter-heading {
-  font-weight: bold;
-  font-size: 18px;
-  color: #04558a;
-  margin: 8px 0;
-  border-bottom: 1px solid rgba(4, 85, 138, 0.25);
-  padding-bottom: 4px;
-}
+    .med-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      justify-content: center;
+    }
 
+    .medication-dose-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 50px;
+      font-size: 14px;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, rgb(58, 175, 167), rgb(12, 115, 118));
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      box-shadow: 0 4px #999;
+      cursor: pointer;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.1s;
+      box-sizing: border-box;
+    }
+    .medication-dose-button:hover {
+      background: linear-gradient(135deg, rgb(38, 145, 137), rgb(5, 95, 98));
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+    .medication-dose-button:active {
+      box-shadow: 0 3px #666;
+      transform: translateY(2px);
+    }
 
-/* ===== ปุ่มยา: layout หลัก (เดสก์ท็อป) ===== */
-.med-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 ปุ่ม/แถว */
-  gap: 8px;
-  justify-content: center;
-}
+    .red-button { background: linear-gradient(135deg, #f85145, #c62828); }
+    .red-button:hover { background: linear-gradient(135deg, #ff0000, #b71c1c); }
 
-.medication-dose-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;                  /* กินเต็ม cell ของ grid */
-  height: 50px;
-  font-size: 14px;
-  text-align: center;
-  color: #fff;
-  background: linear-gradient(135deg, rgb(58, 175, 167), rgb(12, 115, 118));
-  border: none;
-  border-radius: 5px;
-  text-decoration: none;
-  box-shadow: 0 4px #999;
-  cursor: pointer;
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.1s;
-  box-sizing: border-box;
-}
-
-.medication-dose-button:hover {
-  background: linear-gradient(135deg, rgb(38, 145, 137), rgb(5, 95, 98));
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-}
-
-.medication-dose-button:active {
-  box-shadow: 0 3px #666;
-  transform: translateY(2px);
-}
-
-.red-button {
-  background: linear-gradient(135deg, #f85145, #c62828);
-}
-
-.red-button:hover {
-  background: linear-gradient(135deg, #ff0000, #b71c1c);
-}
-    /* ปุ่ม Back แบบใหม่ */
     .top-fix-actions {
       position: sticky;
       bottom: 12px;
@@ -166,14 +147,8 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.25);
       white-space: nowrap;
     }
-
-    .back-btn.alt {
-      background: #008CBA;
-    }
-
-    .back-btn:hover {
-      filter: brightness(1.05);
-    }
+    .back-btn.alt { background: #008CBA; }
+    .back-btn:hover { filter: brightness(1.05); }
 
     footer {
       text-align: center;
@@ -183,41 +158,21 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.6);
     }
 
-/* ===== มือถือ: 2 ปุ่ม/แถว ===== */
-@media (max-width: 600px) {
-  h1 {
-    font-size: 1.6em;
-    padding: 8px 18px;
-    margin-top: 14px;
-  }
-
-  .container {
-    padding: 14px;
-  }
-
-  .med-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* เหลือ 2 ปุ่มต่อแถว */
-    gap: 8px;
-  }
-
-  .medication-dose-button {
-    height: 48px;
-    font-size: 13px;
-  }
-
-  .letter-heading {
-    font-size: 16px;
-  }
-}
+    @media (max-width: 600px) {
+      h1 { font-size: 1.6em; padding: 8px 18px; margin-top: 14px; }
+      .container { padding: 14px; }
+      .med-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .medication-dose-button { height: 48px; font-size: 13px; }
+      .letter-heading { font-size: 16px; }
+    }
   </style>
 </head>
+
 <body>
   <div id="top"></div>
-
   <h1>Select a Medication</h1>
 
   <div class="container">
-    <!-- แถบ A–Z ด้านบน (เลือกเฉพาะตัวที่มีจริง) -->
     <div class="az-nav">
       <a href="#A" class="az-pill">A</a>
       <a href="#C" class="az-pill">C</a>
@@ -237,101 +192,84 @@
       <a href="#V" class="az-pill">V</a>
     </div>
 
-    <!-- กลุ่ม A -->
+    
+
+    <!-- A -->
     <section id="A" class="letter-group">
       <div class="letter-heading">A</div>
       <div class="med-grid">
-        <a href="./acyclovir_dose.html"
-           class="medication-dose-button">Acyclovir</a>
-
-        <a href="#" class="medication-dose-button">Albumin</a>
-        <a href="./amikin_dose.html"
-           class="medication-dose-button">Amikin</a>
-
-        <a href="./aminophylline_dose.html"
-           class="medication-dose-button red-button">
-          Aminophylline
-        </a>
-
-        <a href="./amoxicillin_clavimoxy_dose.html"
-           class="medication-dose-button">
-          Amoxicillin<br>Clavimoxy
-        </a>
-
-        <a href="./amphotericinB_dose.html"
-           class="medication-dose-button">
-          Amphotericin B
-        </a>
-
-        <a href="./ampicillin_dose.html"
-           class="medication-dose-button">
-          Ampicillin
-        </a>
+        
+          <a href="./acyclovir_dose.html" class="medication-dose-button">Acyclovir</a>
+          <a href="#" class="medication-dose-button">Albumin</a>
+          <a href="./amikin_dose.html" class="medication-dose-button">Amikin</a>
+          <a href="./aminophylline_dose.html" class="medication-dose-button red-button">Aminophylline</a>
+          <a href="./amoxicillin_clavimoxy_dose.html" class="medication-dose-button">Amoxicillin<br>Clavimoxy</a>
+          <a href="./amphotericinB_dose.html" class="medication-dose-button">Amphotericin B</a>
+          <a href="./ampicillin_dose.html" class="medication-dose-button">Ampicillin</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม C -->
+    <!-- C -->
     <section id="C" class="letter-group">
       <div class="letter-heading">C</div>
       <div class="med-grid">
-        <a href="./cefazolin_dose.html"
-           class="medication-dose-button">
-          CeFAZolin
-        </a>
-       <a href="./cefotaxime_dose.html" 
-            class="medication-dose-button">Cefotaxime</a>
-
-        <a href="#" class="medication-dose-button">CefTAZidime</a>
-        <a href="#" class="medication-dose-button">Clindamycin</a>
-        <a href="#" class="medication-dose-button">Chloral hydrate</a>
-        <a href="./cloxacillin_dose.html"
-           class="medication-dose-button">
-          Cloxacillin
-        </a>
-        <a href="./colistin_dose.html" 
-            class="medication-dose-button">Colistin</a>
+        
+          <a href="./cefazolin_dose.html" class="medication-dose-button">CeFAZolin</a>
+          <a href="./cefotaxime_dose.html" class="medication-dose-button">Cefotaxime</a>
+          <a href="#" class="medication-dose-button">CefTAZidime</a>
+          <a href="#" class="medication-dose-button">Clindamycin</a>
+          <a href="#" class="medication-dose-button">Chloral hydrate</a>
+          <a href="./cloxacillin_dose.html" class="medication-dose-button">Cloxacillin</a>
+          <a href="./colistin_dose.html" class="medication-dose-button">Colistin</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม D -->
+    <!-- D -->
     <section id="D" class="letter-group">
       <div class="letter-heading">D</div>
       <div class="med-grid">
-        <a href="#" class="medication-dose-button">Dexamethasone</a>
-        <a href="#" class="medication-dose-button">Digoxin</a>
-        <a href="#" class="medication-dose-button red-button">DOBUTamine</a>
-        <a href="#" class="medication-dose-button red-button">DOPamine</a>
+        
+          <a href="./dexamethasone.html" class="medication-dose-button">Dexamethasone</a>
+          <a href="#" class="medication-dose-button">Digoxin</a>
+          <a href="./dobutamine.html" class="medication-dose-button red-button">DOBUTamine</a>
+          <a href="./dopamine.html" class="medication-dose-button red-button">DOPamine</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม F -->
+    <!-- F -->
     <section id="F" class="letter-group">
       <div class="letter-heading">F</div>
       <div class="med-grid">
-        <a href="#" class="medication-dose-button red-button">Fentanyl</a>
+        
+          <a href="./fentanyl_small_dose.html" class="medication-dose-button red-button">Fentanyl</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม G -->
+    <!-- G -->
     <section id="G" class="letter-group">
       <div class="letter-heading">G</div>
       <div class="med-grid">
-        <a href="./gentamicin_dose.html"
-           class="medication-dose-button">
-          Gentamicin
-        </a>
+        
+          <a href="./gentamicin_dose.html" class="medication-dose-button">Gentamicin</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม H -->
+    <!-- H -->
     <section id="H" class="letter-group">
       <div class="letter-heading">H</div>
       <div class="med-grid">
-        <a href="#" class="medication-dose-button">Hydrocortisone</a>
+        
+          <a href="./hydrocortisone.html" class="medication-dose-button">Hydrocortisone</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม I -->
+    <!-- I -->
     <section id="I" class="letter-group">
       <div class="letter-heading">I</div>
       <div class="med-grid">
@@ -341,20 +279,21 @@
       </div>
     </section>
 
-    <!-- กลุ่ม M -->
+    <!-- M -->
     <section id="M" class="letter-group">
       <div class="letter-heading">M</div>
       <div class="med-grid">
-        <a href="./meropenem_dose.html" 
-            class="medication-dose-button">Meropenem</a>
-        <a href="#" class="medication-dose-button red-button">Midazolam</a>
-        <a href="#" class="medication-dose-button">Midazolam + Fentanyl</a>
-        <a href="#" class="medication-dose-button">Metronidazole<br>(Flagyl)</a>
-        <a href="#" class="medication-dose-button">Morphine</a>
+        
+          <a href="./meropenem_dose.html" class="medication-dose-button">Meropenem</a>
+          <a href="./midazolam.html" class="medication-dose-button red-button">Midazolam</a>
+          <a href="./midazolam_fentanyl.html" class="medication-dose-button">Midazolam + Fentanyl</a>
+          <a href="./metronidazole.html" class="medication-dose-button">Metronidazole<br>(Flagyl)</a>
+          <a href="./morphine.html" class="medication-dose-button">Morphine</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม N -->
+    <!-- N -->
     <section id="N" class="letter-group">
       <div class="letter-heading">N</div>
       <div class="med-grid">
@@ -363,7 +302,7 @@
       </div>
     </section>
 
-    <!-- กลุ่ม O -->
+    <!-- O -->
     <section id="O" class="letter-group">
       <div class="letter-heading">O</div>
       <div class="med-grid">
@@ -371,7 +310,7 @@
       </div>
     </section>
 
-    <!-- กลุ่ม P -->
+    <!-- P -->
     <section id="P" class="letter-group">
       <div class="letter-heading">P</div>
       <div class="med-grid">
@@ -381,7 +320,7 @@
       </div>
     </section>
 
-    <!-- กลุ่ม R -->
+    <!-- R -->
     <section id="R" class="letter-group">
       <div class="letter-heading">R</div>
       <div class="med-grid">
@@ -389,7 +328,7 @@
       </div>
     </section>
 
-    <!-- กลุ่ม S -->
+    <!-- S -->
     <section id="S" class="letter-group">
       <div class="letter-heading">S</div>
       <div class="med-grid">
@@ -398,7 +337,7 @@
       </div>
     </section>
 
-    <!-- กลุ่ม T -->
+    <!-- T -->
     <section id="T" class="letter-group">
       <div class="letter-heading">T</div>
       <div class="med-grid">
@@ -406,25 +345,27 @@
       </div>
     </section>
 
-    <!-- กลุ่ม U -->
+    <!-- U -->
     <section id="U" class="letter-group">
       <div class="letter-heading">U</div>
       <div class="med-grid">
-        <a href="./unasyun_dose.html" 
-          class="medication-dose-button">Unasyun</a>
+        
+          
+          <a href="./unasyn.html" class="medication-dose-button">Unasyn</a>
+        
       </div>
     </section>
 
-    <!-- กลุ่ม V -->
+    <!-- V -->
     <section id="V" class="letter-group">
       <div class="letter-heading">V</div>
       <div class="med-grid">
-        <a href="./vancomycin_dose.html"
-           class="medication-dose-button">
-          Vancomycin
-        </a>
+        
+          <a href="./vancomycin_dose.html" class="medication-dose-button">Vancomycin</a>
+        
       </div>
     </section>
+
   </div>
 
   <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
@@ -433,7 +374,37 @@
   </div>
 
   <footer>
-    <p>Developed by Sukhontha Boonsookchan | update 2025-12-04 12:38</p>
+    <p>Developed by Sukhontha Boonsookchan | update 2025-12-04 20:06</p>
   </footer>
+
+  
+  <script src="./static/patient_ctx.js"></script>
+  <script>
+    // 1) ดึง ctx (จาก querystring / sessionStorage)
+    const ctx = (window.NMC && typeof NMC.get === "function") ? NMC.get() : null;
+
+    // 2) ถ้ามี ctx → พ่วงให้ปุ่มยา (สำคัญมากสำหรับ GitHub Pages)
+    if (ctx && window.NMC && typeof NMC.applyToLinks === "function") {
+      // selector นี้ต้องตรงกับปุ่มยาจริง
+      NMC.applyToLinks("a.medication-dose-button", ctx);
+    } else {
+      // fallback เผื่อไม่มี patient_ctx.js: ต่อ query ตรง ๆ
+      const qs = location.search;
+      if (qs) {
+        document.querySelectorAll("a.medication-dose-button").forEach(a => {
+          const href = a.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          if (href.includes("pma_weeks=") || href.includes("bw=")) return;
+          a.setAttribute("href", href + (href.includes("?") ? "&" : "?") + qs.replace(/^\?/, ""));
+        });
+      }
+    }
+
+    // 3) (เสริม) ถ้ามี ctx ให้เก็บกลับ เพื่อให้หน้าถัดไปยังมีค่า แม้ user เปิดแท็บใหม่
+    if (ctx && window.NMC && typeof NMC.set === "function") {
+      NMC.set(ctx);
+    }
+  </script>
+
 </body>
 </html>
