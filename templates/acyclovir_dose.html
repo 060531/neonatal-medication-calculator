@@ -1,475 +1,357 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <title>Acyclovir Dosage</title>
-        <style>
-    html, body {
-    margin: 0;
-    padding: 0;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title>Acyclovir Dosage</title>
 
-.page-wrap {
-    max-width: 900px;               /* ความกว้างเนื้อหาจริง */
-    margin: 0 auto;                 /* จัดกลางจอ */
-    padding: 24px 24px 150px;       /* เว้นซ้าย-ขวาและเว้นล่างให้ปุ่มลอย */
-    box-sizing: border-box;
-    background-color: #fff;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-}
+  <style>
+    html, body { margin: 0; padding: 0; }
 
-/* พื้นหลัง body รอบนอก */
-body {
-    background-color: #f9f9f9;
-}
-
-/* หัวข้อ */
-h1 {
-    color: #fcf2f2;
-    font-size: 28px;
-    font-weight: bold;
-    padding: 10px;
-    border: 2px solid #afaaaa;
-    border-radius: 10px;
-    background-color: #2c8ed0;
-    text-align: center;
-}
-
-/* ตาราง ฯลฯ ของเดิมใช้ต่อได้ */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 16px;
-    text-align: center;
-}
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
-th { background-color: #f2f2f2; }
-
-/* =========================
-   แถบปุ่มลอยด้านล่าง
-   ========================= */
-.top-fix-actions {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: max(8px, env(safe-area-inset-bottom, 0px));
-
-    width: min(100% - 32px, 560px);   /* จอใหญ่ไม่เต็มจอ, จอเล็กเผื่อขอบ 16px ซ้ายขวา */
-    box-sizing: border-box;
-
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-
-    padding: 8px 12px;
-    border-radius: 16px;
-    background: rgba(0, 0, 0, 0.18);
-    backdrop-filter: blur(6px);
-    z-index: 1000;
-}
-
-/* ปุ่ม */
-.back-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    font-size: 16px;
-    text-decoration: none;
-    border-radius: 10px;
-    border: none;
-    box-shadow: 0 4px #999;
-    color: #fff;
-    background-color: #f44336;   /* Home = แดง */
-    cursor: pointer;
-    text-align: center;
-    line-height: 1.2;
-}
-
-.back-btn.alt {
-    background-color: #008CBA;   /* Back = ฟ้า */
-}
-
-.back-btn:hover {
-    filter: brightness(1.05);
-}
-.back-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px #666;
-}
-
-.button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .highlight {
-    background-color: #c3e6cb;
-}
-
-/* ใช้กับ Dose ที่เข้าเงื่อนไข */
-.highlight-green {
-    background-color: #c3e6cb;
-    padding: 4px 6px;
-    border-radius: 4px;
-}
-
-        .dose-range {
-            color: red;
-            font-weight: bold;
-        }
-
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .highlight-dose {
-            color: #ff5733;
-            font-size: 24px;
-            font-weight: bold;
-            background-color: #fbe9e7;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-
-          footer {
-            text-align: center;
-            color: #00000035;
-            font-size: 13px;
-            padding: 10px;
-            width: 100%;
-        }
-
-/* ===== จอเล็ก (มือถือ) ===== */
-@media (max-width: 600px) {
-
-    .page-wrap {
-        padding: 10px 10px 140px;   /* เว้นล่างเพิ่มให้ปุ่มไม่ทับข้อความ */
+    .page-wrap{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 150px;
+      box-sizing: border-box;
+      background-color: #fff;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
     }
 
-    h1 {
-        font-size: 20px;
-        padding: 6px;
+    body{ background-color:#f9f9f9; }
+
+    h1{
+      color:#fcf2f2;
+      font-size:28px;
+      font-weight:bold;
+      padding:10px;
+      border:2px solid #afaaaa;
+      border-radius:10px;
+      background-color:#2c8ed0;
+      text-align:center;
+      margin: 0 0 12px;
     }
 
-    table {
-        font-size: 14px;
+    .kv{ margin: 6px 0; }
+    .muted{ color:#64748b; }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin:20px 0;
+      font-size:16px;
+      text-align:center;
     }
-    th, td {
-        padding: 8px;
+    th, td{ padding:12px; border-bottom:1px solid #ddd; }
+    th{ background-color:#f2f2f2; }
+
+    .table-wrapper{ overflow-x:auto; -webkit-overflow-scrolling: touch; }
+
+    .top-fix-actions{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:max(8px, env(safe-area-inset-bottom, 0px));
+      width:min(100% - 32px, 560px);
+      box-sizing:border-box;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      padding:8px 12px;
+      border-radius:16px;
+      background:rgba(0,0,0,0.18);
+      backdrop-filter: blur(6px);
+      z-index:1000;
     }
 
-    .highlight-dose {
-                font-size: 18px; /* Adjust font size */
-            }
+    .back-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 20px;
+      font-size:16px;
+      text-decoration:none;
+      border-radius:10px;
+      border:none;
+      box-shadow:0 4px #999;
+      color:#fff;
+      background-color:#f44336;
+      cursor:pointer;
+      text-align:center;
+      line-height:1.2;
+      white-space: nowrap;
+    }
+    .back-btn.alt{ background-color:#008CBA; }
+    .back-btn:hover{ filter: brightness(1.05); }
+    .back-btn:active{ transform: translateY(2px); box-shadow:0 2px #666; }
 
-            .section-title {
-                font-size: 13px;
-            }
-
-            .table-wrapper {
-                overflow-x: auto; /* Allow horizontal scrolling */
-                margin-bottom: 14px;
-            }
-
-    .top-fix-actions {
-        width: min(100% - 20px, 420px);
-        bottom: max(10px, env(safe-area-inset-bottom, 0px));
-        gap: 8px;
+    .highlight-green{
+      background-color:#c3e6cb;
+      padding:4px 6px;
+      border-radius:4px;
     }
 
-    .back-btn {
-        font-size: 13px;         /* ลดขนาดตัวอักษร */
-        padding: 8px 10px;       /* ปุ่มเตี้ยลง */
-        flex: 1 1 0;             /* แบ่งพื้นที่ 2 ปุ่มเท่าๆ กัน */
+    .section-title{
+      margin-top:20px;
+      font-size:18px;
+      font-weight:bold;
     }
-}
 
-</style>
+    .highlight-dose{
+      color:#ff5733;
+      font-size:24px;
+      font-weight:bold;
+      background-color:#fbe9e7;
+      padding:5px 10px;
+      border-radius:5px;
+      display:inline-block;
+    }
 
+    footer{
+      text-align:center;
+      color:#00000035;
+      font-size:13px;
+      padding:10px;
+      width:100%;
+    }
+
+    @media (max-width:600px){
+      .page-wrap{ padding:10px 10px 140px; }
+      h1{ font-size:20px; padding:6px; }
+      table{ font-size:14px; }
+      th, td{ padding:8px; }
+      .highlight-dose{ font-size:18px; }
+      .section-title{ font-size:13px; }
+
+      .top-fix-actions{
+        width:min(100% - 20px, 420px);
+        bottom:max(10px, env(safe-area-inset-bottom, 0px));
+        gap:8px;
+      }
+      .back-btn{
+        font-size:13px;
+        padding:8px 10px;
+        flex:1 1 0;
+      }
+    }
+  </style>
 </head>
-<body>
+
+<body
+  data-pma-weeks="{{ pma_weeks|default('', true) }}"
+  data-pma-days="{{ pma_days|default('', true) }}"
+  data-calc="{{ calc|default('', true) }}"
+  data-postnatal-days="{{ postnatal_days|default('', true) }}"
+  data-bw="{{ bw|default('', true) }}"
+  data-interval="{{ interval|default('', true) }}"
+>
   <div class="page-wrap">
     <h1>Acyclovir Dosage Information</h1>
-    <!-- Display the calculated PMA and Postnatal Age -->
-    <p><strong>PMA:</strong>
+
+    <!-- ===== Header summary (Flask render OR JS fill) ===== -->
+    <p class="kv"><strong>PMA:</strong>
+      <span id="pmaText">
         {% if pma_weeks is not none and pma_days is not none %}
-            {{ pma_weeks }} weeks and {{ pma_days }} days
+          {{ pma_weeks }} weeks and {{ pma_days }} days
         {% else %}
-            -
+          <span class="muted">-</span>
         {% endif %}
+      </span>
     </p>
-    <p><strong>Calc.:</strong>
+
+    <p class="kv"><strong>Calc.:</strong>
+      <span id="calcText">
         {% if calc is not none %}
-            {{ calc }} weeks
+          {{ calc }} weeks
         {% else %}
-            -
+          <span class="muted">-</span>
         {% endif %}
+      </span>
     </p>
-    <p><strong>Postnatal Age:</strong>
+
+    <p class="kv"><strong>Postnatal Age:</strong>
+      <span id="postText">
         {% if postnatal_days is not none %}
-            {{ postnatal_days }} days
+          {{ postnatal_days }} days
         {% else %}
-            -
+          <span class="muted">-</span>
         {% endif %}
+      </span>
     </p>
 
+    <div class="section-title">Calculated Dosage</div>
 
-   <!-- ส่วนแสดงผลลัพธ์การคำนวณ -->
-<div class="section-title">Calculated Dosage</div>
+    <p>Birth Weight (BW):
+      <span class="highlight-dose" id="bwText">
+        {% if not static_build and bw is not none %}
+          {{ "%.2f"|format(bw) }} kg
+        {% else %}
+          - kg
+        {% endif %}
+      </span>
+    </p>
 
-<p>Birth Weight (BW):
-  <span class="highlight-dose">
-    {% if not static_build and bw is not none %}
-  {{ "%.2f"|format(bw) }} kg
-{% else %}
-  - kg
-{% endif %}
-  </span>
-</p>
+    <p>Recommended Dose (20 mg/kg/dose):
+      <span class="highlight-dose" id="doseText">
+        {% if not static_build and min_dose is not none %}
+          {{ "%.2f"|format(min_dose) }} mg / dose
+        {% else %}
+          - mg / dose
+        {% endif %}
+      </span>
+    </p>
 
-<p>Recommended Dose (20 mg/kg/dose):
-  <span class="highlight-dose">
-    {% if not static_build %}
-  {{ "%.2f"|format(min_dose) }} mg / dose
-{% else %}
-  - mg / dose
-{% endif %}
-  </span>
-</p>
-
-<p>Interval:
-  <span class="highlight-dose">
-    {{ interval }}
-  </span>
-</p>
-
-
+    <p>Interval:
+      <span class="highlight-dose" id="intervalText">
+        {% if not static_build and interval %}
+          {{ interval }}
+        {% else %}
+          -
+        {% endif %}
+      </span>
+    </p>
 
     <br>
 
     <div class="section-title">Dose - Acyclovir</div>
 
-<p class="{% if (calc or 0)|float < 30 %}highlight-green{% endif %}">
-  <strong>Less than 30 weeks postmenstrual age: </strong>
-  20 mg/kg IV every 8 to 12 hours
-</p>
+    <!-- ✅ ใช้ id เพื่อให้ JS toggle ได้ชัวร์ใน GitHub Pages -->
+    <p id="ruleLt30"
+       class="{% if not static_build and (calc or 0)|float < 30 %}highlight-green{% endif %}">
+      <strong>Less than 30 weeks postmenstrual age: </strong>
+      20 mg/kg IV every 8 to 12 hours
+    </p>
 
-<p class="{% if (calc or 0)|float >= 30 %}highlight-green{% endif %}">
-  <strong>30 weeks or more postmenstrual age: </strong>
-  20 mg/kg IV every 8 hours
-</p>
+    <p id="ruleGe30"
+       class="{% if not static_build and (calc or 0)|float >= 30 %}highlight-green{% endif %}">
+      <strong>30 weeks or more postmenstrual age: </strong>
+      20 mg/kg IV every 8 hours
+    </p>
 
+    <p>
+      Treat localized herpes simplex disease for 14 days and disseminated or CNS disease for 21 days.
+      Continue IV therapy for another 7 days, when repeat polymerase chain reaction
+      (cerebrospinal fluid herpes simplex virus) is positive after approximately 21 days of acyclovir therapy.
+      The duration for preemptive therapy without proven disease is 10 days
+    </p>
 
-
-
-    <p>Treat localized herpes simplex disease for 14 days and disseminated or CNS disease for 21 days. Continue IV therapy for another 7 days, when repeat polymerase chain reaction (cerebrospinal fluid herpes simplex virus) is positive after approximately 21 days of acyclovir therapy. The duration for preemptive therapy without proven disease is 10 days</p>
     <br>
-    <p><strong>Herpes Simplex Virus Infection, Chronic Suppression:</strong> 300 mg/m<sup>2</sup> dose orally 3 times a day. Begin suppressive therapy immediately after IV treatment and continue for 6 months.</p>
+    <p><strong>Herpes Simplex Virus Infection, Chronic Suppression:</strong>
+      300 mg/m<sup>2</sup> dose orally 3 times a day. Begin suppressive therapy immediately after IV treatment and continue for 6 months.
+    </p>
+
     <br>
     <p><strong>Varicella-Zoster Virus Infection:</strong> 10 to 15 mg/kg/dose IV every 8 hours for 5 to 10 days.</p>
     <p><strong>Preterm Infant:</strong> Less than 33 weeks gestational age: give usual IV dose every 12 hours.</p>
 
     <br>
-    <!-- Renal Dose Adjustments -->
+
     <div class="section-title">Dose Adjustments</div>
     <p><strong>Preterm infant less than 33 weeks gestational age: </strong>give usual IV dose every 12 hours</p>
     <br>
+
     <p><strong>Renal</strong></p>
     <ul>
-        <li><strong>CrCl 25 to 50 mL/min/1.73 m<sup>2</sup> or serum creatinine (SCr) 0.8 to 1.1 mg/dL:</strong> give usual IV dose every 12 hours.</li>
-        <li><strong>CrCl 10 to 25 mL/min/1.73 m<sup>2</sup> or SCr 1.2 to 1.5 mg/dL:</strong> give usual IV dose every 24 hours.</li>
-        <li><strong>CrCl less than 10 mL/min/1.73 m<sup>2</sup> or SCr greater than 1.5 mg/dL or urine output less than 1 mL/kg/hour:</strong> decrease IV dose by 50% and give every 24 hours.</li>
+      <li><strong>CrCl 25 to 50 mL/min/1.73 m<sup>2</sup> or serum creatinine (SCr) 0.8 to 1.1 mg/dL:</strong> give usual IV dose every 12 hours.</li>
+      <li><strong>CrCl 10 to 25 mL/min/1.73 m<sup>2</sup> or SCr 1.2 to 1.5 mg/dL:</strong> give usual IV dose every 24 hours.</li>
+      <li><strong>CrCl less than 10 mL/min/1.73 m<sup>2</sup> or SCr greater than 1.5 mg/dL or urine output less than 1 mL/kg/hour:</strong> decrease IV dose by 50% and give every 24 hours.</li>
     </ul>
+
     <hr>
 
-    <!-- Administration Section -->
     <div class="section-title">Administration</div>
     <p><strong>Intravenous route:</strong> Administer as IV infusion over 1 hour at a concentration of 7 mg/mL or less in D<sub>5</sub>W or NS.</p>
     <p><strong>Oral route:</strong> take with or without food; for suspension, shake well before measuring each dose.</p>
+
     <hr>
 
-    <!-- Uses Section -->
     <div class="section-title">Uses</div>
-    <p><strong>Neonatal herpes simplex virus (HSV) infections, known or suspected:</strong> 
-    Acyclovir treatment should be initiated in all infants with herpes disease. In asymptomatic neonates born to women with active herpes lesions, initiation of acyclovir is dependent on risk of transmission to the neonate. Adverse effects (AE) were common, but severe AEs were rare with a median dose of acyclovir 60 mg/kgday IV in a retrospective review of Pediatrix Medical Group data (n-89 newborn infants)</p>
+    <p><strong>Neonatal herpes simplex virus (HSV) infections, known or suspected:</strong>
+      Acyclovir treatment should be initiated in all infants with herpes disease. In asymptomatic neonates born to women with active herpes lesions,
+      initiation of acyclovir is dependent on risk of transmission to the neonate. Adverse effects (AE) were common, but severe AEs were rare with a
+      median dose of acyclovir 60 mg/kgday IV in a retrospective review of Pediatrix Medical Group data (n-89 newborn infants)
+    </p>
+
     <br>
 
-    <!-- Dose Regimen -->
     <div class="section-title">Dose Regimen</div>
-    <p>Based on results from a clinical trial, the standard dose and dosing interval is 20 mg/kg IV every 8 hours (60 mg kg/day). Although mortality rate was reduced when compared with the 30 mg/kg/day (10 mg/kg/dose every 8 hours) regimen, the 60 mg/kg/day regimen still demonstrated a 24-month mortality rate of 31% among infants with disseminated HSV disease and 6% among infants with CNS HSV disease. Furthermore, the dose did not improve the rates of normal infant development.
-    Investigators of a small population pharmacokinetic study proposed the following frequencies for a 20 mg/kg dose: every 12 hours for infants less than 30 weeks postmenstrual age (PMA) (n=13 ), every 8 hours for infants 30 to less than 36 weeks PMA (n-9), and every 6 hours for infants 36 to 41 weeks PMA (n-6) to achieve a surrogate pharmacodynamic acyclovir target concentration of 3 mg L or more. This target concentration theoretically would achieve CSF concentrations of I mgLor more. Safety and efficacy were not evaluated with these regimens. One infant experienced an elevated serum creatinine, which was considered related to acyclovir. Doses greater than 80 mg/kg day (range 87 to 158 mg kg day) were administered to 47% of neonates (15 out of 32 infants)</p>
+    <p>
+      Based on results from a clinical trial, the standard dose and dosing interval is 20 mg/kg IV every 8 hours (60 mg kg/day).
+      Although mortality rate was reduced when compared with the 30 mg/kg/day (10 mg/kg/dose every 8 hours) regimen, the 60 mg/kg/day regimen still
+      demonstrated a 24-month mortality rate of 31% among infants with disseminated HSV disease and 6% among infants with CNS HSV disease.
+      Furthermore, the dose did not improve the rates of normal infant development.
+      Investigators of a small population pharmacokinetic study proposed the following frequencies for a 20 mg/kg dose:
+      every 12 hours for infants less than 30 weeks postmenstrual age (PMA) (n=13),
+      every 8 hours for infants 30 to less than 36 weeks PMA (n=9),
+      and every 6 hours for infants 36 to 41 weeks PMA (n=6) to achieve a surrogate pharmacodynamic acyclovir target concentration of 3 mg/L or more.
+    </p>
+
     <br>
 
-    <!-- Neonatal HSV infection, Chronic suppressive therapy -->
-    <div class="section-title">Neonatal HSV infection, Chronic suppressive therapy</div>
-    <p>Based on data reported from 2 parallel, phase Ill, double-blind, placebo-controlled studies (n-45 with CNS disease; n=29 with skin, eye, mouth (SEM) disease), 6 months of suppressive oral acyclovir therapy (300 mgm'dose 3 times a day started immediately after IV treatment for CNS HSV disease was associated with better neurological outcomes when compared with placebo. Of the 28 infants with CNS disease assessed at 12 months (acyclovir=16; placebo-12), Bayley Scales of Infant Development 2nd Edition) Mental Scores were significantly higher in patients receiving acyclovir compared with patients receiving placebo (88.24 vs 68.12; p-0.046) In patients with SEM disease receiving 6 months of suppressive oral acyclovir therapy started immediately after IV treatment, the time to 2 recurrences of skin lesions was 1.7 months longer in the treatment group compared with placebo. Of the 15 infants with SEM disease assessed at 12 months, there were no differences in Bayley scores between acyclovir and placebo. An absolute neutrophil count of 500 cells/mm' or less was reported in 20% to 25% of patients receiving acyclovir compared with 5% to 7% receiving placebo; no patient had complications associated with neutropenia.
-    In one case series (n-16), infants treated for CNS or disseminated HSV disease received oral acyclovir suppressive therapy for 2 years. Starting doses were 1200 to 1600 mgm' every 12 hours to achieve an acyclovir peak serum concentration greater than 2 mcg/mL. There was no control group; however, the authors concluded there were improved neurological outcomes in this cohort based on comparisons with historical information from other studies. In another case series (n=9) of infants with neonatal HSV infection n=8 with CNS disease; n= I with recurrent dermal and ophthalmic disease who received oral acyclovir suppressive therapy, initial oral acyclovir doses were 600 to 1400 mgm' every 8 to 12 hours. The mean acyclovir dose required to achieve the target peak concentration of 2 mcgmL or greater was 1340 mgm'dose given every 12 hours. Long term neurological development was normal in 7 of the 9 children; the 2 children who developed neurological impairment experienced a delay in oral therapy following completion of parenteral acyclovir therapy</p>
-    <br>
-    <p><strong>Varicella-zoster virus infections with CNS and pulmonary involvement.</strong> Acyclovir treatment is recommended in infants with varicella-zoster infection having CNS or pulmonary involvemen</p>
-    <hr>
-
-    <div class="section-title">Adverse Effects</div>
-    <p><strong>Common Adverse Effects: </strong> Common adverse events include nausea, vomiting, and rash</p>
-    <br>
-    <p><strong>Cardiovascular: </strong> Hypotension requiring inotropes (9%) occurred in a retrospective review of Pediatrix Medical Group data (n-89 newborn infants treated for herpes simplex virus disease)</p>
-
-    <p><strong>Hepatic: </strong> Elevations of hepatic transaminases (1% to 2%) and hematologic abnormalities less than 1% have occurred</p>
-
-    <p><strong>Hematologic: </strong> Leukopenia (16%) and thrombocytopenia (25%), which occurred within a median of 1 to 2 days, were common in a retrospective review of Pediatrix Medical Group data (n-89 newborn infants treated with high-dose acyclovir for herpes simplex virus disease). Neutropenia occurred in 6% of infants, most of whom were treated with granulocyte colony-stimulating factor. Severe hematologic events were rare (0% to 3%).
-    Among infants receiving high-dose acyclovir for neonatal HSV disease, the major toxicity was neutropenia (absolute neutrophil count less than 1000mm<sup>3</sup>), which was observed in 21% of children.
-    Thrombotic thrombocytopenic purpura/hemolytic uremic syndrome, resulting in death, have been reported in some immunocompromised patients receiving acyclovir. Overall, hematologic abnormalities occurred in less than 1%</p>
-
-    <p><strong>Immunologic: </strong> Resistant viral strains may emerge during long-term therapy; these patients are at high risk for progressive life threatening disease</p>
-
-    <p><strong>Neurological: </strong> Seizures (9) occurred in a retrospective review of Pediatrix Medical Group data (n 89 newborn infants treated with high-dose acyclovir for herpes simplex virus disease)</p>
-
-    <p><strong>Renal: </strong> Mild elevations of creatinine concentrations (2%) were reported in a retrospective review of Pediatrix Medical Group data (n-89 newborn infants treated with high-dose acyclovir for herpes simplex virus disease)<br>Grade 3 or higher nephrotoxicity was observed in 6% of children. Renal failure, in some cases fatal, has been reported. Use caution if giving concurrent nephrotoxic drugs. Dose adjustment required in renal impairment. Risk of transient renal dysfunction and crystalluria is minimized by slow infusion rates (over at least | hour) and adequate patient hydration.</p>
-
-    <p><strong>Vascular: </strong> Phlebitis may occur at IV site due to alkaline pH of 10</p>
-    <hr>
-
-    <!-- Monitoring -->
-    <div class="section-title">Monitoring</div>
-    <p>Periodic CBC. Follow renal and hepatic function. Monitor IV site for phlebitis-if noted, make infusion solution more dilute</p>
-    <hr>
-
-    <!-- Pharmacology -->
     <div class="section-title">Pharmacology</div>
-    <p>Antiviral drug that is preferentially taken up by infected cells; inhibits viral DNA synthesis. CSF concentrations are 30% to 50% of serum concentrations. Oral absorption is 15% to 30%. Most of administered dose is excreted unchanged in urine, primarily via glomerular filtration. Protein binding and metabolism are minimal. Serum half-life is 3 to 4 hours in patients with normal renal and hepatic function.<br><br>The clearance increased with time in the premature neonate from 0.21 | Uhrkg for those less than 30 weeks postmenstrual age (PMA), 0.449 Lhrkg for those 30 to less than 36 PMA, and 0.589 Lhrikg for those 36 to 41 PMA in a population pharmacokinetic study (n-28). The corresponding half-lives were 10.2 hours, 6.55 hours, and 3 hours. For 20 mgkg doses, the IV frequency suggested was every 12 hours for infants less than 30 weeks PMA, every 8 hours for infants 30 to less than 36 weeks PMA, and every 6 hours for infants 36 to 4l weeks PMA. These regimens were then assessed using a data set of 1000 infants to simulate acyclovir exposure. The proposed dosing regimens predict that the steady state plasma concentration at 50% of the dosing interval would be greater than or equal to 3 mg/L in greater than 90% of infants. Although, toxic levels are unknown, concentrations associated with neurotoxicity in a small amount of patients have been identified as 50 to 70 mg L. These predicted neurotoxic concentrations were exceeded in 0.9% and 0.3% of infants, respectively.
-    <br>Dosing simulations of the proposed and standard dose regimens using a database of 1000 infants provide the following percentages of infants who would be expected to achieve a target concentration of 3 mg/L or more</p>
+    <p>
+      Antiviral drug that is preferentially taken up by infected cells; inhibits viral DNA synthesis.
+      CSF concentrations are 30% to 50% of serum concentrations. Oral absorption is 15% to 30%.
+      Most of administered dose is excreted unchanged in urine, primarily via glomerular filtration.
+      Protein binding and metabolism are minimal.
+    </p>
 
-    <table>
-      <thead>
-        <tr>
-          <th colspan="6">Regimens and Target Concentrations</th>
-        </tr>
-        <tr>
-          <th rowspan="2" style="width: 20%;">Postmenstrual Age</th>
-          <th rowspan="2" style="width: 20%;">IV Dose</th>
-          <th rowspan="2" style="width: 10%;">N</th>
-          <th colspan="3" style="width: 50%;">
-            Percent of Infants with Concentrations of 3 mg/L or more
-          </th>
-        </tr>
-        <tr>
-          <th style="width: 10%;">Cmax at steady state</th>
-          <th style="width: 10%;">C50 at steady state</th>
-          <th style="width: 10%;">Cmin at steady state</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td colspan="6" class="regimen-heading">Proposed Regimen (Sampson, 2014)</td>
-        </tr>
-        <tr>
-          <td>Less than 30 weeks</td>
-          <td>20 mg/kg dose every 12 hours</td>
-          <td>218</td>
-          <td>100%</td>
-          <td>97%</td>
-          <td>89%</td>
-        </tr>
-        <tr>
-          <td>30 to less than 36 weeks</td>
-          <td>20 mg/kg dose every 8 hours</td>
-          <td>373</td>
-          <td>98%</td>
-          <td>94%</td>
-          <td>75%</td>
-        </tr>
-        <tr>
-          <td>36 weeks or older</td>
-          <td>20 mg/kg dose every 6 hours</td>
-          <td>409</td>
-          <td>96%</td>
-          <td>86%</td>
-          <td>56%</td>
-        </tr>
-        <tr>
-          <td colspan="6" class="regimen-heading"><strong> Standard Dose Regimen (Kimberlin, 2001)</strong></td>
-        </tr>
-        <tr>
-          <td>Less than 30 weeks</td>
-          <td>20 mg/kg dose every 8 hours</td>
-          <td>218</td>
-          <td>100%</td>
-          <td>100%</td>
-          <td>100%</td>
-        </tr>
-        <tr>
-          <td>30 to less than 36 weeks</td>
-          <td>20 mg/kg dose every 8 hours</td>
-          <td>373</td>
-          <td>98%</td>
-          <td>94%</td>
-          <td>74%</td>
-        </tr>
-        <tr>
-          <td>36 weeks or older</td>
-          <td>20 mg/kg dose every 8 hours</td>
-          <td>409</td>
-          <td>94%</td>
-          <td>70%</td>
-          <td>10%</td>
-        </tr>
-        <tr>
-          <td colspan="6" style="text-align: left;"><strong>KEY:</strong> C50 at steady state = steady state plasma concentrations at 50% of the dosing interval</td>
-        </tr>
-        <tr>
-          <td colspan="6" style="text-align: left;">Sampson, 2014</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- ✅ wrap table for mobile -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th colspan="6">Regimens and Target Concentrations</th></tr>
+          <tr>
+            <th rowspan="2" style="width:20%;">Postmenstrual Age</th>
+            <th rowspan="2" style="width:20%;">IV Dose</th>
+            <th rowspan="2" style="width:10%;">N</th>
+            <th colspan="3" style="width:50%;">Percent of Infants with Concentrations of 3 mg/L or more</th>
+          </tr>
+          <tr>
+            <th style="width:10%;">Cmax</th>
+            <th style="width:10%;">C50</th>
+            <th style="width:10%;">Cmin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6"><strong>Proposed Regimen (Sampson, 2014)</strong></td></tr>
+          <tr><td>Less than 30 weeks</td><td>20 mg/kg q12h</td><td>218</td><td>100%</td><td>97%</td><td>89%</td></tr>
+          <tr><td>30 to &lt; 36 weeks</td><td>20 mg/kg q8h</td><td>373</td><td>98%</td><td>94%</td><td>75%</td></tr>
+          <tr><td>≥ 36 weeks</td><td>20 mg/kg q6h</td><td>409</td><td>96%</td><td>86%</td><td>56%</td></tr>
+          <tr><td colspan="6"><strong>Standard Dose Regimen (Kimberlin, 2001)</strong></td></tr>
+          <tr><td>Less than 30 weeks</td><td>20 mg/kg q8h</td><td>218</td><td>100%</td><td>100%</td><td>100%</td></tr>
+          <tr><td>30 to &lt; 36 weeks</td><td>20 mg/kg q8h</td><td>373</td><td>98%</td><td>94%</td><td>74%</td></tr>
+          <tr><td>≥ 36 weeks</td><td>20 mg/kg q8h</td><td>409</td><td>94%</td><td>70%</td><td>10%</td></tr>
+          <tr><td colspan="6" style="text-align:left;"><strong>KEY:</strong> C50 = concentration at 50% dosing interval</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <hr>
-    <div class="section-title">Special Considerations/Preparation</div>
-    <p><strong>Injection</strong></p>
-    <p><strong>Availability: </strong> Solution (50 mg/mL) or as powder for solution in 500-mg and I g vials.
-    Prepare powder for solution by dissolving contents of 500-mg vial in 10 mL sterile water for injection. Reconstituted solution is stable at room temperature for 12 hours. <strong>Do not
-    refrigerate</strong></p>
 
-    <div class="section-title">Infusion solution concentration should be no greater than 7 mg/mL</div>
-    <p>A 5-mg mL dilution may be made by adding 1 mL of 50 mg/mL concentration to 9 mL of preservative-free normal saline. Dilution should be used within 24 hours.</p>
-
-    <div class="section-title">Oral</div>
-    <p>Oral suspension available in 200-mg/5 mL concentration. Store at room temperature. Shake well before administration</p>
-    <hr>
-
-    <div class="section-title">Solution Compatibility</div>
-    <p>D<sub>5</sub>W and NS.</p>
-    <hr>
-
-    <div class="section-title">Terminal Injection Site Compatibility</div>
-    <p>Amikacin, ampicillin, aminophylline, cefazolin, cefotaxime, cefoxitin, cefazidime, ceftriaxone, chloramphenicol, cimetidine, clindamycin, dexamethasone, erythromycin lactobionate, famotidine, fluconazole, gentamicin, heparin, hydrocortisone succinate, imipenem/cilastatin, linezolid, lorazepam, magnesium sulfate, metoclopramide, metronidazole, milrinone, morphine, nafcillin, oxacillin, penicillin G, pentobarbital, piperacillin, potassium chloride, propofol, ranitidine, remifentanil, sodium bicarbonate, theophylline, ticarcillin, tobramycin, trimethoprim/sulfamethoxazole, vancomycin, and zidovudine.</p>
-    <hr>
-
-    <div class="section-title">Terminal Injection Site Incompatibility</div>
-    <p>Fat emulsion, aztreonam, caffeine citrate, caspofungin, cefepime, dobutamine, dopamine, meropenem, piperacillin-tazobactam.</p>
-    <hr>
-
-          <footer>
-        <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
-      </footer>
-            </div>
-
+    <footer>
+      <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
+    </footer>
+  </div>
 
   <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
     <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
     <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
   </div>
 
+  <!-- ===== Static mode: fill from patient_ctx.js ===== -->
+  {% include "_dose_ctx_block.html" %}
+<script>
+  DosePage.run({
+    drug: "acyclovir",
+    doseMgPerKg: 20,
+    interval: (ctx) => (Number(ctx.calc||0) < 30 ? "IV every 8–12 hours" : "IV every 8 hours"),
+    highlightRules: [
+      { id: "ruleLt30", when: (ctx)=> Number(ctx.calc||0) < 30 },
+      { id: "ruleGe30", when: (ctx)=> Number(ctx.calc||0) >= 30 }
+    ]
+  });
+</script>
 
 </body>
 </html>

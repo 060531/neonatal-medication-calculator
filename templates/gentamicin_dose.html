@@ -184,6 +184,8 @@
     {% set pnd = (postnatal_days|nz(0)) %}
 
     <h1>Gentamicin Dosage Information</h1>
+{% include "_dose_ctx_block.html" %}
+
 
     <!-- PMA / Calc / PNA / BW -->
     <p><strong>PMA:</strong>
