@@ -320,8 +320,8 @@
     <!-- ผลลัพธ์รอบที่ 2 -->
     <div id="mult-result"
          class="result"
-         style="{% if final_result_1 is not none and final_result_2 is not none %}display:block{% else %}display:none{% endif %}">
-      {% if final_result_1 is not none and final_result_2 is not none and result_ml_2 is not none %}
+         style="{% if final_result_1 is defined and final_result_2 is defined and final_result_1 is not none and final_result_2 is not none %}display:block{% else %}display:none{% endif %}">
+      {% if final_result_1 is defined and final_result_2 is defined and result_ml_2 is defined and final_result_1 is not none and final_result_2 is not none and result_ml_2 is not none %}
         {% set diluent_ml = (final_result_2 - final_result_1) %}
         <p class="order-line"><b>ผลลัพธ์หลังคูณ {{ multiplication }} เท่า</b></p>
         <div class="left-align">

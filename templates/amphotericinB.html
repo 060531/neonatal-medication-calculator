@@ -290,7 +290,7 @@
       </form>
     </div>
 
-    {% if final_result_1 is not none and final_result_2 is not none %}
+    {% if final_result_1 is defined and final_result_2 is defined and final_result_1 is not none and final_result_2 is not none %}
       <div class="result">
         <p><b>ผลลัพธ์หลังจากคูณ {{ multiplication|fmt(2) }} เท่า</b></p>
 
@@ -316,10 +316,8 @@
 
           <p>
             <b>ตัวทำละลายเพื่อให้ ≤ 0.1 mg/mL:</b>
-            <span class="pill">{{ (final_result_2 - final_result_1)|fmt(2) }}</span> mL
-            <span class="muted">
-              ({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }})
-            </span>
+          <span class="pill">{{ (final_result_2 - final_result_1)|fmt(2) }}</span> mL
+          <span class="muted">({{ final_result_2|fmt(2) }} − {{ final_result_1|fmt(2) }})</span>
           </p>
 
           <p>
