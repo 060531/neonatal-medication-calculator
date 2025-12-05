@@ -195,48 +195,58 @@
 
   <div class="page-wrap">
     <h1>Cefotaxime Dosage Information</h1>
-cat > templates/_dose_ctx_block.html <<'HTML'
-<!-- ===== Dose ctx runtime (Flask + GitHub Pages) ===== -->
-<script>
-(function () {
-  function loadScript(src){
-    return new Promise((resolve,reject)=>{
-      const s=document.createElement("script");
-      s.src=src; s.defer=true;
-      s.onload=()=>resolve(src);
-      s.onerror=reject;
-      document.head.appendChild(s);
-    });
-  }
-  async function loadAny(list){
-    for (const src of list){
-      try { return await loadScript(src); } catch(e) {}
-    }
-    throw new Error("Cannot load any: " + list.join(", "));
-  }
 
-  window.__loadDoseDeps = async function(){
-    // patient_ctx.js -> provides window.NMC
-    await loadAny(["/static/patient_ctx.js","./static/patient_ctx.js"]);
-    // dose_page.js -> provides window.DosePage
-    await loadAny(["/static/dose_page.js","./static/dose_page.js"]);
-  };
-})();
-</script>
 
-<script>
-(async function(){
-  try{
-    await window.__loadDoseDeps();
-    if (window.DosePage && typeof window.DosePage.runAuto === "function") {
-      window.DosePage.runAuto();
-    }
-  }catch(e){
-    console.warn("Dose deps not loaded / runAuto failed:", e);
-  }
-})();
-</script>
-HTML
+
+<section class="dose-ctx" aria-label="Patient context">
+  <p><strong>PMA:</strong>
+    <span id="pmaText">
+      
+        -
+      
+    </span>
+  </p>
+
+  <p><strong>Calc.:</strong>
+    <span id="calcText">
+      
+        -
+      
+    </span>
+  </p>
+
+  <p><strong>Postnatal Age:</strong>
+    <span id="postText">
+      
+        -
+      
+    </span>
+  </p>
+
+  <p><strong>Birth Weight (BW):</strong>
+    <span class="highlight-dose" id="bwText">
+      
+        - kg
+      
+    </span>
+  </p>
+
+  <p><strong>Recommended Dose:</strong>
+    <span class="highlight-dose" id="doseText">
+      
+        - mg/dose
+      
+    </span>
+  </p>
+
+  <p><strong>Interval:</strong>
+    <span class="highlight-dose" id="intervalText">
+      
+        -
+      
+    </span>
+  </p>
+</section>
 
 
     <!-- PMA / Calc / PNA / BW -->
@@ -493,7 +503,7 @@ HTML
     <p><strong>Storage:</strong> Reconstituted solution for IV use is stable for 24 hours at room temperature and 7 days refrigerated.</p>
 
     <footer class="page-footer">
-      <p>Developed by Sukhontha Boonsookchan | update 2025-12-04 20:03</p>
+      <p>Developed by Sukhontha Boonsookchan | update 2025-12-05 00:11</p>
     </footer>
   </div>
 
