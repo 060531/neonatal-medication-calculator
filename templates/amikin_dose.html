@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Amikacin Dosage Information</title>
 
   <style>
@@ -16,10 +16,14 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 20px 20px 150px; /* เผื่อปุ่มลอยด้านล่าง */
+      padding: 20px;
       background-color: #fff;
       border-radius: 10px;
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-wrap{
+      padding-bottom: 160px; /* กันแถบปุ่มลอยทับเนื้อหา */
       box-sizing: border-box;
     }
 
@@ -32,13 +36,23 @@
       border-radius: 10px;
       background-color: #2c8ed0;
       text-align: center;
-      margin-top: 0;
     }
 
-    .section-title {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
     }
 
     .highlight {
@@ -47,6 +61,12 @@
 
     .dose-range {
       color: red;
+      font-weight: bold;
+    }
+
+    .section-title {
+      margin-top: 20px;
+      font-size: 18px;
       font-weight: bold;
     }
 
@@ -60,36 +80,18 @@
       display: inline-block;
     }
 
-    /* ===== table wrapper ให้เลื่อนแนวนอนในมือถือ ===== */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-bottom: 15px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-      font-size: 16px;
-      text-align: center;
-      min-width: 680px; /* จอเล็กจะเลื่อนแทนการบีบ */
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-      vertical-align: top;
-    }
-
-    th { background-color: #f2f2f2; }
-
     footer {
       text-align: center;
       color: #00000035;
       font-size: 13px;
       padding: 10px;
       width: 100%;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 15px;
     }
 
     /* =========================
@@ -100,14 +102,11 @@
       left: 50%;
       transform: translateX(-50%);
       bottom: max(8px, env(safe-area-inset-bottom, 0px));
-
       width: min(100% - 32px, 560px);
       box-sizing: border-box;
-
       display: flex;
       justify-content: center;
       gap: 12px;
-
       padding: 8px 12px;
       border-radius: 16px;
       background: rgba(0, 0, 0, 0.18);
@@ -130,10 +129,11 @@
       cursor: pointer;
       text-align: center;
       line-height: 1.2;
-      white-space: nowrap;
     }
 
-    .back-btn.alt { background-color: #008CBA; }
+    .back-btn.alt {
+      background-color: #008CBA;
+    }
 
     .back-btn:hover { filter: brightness(1.05); }
     .back-btn:active {
@@ -141,24 +141,21 @@
       box-shadow: 0 2px #666;
     }
 
-    /* ===== Mobile ===== */
     @media (max-width: 600px) {
-      body { padding: 10px; margin: 10px; }
-
-      .container {
-        padding: 10px 10px 140px;
-      }
+      body { padding: 10px; }
 
       h1 {
         font-size: 20px;
         padding: 6px;
       }
 
+      table { font-size: 14px; }
+      th, td { padding: 8px; }
+
       .highlight-dose { font-size: 18px; }
       .section-title { font-size: 13px; }
 
-      table { font-size: 14px; }
-      th, td { padding: 8px; }
+      .page-wrap { padding: 10px 10px 170px; }
 
       .top-fix-actions {
         width: min(100% - 20px, 420px);
@@ -173,61 +170,26 @@
       }
     }
   </style>
+
+  {# IMPORTANT: โหลด JS ให้ถูกทั้ง Flask และ GitHub Pages #}
+  {% set static_build = static_build|default(false) %}
+  <script defer src="{{ './static/dose_page.js' if static_build else url_for('static', filename='dose_page.js') }}"></script>
 </head>
 
 <body>
-{% set static_build = static_build|default(false) %}
 {% set pw  = pma_weeks|nz(0) %}
 {% set pnd = postnatal_days|nz(0) %}
 {% set bw0 = bw|nz(0) %}
 
-<div class="container">
-
+<div class="container page-wrap">
   <h1>Amikacin Dosage Information</h1>
 
   {% include "_dose_ctx_block.html" %}
 
-  <!-- ===== Header summary (Flask render OR JS fill) ===== -->
-  <p><strong>PMA:</strong> <span id="pmaText">
-    {% if pma_weeks is not none and pma_days is not none %}
-      {{ pma_weeks }} weeks and {{ pma_days }} days
-    {% else %}-{% endif %}
-  </span></p>
-
-  <p><strong>Calc.:</strong> <span id="calcText">
-    {% if calc is not none %}{{ calc }} weeks{% else %}-{% endif %}
-  </span></p>
-
-  <p><strong>Postnatal Age:</strong> <span id="postText">
-    {% if postnatal_days is not none %}{{ postnatal_days }} days{% else %}-{% endif %}
-  </span></p>
-
-  <p><strong>Birth Weight (BW):</strong>
-    <span class="highlight-dose" id="bwText">
-      {% if not static_build and bw is not none %}{{ bw|fmt(3) }} kg{% else %}- kg{% endif %}
-    </span>
-  </p>
-
-  <p><strong>Recommended Dose:</strong>
-    <span class="highlight-dose" id="doseText">
-      {% if not static_build and calculated_dose is not none %}
-        {{ calculated_dose|fmt_int }} mg/dose
-      {% else %}
-        - mg/dose
-      {% endif %}
-    </span>
-  </p>
-
-  <p><strong>Interval:</strong>
-    <span class="highlight-dose" id="intervalText">
-      {% if not static_build and interval %}{{ interval }}{% else %}-{% endif %}
-    </span>
-  </p>
-
-  <!-- ===== Calculated dose block (กันพังตอน static) ===== -->
+  <!-- Display the calculated dosage for neonates -->
   <div class="section-title">Calculated Dosage for Neonates</div>
   <p><strong>Recommended Dose:</strong>
-    <span class="highlight-dose">
+    <span class="highlight-dose" id="doseText2">
       {% if not static_build and calculated_dose is not none %}
         {{ calculated_dose|fmt_int }} mg/dose
       {% else %}
@@ -237,7 +199,7 @@
   </p>
 
   <br>
-  <span style="color:#a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
+  <span style="color: #a4a0a0;"><strong>DOSING/ADMINISTRATION</strong></span>
   <hr>
 
   <div class="section-title">Dose</div>
@@ -258,27 +220,27 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="{% if (bw0 > 0) and (bw0 <= 0.8) %}highlight{% endif %}">
+        <tr class="{% if (bw|nz(0)) <= 0.8 %} highlight {% endif %}">
           <td>800 g or less</td>
           <td>16 mg/kg/dose every 48 hours</td>
           <td>20 mg/kg/dose every 42 hours</td>
         </tr>
-        <tr class="{% if (bw0 > 0) and (bw0 > 0.8 and bw0 <= 1.2) %}highlight{% endif %}">
+        <tr class="{% if (bw|nz(0)) > 0.8 and (bw|nz(0)) <= 1.2 %} highlight {% endif %}">
           <td>801 to 1200 g</td>
           <td>16 mg/kg/dose every 42 hours</td>
           <td>20 mg/kg/dose every 36 hours</td>
         </tr>
-        <tr class="{% if (bw0 > 0) and (bw0 > 1.2 and bw0 <= 2.0) %}highlight{% endif %}">
+        <tr class="{% if (bw|nz(0)) > 1.2 and (bw|nz(0)) <= 2.0 %} highlight {% endif %}">
           <td>1201 to 2000 g</td>
           <td>15 mg/kg/dose every 36 hours</td>
           <td>18 mg/kg/dose every 30 hours</td>
         </tr>
-        <tr class="{% if (bw0 > 0) and (bw0 > 2.0 and bw0 <= 2.8) %}highlight{% endif %}">
+        <tr class="{% if (bw|nz(0)) > 2.0 and (bw|nz(0)) <= 2.8 %} highlight {% endif %}">
           <td>2001 to 2800 g</td>
           <td>15 mg/kg/dose every 36 hours</td>
           <td>18 mg/kg/dose every 24 hours</td>
         </tr>
-        <tr class="{% if (bw0 > 0) and (bw0 > 2.8) %}highlight{% endif %}">
+        <tr class="{% if bw0 > 2.8 %} highlight {% endif %}">
           <td>2800 g or greater</td>
           <td>15 mg/kg/dose every 30 hours</td>
           <td>18 mg/kg/dose every 20 hours</td>
@@ -302,32 +264,32 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="{% if (pw > 0) and (pw <= 29 and pnd <= 7) %}highlight{% endif %}">
+        <tr class="{% if (pw|nz(0)) <= 29 and (pnd|nz(0)) <= 7 %} highlight {% endif %}">
           <td>29 weeks or less</td>
           <td>0 to 7 days</td>
           <td>14 mg/kg/dose every 48 hours</td>
         </tr>
-        <tr class="{% if (pw > 0) and (pw <= 29 and (pnd >= 8 and pnd <= 28)) %}highlight{% endif %}">
+        <tr class="{% if (pw|nz(0)) <= 29 and ((pnd|nz(0)) >= 8 and (pnd|nz(0)) <= 28) %} highlight {% endif %}">
           <td>29 weeks or less</td>
           <td>8 to 28 days</td>
           <td>12 mg/kg/dose every 36 hours</td>
         </tr>
-        <tr class="{% if (pw > 0) and (pw <= 29 and pnd > 28) %}highlight{% endif %}">
+        <tr class="{% if (pw|nz(0)) <= 29 and (pnd|nz(0)) > 28 %} highlight {% endif %}">
           <td>29 weeks or less</td>
           <td>29 days or older</td>
           <td>12 mg/kg/dose every 24 hours</td>
         </tr>
-        <tr class="{% if (pw > 0) and ((pw >= 30 and pw <= 34) and pnd <= 7) %}highlight{% endif %}">
+        <tr class="{% if ((pw|nz(0)) >= 30 and (pw|nz(0)) <= 34) and (pnd|nz(0)) <= 7 %} highlight {% endif %}">
           <td>30 to 34 weeks</td>
           <td>0 to 7 days</td>
           <td>12 mg/kg/dose every 36 hours</td>
         </tr>
-        <tr class="{% if (pw > 0) and ((pw >= 30 and pw <= 34) and pnd > 7) %}highlight{% endif %}">
+        <tr class="{% if ((pw|nz(0)) >= 30 and (pw|nz(0)) <= 34) and (pnd|nz(0)) > 7 %} highlight {% endif %}">
           <td>30 to 34 weeks</td>
           <td>8 days or older</td>
           <td>12 mg/kg/dose every 24 hours</td>
         </tr>
-        <tr class="{% if (pw > 0) and (pw >= 35) %}highlight{% endif %}">
+        <tr class="{% if pw >= 35 %} highlight {% endif %}">
           <td>35 weeks or more</td>
           <td>All ages</td>
           <td>12 mg/kg/dose every 24 hours</td>
@@ -338,113 +300,92 @@
 
   <div class="section-title">Dosage Adjustments</div>
   <p><strong>Coadministration with ibuprofen:</strong> Prolong the dosing interval by 10 hours when ibuprofen is administered.</p>
-  <p><strong>Hypothermia/Asphyxia:</strong> Dose interval was prolonged by 10 hours in neonates with asphyxia in a pharmacokinetic study. Alternatively, dose adjustment was suggested based on a population pharmacokinetic modeling and simulation of retrospectively collected data for near term neonates with perinatal asphyxia treated with therapeutic hypothermia (n=56) combined with published data of preterm and term neonates (n=874). Proposed regimen: 15 mg/kg/dose every 48 h for children between 1,200 g and 2,800 g and 15 mg/kg/ dose every 42 h for neonate above 2,800 g for the first 2 consecutive doses during hypothermia (33.5 degrees C) for target concentrations greater than 24 mg/L for peak and less than 5 mg/L for trough. Less than 17% of dose simulations had trough concentrations more than 5 mg/L</p>
+  <p><strong>Hypothermia/Asphyxia:</strong> Dose interval was prolonged by 10 hours in neonates with asphyxia in a pharmacokinetic study. Alternatively, dose adjustment was suggested based on a population pharmacokinetic modeling and simulation of retrospectively collected data for near term neonates with perinatal asphyxia treated with therapeutic hypothermia (n=56) combined with published data of preterm and term neonates (n=874). Proposed regimen: 15 mg/kg/dose every 48 h for children between 1,200 g and 2,800 g and 15 mg/kg/ dose every 42 h for neonate above 2,800 g for the first 2 consecutive doses during hypothermia (33.5 degrees C) for target concentrations greater than 24 mg/L for peak and less than 5 mg/L for trough. Less than 17% of dose simulations had trough concentrations more than 5 mg/L </p>
   <p><strong>Renal Impairment:</strong> Either prolong intervals or reduce dose.</p>
 
   <hr>
 
   <div class="section-title">Uses</div>
   <p>Amikacin was effective for infections caused by gram-negative bacilli that are resistant to other aminoglycosides. Usually used in combination with a B-lactam antibiotic for neonatal sepsis and other severe infections because of the possibility of infections due to gram-positive organisms such as streptococci or pneumococci</p>
-  <p><strong>Infective endocarditis:</strong> The following recommendations are based on a consensus of experts. The full pediatric guidelines can be found here: https://doi.org/10.1161/CIR.0000000000000298</p>
+  <p><strong>Infective endocarditis:</strong>  The following recommendations are based on a consensus of experts. The full pediatric guidelines can be found here: https://doi.org/10.1161/CIR.0000000000000298</p>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr><th colspan="3">Organism Directed Therapy</th></tr>
-      </thead>
-      <thead>
-        <tr>
-          <th>Organism</th>
-          <th>First-Choice</th>
-          <th>Alternative Choice</th>
-        </tr>
-      </thead>
-      <thead>
-        <tr>
-          <th>Streptococci</th>
-          <th colspan="2"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            Highly susceptible to penicillin G (MBC 0.1 mcg/mL or less); includes most viridans streptococci, groups A, B, C, G nonenterococcal, group D streptococci (S bovis, S equinus)
-          </td>
-          <td>Penicillin G or CefTRIAXone</td>
-          <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
-        </tr>
-        <tr>
-          <td>
-            Relatively resistant to penicillin (MBC 0.2 mcg/mL or more); less-susceptible viridans streptococci or enterococci
-          </td>
-          <td>
-            Penicillin G or Ampicillin + Gentamicin (for first 2 weeks, or entire course for enterococci)
-          </td>
-          <td>
-            Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone (for aminoglycoside (AMG)-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin (not for enterococcal endocarditis)
-          </td>
-        </tr>
-        <tr>
-          <td>Resistant to penicillin</td>
-          <td>Consult an infectious disease specialist.</td>
-          <td>---</td>
-        </tr>
-        <tr>
-          <td>
-            Staphylococci (S aureus or coagulase-negative staphylococci) † <br>
-            Penicillin G susceptible (1 mcg/mL or less) (rare)
-          </td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Penicillin G susceptible (1 mcg/mL or less) (rare)</td>
-          <td>Penicillin G</td>
-          <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
-        </tr>
-        <tr>
-          <td>Penicillin G resistant (0.1 mcg/mL)</td>
-          <td>Oxacillin or Nafcillin with or without Gentamicin</td>
-          <td>Vancomycin (for those highly allergic to beta-lactam antibiotics) or First-generation cephalosporin</td>
-        </tr>
-        <tr>
-          <td>Oxacillin (MRSA) resistant (4 mcg/mL)</td>
-          <td>Vancomycin</td>
-          <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
-        </tr>
-        <tr>
-          <td>Vancomycin resistant or intolerant</td>
-          <td>Daptomycin</td>
-          <td>Unknown</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td colspan="2">†When prosthetic material present add riFAMpin + gentamicin (for first 2 weeks) for all staphylococci</td>
-        </tr>
-        <tr>
-          <td>Gram-negative enteric bacilli</td>
-          <td>
-            CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone <br>
-            Plus gentamicin (or tobramycin or amikacin, depending on susceptibility)
-          </td>
-          <td>
-            Broad-spectrum penicillin Plus gentamicin (or tobramycin or amikacin)
-          </td>
-        </tr>
-        <tr>
-          <td>HACEK group</td>
-          <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
-          <td>Ampicillin (when susceptible) Plus aminoglycoside</td>
-        </tr>
-        <tr>
-          <td colspan="3">
-            KEY: AMG = aminoglycosides; HACEK = Haemophilus species, Aggregatibacter species,Cardiobacterium hominis, Eikenella corrodens, and Kingella species; MBC = minimum bactericidal concentration, MRSA = methicillin-resistant Staphylococcus aureus (includes resistance to oxacillin, nafcillin, and cephalosporins)
-          </td>
-        </tr>
-        <tr><td colspan="3">Baltimore, 2015</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- ===== เนื้อหาใหญ่ด้านล่างของคุณ (คงเดิม) ===== -->
+  <!-- (ผมไม่ตัดทิ้ง: วางต่อได้เหมือนเดิม และอยู่ใน wrapper แล้ว) -->
+
+  <table>
+    <thead>
+      <tr><th colspan="3">Organism Directed Therapy</th></tr>
+    </thead>
+    <thead>
+      <tr>
+        <th>Organism</th>
+        <th>First-Choice</th>
+        <th>Alternative Choice</th>
+      </tr>
+    </thead>
+    <thead>
+      <tr><th>Streptococci</th><th colspan="2"></th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Highly susceptible to penicillin G (MBC 0.1 mcg/mL or less); includes most viridans streptococci, groups A, B, C, G nonenterococcal, group D streptococci (S bovis, S equinus)</td>
+        <td>Penicillin G or CefTRIAXone</td>
+        <td>Vancomycin or First-generation cephalosporin or CefTRIAXone</td>
+      </tr>
+      <tr>
+        <td>Relatively resistant to penicillin (MBC 0.2 mcg/mL or more); less-susceptible viridans streptococci or enterococci</td>
+        <td>Penicillin G or Ampicillin + Gentamicin (for first 2 weeks, or entire course for enterococci)</td>
+        <td>Vancomycin + Gentamicin for enterococci or Ampicillin + CefTRIAXone (for aminoglycoside (AMG)-resistant enterococci or AMG-intolerant patient) or CefTRIAXone + Gentamicin (not for enterococcal endocarditis)</td>
+      </tr>
+      <tr>
+        <td>Resistant to penicillin</td>
+        <td>Consult an infectious disease specialist.</td>
+        <td>---</td>
+      </tr>
+      <tr>
+        <td>Staphylococci (S aureus or coagulase-negative staphylococci) † <br>Penicillin G susceptible (1 mcg/mL or less) (rare)</td>
+        <td></td><td></td>
+      </tr>
+      <tr>
+        <td>Penicillin G susceptible (1 mcg/mL or less) (rare)</td>
+        <td>Penicillin G</td>
+        <td>Oxacillin or Nafcillin or First-generation cephalosporin or Vancomycin</td>
+      </tr>
+      <tr>
+        <td>Penicillin G resistant (0.1 mcg/mL)</td>
+        <td>Oxacillin or Nafcillin with or without Gentamicin</td>
+        <td>Vancomycin (for those highly allergic to beta-lactam antibiotics) or First-generation cephalosporin</td>
+      </tr>
+      <tr>
+        <td>Oxacillin (MRSA) resistant (4 mcg/mL)</td>
+        <td>Vancomycin</td>
+        <td>Daptomycin for right-sided endocarditis, maybe for left-sided</td>
+      </tr>
+      <tr>
+        <td>Vancomycin resistant or intolerant</td>
+        <td>Daptomycin</td>
+        <td>Unknown</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td colspan="2">†When prosthetic material present add riFAMpin + gentamicin (for first 2 weeks) for all staphylococci</td>
+      </tr>
+      <tr>
+        <td>Gram-negative enteric bacilli</td>
+        <td>CefTAZidime or Cefepime or Cefotaxime or CefTRIAXone <br>Plus gentamicin (or tobramycin or amikacin, depending on susceptibility)</td>
+        <td>Broad-spectrum penicillin Plus gentamicin (or tobramycin or amikacin)</td>
+      </tr>
+      <tr>
+        <td>HACEK group</td>
+        <td>CefTRIAXone or Cefotaxime or Ampicillin-sulbactam</td>
+        <td>Ampicillin (when susceptible) Plus aminoglycoside</td>
+      </tr>
+      <tr>
+        <td colspan="3">KEY: AMG = aminoglycosides; HACEK = Haemophilus species, Aggregatibacter species,Cardiobacterium hominis, Eikenella corrodens, and Kingella species; MBC = minimum bactericidal concentration, MRSA = methicillin-resistant Staphylococcus aureus (includes resistance to oxacillin, nafcillin, and cephalosporins)</td>
+      </tr>
+      <tr><td colspan="3">Baltimore, 2015</td></tr>
+    </tbody>
+  </table>
 
   <div class="section-title">Sepsis</div>
   <p>Optimal treatment for suspected, early-onset sepsis is broad-spectrum antimicrobial coverage
@@ -696,8 +637,7 @@ days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
   <footer>
     <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
   </footer>
-
-</div><!-- /container -->
+</div>
 
 <div class="top-fix-actions" role="navigation" aria-label="Quick actions">
   <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
