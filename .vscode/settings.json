@@ -1,3 +1,4 @@
 {
-    "livePreview.defaultPreviewPath": "/templates/meropenam.html"
+    "livePreview.defaultPreviewPath": "/templates/meropenam.html",
+    "liveServer.settings.port": 5501
 }

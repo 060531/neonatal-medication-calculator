@@ -151,53 +151,53 @@
     <!-- ===== Header summary (Flask render OR JS fill) ===== -->
     <p class="kv"><strong>PMA:</strong>
       <span id="pmaText">
-        
-          0 weeks and 0 days
-        
-      </span>
+  
+    <span class="muted">-</span>
+  
+</span>
     </p>
 
     <p class="kv"><strong>Calc.:</strong>
       <span id="calcText">
-        
-           weeks
-        
-      </span>
+  
+    <span class="muted">-</span>
+  
+</span>
     </p>
 
     <p class="kv"><strong>Postnatal Age:</strong>
       <span id="postText">
-        
-           days
-        
-      </span>
+  
+    <span class="muted">-</span>
+  
+</span>
     </p>
 
     <div class="section-title">Calculated Dosage</div>
 
     <p>Birth Weight (BW):
-      <span class="highlight-dose" id="bwText">
-        
-          - kg
-        
-      </span>
-    </p>
+  <span class="highlight-dose" id="bwText">
+    
+      <span class="muted">-</span>
+    
+  </span>
+</p>
 
-    <p>Recommended Dose (20 mg/kg/dose):
-      <span class="highlight-dose" id="doseText">
-        
-          - mg / dose
-        
-      </span>
-    </p>
+<p>Recommended Dose (20 mg/kg/dose):
+  <span class="highlight-dose" id="doseText">
+    
+      <span class="muted">-</span>
+    
+  </span>
+</p>
 
-    <p>Interval:
-      <span class="highlight-dose" id="intervalText">
-        
-          -
-        
-      </span>
-    </p>
+<p>Interval:
+  <span class="highlight-dose" id="intervalText">
+    
+      <span class="muted">-</span>
+    
+  </span>
+</p>
 
     <br>
 
@@ -318,7 +318,7 @@
     <hr>
 
     <footer>
-      <p>Developed by Sukhontha Boonsookchan | update 2025-12-04 20:03</p>
+      <p>Developed by Sukhontha Boonsookchan | update 2025-12-05 09:56</p>
     </footer>
   </div>
 
@@ -328,58 +328,52 @@
   </div>
 
   <!-- ===== Static mode: fill from patient_ctx.js ===== -->
-  cat > templates/_dose_ctx_block.html <<'HTML'
-<!-- ===== Dose ctx runtime (Flask + GitHub Pages) ===== -->
 <script>
-(function () {
-  function loadScript(src){
-    return new Promise((resolve,reject)=>{
-      const s=document.createElement("script");
-      s.src=src; s.defer=true;
-      s.onload=()=>resolve(src);
-      s.onerror=reject;
-      document.head.appendChild(s);
-    });
-  }
-  async function loadAny(list){
-    for (const src of list){
-      try { return await loadScript(src); } catch(e) {}
-    }
-    throw new Error("Cannot load any: " + list.join(", "));
-  }
+(() => {
+  const qs = new URLSearchParams(location.search);
 
-  window.__loadDoseDeps = async function(){
-    // patient_ctx.js -> provides window.NMC
-    await loadAny(["/static/patient_ctx.js","./static/patient_ctx.js"]);
-    // dose_page.js -> provides window.DosePage
-    await loadAny(["/static/dose_page.js","./static/dose_page.js"]);
+  const getRaw = (k) => (qs.get(k) ?? "").toString().trim();
+  const toNum = (v) => {
+    if (v === "" || v === "-" || v == null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
   };
-})();
-</script>
 
-<script>
-(async function(){
-  try{
-    await window.__loadDoseDeps();
-    if (window.DosePage && typeof window.DosePage.runAuto === "function") {
-      window.DosePage.runAuto();
-    }
-  }catch(e){
-    console.warn("Dose deps not loaded / runAuto failed:", e);
+  const pmaWeeks = toNum(getRaw("pma_weeks"));
+  const pmaDays  = toNum(getRaw("pma_days"));
+  const calc     = toNum(getRaw("calc"));
+  const postDays = toNum(getRaw("postnatal_days"));
+  const bw       = toNum(getRaw("bw"));
+
+  const setText = (id, txt) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = txt;
+  };
+
+  // เติม header
+  if (pmaWeeks != null && pmaDays != null) setText("pmaText", `${pmaWeeks} weeks and ${pmaDays} days`);
+  if (calc != null) setText("calcText", `${calc.toFixed(1)} weeks`);
+  if (postDays != null) setText("postText", `${postDays} days`);
+
+  // คำนวณ dose
+  const doseMgPerKg = 20;
+  if (bw != null) {
+    setText("bwText", `${bw.toFixed(2)} kg`);
+    setText("doseText", `${(bw * doseMgPerKg).toFixed(2)} mg / dose`);
+  }
+
+  // interval + highlight ตาม calc
+  if (calc != null) {
+    const isLt30 = calc < 30;
+    setText("intervalText", isLt30 ? "IV every 8–12 hours" : "IV every 8 hours");
+
+    const ruleLt30 = document.getElementById("ruleLt30");
+    const ruleGe30 = document.getElementById("ruleGe30");
+    if (ruleLt30) ruleLt30.classList.toggle("highlight-green", isLt30);
+    if (ruleGe30) ruleGe30.classList.toggle("highlight-green", !isLt30);
   }
 })();
-</script>
-HTML
-<script>
-  DosePage.run({
-    drug: "acyclovir",
-    doseMgPerKg: 20,
-    interval: (ctx) => (Number(ctx.calc||0) < 30 ? "IV every 8–12 hours" : "IV every 8 hours"),
-    highlightRules: [
-      { id: "ruleLt30", when: (ctx)=> Number(ctx.calc||0) < 30 },
-      { id: "ruleGe30", when: (ctx)=> Number(ctx.calc||0) >= 30 }
-    ]
-  });
 </script>
 
 </body>

@@ -1,58 +1,6 @@
-venv/
-app.db
-app.db
-app.db
-app.db
-# SQLite DB
-app.db
-instance/app.db
-*.sqlite3
-*.sqlite
-*.db
-
-# Local backups
-_backup_*/
-*.backup.*
-*.before-uniq.*
-# SQLite DB
-app.db
-instance/app.db
-*.sqlite3
-*.sqlite
-*.db
-
-# Local backups
-_backup_*/
-*.backup.*
-*.before-uniq.*
-# SQLite DB
-app.db
-instance/app.db
-*.sqlite3
-*.sqlite
-*.db
-
-# Local backups
-_backup_*/
-*.backup.*
-*.before-uniq.*
-# SQLite DB
-app.db
-instance/app.db
-*.sqlite3
-*.sqlite
-*.db
-
-# Local backups
-_backup_*/
-*.backup.*
-*.before-uniq.*
+.venv-1/
 .venv/
 __pycache__/
 *.pyc
-.DS_Store
-instance/
 .env
-coverage*
-.pytest_cache/
-*.bak
+*.db

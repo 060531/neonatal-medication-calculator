@@ -6,10 +6,7 @@
   <title>Aminophylline Dosage</title>
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
+    html, body { margin: 0; padding: 0; }
 
     /* พื้นหลังรอบนอก */
     body {
@@ -51,6 +48,7 @@
       background-color: #fbe9e7;
       padding: 5px 10px;
       border-radius: 5px;
+      display: inline-block;
     }
 
     table {
@@ -66,9 +64,7 @@
       border-bottom: 1px solid #ddd;
     }
 
-    th {
-      background-color: #f2f2f2;
-    }
+    th { background-color: #f2f2f2; }
 
     footer.page-footer {
       text-align: center;
@@ -83,8 +79,7 @@
       left: 50%;
       transform: translateX(-50%);
       bottom: max(8px, env(safe-area-inset-bottom, 0px));
-
-      width: min(100% - 32px, 560px);   /* จอใหญ่ไม่เต็มจอ จอเล็กเว้นขอบ */
+      width: min(100% - 32px, 560px);
       box-sizing: border-box;
 
       display: flex;
@@ -115,46 +110,18 @@
       line-height: 1.2;
     }
 
-    .back-btn.alt {
-      background-color: #008CBA;   /* Back = ฟ้า */
-    }
-
-    .back-btn:hover {
-      filter: brightness(1.05);
-    }
-
-    .back-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 2px #666;
-    }
+    .back-btn.alt { background-color: #008CBA; } /* Back = ฟ้า */
+    .back-btn:hover { filter: brightness(1.05); }
+    .back-btn:active { transform: translateY(2px); box-shadow: 0 2px #666; }
 
     /* ============ มือถือ ============ */
     @media (max-width: 600px) {
-
-      .page-wrap {
-        padding: 10px 10px 160px;   /* เว้นล่างเพิ่มให้ไม่ชนปุ่ม */
-      }
-
-      h1 {
-        font-size: 20px;
-        padding: 6px;
-      }
-
-      .section-title {
-        font-size: 14px;
-      }
-
-      .highlight-dose {
-        font-size: 20px;
-      }
-
-      table {
-        font-size: 14px;
-      }
-
-      th, td {
-        padding: 8px;
-      }
+      .page-wrap { padding: 10px 10px 160px; }
+      h1 { font-size: 20px; padding: 6px; }
+      .section-title { font-size: 14px; }
+      .highlight-dose { font-size: 20px; }
+      table { font-size: 14px; }
+      th, td { padding: 8px; }
 
       .top-fix-actions {
         width: min(100% - 20px, 420px);
@@ -165,65 +132,28 @@
       .back-btn {
         font-size: 13px;
         padding: 8px 10px;
-        flex: 1 1 0;    /* สองปุ่มแบ่งพื้นที่เท่า ๆ กัน */
+        flex: 1 1 0;
       }
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="page-wrap">
     <h1>Aminophylline Dosage Information</h1>
-{% include "_dose_ctx_block.html" %}
 
-
-    <!-- PMA / PNA / BW -->
-    <p><strong>PMA:</strong>
-      {% if pma_weeks is not none and pma_days is not none %}
-        {{ pma_weeks }} weeks and {{ pma_days }} days
-      {% else %}
-        -
-      {% endif %}
-    </p>
-
-    <p><strong>Postnatal Age:</strong>
-      {% if postnatal_days is not none %}
-        {{ postnatal_days }} days
-      {% else %}
-        -
-      {% endif %}
-    </p>
-
-    <p><strong>Birth Weight (BW):</strong>
-      {% if bw is not none %}
-        {{ "%.2f"|format(bw) }} kg
-      {% else %}
-        -
-      {% endif %}
-    </p>
+    {# ✅ ใช้ dose ctx block เดิมของคุณเท่านั้น #}
+    {% include "_dose_ctx_block.html" %}
 
     <!-- Calculated doses -->
     <div class="section-title">Calculated Dosage for Neonates</div>
 
     <p><strong>Loading Dose:</strong>
-      <span class="highlight-dose">
-        {% if not static_build %}
-  {{ "%.2f"|format(loading_dose) }} mg
-{% else %}
-  - mg
-{% endif %}
-      </span>
+      <span class="highlight-dose" id="loadingDoseText">- mg</span>
     </p>
 
     <p><strong>Maintenance Dose:</strong>
-      <span class="highlight-dose">
-        {% if not static_build and maintenance_dose_min is not none and maintenance_dose_max is not none %}
-  {{ "%.2f"|format(maintenance_dose_min) }} to
-  {{ "%.2f"|format(maintenance_dose_max) }} mg
-{% else %}
-  - to - mg
-{% endif %}
-      </span>
+      <span class="highlight-dose" id="maintenanceDoseText">- to - mg</span>
     </p>
 
     <br>
@@ -260,63 +190,69 @@
 
     <hr>
     <div class="section-title">Terminal Injection Site Compatibility</div>
-    <p>Acyclovir, ampicillin, amikacin, aztreonam, caffeine citrate, calcium gluconate, ceftazidime,
+    <p>
+      Acyclovir, ampicillin, amikacin, aztreonam, caffeine citrate, calcium gluconate, ceftazidime,
       chloramphenicol, cimetidine, dexamethasone, dopamine, enalaprilat, erythromycin
       lactobionate, esmolol, famotidine, fluconazole, flumazenil, furosemide, heparin,
       hydrocortisone succinate, lidocaine, linezolid, meropenem, metoclopramide, midazolam,
       morphine, nafcillin, nicardipine, nitroglycerin, pancuronium bromide, pentobarbital,
       phenobarbital, piperacillin, piperacillin/tazobactam, potassium chloride, propofol,
-      prostaglandin E1, ranitidine, remifentanil, sodium bicarbonate, vancomycin, and vecuronium.</p>
+      prostaglandin E1, ranitidine, remifentanil, sodium bicarbonate, vancomycin, and vecuronium.
+    </p>
 
     <hr>
     <div class="section-title">Terminal Injection Site Incompatibility</div>
-    <p>Amiodarone, cefepime, ceftriaxone, ciprofloxacin, clindamycin, dobutamine, epinephrine,
-      hydralazine, insulin, isoproterenol, methylprednisolone, and penicillin G.</p>
+    <p>
+      Amiodarone, cefepime, ceftriaxone, ciprofloxacin, clindamycin, dobutamine, epinephrine,
+      hydralazine, insulin, isoproterenol, methylprednisolone, and penicillin G.
+    </p>
 
     <hr>
     <div class="section-title">Monitoring</div>
-    <p>Monitor heart rate and check blood glucose periodically with reagent strips. Assess for
-      agitation and feeding intolerance.</p>
+    <p>Monitor heart rate and check blood glucose periodically with reagent strips. Assess for agitation and feeding intolerance.</p>
     <p><strong>Consider withholding next dose if heart rate is greater than 180 beats per minute.</strong></p>
-    <p>When indicated by lack of efficacy or clinical signs of toxicity, serum trough concentration
-      should be obtained. Therapeutic ranges are:
+    <p>
+      When indicated by lack of efficacy or clinical signs of toxicity, serum trough concentration should be obtained.
+      Therapeutic ranges are:
       1) Apnea of prematurity: 7 to 12 mcg/mL.
-      2) Bronchospasm: 10 to 20 mcg/mL (older infants with bronchospasm may need these
-      higher levels because of increased protein binding).</p>
+      2) Bronchospasm: 10 to 20 mcg/mL (older infants with bronchospasm may need these higher levels because of increased protein binding).
+    </p>
 
     <br>
     <h3 style="color:#a4a0a0;"><strong>MECHANISM OF ACTION/PHARMACOKINETICS</strong></h3>
     <hr>
 
     <p><strong>Pharmacology</strong></p>
-    <p>Stimulates central respiratory drive and peripheral chemoreceptor activity. May increase
-      diaphragmatic contractility. Cerebral blood flow is acutely decreased following IV bolus dose.
-      Renal effects include diuresis and increased urinary calcium excretion. Stimulates gastric acid
-      secretion and may cause gastroesophageal reflux. Cardiac output is increased due to higher
-      sensitivity to catecholamines. Elimination in preterm infants is primarily as unchanged drug,
-      although significant interconversion to caffeine occurs. In the very immature neonate, the
-      serum half-life of theophylline is prolonged (20 to 30 hours). Theophylline metabolism and
-      clearance mature to adult values by 55 weeks postmenstrual age. Aminophylline salt is 78.9%
-      theophylline. Theophylline administered orally is approximately 80% bioavailable;
-      therefore, no dosage adjustment is necessary when changing from IV aminophylline to oral
-      theophylline.</p>
+    <p>
+      Stimulates central respiratory drive and peripheral chemoreceptor activity. May increase diaphragmatic contractility.
+      Cerebral blood flow is acutely decreased following IV bolus dose. Renal effects include diuresis and increased urinary
+      calcium excretion. Stimulates gastric acid secretion and may cause gastroesophageal reflux. Cardiac output is increased
+      due to higher sensitivity to catecholamines. Elimination in preterm infants is primarily as unchanged drug, although
+      significant interconversion to caffeine occurs. In the very immature neonate, the serum half-life of theophylline is
+      prolonged (20 to 30 hours). Theophylline metabolism and clearance mature to adult values by 55 weeks postmenstrual age.
+      Aminophylline salt is 78.9% theophylline. Theophylline administered orally is approximately 80% bioavailable; therefore,
+      no dosage adjustment is necessary when changing from IV aminophylline to oral theophylline.
+    </p>
 
     <br>
     <h3 style="color:#a4a0a0;"><strong>ABOUT</strong></h3>
     <hr>
 
     <div class="section-title">Special Considerations/Preparation</div>
-    <p><strong>Availability:</strong> Aminophylline for IV use (25 mg/mL) in 10- and 20-mL vials. Dilute 1 mL (25
-      mg) with 4 mL NS or D5W to yield a final concentration of 5 mg/mL. Stable for 4 days
-      refrigerated.</p>
-    <p>Oral theophylline is available only as an elixir at a concentration of 80 mg/15 mL (5.33
-      mg/mL) and contains 20% alcohol.
-      Aminophylline oral solution is no longer available.</p>
+    <p>
+      <strong>Availability:</strong> Aminophylline for IV use (25 mg/mL) in 10- and 20-mL vials. Dilute 1 mL (25 mg)
+      with 4 mL NS or D5W to yield a final concentration of 5 mg/mL. Stable for 4 days refrigerated.
+    </p>
+    <p>
+      Oral theophylline is available only as an elixir at a concentration of 80 mg/15 mL (5.33 mg/mL) and contains 20% alcohol.
+      Aminophylline oral solution is no longer available.
+    </p>
 
     <p><strong>Extemporaneous Suspension</strong></p>
-    <p>Oral aminophylline 3 mg/mL liquid suspension made with aminophylline injection 25 mg/mL
-      and mixed with 1:1 Ora Sweet/Ora Plus was stable for 91 days at 4°C and 25° C. Store in
-      amber glass bottle.</p>
+    <p>
+      Oral aminophylline 3 mg/mL liquid suspension made with aminophylline injection 25 mg/mL and mixed with 1:1 Ora Sweet/Ora Plus
+      was stable for 91 days at 4°C and 25° C. Store in amber glass bottle.
+    </p>
 
     <footer class="page-footer">
       <p>Developed by Sukhontha Boonsookchan | update {{ update_date }}</p>
@@ -328,6 +264,60 @@
     <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
     <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
   </div>
+
+  <script>
+  (function () {
+    const q = new URLSearchParams(location.search);
+
+    // รองรับชื่อพารามิเตอร์หลายแบบ (กันหลุดจากหน้าอื่น)
+    const pickNum = (...keys) => {
+      for (const k of keys) {
+        const v = q.get(k);
+        if (v === null || v === "") continue;
+        const n = Number(v);
+        if (Number.isFinite(n)) return n;
+      }
+      return null;
+    };
+
+    const bw   = pickNum("bw","BW","birth_weight","weight");
+    const pnd  = pickNum("postnatal_days","postnatal","pna_days");
+    const pw   = pickNum("pma_weeks","pma_w");
+    const pd   = pickNum("pma_days","pma_d");
+    const calc = pickNum("calc","calc_weeks");
+
+    const setText = (id, txt) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    };
+
+    // ✅ อัปเดต _dose_ctx_block.html ของคุณ (id จริง: pmaText / calcText / postText / bwText)
+    if (pw != null && pd != null) setText("pmaText", `${pw} weeks and ${pd} days`);
+    if (calc != null)            setText("calcText", `${calc} weeks`);
+    if (pnd != null)             setText("postText", `${pnd} days`);
+    if (bw != null)              setText("bwText", `${bw.toFixed(3)} kg`);
+
+    // ✅ Aminophylline dosing logic
+    // Loading: 8 mg/kg
+    // Maintenance: 1.5–3 mg/kg/dose
+    if (bw != null && bw > 0) {
+      const loading = 8 * bw;
+      const mMin = 1.5 * bw;
+      const mMax = 3 * bw;
+
+      setText("loadingDoseText", `${loading.toFixed(2)} mg`);
+      setText("maintenanceDoseText", `${mMin.toFixed(2)} to ${mMax.toFixed(2)} mg`);
+
+      // ช่อง Recommended/Interval ใน _dose_ctx_block (id จริง: doseText / intervalText)
+      setText("doseText", "Loading 8 mg/kg; Maintenance 1.5–3 mg/kg/dose");
+      setText("intervalText", "every 8–12 hours");
+    } else {
+      // ถ้าไม่มี BW ให้คงไว้เป็นค่าเริ่มต้น
+      setText("loadingDoseText", "- mg");
+      setText("maintenanceDoseText", "- to - mg");
+    }
+  })();
+  </script>
 
 </body>
 </html>

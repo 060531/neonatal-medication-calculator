@@ -1,64 +1,10 @@
-{# templates/_dose_ctx_block.html #}
-{% set static_build = static_build|default(false) %}
+<!-- templates/_dose_ctx_block.html -->
+<div class="dose-ctx" style="margin: 10px 0 18px; text-align:left; line-height:1.8;">
+  <p><strong>PMA:</strong> <span id="ctx_pma">-</span></p>
+  <p><strong>Calc.:</strong> <span id="ctx_calc">-</span></p>
+  <p><strong>Postnatal Age:</strong> <span id="ctx_pna">-</span></p>
+  <p><strong>Birth Weight (BW):</strong> <span id="ctx_bw">-</span></p>
 
-<section class="dose-ctx" aria-label="Patient context">
-  <p><strong>PMA:</strong>
-    <span id="pmaText">
-      {% if not static_build and pma_weeks is not none and pma_days is not none %}
-        {{ pma_weeks }} weeks and {{ pma_days }} days
-      {% else %}
-        -
-      {% endif %}
-    </span>
-  </p>
-
-  <p><strong>Calc.:</strong>
-    <span id="calcText">
-      {% if not static_build and calc is not none %}
-        {{ calc }} weeks
-      {% else %}
-        -
-      {% endif %}
-    </span>
-  </p>
-
-  <p><strong>Postnatal Age:</strong>
-    <span id="postText">
-      {% if not static_build and postnatal_days is not none %}
-        {{ postnatal_days }} days
-      {% else %}
-        -
-      {% endif %}
-    </span>
-  </p>
-
-  <p><strong>Birth Weight (BW):</strong>
-    <span class="highlight-dose" id="bwText">
-      {% if not static_build and bw is not none %}
-        {{ bw|fmt(3) }} kg
-      {% else %}
-        - kg
-      {% endif %}
-    </span>
-  </p>
-
-  <p><strong>Recommended Dose:</strong>
-    <span class="highlight-dose" id="doseText">
-      {% if not static_build and calculated_dose is not none %}
-        {{ calculated_dose|fmt_int }} mg/dose
-      {% else %}
-        - mg/dose
-      {% endif %}
-    </span>
-  </p>
-
-  <p><strong>Interval:</strong>
-    <span class="highlight-dose" id="intervalText">
-      {% if not static_build and interval %}
-        {{ interval }}
-      {% else %}
-        -
-      {% endif %}
-    </span>
-  </p>
-</section>
+  <p><strong>Recommended Dose:</strong> <span id="doseText">-</span></p>
+  <p><strong>Interval:</strong> <span id="intervalText">-</span></p>
+</div>

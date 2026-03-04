@@ -220,32 +220,36 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="{% if (bw|nz(0)) <= 0.8 %} highlight {% endif %}">
-          <td>800 g or less</td>
-          <td>16 mg/kg/dose every 48 hours</td>
-          <td>20 mg/kg/dose every 42 hours</td>
-        </tr>
-        <tr class="{% if (bw|nz(0)) > 0.8 and (bw|nz(0)) <= 1.2 %} highlight {% endif %}">
-          <td>801 to 1200 g</td>
-          <td>16 mg/kg/dose every 42 hours</td>
-          <td>20 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="{% if (bw|nz(0)) > 1.2 and (bw|nz(0)) <= 2.0 %} highlight {% endif %}">
-          <td>1201 to 2000 g</td>
-          <td>15 mg/kg/dose every 36 hours</td>
-          <td>18 mg/kg/dose every 30 hours</td>
-        </tr>
-        <tr class="{% if (bw|nz(0)) > 2.0 and (bw|nz(0)) <= 2.8 %} highlight {% endif %}">
-          <td>2001 to 2800 g</td>
-          <td>15 mg/kg/dose every 36 hours</td>
-          <td>18 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="{% if bw0 > 2.8 %} highlight {% endif %}">
-          <td>2800 g or greater</td>
-          <td>15 mg/kg/dose every 30 hours</td>
-          <td>18 mg/kg/dose every 20 hours</td>
-        </tr>
-      </tbody>
+  <tr id="w_le_0_8">
+    <td>800 g or less</td>
+    <td>16 mg/kg/dose every 48 hours</td>
+    <td>20 mg/kg/dose every 42 hours</td>
+  </tr>
+
+  <tr id="w_0_8_1_2">
+    <td>801 to 1200 g</td>
+    <td>16 mg/kg/dose every 42 hours</td>
+    <td>20 mg/kg/dose every 36 hours</td>
+  </tr>
+
+  <tr id="w_1_2_2_0">
+    <td>1201 to 2000 g</td>
+    <td>15 mg/kg/dose every 36 hours</td>
+    <td>18 mg/kg/dose every 30 hours</td>
+  </tr>
+
+  <tr id="w_2_0_2_8">
+    <td>2001 to 2800 g</td>
+    <td>15 mg/kg/dose every 36 hours</td>
+    <td>18 mg/kg/dose every 24 hours</td>
+  </tr>
+
+  <tr id="w_gt_2_8">
+    <td>2800 g or greater</td>
+    <td>15 mg/kg/dose every 30 hours</td>
+    <td>18 mg/kg/dose every 20 hours</td>
+  </tr>
+</tbody>
     </table>
   </div>
 
@@ -264,37 +268,42 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="{% if (pw|nz(0)) <= 29 and (pnd|nz(0)) <= 7 %} highlight {% endif %}">
-          <td>29 weeks or less</td>
-          <td>0 to 7 days</td>
-          <td>14 mg/kg/dose every 48 hours</td>
-        </tr>
-        <tr class="{% if (pw|nz(0)) <= 29 and ((pnd|nz(0)) >= 8 and (pnd|nz(0)) <= 28) %} highlight {% endif %}">
-          <td>29 weeks or less</td>
-          <td>8 to 28 days</td>
-          <td>12 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="{% if (pw|nz(0)) <= 29 and (pnd|nz(0)) > 28 %} highlight {% endif %}">
-          <td>29 weeks or less</td>
-          <td>29 days or older</td>
-          <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="{% if ((pw|nz(0)) >= 30 and (pw|nz(0)) <= 34) and (pnd|nz(0)) <= 7 %} highlight {% endif %}">
-          <td>30 to 34 weeks</td>
-          <td>0 to 7 days</td>
-          <td>12 mg/kg/dose every 36 hours</td>
-        </tr>
-        <tr class="{% if ((pw|nz(0)) >= 30 and (pw|nz(0)) <= 34) and (pnd|nz(0)) > 7 %} highlight {% endif %}">
-          <td>30 to 34 weeks</td>
-          <td>8 days or older</td>
-          <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-        <tr class="{% if pw >= 35 %} highlight {% endif %}">
-          <td>35 weeks or more</td>
-          <td>All ages</td>
-          <td>12 mg/kg/dose every 24 hours</td>
-        </tr>
-      </tbody>
+  <tr id="p_le29_0_7">
+    <td>29 weeks or less</td>
+    <td>0 to 7 days</td>
+    <td>14 mg/kg/dose every 48 hours</td>
+  </tr>
+
+  <tr id="p_le29_8_28">
+    <td>29 weeks or less</td>
+    <td>8 to 28 days</td>
+    <td>12 mg/kg/dose every 36 hours</td>
+  </tr>
+
+  <tr id="p_le29_29p">
+    <td>29 weeks or less</td>
+    <td>29 days or older</td>
+    <td>12 mg/kg/dose every 24 hours</td>
+  </tr>
+
+  <tr id="p_30_34_0_7">
+    <td>30 to 34 weeks</td>
+    <td>0 to 7 days</td>
+    <td>12 mg/kg/dose every 36 hours</td>
+  </tr>
+
+  <tr id="p_30_34_8p">
+    <td>30 to 34 weeks</td>
+    <td>8 days or older</td>
+    <td>12 mg/kg/dose every 24 hours</td>
+  </tr>
+
+  <tr id="p_ge35_all">
+    <td>35 weeks or more</td>
+    <td>All ages</td>
+    <td>12 mg/kg/dose every 24 hours</td>
+  </tr>
+</tbody>
     </table>
   </div>
 
@@ -643,6 +652,83 @@ days, thawed, and stored at 25 degrees C had utility times of 24 hours</p>
   <a href="javascript:history.back()" class="back-btn alt">⬅ Back</a>
   <a href="{{ u('index') }}" class="back-btn">🏠 Back to Home</a>
 </div>
+<script>
+(function () {
+  const qs = new URLSearchParams(location.search);
+
+  const bw  = parseFloat(qs.get("bw") || "");
+  const pnd = parseInt(qs.get("postnatal_days") || "", 10);
+  const pw  = parseFloat(qs.get("pma_weeks") || "");
+
+  if (!Number.isFinite(bw)) return;
+
+  // ล้าง highlight เก่า (กัน build ใส่มาผิด)
+  document.querySelectorAll("tr.highlight").forEach(tr => tr.classList.remove("highlight"));
+
+  const isOld14 = Number.isFinite(pnd) && pnd >= 14;
+
+  // ------- Weight-based table -------
+  let weightRowId, mgPerKg, intervalHr;
+
+  if (bw <= 0.8) {
+    weightRowId = "w_le_0_8";
+    mgPerKg = isOld14 ? 20 : 16;
+    intervalHr = isOld14 ? 42 : 48;
+  } else if (bw <= 1.2) {
+    weightRowId = "w_0_8_1_2";
+    mgPerKg = isOld14 ? 20 : 16;
+    intervalHr = isOld14 ? 36 : 42;
+  } else if (bw <= 2.0) {
+    weightRowId = "w_1_2_2_0";
+    mgPerKg = isOld14 ? 18 : 15;
+    intervalHr = isOld14 ? 30 : 36;
+  } else if (bw <= 2.8) {
+    weightRowId = "w_2_0_2_8";
+    mgPerKg = isOld14 ? 18 : 15;
+    intervalHr = isOld14 ? 24 : 36;
+  } else {
+    weightRowId = "w_gt_2_8";
+    mgPerKg = isOld14 ? 18 : 15;
+    intervalHr = isOld14 ? 20 : 30;
+  }
+
+  const trW = document.getElementById(weightRowId);
+  if (trW) trW.classList.add("highlight");
+
+  // ------- PMA/Postnatal table -------
+  if (Number.isFinite(pw) && Number.isFinite(pnd)) {
+    let pmaRowId;
+    if (pw <= 29) {
+      if (pnd <= 7) pmaRowId = "p_le29_0_7";
+      else if (pnd <= 28) pmaRowId = "p_le29_8_28";
+      else pmaRowId = "p_le29_29p";
+    } else if (pw <= 34) {
+      if (pnd <= 7) pmaRowId = "p_30_34_0_7";
+      else pmaRowId = "p_30_34_8p";
+    } else {
+      pmaRowId = "p_ge35_all";
+    }
+    const trP = document.getElementById(pmaRowId);
+    if (trP) trP.classList.add("highlight");
+  }
+
+  // ------- (optional) อัปเดตค่าที่โชว์ในหน้า ถ้ามี element id เหล่านี้ -------
+  const doseMg = mgPerKg * bw;
+
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  // คุณมี doseText2 อยู่แล้วในหน้า
+  setText("doseText2", `${Math.round(doseMg)} mg/dose`);
+
+  // ถ้าหน้า header (จาก _dose_ctx_block) มี id ชุดนี้ ก็จะอัปเดตให้ด้วย
+  setText("doseText", `${Math.round(doseMg)} mg/dose`);
+  setText("intervalText", `every ${intervalHr} hours`);
+  setText("bwText", `${bw.toFixed(3)} kg`);
+})();
+</script>
 
 </body>
 </html>

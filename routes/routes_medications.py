@@ -15,8 +15,6 @@ import math
 
 meds_bp = Blueprint("meds", __name__)
 
-meds_bp = Blueprint("meds_bp", __name__)
-
 # =========================
 # ==== Global Settings ====
 # =========================

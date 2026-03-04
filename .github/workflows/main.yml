@@ -22,3 +22,6 @@ jobs:
           git add docs
           git commit -m "docs: rebuild" || echo "no changes"
           git push
+          
+      - name: Link check (docs)
+        run: python tools/check_links.py docs
